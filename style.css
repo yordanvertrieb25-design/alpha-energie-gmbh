@@ -202,12 +202,26 @@ h3 { font-size: 1.5rem; }
     margin: 0 auto;
 }
 
+.logo-container {
+    display: flex;
+    align-items: center;
+}
+
 .logo {
     font-size: 1.5rem;
-    font-weight: 700;
-    color: var(--accent-orange);
+    font-weight: 800;
+    color: var(--primary-color);
+    text-decoration: none;
     letter-spacing: -0.5px;
+    display: flex;
+    align-items: center;
     white-space: nowrap;
+}
+
+.nav-logo {
+    max-height: 40px;
+    width: auto;
+    display: block;
 }
 
 .nav-list {
@@ -552,10 +566,18 @@ section {
     padding: 5rem 0 2rem;
 }
 
-.footer-logo {
+.footer-title {
     font-size: 1.5rem;
+    font-weight: 700;
     margin-bottom: 1rem;
-    color: var(--accent-orange);
+    color: var(--primary-color);
+}
+
+.footer-logo {
+    max-height: 50px;
+    width: auto;
+    margin-bottom: 1.5rem;
+    display: block;
 }
 
 .footer-desc {
