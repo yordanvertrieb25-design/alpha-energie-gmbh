@@ -7,12 +7,14 @@
 
 :root {
     /* Color Palette */
-    --bg-orange: #e65c23; /* Matching the photo */
+    --primary-color: #ef8a00; /* New website-wide orange */
+    --primary-dark: #d67a00; /* Slightly darker shade for hovers */
+    --bg-orange: #ef8a00; /* Hero background orange */
     --bg-light: #ffffff;
     --bg-alt: #f8f9fa;
     --text-main: #1f2937;
     --text-muted: #4b5563;
-    --accent-orange: #e65c23;
+    --accent-orange: #ef8a00;
     
     /* Glassmorphism */
     --glass-bg: rgba(255, 255, 255, 0.95);
