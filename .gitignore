@@ -1,0 +1,6 @@
+node_modules/
+*.log
+.gemini/
+vc_redist.exe
+.agents/
+
