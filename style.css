@@ -404,7 +404,7 @@ h3 { font-size: 1.5rem; }
     max-width: none;
     object-fit: contain;
     object-position: bottom center;
-    transform: scale(1.4) translateY(20%); /* Moved further down to keep head visible */
+    transform: scale(1.15) translateY(10%); /* Scaled down for more balanced proportions */
     transform-origin: bottom center;
     filter: drop-shadow(0 20px 40px rgba(0, 0, 0, 0.3));
     display: block;
@@ -1873,7 +1873,7 @@ section {
         font-size: 0.88rem;
     }
     .hero-image {
-        transform: scale(1.22) translateY(12%) !important;
+        transform: scale(1.05) translateY(8%) !important;
     }
     .hero-grid {
         gap: 1.5rem;
