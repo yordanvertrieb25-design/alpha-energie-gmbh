@@ -1152,3 +1152,258 @@ section {
         transition-delay: 0s !important;
     }
 }
+
+/* ==========================================================================
+   New Homepage Context Sections (Stats, Portfolio, Benefits, Onboarding)
+   ========================================================================== */
+
+/* 1. Zahlen & Fakten (Stats) */
+.stats-section {
+    background: var(--text-main);
+    color: #ffffff;
+    padding: var(--space-4xl) 0;
+    position: relative;
+    overflow: hidden;
+}
+
+.stats-section::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(239, 138, 0, 0.08) 0%, transparent 60%);
+    pointer-events: none;
+}
+
+.stat-card {
+    text-align: center;
+    padding: var(--space-xxl);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.02);
+    backdrop-filter: blur(10px);
+    transition: border-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.stat-card:hover {
+    border-color: rgba(239, 138, 0, 0.4);
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(239, 138, 0, 0.1);
+}
+
+.stat-number {
+    font-size: 3.5rem;
+    font-weight: 700;
+    color: var(--accent-orange);
+    margin-bottom: var(--space-sm);
+    line-height: 1;
+    text-shadow: 0 0 20px rgba(239, 138, 0, 0.25);
+}
+
+.stat-label {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #e5e7eb;
+    margin-bottom: var(--space-xs);
+}
+
+.stat-desc {
+    font-size: 0.9rem;
+    color: #9ca3af;
+}
+
+/* 2. Produktportfolio */
+.portfolio-section {
+    padding: var(--space-5xl) 0;
+    background: var(--bg-light);
+}
+
+.portfolio-card {
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    border-radius: 16px;
+    padding: var(--space-xxl);
+    background: var(--bg-light);
+    transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+    box-shadow: var(--shadow-sm);
+}
+
+.portfolio-card:hover {
+    transform: translateY(-8px);
+    box-shadow: var(--shadow-xl), var(--shadow-glow);
+    border-color: rgba(239, 138, 0, 0.25);
+}
+
+.portfolio-icon-wrapper {
+    width: 52px;
+    height: 52px;
+    background: rgba(239, 138, 0, 0.08);
+    color: var(--accent-orange);
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.6rem;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.portfolio-card:hover .portfolio-icon-wrapper {
+    background: var(--accent-orange);
+    color: #ffffff;
+    transform: scale(1.05);
+}
+
+.portfolio-title {
+    font-size: 1.35rem;
+    font-weight: 600;
+    color: var(--text-main);
+    margin-top: 0.5rem;
+}
+
+.portfolio-text {
+    font-size: 0.95rem;
+    color: var(--text-muted);
+    line-height: 1.65;
+    margin-bottom: 0.5rem;
+}
+
+.portfolio-tag {
+    display: inline-block;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--accent-orange);
+    background: rgba(239, 138, 0, 0.08);
+    padding: 0.3rem 0.8rem;
+    border-radius: 20px;
+    align-self: flex-start;
+}
+
+/* 3. Vertriebspartner-Vorteile */
+.benefits-summary-section {
+    padding: var(--space-5xl) 0;
+    background: var(--bg-alt);
+}
+
+.benefit-summary-card {
+    background: var(--bg-light);
+    padding: var(--space-xxl);
+    border-radius: 16px;
+    border: 1px solid rgba(0, 0, 0, 0.04);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: var(--shadow-sm);
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+}
+
+.benefit-summary-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-lg);
+    border-color: rgba(239, 138, 0, 0.2);
+}
+
+.benefit-summary-icon {
+    color: var(--accent-orange);
+    margin-bottom: 0.5rem;
+    display: inline-flex;
+}
+
+.benefit-summary-title {
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: var(--text-main);
+}
+
+.benefit-summary-text {
+    font-size: 0.95rem;
+    color: var(--text-muted);
+    line-height: 1.6;
+}
+
+/* 4. Der Onboarding-Prozess */
+.onboarding-section {
+    padding: var(--space-5xl) 0;
+    background: var(--bg-light);
+}
+
+.onboarding-steps {
+    display: flex;
+    justify-content: space-between;
+    gap: 2.5rem;
+    margin-top: var(--space-3xl);
+    position: relative;
+}
+
+.onboarding-step {
+    flex: 1;
+    text-align: center;
+    position: relative;
+    z-index: 2;
+}
+
+.onboarding-badge {
+    width: 64px;
+    height: 64px;
+    background: var(--bg-light);
+    border: 3px solid var(--accent-orange);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: var(--accent-orange);
+    margin: 0 auto var(--space-lg) auto;
+    box-shadow: var(--shadow-md);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.onboarding-step:hover .onboarding-badge {
+    background: var(--accent-orange);
+    color: #ffffff;
+    transform: scale(1.1);
+    box-shadow: var(--shadow-glow);
+}
+
+.onboarding-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: var(--space-sm);
+    color: var(--text-main);
+}
+
+.onboarding-text {
+    font-size: 0.95rem;
+    color: var(--text-muted);
+    line-height: 1.6;
+}
+
+/* Connector line on desktop */
+@media (min-width: 769px) {
+    .onboarding-steps::before {
+        content: '';
+        position: absolute;
+        top: 32px;
+        left: 15%;
+        right: 15%;
+        height: 2px;
+        background: rgba(239, 138, 0, 0.15);
+        z-index: 1;
+    }
+}
+
+@media (max-width: 768px) {
+    .onboarding-steps {
+        flex-direction: column;
+        gap: 3rem;
+    }
+    .onboarding-step {
+        max-width: 400px;
+        margin: 0 auto;
+    }
+}
