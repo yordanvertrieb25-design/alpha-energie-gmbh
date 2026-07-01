@@ -78,55 +78,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         });
     });
 
-    // 4. Typewriter Effect (HTML-Aware)
-    const heroTitle = document.querySelector('.hero-title');
-    if (heroTitle) {
-        const lines = heroTitle.innerHTML.split(/<br\s*\/?>/i);
-        heroTitle.innerHTML = '';
-        
-        const cursor = document.createElement('span');
-        cursor.textContent = '|';
-        cursor.style.animation = 'blink 1s step-end infinite';
-        cursor.style.fontWeight = '300';
-        cursor.style.opacity = '0.7';
-        cursor.style.marginLeft = '2px';
-        
-        let currentLine = 0;
-        let currentChar = 0;
-        
-        function typeWriter() {
-            if (currentLine < lines.length) {
-                const lineText = lines[currentLine];
-                if (currentChar < lineText.length) {
-                    if (cursor.parentNode) {
-                        cursor.remove();
-                    }
-                    
-                    let typedHTML = '';
-                    for (let l = 0; l < currentLine; l++) {
-                        typedHTML += lines[l] + '<br>';
-                    }
-                    typedHTML += lineText.substring(0, currentChar + 1);
-                    heroTitle.innerHTML = typedHTML;
-                    
-                    heroTitle.appendChild(cursor);
-                    currentChar++;
-                    setTimeout(typeWriter, 50);
-                } else {
-                    currentLine++;
-                    currentChar = 0;
-                    setTimeout(typeWriter, 120);
-                }
-            } else {
-                setTimeout(() => {
-                    cursor.style.transition = 'opacity 1s ease';
-                    cursor.style.opacity = '0';
-                }, 2000);
-            }
-        }
-        
-        setTimeout(typeWriter, 400);
-    }
+
 
     // --- GSAP Animation Orchestration ---
     function initGSAPAnimations() {
