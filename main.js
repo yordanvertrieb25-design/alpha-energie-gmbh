@@ -347,4 +347,280 @@ document.addEventListener("DOMContentLoaded", async () => {
             handleTimelineScroll();
         }
     }
+
+    // 5. Inline Form Validation and Handling
+    const validationRules = {
+        fullName: {
+            validate: (val) => val.trim().split(/\s+/).length >= 2,
+            error: "Bitte geben Sie Ihren Vor- und Nachnamen an."
+        },
+        email: {
+            validate: (val) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val.trim()),
+            error: "Geben Sie eine gültige E-Mail-Adresse ein."
+        },
+        phone: {
+            validate: (val) => /^(?:\+49|0049|0)[1-9][0-9\s.-]{5,15}$/.test(val.replace(/\s+/g, '')),
+            error: "Ungültiges Format. Beispiel: 0170 1234567"
+        },
+        experience: {
+            validate: (val) => val !== null && val !== undefined && val !== "",
+            error: "Bitte wählen Sie Ihre Vertriebserfahrung aus."
+        }
+    };
+
+    const partnerForm = document.getElementById("application-form");
+    if (partnerForm) {
+        // Form submit handler
+        partnerForm.addEventListener("submit", (e) => {
+            e.preventDefault();
+            
+            let isValid = true;
+            const fields = ["fullName", "email", "phone", "experience"];
+            
+            fields.forEach(fieldId => {
+                const input = document.getElementById(fieldId);
+                if (!input) return;
+                const errorDiv = input.closest("div:not(.select-wrapper)").querySelector(".error-msg");
+                const rule = validationRules[fieldId];
+                
+                if (!rule.validate(input.value)) {
+                    input.style.borderColor = "#ef4444";
+                    if (errorDiv && errorDiv.classList.contains("error-msg")) {
+                        errorDiv.textContent = rule.error;
+                        errorDiv.style.display = "block";
+                    }
+                    isValid = false;
+                } else {
+                    input.style.borderColor = "#10b981";
+                    if (errorDiv && errorDiv.classList.contains("error-msg")) {
+                        errorDiv.style.display = "none";
+                    }
+                }
+            });
+            
+            if (isValid) {
+                const submitBtn = partnerForm.querySelector('button[type="submit"]');
+                if (submitBtn) {
+                    submitBtn.disabled = true;
+                    submitBtn.textContent = "Verarbeite...";
+                }
+                
+                // Read from the dropdown select element and other fields
+                const fullNameVal = document.getElementById("fullName").value;
+                const emailVal = document.getElementById("email").value;
+                const phoneVal = document.getElementById("phone").value;
+                const experienceVal = document.getElementById("experience").value;
+                
+                console.log("Submitting Partner Application:", {
+                    fullName: fullNameVal,
+                    email: emailVal,
+                    phone: phoneVal,
+                    experience: experienceVal
+                });
+                
+                // Simulate AJAX submission with smooth success transition
+                setTimeout(() => {
+                    const successContainer = document.getElementById("form-success-container");
+                    const successPhone = document.getElementById("success-phone");
+                    const phoneInput = document.getElementById("phone");
+                    
+                    if (successPhone && phoneInput) {
+                        successPhone.textContent = phoneInput.value;
+                    }
+                    
+                    // Fade out form and fade in success container
+                    partnerForm.style.transition = "opacity 0.3s ease";
+                    partnerForm.style.opacity = "0";
+                    setTimeout(() => {
+                        partnerForm.style.display = "none";
+                        if (successContainer) {
+                            successContainer.style.display = "block";
+                            successContainer.style.opacity = "0";
+                            successContainer.style.transition = "opacity 0.3s ease";
+                            setTimeout(() => {
+                                successContainer.style.opacity = "1";
+                            }, 50);
+                        }
+                    }, 300);
+                }, 1000);
+            }
+        });
+        
+        // Add dynamic input validations on blur or change
+        ["fullName", "email", "phone", "experience"].forEach(fieldId => {
+            const input = document.getElementById(fieldId);
+            if (!input) return;
+            
+            if (input.tagName !== "SELECT") {
+                input.addEventListener("blur", () => {
+                    const errorDiv = input.closest("div:not(.select-wrapper)").querySelector(".error-msg");
+                    const rule = validationRules[fieldId];
+                    
+                    if (input.value.trim() !== "") {
+                        if (!rule.validate(input.value)) {
+                            input.style.borderColor = "#ef4444";
+                            if (errorDiv && errorDiv.classList.contains("error-msg")) {
+                                errorDiv.textContent = rule.error;
+                                errorDiv.style.display = "block";
+                            }
+                        } else {
+                            input.style.borderColor = "#10b981";
+                            if (errorDiv && errorDiv.classList.contains("error-msg")) {
+                                errorDiv.style.display = "none";
+                            }
+                        }
+                    }
+                });
+                
+                input.addEventListener("input", () => {
+                    input.style.borderColor = "rgba(0,0,0,0.1)";
+                });
+            } else {
+                input.addEventListener("change", () => {
+                    const errorDiv = input.closest("div:not(.select-wrapper)").querySelector(".error-msg");
+                    const rule = validationRules[fieldId];
+                    if (!rule.validate(input.value)) {
+                        input.style.borderColor = "#ef4444";
+                        if (errorDiv && errorDiv.classList.contains("error-msg")) {
+                            errorDiv.textContent = rule.error;
+                            errorDiv.style.display = "block";
+                        }
+                    } else {
+                        input.style.borderColor = "#10b981";
+                        if (errorDiv && errorDiv.classList.contains("error-msg")) {
+                            errorDiv.style.display = "none";
+                        }
+                    }
+                });
+            }
+        });
+    }
+
+    // --- Commission Calculator Logic ---
+    const calcSlider = document.getElementById("contract-slider");
+    const sliderVal = document.getElementById("slider-val");
+    const sofortProv = document.getElementById("sofort-provision");
+    const bestandsProv = document.getElementById("bestands-provision");
+    const gesamtProv = document.getElementById("gesamt-provision");
+    const statusBadge = document.getElementById("status-tier-badge");
+    const nextBonusText = document.getElementById("status-tier-next-bonus");
+    const progressBar = document.getElementById("status-progress-bar");
+    
+    if (calcSlider) {
+        const animateNumber = (el, targetValue, duration = 150) => {
+            if (!el) return;
+            const startValue = parseInt(el.getAttribute('data-current-val') || '0', 10);
+            if (startValue === targetValue) return;
+
+            el.setAttribute('data-current-val', targetValue);
+            
+            const startTime = performance.now();
+            
+            const update = (now) => {
+                const elapsed = now - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                
+                // Easing: easeOutQuad
+                const ease = progress * (2 - progress);
+                const current = Math.round(startValue + (targetValue - startValue) * ease);
+                
+                el.textContent = current.toLocaleString('de-DE');
+                
+                if (progress < 1) {
+                    el.animFrame = requestAnimationFrame(update);
+                } else {
+                    el.textContent = targetValue.toLocaleString('de-DE');
+                }
+            };
+            
+            if (el.animFrame) {
+                cancelAnimationFrame(el.animFrame);
+            }
+            el.animFrame = requestAnimationFrame(update);
+        };
+
+        const updateSliderTrack = (slider) => {
+            const min = slider.min ? parseFloat(slider.min) : 5;
+            const max = slider.max ? parseFloat(slider.max) : 100;
+            const val = parseFloat(slider.value);
+            const percentage = ((val - min) / (max - min)) * 100;
+            slider.style.background = `linear-gradient(to right, var(--accent-orange) ${percentage}%, rgba(0, 0, 0, 0.05) ${percentage}%)`;
+        };
+
+        const updateCalculator = () => {
+            const val = parseInt(calcSlider.value, 10);
+            if (sliderVal) {
+                sliderVal.textContent = val;
+            }
+            
+            // Computations
+            const sofort = val * 150;
+            const bestand = val * 12;
+            const gesamt = Math.round(val * 24.50); // (val * 150 / 12) + (val * 12) = val * 24.5
+            
+            // Update displays with animation
+            animateNumber(sofortProv, sofort);
+            animateNumber(bestandsProv, bestand);
+            animateNumber(gesamtProv, gesamt);
+            
+            // Update slider background track
+            updateSliderTrack(calcSlider);
+            
+            // Update status progress bar and markers
+            if (progressBar && statusBadge && nextBonusText) {
+                const percentage = ((val - 5) / 95) * 100;
+                progressBar.style.width = `${percentage}%`;
+                
+                const marker30 = document.querySelector('.status-step-marker.step-30');
+                const marker70 = document.querySelector('.status-step-marker.step-70');
+                
+                if (marker30) {
+                    if (val >= 30) marker30.classList.add('reached');
+                    else marker30.classList.remove('reached');
+                }
+                
+                if (marker70) {
+                    if (val >= 70) marker70.classList.add('reached');
+                    else marker70.classList.remove('reached');
+                }
+                
+                statusBadge.className = 'status-tier-badge'; // reset classes
+                
+                if (val < 30) {
+                    statusBadge.textContent = 'Einsteiger-Status';
+                    statusBadge.classList.add('tier-einsteiger');
+                    nextBonusText.innerHTML = 'Nächster Bonus ab <strong>30</strong> Verträgen!';
+                } else if (val < 70) {
+                    statusBadge.textContent = 'Profi-Status';
+                    statusBadge.classList.add('tier-profi');
+                    nextBonusText.innerHTML = '<strong>+10%</strong> Sonderbonus freigeschaltet!';
+                } else {
+                    statusBadge.textContent = 'Elite-Status';
+                    statusBadge.classList.add('tier-elite');
+                    nextBonusText.innerHTML = '<strong>+20%</strong> Premium-Provisionsstufe aktiv!';
+                }
+            }
+        };
+        
+        calcSlider.addEventListener("input", updateCalculator);
+        
+        // Initial setup of data-current-val so the initial animation runs from 0 or baseline
+        if (sofortProv) sofortProv.setAttribute('data-current-val', '0');
+        if (bestandsProv) bestandsProv.setAttribute('data-current-val', '0');
+        if (gesamtProv) gesamtProv.setAttribute('data-current-val', '0');
+        
+        updateCalculator();
+    }
+
+    // Smooth scroll for CTA button
+    const ctaBtn = document.querySelector('#calculator-section .btn-secondary');
+    if (ctaBtn) {
+        ctaBtn.addEventListener('click', (e) => {
+            const target = document.querySelector('#partner-form');
+            if (target) {
+                e.preventDefault();
+                target.scrollIntoView({ behavior: 'smooth' });
+            }
+        });
+    }
 });

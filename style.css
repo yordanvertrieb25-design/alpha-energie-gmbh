@@ -324,12 +324,14 @@ h3 { font-size: 1.5rem; }
 
 /* Hero Section */
 .hero-section {
-    height: calc(100vh - 80px); /* Fits exactly on screen minus header */
-    min-height: 600px; /* Prevents it from breaking on very small screens */
+    min-height: calc(100vh - 80px);
+    height: auto;
     position: relative;
     background: var(--gradient-hero);
     overflow: hidden;
-    padding: 0 2rem; /* Override default section vertical padding */
+    padding: 6rem 2rem;
+    display: flex;
+    align-items: center;
 }
 
 .hero-section::before {
@@ -1407,3 +1409,484 @@ section {
         margin: 0 auto;
     }
 }
+
+/* Inline Form and Testimonial Page Enhancements */
+.form-input {
+    width: 100%;
+    padding: 0.8rem 1.2rem;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    font-family: var(--font-main);
+    font-size: 1rem;
+    background: rgba(255, 255, 255, 0.8);
+    transition: border-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+.form-input:focus {
+    outline: none;
+    border-color: var(--accent-orange);
+    box-shadow: var(--shadow-glow);
+    background: #ffffff;
+}
+
+.form-label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: var(--text-main);
+    font-size: 0.95rem;
+}
+
+.error-msg {
+    color: #ef4444;
+    font-size: 0.85rem;
+    margin-top: 0.35rem;
+    display: none;
+}
+
+.select-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+.form-select {
+    width: 100%;
+    padding: 0.8rem 2.5rem 0.8rem 1.2rem;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    font-family: var(--font-main);
+    font-size: 1rem;
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+    color: var(--text-main);
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    cursor: pointer;
+    transition: border-color 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
+}
+
+.form-select:focus {
+    outline: none;
+    border-color: var(--accent-orange);
+    box-shadow: var(--shadow-glow);
+    background: #ffffff;
+}
+
+.select-arrow {
+    position: absolute;
+    right: 1.2rem;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+    display: flex;
+    align-items: center;
+    color: var(--text-muted);
+    transition: transform 0.25s ease, color 0.25s ease;
+}
+
+.form-select:focus + .select-arrow {
+    color: var(--accent-orange);
+    transform: translateY(-50%) rotate(180deg);
+}
+
+.form-select option {
+    background: #ffffff;
+    color: var(--text-main);
+    font-family: var(--font-main);
+    padding: 0.5rem;
+}
+
+.testimonial-card {
+    border: 1px solid rgba(239, 138, 0, 0.08);
+}
+
+/* ==========================================================================
+   Commission Calculator Section
+   ========================================================================== */
+
+/* Slider container and elements */
+.calculator-slider-container {
+    position: relative;
+    margin: 1.5rem 0 2.5rem 0;
+}
+
+.calculator-slider-container label {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text-main);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.2rem;
+}
+
+.slider-value-display {
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: var(--accent-orange);
+    background: rgba(239, 138, 0, 0.06);
+    padding: 0.25rem 1.2rem;
+    border-radius: 30px;
+    display: inline-block;
+    border: 1px solid rgba(239, 138, 0, 0.15);
+}
+
+.custom-slider {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 10px;
+    border-radius: 5px;
+    background: rgba(0, 0, 0, 0.05);
+    outline: none;
+    margin: 0;
+    cursor: pointer;
+    transition: background 0.15s ease;
+}
+
+/* Webkit browser thumb */
+.custom-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: #ffffff;
+    border: 4px solid var(--accent-orange);
+    cursor: pointer;
+    box-shadow: var(--shadow-md);
+    transition: transform 0.15s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.15s ease;
+}
+
+.custom-slider::-webkit-slider-thumb:hover {
+    transform: scale(1.15);
+    box-shadow: 0 0 0 8px rgba(239, 138, 0, 0.15);
+}
+
+/* Firefox browser thumb */
+.custom-slider::-moz-range-thumb {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: #ffffff;
+    border: 4px solid var(--accent-orange);
+    cursor: pointer;
+    box-shadow: var(--shadow-md);
+    transition: transform 0.15s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.15s ease;
+}
+
+.custom-slider::-moz-range-thumb:hover {
+    transform: scale(1.15);
+    box-shadow: 0 0 0 8px rgba(239, 138, 0, 0.15);
+}
+
+.slider-labels {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 0.8rem;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    font-weight: 600;
+}
+
+/* Progress Bar & Status Tier Styling */
+.status-tier-container {
+    background: rgba(239, 138, 0, 0.02);
+    border: 1px solid rgba(239, 138, 0, 0.06);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 2.5rem;
+    transition: all 0.3s ease;
+}
+
+.status-tier-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.status-tier-badge {
+    font-size: 0.85rem;
+    font-weight: 700;
+    padding: 0.35rem 0.9rem;
+    border-radius: 20px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    transition: all 0.3s ease;
+}
+
+.status-tier-badge.tier-einsteiger {
+    background: rgba(75, 85, 99, 0.1);
+    color: var(--text-muted);
+}
+
+.status-tier-badge.tier-profi {
+    background: rgba(239, 138, 0, 0.1);
+    color: var(--accent-orange);
+    box-shadow: 0 0 10px rgba(239, 138, 0, 0.05);
+}
+
+.status-tier-badge.tier-elite {
+    background: linear-gradient(135deg, rgba(239, 138, 0, 0.1) 0%, rgba(255, 155, 26, 0.2) 100%);
+    color: var(--primary-dark);
+    border: 1px solid rgba(239, 138, 0, 0.2);
+    box-shadow: 0 0 15px rgba(239, 138, 0, 0.1);
+}
+
+.status-tier-next-bonus {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    transition: all 0.3s ease;
+}
+
+.status-progress-track {
+    position: relative;
+    height: 8px;
+    background: rgba(0, 0, 0, 0.05);
+    border-radius: 4px;
+    margin: 1.5rem 0 0.5rem 0;
+}
+
+.status-progress-bar {
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100%;
+    border-radius: 4px;
+    background: linear-gradient(90deg, var(--accent-orange) 0%, #ff9b1a 100%);
+    width: 20%;
+    transition: width 0.4s cubic-bezier(0.1, 0.8, 0.3, 1);
+}
+
+.status-step-marker {
+    position: absolute;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #ffffff;
+    border: 3px solid rgba(0, 0, 0, 0.15);
+    z-index: 2;
+    transition: all 0.3s ease;
+}
+
+.status-step-marker.reached {
+    border-color: var(--accent-orange);
+    background: var(--accent-orange);
+}
+
+.status-step-marker span {
+    position: absolute;
+    top: 16px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: var(--text-muted);
+}
+
+.status-step-marker.reached span {
+    color: var(--accent-orange);
+}
+
+.status-step-marker.step-30 {
+    left: 26.315%;
+}
+
+.status-step-marker.step-70 {
+    left: 68.421%;
+}
+
+/* Calculator Grid & Cards */
+.calculator-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.25rem;
+    margin-bottom: 2.5rem;
+}
+
+@media (max-width: 768px) {
+    .calculator-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.calculator-card {
+    background: var(--bg-alt);
+    padding: 1.5rem;
+    border-radius: 12px;
+    text-align: center;
+    border: 1px solid rgba(0, 0, 0, 0.03);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+}
+
+.calculator-card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-md);
+}
+
+.calculator-card.highlight {
+    background: #ffffff;
+    border: 2px solid var(--accent-orange);
+    box-shadow: var(--shadow-glow);
+}
+
+.calculator-card.highlight:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 30px rgba(239, 138, 0, 0.25);
+}
+
+.calculator-card-title {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    font-weight: 600;
+    margin-bottom: 0.6rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.calculator-card.highlight .calculator-card-title {
+    color: var(--accent-orange);
+}
+
+.calculator-card-value {
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: var(--text-main);
+    line-height: 1.2;
+}
+
+.calculator-card.highlight .calculator-card-value {
+    color: var(--accent-orange);
+    font-size: 2rem;
+}
+
+.calculator-card-period {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin-top: 0.35rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Tooltip container and styling */
+.tooltip-container {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: 0.35rem;
+    color: var(--text-muted);
+    cursor: pointer;
+    vertical-align: middle;
+    transition: color 0.2s ease;
+}
+
+.tooltip-container:hover {
+    color: var(--accent-orange);
+}
+
+.tooltip-icon {
+    font-size: 0.7rem;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    border: 1.5px solid currentColor;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-style: normal;
+}
+
+.tooltip-text {
+    visibility: hidden;
+    width: 200px;
+    background-color: var(--text-main);
+    color: #fff;
+    text-align: center;
+    border-radius: 6px;
+    padding: 0.6rem;
+    position: absolute;
+    z-index: 10;
+    bottom: 130%;
+    left: 50%;
+    transform: translateX(-50%) translateY(8px);
+    opacity: 0;
+    transition: opacity 0.25s ease, transform 0.25s ease, visibility 0.25s ease;
+    font-size: 0.75rem;
+    line-height: 1.3;
+    font-weight: 500;
+    box-shadow: var(--shadow-lg);
+}
+
+.tooltip-text::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    margin-left: -5px;
+    border-width: 5px;
+    border-style: solid;
+    border-color: var(--text-main) transparent transparent transparent;
+}
+
+.tooltip-container:hover .tooltip-text,
+.tooltip-container:focus .tooltip-text {
+    visibility: visible;
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+}
+
+/* ==========================================================================
+   Responsive layout fixes for medium viewports (prevent "zu eng" layout)
+   ========================================================================== */
+@media (max-width: 1380px) {
+    .header-container {
+        padding: 0.8rem 1.5rem;
+    }
+    .nav-list {
+        gap: 1.1rem;
+    }
+    .header-actions {
+        gap: 0.35rem;
+    }
+    .nav-item > a {
+        font-size: 0.88rem;
+    }
+    .header-actions .btn {
+        padding: 0.6rem 1rem;
+        font-size: 0.88rem;
+    }
+    .hero-image {
+        transform: scale(1.22) translateY(12%) !important;
+    }
+    .hero-grid {
+        gap: 1.5rem;
+    }
+}
+
+@media (max-width: 1180px) {
+    .header-actions {
+        display: none; /* Collapses buttons to prevent wrapping on tablet/medium screen widths */
+    }
+    .nav-list {
+        gap: 0.9rem;
+    }
+}
+
+
