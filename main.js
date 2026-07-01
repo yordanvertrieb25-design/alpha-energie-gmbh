@@ -56,9 +56,59 @@ document.addEventListener("DOMContentLoaded", () => {
         }, 100);
     }
     
-    // 5. Typewriter Effect Removed
-    // The typewriter script was destroying <br> tags in the heading and gluing words together.
-    // The CSS fade-in animation (from step 4) is much cleaner and more premium anyway.
+    // 5. Typewriter Effect (HTML-Aware)
+    const heroTitle = document.querySelector('.hero-title');
+    if (heroTitle) {
+        // Split the original HTML content by <br> tags to type line-by-line
+        const lines = heroTitle.innerHTML.split(/<br\s*\/?>/i);
+        heroTitle.innerHTML = '';
+        
+        const cursor = document.createElement('span');
+        cursor.textContent = '|';
+        cursor.style.animation = 'blink 1s step-end infinite';
+        cursor.style.fontWeight = '300';
+        cursor.style.opacity = '0.7';
+        cursor.style.marginLeft = '2px';
+        
+        let currentLine = 0;
+        let currentChar = 0;
+        
+        function typeWriter() {
+            if (currentLine < lines.length) {
+                const lineText = lines[currentLine];
+                if (currentChar < lineText.length) {
+                    if (cursor.parentNode) {
+                        cursor.remove();
+                    }
+                    
+                    // Rebuild typed content with line breaks
+                    let typedHTML = '';
+                    for (let l = 0; l < currentLine; l++) {
+                        typedHTML += lines[l] + '<br>';
+                    }
+                    typedHTML += lineText.substring(0, currentChar + 1);
+                    heroTitle.innerHTML = typedHTML;
+                    
+                    heroTitle.appendChild(cursor);
+                    currentChar++;
+                    setTimeout(typeWriter, 50); // Speed of typing characters
+                } else {
+                    currentLine++;
+                    currentChar = 0;
+                    setTimeout(typeWriter, 120); // Pause between lines
+                }
+            } else {
+                // Done typing, fade out cursor
+                setTimeout(() => {
+                    cursor.style.transition = 'opacity 1s ease';
+                    cursor.style.opacity = '0';
+                }, 2000);
+            }
+        }
+        
+        // Start typing after initial fade-in
+        setTimeout(typeWriter, 400);
+    }
 
     // 6. Mobile Menu Toggle
     const hamburger = document.querySelector('.hamburger');
