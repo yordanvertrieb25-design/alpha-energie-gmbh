@@ -56,38 +56,9 @@ document.addEventListener("DOMContentLoaded", () => {
         }, 100);
     }
     
-    // 5. Typewriter Effect for Hero Title
-    const heroTitle = document.querySelector('.hero-title');
-    if (heroTitle) {
-        const text = heroTitle.textContent;
-        heroTitle.textContent = '';
-        
-        const cursor = document.createElement('span');
-        cursor.textContent = '|';
-        cursor.style.animation = 'blink 1s step-end infinite';
-        cursor.style.fontWeight = '300';
-        cursor.style.opacity = '0.7';
-        
-        let i = 0;
-        
-        // Wait for the hero fade-in to complete
-        setTimeout(() => {
-            const typeWriter = setInterval(() => {
-                if (i < text.length) {
-                    heroTitle.textContent = text.substring(0, i + 1);
-                    heroTitle.appendChild(cursor);
-                    i++;
-                } else {
-                    clearInterval(typeWriter);
-                    // Fade out cursor after done
-                    setTimeout(() => {
-                        cursor.style.transition = 'opacity 1s ease';
-                        cursor.style.opacity = '0';
-                    }, 3000);
-                }
-            }, 60);
-        }, 600);
-    }
+    // 5. Typewriter Effect Removed
+    // The typewriter script was destroying <br> tags in the heading and gluing words together.
+    // The CSS fade-in animation (from step 4) is much cleaner and more premium anyway.
 
     // 6. Mobile Menu Toggle
     const hamburger = document.querySelector('.hamburger');
