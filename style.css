@@ -311,7 +311,7 @@ h3 { font-size: 1.5rem; }
 .hero-content {
     position: relative;
     z-index: 10;
-    max-width: 520px;
+    max-width: 480px; /* Slightly narrower to prevent overlapping with the man */
 }
 
 .hero-title {
@@ -330,7 +330,7 @@ h3 { font-size: 1.5rem; }
 .hero-image-wrapper {
     position: absolute;
     bottom: 0;
-    right: max(5%, calc(50% - 550px)); /* Moved a bit to the right */
+    right: max(2%, calc(50% - 620px)); /* Pushed further to the right for optimal distance */
     height: 90%; /* Leaves space at the top so head isn't cut off */
     z-index: 10;
     display: flex;
