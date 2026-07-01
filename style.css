@@ -311,12 +311,14 @@ h3 { font-size: 1.5rem; }
 .hero-content {
     position: relative;
     z-index: 10;
-    max-width: 450px;
+    max-width: 520px;
 }
 
 .hero-title {
     margin-bottom: 1.5rem;
-    color: #ffffff; /* White text on orange */
+    color: #ffffff;
+    font-size: clamp(2.5rem, 4vw, 3.5rem);
+    line-height: 1.1;
 }
 
 .hero-text {
