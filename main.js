@@ -1,15 +1,17 @@
 document.addEventListener("DOMContentLoaded", () => {
     // 1. Sticky Header Effect
     const header = document.getElementById("main-header");
-    window.addEventListener("scroll", () => {
-        if (window.scrollY > 50) {
-            header.style.background = "rgba(255, 255, 255, 0.95)";
-            header.style.boxShadow = "0 4px 30px rgba(0, 0, 0, 0.1)";
-        } else {
-            header.style.background = "rgba(255, 255, 255, 0.85)";
-            header.style.boxShadow = "none";
-        }
-    });
+    if (header) {
+        window.addEventListener("scroll", () => {
+            if (window.scrollY > 50) {
+                header.style.background = "rgba(255, 255, 255, 0.95)";
+                header.style.boxShadow = "0 4px 30px rgba(0, 0, 0, 0.1)";
+            } else {
+                header.style.background = "rgba(255, 255, 255, 0.85)";
+                header.style.boxShadow = "none";
+            }
+        });
+    }
 
     // 2. Prepare elements for scroll animation
     const animateElements = document.querySelectorAll(
@@ -86,4 +88,40 @@ document.addEventListener("DOMContentLoaded", () => {
             }, 60);
         }, 600);
     }
+
+    // 6. Mobile Menu Toggle
+    const hamburger = document.querySelector('.hamburger');
+    const navList = document.querySelector('.nav-list');
+    
+    if (hamburger && navList) {
+        hamburger.addEventListener('click', () => {
+            navList.classList.toggle('nav-active');
+            
+            // Hamburger Animation
+            const lines = hamburger.querySelectorAll('.hamburger-line');
+            if (navList.classList.contains('nav-active')) {
+                lines[0].style.transform = 'rotate(45deg) translate(5px, 6px)';
+                lines[1].style.opacity = '0';
+                lines[2].style.transform = 'rotate(-45deg) translate(5px, -6px)';
+            } else {
+                lines[0].style.transform = 'none';
+                lines[1].style.opacity = '1';
+                lines[2].style.transform = 'none';
+            }
+        });
+    }
+
+    // 7. Mobile Dropdown Toggle
+    const navItems = document.querySelectorAll('.nav-item.has-dropdown');
+    navItems.forEach(item => {
+        item.addEventListener('click', (e) => {
+            if (window.innerWidth <= 768) {
+                // Prevent link follow if clicking on the main item to open dropdown
+                if (e.target === item.firstElementChild) {
+                    e.preventDefault();
+                    item.classList.toggle('active');
+                }
+            }
+        });
+    });
 });
