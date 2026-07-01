@@ -41,16 +41,49 @@ document.addEventListener("DOMContentLoaded", () => {
     const elementsToAnimate = document.querySelectorAll('.animate-on-scroll');
     elementsToAnimate.forEach(el => observer.observe(el));
     
-    // 4. Hero Content initial animation
+    // 4. Hero Content initial animation (slide from left to right)
     const heroContent = document.querySelector('.hero-content');
     if (heroContent) {
         heroContent.style.opacity = '0';
-        heroContent.style.transform = 'translateY(30px)';
+        heroContent.style.transform = 'translateX(-50px)';
         heroContent.style.transition = 'opacity 1s ease 0.2s, transform 1s ease 0.2s';
         
         setTimeout(() => {
             heroContent.style.opacity = '1';
-            heroContent.style.transform = 'translateY(0)';
+            heroContent.style.transform = 'translateX(0)';
         }, 100);
+    }
+    
+    // 5. Typewriter Effect for Hero Title
+    const heroTitle = document.querySelector('.hero-title');
+    if (heroTitle) {
+        const text = heroTitle.textContent;
+        heroTitle.textContent = '';
+        
+        const cursor = document.createElement('span');
+        cursor.textContent = '|';
+        cursor.style.animation = 'blink 1s step-end infinite';
+        cursor.style.fontWeight = '300';
+        cursor.style.opacity = '0.7';
+        
+        let i = 0;
+        
+        // Wait for the hero fade-in to complete
+        setTimeout(() => {
+            const typeWriter = setInterval(() => {
+                if (i < text.length) {
+                    heroTitle.textContent = text.substring(0, i + 1);
+                    heroTitle.appendChild(cursor);
+                    i++;
+                } else {
+                    clearInterval(typeWriter);
+                    // Fade out cursor after done
+                    setTimeout(() => {
+                        cursor.style.transition = 'opacity 1s ease';
+                        cursor.style.opacity = '0';
+                    }, 3000);
+                }
+            }, 60);
+        }, 600);
     }
 });

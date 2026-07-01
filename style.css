@@ -289,7 +289,8 @@ h3 { font-size: 1.5rem; }
 
 /* Hero Section */
 .hero-section {
-    min-height: 80vh;
+    height: calc(100vh - 80px); /* Fits exactly on screen minus header */
+    min-height: 600px; /* Prevents it from breaking on very small screens */
     position: relative;
     background-color: var(--bg-orange);
     background-image: none; /* Solid orange background */
@@ -302,7 +303,7 @@ h3 { font-size: 1.5rem; }
     align-items: center;
     gap: 3rem;
     width: 100%;
-    min-height: 80vh; /* Takes full height so absolute children align to bottom correctly */
+    height: 100%; /* Takes full height of hero-section */
     position: relative;
     z-index: 10;
 }
@@ -327,7 +328,7 @@ h3 { font-size: 1.5rem; }
 .hero-image-wrapper {
     position: absolute;
     bottom: 0;
-    right: 0%; /* Shifted all the way to the right edge */
+    right: max(5%, calc(50% - 550px)); /* Moved a bit to the right */
     height: 90%; /* Leaves space at the top so head isn't cut off */
     z-index: 10;
     display: flex;
@@ -341,7 +342,7 @@ h3 { font-size: 1.5rem; }
     max-width: none;
     object-fit: contain;
     object-position: bottom center;
-    transform: scale(1.2) translateY(12%);
+    transform: scale(1.4) translateY(20%); /* Moved further down to keep head visible */
     transform-origin: bottom center;
     filter: drop-shadow(0 20px 40px rgba(0, 0, 0, 0.3));
     display: block;
@@ -705,4 +706,10 @@ section {
     .section-pad {
         padding: 3rem 1.5rem;
     }
+}
+
+/* Additional Animations */
+@keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
 }
