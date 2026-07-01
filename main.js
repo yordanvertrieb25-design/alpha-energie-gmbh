@@ -208,6 +208,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             // Milestone state triggers and fade-reveals
             milestones.forEach((block, index) => {
                 const year = block.getAttribute('data-year');
+                const isLast = index === milestones.length - 1;
                 
                 ScrollTrigger.create({
                     trigger: block,
@@ -215,7 +216,12 @@ document.addEventListener("DOMContentLoaded", async () => {
                     end: "bottom 45%",
                     onEnter: () => updateActiveMilestone(block, year),
                     onEnterBack: () => updateActiveMilestone(block, year),
-                    onLeave: () => block.classList.remove('active'),
+                    onLeave: () => {
+                        // The last point remains active and highlighted when scrolling further down
+                        if (!isLast) {
+                            block.classList.remove('active');
+                        }
+                    },
                     onLeaveBack: () => block.classList.remove('active')
                 });
 
@@ -230,7 +236,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                             trigger: block,
                             start: "top 65%",
                             end: "bottom 35%",
-                            toggleActions: "play reverse play reverse"
+                            toggleActions: isLast ? "play none none reverse" : "play reverse play reverse"
                         }
                     }
                 );
@@ -298,12 +304,28 @@ document.addEventListener("DOMContentLoaded", async () => {
                     const rect = block.getBoundingClientRect();
                     if (rect.top < triggerPoint) { activeIndex = index; }
                     const blockCenter = rect.top + rect.height / 2;
-                    const distanceToCenter = Math.abs(blockCenter - triggerPoint);
-                    const maxDistance = viewportHeight * 0.6;
-                    let opacity = 1 - (distanceToCenter / maxDistance);
-                    opacity = Math.max(0.15, Math.min(1, opacity));
+                    const isLast = index === milestones.length - 1;
+                    
+                    let opacity;
+                    if (isLast && blockCenter < triggerPoint) {
+                        // Keep the last point fully visible and highlighted once scrolled past it
+                        opacity = 1;
+                    } else {
+                        const distanceToCenter = Math.abs(blockCenter - triggerPoint);
+                        const maxDistance = viewportHeight * 0.6;
+                        opacity = 1 - (distanceToCenter / maxDistance);
+                        opacity = Math.max(0.15, Math.min(1, opacity));
+                    }
+                    
                     block.style.opacity = opacity;
-                    if (opacity > 0.5) { block.classList.add('active'); } else { block.classList.remove('active'); }
+                    
+                    if (isLast && blockCenter < triggerPoint) {
+                        block.classList.add('active');
+                    } else if (opacity > 0.5) {
+                        block.classList.add('active');
+                    } else {
+                        block.classList.remove('active');
+                    }
                 });
                 
                 const activeBlock = milestones[activeIndex];
