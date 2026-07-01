@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kontakt - Alpha Energie GmbH</title>
+    <meta name="description" content="Nehmen Sie Kontakt mit der Alpha Energie GmbH auf. Erreichen Sie unsere Fachabteilungen für Vertriebspartner, Gewerbekunden und Produktgeber in Heilbronn.">
     
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -17,7 +18,7 @@
 <body>
     <div id="topbar" class="topbar">
         <div class="topbar-left">
-            <span>Montag â€“ Freitag 08:00 Uhr bis 17:00 Uhr</span>
+            <span>Montag – Freitag 08:00 Uhr bis 17:00 Uhr</span>
         </div>
         <div class="topbar-right">
             <a href="tel:+4971316169560" class="topbar-contact">T +49 7131 6169560</a>
@@ -40,14 +41,14 @@
             <nav id="main-nav" class="nav">
                 <ul class="nav-list">
                     <li class="nav-item has-dropdown">
-                        <a href="ueber-uns.html">Ãœber uns</a>
+                        <a href="ueber-uns.html">Über uns</a>
                     </li>
                     <li class="nav-item has-dropdown">
-                        <a href="#loesungen">LÃ¶sungen</a>
+                        <a href="#">Lösungen</a>
                         <ul class="dropdown">
-                            <li><a href="vertriebspartner.html">FÃ¼r Vertriebspartner (B2C)</a></li>
-                            <li><a href="gewerbekunden.html">FÃ¼r Gewerbekunden (B2B)</a></li>
-                            <li><a href="produktgeber.html">FÃ¼r Produktgeber</a></li>
+                            <li><a href="vertriebspartner.html">Für Vertriebspartner (B2C)</a></li>
+                            <li><a href="gewerbekunden.html">Für Gewerbekunden (B2B)</a></li>
+                            <li><a href="produktgeber.html">Für Produktgeber</a></li>
                         </ul>
                     </li>
                     <li class="nav-item"><a href="karriere.html">Karriere</a></li>
@@ -56,8 +57,8 @@
             </nav>
             <div class="header-actions">
                 <a href="vertriebspartner.html" class="btn btn-primary">Partner werden</a>
-                <a href="#vp-portal" class="btn btn-secondary">VP-Portal</a>
-                <a href="#b2b-portal" class="btn btn-outline">B2B-Portal</a>
+                <a href="vertriebspartner-portal.html" class="btn btn-secondary">VP-Portal</a>
+                <a href="b2b-portal.html" class="btn btn-outline">B2B-Portal</a>
             </div>
         </div>
     </header>
@@ -68,39 +69,97 @@
         <section class="page-header" style="background-color: var(--bg-orange); padding: 6rem 2rem; text-align: center; color: white;">
             <div class="container">
                 <h1 style="color: white; font-size: clamp(2.5rem, 5vw, 4rem);">Kontakt</h1>
-                <p style="font-size: 1.2rem; max-width: 800px; margin: 0 auto; color: white;">Wir sind fÃ¼r dich da.</p>
+                <p style="font-size: 1.2rem; max-width: 800px; margin: 0 auto; color: white; opacity: 0.9;">Wir sind für Sie da – persönlich, kompetent und lösungsorientiert.</p>
             </div>
         </section>
 
         <section class="section-pad">
-            <div class="container" style="max-width: 600px;">
-                <div class="card">
-                    <h2 class="card-title text-center">Schreib uns eine Nachricht</h2>
-                    <form style="display: flex; flex-direction: column; gap: 1rem; margin-top: 2rem;">
-                        <div>
-                            <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Name</label>
-                            <input type="text" style="width: 100%; padding: 0.75rem; border: 1px solid var(--glass-border); border-radius: 8px;" placeholder="Dein Name">
+            <div class="container">
+                <div class="grid-3" style="grid-template-columns: 1.2fr 0.8fr; gap: 4rem; align-items: start;">
+                    <!-- Contact Form -->
+                    <div class="card" style="padding: 3rem;">
+                        <h2 class="card-title">Schreiben Sie uns eine Nachricht</h2>
+                        <p class="section-text" style="margin-left: 0; font-size: 0.95rem; margin-bottom: 2rem;">
+                            Wählen Sie Ihr Anliegen aus, damit wir Ihre Anfrage direkt an den richtigen Ansprechpartner in unserem Haus weiterleiten können.
+                        </p>
+                        <form style="display: flex; flex-direction: column; gap: 1.2rem;">
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                                <div>
+                                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; font-size: 0.9rem;">Vorname & Nachname *</label>
+                                    <input type="text" style="width: 100%; padding: 0.8rem; border: 1px solid rgba(0,0,0,0.1); border-radius: 8px;" placeholder="Ihr Name" required>
+                                </div>
+                                <div>
+                                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; font-size: 0.9rem;">Telefonnummer</label>
+                                    <input type="tel" style="width: 100%; padding: 0.8rem; border: 1px solid rgba(0,0,0,0.1); border-radius: 8px;" placeholder="Ihre Telefonnummer">
+                                </div>
+                            </div>
+                            <div>
+                                <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; font-size: 0.9rem;">E-Mail-Adresse *</label>
+                                <input type="email" style="width: 100%; padding: 0.8rem; border: 1px solid rgba(0,0,0,0.1); border-radius: 8px;" placeholder="Deine E-Mail-Adresse" required>
+                            </div>
+                            <div>
+                                <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; font-size: 0.9rem;">Betreff / Bereich *</label>
+                                <select style="width: 100%; padding: 0.8rem; border: 1px solid rgba(0,0,0,0.1); border-radius: 8px;">
+                                    <option>B2B Beratung / Gewerbekunden</option>
+                                    <option>Vertriebspartner werden / B2C</option>
+                                    <option>Produktgeber Kooperation</option>
+                                    <option>Karriere / Bewerbung</option>
+                                    <option>Allgemeine Anfrage</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; font-size: 0.9rem;">Ihre Nachricht *</label>
+                                <textarea rows="5" style="width: 100%; padding: 0.8rem; border: 1px solid rgba(0,0,0,0.1); border-radius: 8px;" placeholder="Wie können wir Ihnen helfen?" required></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-secondary mt-2" style="width: 100%;">Anfrage absenden</button>
+                        </form>
+                    </div>
+
+                    <!-- Side Info & Address -->
+                    <div style="display: flex; flex-direction: column; gap: 2rem;">
+                        <!-- Address -->
+                        <div class="card" style="padding: 2rem;">
+                            <h3 class="card-title" style="font-size: 1.25rem;">Hauptsitz Heilbronn</h3>
+                            <p style="font-size: 0.95rem; color: var(--text-muted); line-height: 1.8; margin-top: 1rem;">
+                                Alpha Energie GmbH<br>
+                                Weipertstraße 8-10<br>
+                                74076 Heilbronn
+                            </p>
+                            <p style="font-size: 0.95rem; color: var(--text-muted); line-height: 1.8; margin-top: 1rem;">
+                                <strong>Telefon:</strong> <a href="tel:+4971316169560" style="color: var(--accent-orange);">+49 7131 6169560</a><br>
+                                <strong>E-Mail:</strong> <a href="mailto:info@alpha-energie.de" style="color: var(--accent-orange);">info@alpha-energie.de</a>
+                            </p>
                         </div>
-                        <div>
-                            <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">E-Mail</label>
-                            <input type="email" style="width: 100%; padding: 0.75rem; border: 1px solid var(--glass-border); border-radius: 8px;" placeholder="Deine E-Mail">
+
+                        <!-- Business Hours -->
+                        <div class="card" style="padding: 2rem;">
+                            <h3 class="card-title" style="font-size: 1.25rem;">Geschäftszeiten</h3>
+                            <ul style="font-size: 0.95rem; color: var(--text-muted); display: flex; flex-direction: column; gap: 0.5rem; margin-top: 1rem;">
+                                <li style="display: flex; justify-content: space-between;">
+                                    <span>Montag – Donnerstag:</span>
+                                    <strong>08:00 – 17:00 Uhr</strong>
+                                </li>
+                                <li style="display: flex; justify-content: space-between;">
+                                    <span>Freitag:</span>
+                                    <strong>08:00 – 15:00 Uhr</strong>
+                                </li>
+                                <li style="display: flex; justify-content: space-between;">
+                                    <span>Samstag & Sonntag:</span>
+                                    <strong>Geschlossen</strong>
+                                </li>
+                            </ul>
                         </div>
-                        <div>
-                            <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Betreff</label>
-                            <select style="width: 100%; padding: 0.75rem; border: 1px solid var(--glass-border); border-radius: 8px;">
-                                <option>Vertriebspartner werden</option>
-                                <option>B2B Beratung / Gewerbekunden</option>
-                                <option>Produktgeber Kooperation</option>
-                                <option>Karriere / Bewerbung</option>
-                                <option>Sonstiges</option>
-                            </select>
+
+                        <!-- Mock Map -->
+                        <div class="card" style="padding: 1rem; background-color: var(--bg-alt); border: 1px solid rgba(0,0,0,0.05); text-align: center; border-radius: 12px; overflow: hidden;">
+                            <div style="height: 180px; background-color: #e5e7eb; border-radius: 8px; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 1.5rem; box-sizing: border-box; border: 1px dashed rgba(0,0,0,0.15);">
+                                <span style="font-size: 2rem; margin-bottom: 0.5rem;">📍</span>
+                                <strong style="font-size: 0.9rem; color: var(--text-main);">Interaktive Standortkarte</strong>
+                                <span style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem; max-width: 200px; display: inline-block;">Weipertstraße 8-10, Heilbronn</span>
+                                <a href="https://maps.google.com" target="_blank" class="btn btn-outline" style="font-size: 0.8rem; padding: 0.4rem 1rem; margin-top: 0.8rem;">Route berechnen</a>
+                            </div>
                         </div>
-                        <div>
-                            <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Nachricht</label>
-                            <textarea rows="5" style="width: 100%; padding: 0.75rem; border: 1px solid var(--glass-border); border-radius: 8px;" placeholder="Deine Nachricht"></textarea>
-                        </div>
-                        <button type="button" class="btn btn-primary mt-2" style="border: none; width: 100%;">Nachricht senden</button>
-                    </form>
+                    </div>
                 </div>
             </div>
         </section>
@@ -111,7 +170,9 @@
         <div class="container">
             <div class="footer-top grid-4">
                 <div class="footer-widget brand-widget">
-                    <h3 class="footer-logo">Alpha Energie GmbH</h3>
+                    <a href="index.html">
+                        <img src="logo.png" alt="Alpha Energie GmbH" class="footer-logo">
+                    </a>
                     <p class="footer-desc">Alpha Energie GmbH ist dein kompetenter Begleiter und Berater bei der Energiekostenoptimierung!</p>
                     <div class="social-links">
                         <a href="#facebook" class="social-icon" aria-label="Facebook">Facebook</a>
@@ -123,27 +184,27 @@
                 <div class="footer-widget links-widget">
                     <h4 class="widget-title">Unternehmen</h4>
                     <ul class="footer-links">
-                        <li><a href="ueber-uns.html">Ãœber uns</a></li>
+                        <li><a href="ueber-uns.html">Über uns</a></li>
                         <li><a href="karriere.html">Karriere</a></li>
                         <li><a href="kontakt.html">Kontakt</a></li>
                     </ul>
                 </div>
 
                 <div class="footer-widget links-widget">
-                    <h4 class="widget-title">LÃ¶sungen</h4>
+                    <h4 class="widget-title">Lösungen</h4>
                     <ul class="footer-links">
-                        <li><a href="vertriebspartner.html">FÃ¼r Vertriebspartner</a></li>
-                        <li><a href="gewerbekunden.html">FÃ¼r Gewerbekunden</a></li>
-                        <li><a href="produktgeber.html">FÃ¼r Produktgeber</a></li>
+                        <li><a href="vertriebspartner.html">Für Vertriebspartner</a></li>
+                        <li><a href="gewerbekunden.html">Für Gewerbekunden</a></li>
+                        <li><a href="produktgeber.html">Für Produktgeber</a></li>
                     </ul>
                 </div>
 
                 <div class="footer-widget links-widget">
                     <h4 class="widget-title">Rechtliches</h4>
                     <ul class="footer-links">
-                        <li><a href="#datenschutz">Datenschutz</a></li>
-                        <li><a href="#impressum">Impressum</a></li>
-                        <li><a href="#vp-portal">VP-Portal</a></li>
+                        <li><a href="datenschutz.html">Datenschutz</a></li>
+                        <li><a href="impressum.html">Impressum</a></li>
+                        <li><a href="vertriebspartner-portal.html">VP-Portal</a></li>
                     </ul>
                 </div>
             </div>
