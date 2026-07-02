@@ -1880,6 +1880,11 @@ section {
     transform: translateX(-50%) translateY(0);
 }
 
+/* Specific styling to make the man larger on the homepage hero section */
+.homepage-hero-image {
+    transform: scale(1.38) translateY(18%) !important;
+}
+
 /* ==========================================================================
    Responsive layout fixes for medium viewports (prevent "zu eng" layout)
    ========================================================================== */
@@ -1902,6 +1907,9 @@ section {
     }
     .hero-image {
         transform: scale(1.05) translateY(8%) !important;
+    }
+    .homepage-hero-image {
+        transform: scale(1.22) translateY(12%) !important;
     }
     .hero-grid {
         gap: 1.5rem;
