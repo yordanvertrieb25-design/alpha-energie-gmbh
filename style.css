@@ -2200,18 +2200,3 @@ section {
     background: rgba(239, 138, 0, 0.8);
     transform: scale(1.05);
 }
-
-/* Custom Grid for larger video */
-.video-intro-grid {
-    display: grid;
-    grid-template-columns: 1fr 1.6fr;
-    gap: 4rem;
-    align-items: center;
-}
-
-@media (max-width: 992px) {
-    .video-intro-grid {
-        grid-template-columns: 1fr;
-        gap: 2.5rem;
-    }
-}
