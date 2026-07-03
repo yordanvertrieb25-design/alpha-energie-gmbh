@@ -88,11 +88,9 @@ document.addEventListener("DOMContentLoaded", async () => {
             if (introVideo.muted) {
                 introVideo.muted = false;
                 document.getElementById('mute-icon').textContent = '🔊';
-                document.getElementById('mute-text').textContent = 'Ton aus';
             } else {
                 introVideo.muted = true;
                 document.getElementById('mute-icon').textContent = '🔇';
-                document.getElementById('mute-text').textContent = 'Ton an';
             }
         });
     }
