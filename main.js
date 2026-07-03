@@ -575,21 +575,4 @@ document.addEventListener("DOMContentLoaded", async () => {
             }
         });
     }
-
-    // Intro Video Mute Toggle
-    const introVideo = document.getElementById('intro-video');
-    const muteToggleBtn = document.getElementById('mute-toggle-btn');
-    if (introVideo && muteToggleBtn) {
-        muteToggleBtn.addEventListener('click', () => {
-            if (introVideo.muted) {
-                introVideo.muted = false;
-                muteToggleBtn.querySelector('.icon-mute').style.display = 'none';
-                muteToggleBtn.querySelector('.icon-unmute').style.display = 'block';
-            } else {
-                introVideo.muted = true;
-                muteToggleBtn.querySelector('.icon-mute').style.display = 'block';
-                muteToggleBtn.querySelector('.icon-unmute').style.display = 'none';
-            }
-        });
-    }
 });
