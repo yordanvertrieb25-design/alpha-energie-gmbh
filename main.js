@@ -79,6 +79,24 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
 
 
+    // 4. Video Mute Toggle Logic
+    const muteToggleBtn = document.getElementById('mute-toggle-btn');
+    const introVideo = document.getElementById('intro-video');
+    
+    if (muteToggleBtn && introVideo) {
+        muteToggleBtn.addEventListener('click', () => {
+            if (introVideo.muted) {
+                introVideo.muted = false;
+                document.getElementById('mute-icon').textContent = '🔊';
+                document.getElementById('mute-text').textContent = 'Ton aus';
+            } else {
+                introVideo.muted = true;
+                document.getElementById('mute-icon').textContent = '🔇';
+                document.getElementById('mute-text').textContent = 'Ton an';
+            }
+        });
+    }
+
 
     // --- GSAP Animation Orchestration ---
     function initGSAPAnimations() {
