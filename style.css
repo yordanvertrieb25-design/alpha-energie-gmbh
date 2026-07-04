@@ -434,6 +434,26 @@ h3 { font-size: 1.5rem; }
     min-height: calc(100vh - 80px);
     overflow: hidden;
     padding: 6rem 2rem;
+    background: url('hero_bg_abstract.png') center/cover no-repeat !important;
+    animation: none !important;
+}
+
+.hero-section-typographic::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(15, 23, 42, 0.6) !important; /* Dark overlay for contrast */
+    z-index: 1;
+    filter: none !important;
+    border-radius: 0 !important;
+    animation: none !important;
+}
+
+.hero-section-typographic::after {
+    display: none !important;
 }
 
 .hero-grid-typographic {
@@ -460,52 +480,7 @@ h3 { font-size: 1.5rem; }
     margin: 0 auto;
 }
 
-/* Mesh Orbs */
-.mesh-orb {
-    position: absolute;
-    border-radius: 50%;
-    filter: blur(90px);
-    opacity: 0.6;
-    z-index: 1;
-    pointer-events: none;
-    animation: orbDrift 20s infinite alternate ease-in-out;
-}
-
-.orb-1 {
-    width: 60vw;
-    height: 60vw;
-    background: radial-gradient(circle, #ffffff 0%, transparent 70%);
-    top: -20%;
-    left: -10%;
-    animation-delay: 0s;
-}
-
-.orb-2 {
-    width: 50vw;
-    height: 50vw;
-    background: radial-gradient(circle, #ffb347 0%, transparent 70%);
-    bottom: -10%;
-    right: -10%;
-    animation-delay: -5s;
-    animation-duration: 25s;
-}
-
-.orb-3 {
-    width: 45vw;
-    height: 45vw;
-    background: radial-gradient(circle, #ffffff 0%, transparent 70%);
-    top: 30%;
-    left: 40%;
-    animation-delay: -10s;
-    animation-duration: 30s;
-}
-
-@keyframes orbDrift {
-    0% { transform: translate(0, 0) scale(1); }
-    33% { transform: translate(15vw, 5vh) scale(1.1); }
-    66% { transform: translate(-5vw, 15vh) scale(0.9); }
-    100% { transform: translate(5vw, -5vh) scale(1.2); }
-}
+/* End of Hero Typographic Styles */
 
 .hero-grid {
     display: grid;
