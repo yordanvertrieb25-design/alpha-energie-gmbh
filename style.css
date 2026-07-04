@@ -445,6 +445,8 @@ h3 { font-size: 1.5rem; }
     left: 0;
     right: 0;
     bottom: 0;
+    width: 100% !important;
+    height: 100% !important;
     background: rgba(15, 23, 42, 0.6) !important; /* Dark overlay for contrast */
     z-index: 1;
     filter: none !important;
