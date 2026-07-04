@@ -4,3 +4,6 @@ node_modules/
 vc_redist.exe
 .agents/
 
+/generated/prisma
+.env
+*.db

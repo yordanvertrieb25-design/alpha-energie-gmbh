@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Alpha Energie</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="admin.css">
+</head>
+<body class="dashboard-body">
+    <nav class="admin-nav">
+        <div class="nav-brand">
+            <img src="../logo.png" alt="Alpha Energie">
+            <span>Admin Portal</span>
+        </div>
+        <button id="logout-btn" class="btn btn-outline-light">Logout</button>
+    </nav>
+    
+    <div class="dashboard-container">
+        <header class="dashboard-header">
+            <h1>Eingänge & Bewerbungen</h1>
+        </header>
+
+        <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab('contacts')">Kontaktanfragen</button>
+            <button class="tab-btn" onclick="switchTab('applications')">Partner-Bewerbungen</button>
+        </div>
+
+        <!-- Contact Requests Table -->
+        <div id="contacts-tab" class="tab-content active">
+            <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Datum</th>
+                            <th>Name</th>
+                            <th>E-Mail</th>
+                            <th>Telefon</th>
+                            <th>Bereich</th>
+                            <th>Nachricht</th>
+                        </tr>
+                    </thead>
+                    <tbody id="contacts-tbody">
+                        <tr><td colspan="6" class="text-center">Lade Daten...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Partner Applications Table -->
+        <div id="applications-tab" class="tab-content">
+            <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Datum</th>
+                            <th>Name</th>
+                            <th>E-Mail</th>
+                            <th>Telefon</th>
+                            <th>Erfahrung</th>
+                        </tr>
+                    </thead>
+                    <tbody id="applications-tbody">
+                        <tr><td colspan="5" class="text-center">Lade Daten...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <script src="admin.js"></script>
+</body>
+</html>

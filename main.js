@@ -188,16 +188,13 @@ document.addEventListener("DOMContentLoaded", async () => {
                     onEnter: () => updateActiveMilestone(block, year),
                     onEnterBack: () => updateActiveMilestone(block, year),
                     onLeave: () => {
-                        // The last point remains active and highlighted when scrolling further down
-                        if (!isLast) {
-                            block.classList.remove('active');
-                        }
+                        // Let it stay active when scrolling past
                     },
                     onLeaveBack: () => block.classList.remove('active')
                 });
 
                 gsap.fromTo(block.children,
-                    { opacity: 0.15, x: -10 },
+                    { opacity: 0.4, x: -10 },
                     {
                         opacity: 1,
                         x: 0,
@@ -207,18 +204,20 @@ document.addEventListener("DOMContentLoaded", async () => {
                             trigger: block,
                             start: "top 65%",
                             end: "bottom 35%",
-                            toggleActions: isLast ? "play none none reverse" : "play reverse play reverse"
+                            toggleActions: "play none none reverse"
                         }
                     }
                 );
             });
 
+            let yearTimeline;
             function updateActiveMilestone(activeBlock, year) {
                 milestones.forEach(m => m.classList.remove('active'));
                 activeBlock.classList.add('active');
                 
                 if (currentYearEl && currentYearEl.textContent !== year) {
-                    gsap.timeline()
+                    if (yearTimeline) yearTimeline.kill();
+                    yearTimeline = gsap.timeline()
                         .to(currentYearEl, { scale: 0.8, opacity: 0.3, duration: 0.1, ease: "power2.in" })
                         .call(() => { currentYearEl.textContent = year; })
                         .to(currentYearEl, { scale: 1, opacity: 1, duration: 0.25, ease: "back.out(1.7)" });
@@ -389,8 +388,22 @@ document.addEventListener("DOMContentLoaded", async () => {
                     experience: experienceVal
                 });
                 
-                // Simulate AJAX submission with smooth success transition
-                setTimeout(() => {
+                const isLocalDev = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') && window.location.port !== '3000';
+                const isFileProtocol = window.location.protocol === 'file:';
+                const API_URL = (isLocalDev || isFileProtocol) ? 'http://localhost:3000/api/partner-application' : '/api/partner-application';
+
+                // Send to Backend API
+                fetch(API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        fullName: fullNameVal,
+                        email: emailVal,
+                        phone: phoneVal,
+                        experience: experienceVal
+                    })
+                }).then(res => {
+                    if(!res.ok) throw new Error('API Error');
                     const successContainer = document.getElementById("form-success-container");
                     const successPhone = document.getElementById("success-phone");
                     const phoneInput = document.getElementById("phone");
@@ -413,7 +426,14 @@ document.addEventListener("DOMContentLoaded", async () => {
                             }, 50);
                         }
                     }, 300);
-                }, 1000);
+                }).catch(err => {
+                    alert('Ein Fehler ist aufgetreten. Bitte versuchen Sie es später erneut.');
+                    const submitBtn = partnerForm.querySelector('button[type="submit"]');
+                    if (submitBtn) {
+                        submitBtn.disabled = false;
+                        submitBtn.textContent = "Kostenlos registrieren";
+                    }
+                });
             }
         });
         

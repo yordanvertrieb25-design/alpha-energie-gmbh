@@ -82,24 +82,24 @@
                         <p class="section-text" style="margin-left: 0; font-size: 0.95rem; margin-bottom: 2rem;">
                             Haben Sie Fragen zu unseren B2B-Energielösungen, möchten Sie Vertriebspartner werden oder planen Sie eine Kooperation als Produktgeber? Wählen Sie Ihr Anliegen einfach aus, damit wir Ihre Anfrage direkt an den richtigen Ansprechpartner in unserem Haus weiterleiten können. Wir melden uns schnellstmöglich bei Ihnen.
                         </p>
-                        <form style="display: flex; flex-direction: column; gap: 1.2rem;">
+                        <form id="contact-form" style="display: flex; flex-direction: column; gap: 1.2rem;">
                             <div class="form-grid">
                                 <div>
                                     <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; font-size: 0.9rem;">Vorname & Nachname *</label>
-                                    <input type="text" style="width: 100%; padding: 0.8rem; border: 1px solid rgba(0,0,0,0.1); border-radius: 8px;" placeholder="Ihr Name" required>
+                                    <input type="text" id="contact-name" style="width: 100%; padding: 0.8rem; border: 1px solid rgba(0,0,0,0.1); border-radius: 8px;" placeholder="Ihr Name" required>
                                 </div>
                                 <div>
                                     <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; font-size: 0.9rem;">Telefonnummer</label>
-                                    <input type="tel" style="width: 100%; padding: 0.8rem; border: 1px solid rgba(0,0,0,0.1); border-radius: 8px;" placeholder="Ihre Telefonnummer">
+                                    <input type="tel" id="contact-phone" style="width: 100%; padding: 0.8rem; border: 1px solid rgba(0,0,0,0.1); border-radius: 8px;" placeholder="Ihre Telefonnummer">
                                 </div>
                             </div>
                             <div>
                                 <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; font-size: 0.9rem;">E-Mail-Adresse *</label>
-                                <input type="email" style="width: 100%; padding: 0.8rem; border: 1px solid rgba(0,0,0,0.1); border-radius: 8px;" placeholder="Deine E-Mail-Adresse" required>
+                                <input type="email" id="contact-email" style="width: 100%; padding: 0.8rem; border: 1px solid rgba(0,0,0,0.1); border-radius: 8px;" placeholder="Deine E-Mail-Adresse" required>
                             </div>
                             <div>
                                 <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; font-size: 0.9rem;">Betreff / Bereich *</label>
-                                <select style="width: 100%; padding: 0.8rem; border: 1px solid rgba(0,0,0,0.1); border-radius: 8px;">
+                                <select id="contact-subject" style="width: 100%; padding: 0.8rem; border: 1px solid rgba(0,0,0,0.1); border-radius: 8px;">
                                     <option>B2B Beratung / Gewerbekunden</option>
                                     <option>Vertriebspartner werden / B2C</option>
                                     <option>Produktgeber Kooperation</option>
@@ -109,10 +109,50 @@
                             </div>
                             <div>
                                 <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; font-size: 0.9rem;">Ihre Nachricht *</label>
-                                <textarea rows="5" style="width: 100%; padding: 0.8rem; border: 1px solid rgba(0,0,0,0.1); border-radius: 8px;" placeholder="Wie können wir Ihnen helfen?" required></textarea>
+                                <textarea id="contact-message" rows="5" style="width: 100%; padding: 0.8rem; border: 1px solid rgba(0,0,0,0.1); border-radius: 8px;" placeholder="Wie können wir Ihnen helfen?" required></textarea>
                             </div>
-                            <button type="submit" class="btn btn-secondary mt-2" style="width: 100%;">Anfrage absenden</button>
+                            <button type="submit" id="contact-submit" class="btn btn-secondary mt-2" style="width: 100%;">Anfrage absenden</button>
+                            <div id="contact-success" style="display: none; color: green; font-weight: bold; margin-top: 10px;">Nachricht erfolgreich gesendet! Wir melden uns in Kürze.</div>
                         </form>
+                        <script>
+                            document.getElementById('contact-form').addEventListener('submit', async (e) => {
+                                e.preventDefault();
+                                const submitBtn = document.getElementById('contact-submit');
+                                submitBtn.disabled = true;
+                                submitBtn.innerText = 'Wird gesendet...';
+                                
+                                const data = {
+                                    name: document.getElementById('contact-name').value,
+                                    phone: document.getElementById('contact-phone').value,
+                                    email: document.getElementById('contact-email').value,
+                                    subject: document.getElementById('contact-subject').value,
+                                    message: document.getElementById('contact-message').value
+                                };
+
+                                const isLocalDev = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') && window.location.port !== '3000';
+                                const isFileProtocol = window.location.protocol === 'file:';
+                                const API_URL = (isLocalDev || isFileProtocol) ? 'http://localhost:3000/api/contact' : '/api/contact';
+
+                                try {
+                                    const res = await fetch(API_URL, {
+                                        method: 'POST',
+                                        headers: { 'Content-Type': 'application/json' },
+                                        body: JSON.stringify(data)
+                                    });
+                                    if(res.ok) {
+                                        document.getElementById('contact-success').style.display = 'block';
+                                        document.getElementById('contact-form').reset();
+                                    } else {
+                                        alert('Es gab einen Fehler. Bitte versuchen Sie es erneut.');
+                                    }
+                                } catch(err) {
+                                    alert('Es gab einen Fehler. Bitte versuchen Sie es erneut.');
+                                } finally {
+                                    submitBtn.disabled = false;
+                                    submitBtn.innerText = 'Anfrage absenden';
+                                }
+                            });
+                        </script>
                     </div>
 
                     <!-- Side Info & Address -->

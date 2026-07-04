@@ -55,7 +55,6 @@
 html {
     scroll-behavior: smooth;
     font-size: 16px;
-    overflow-x: hidden;
     width: 100%;
 }
 
@@ -64,7 +63,6 @@ body {
     background-color: var(--bg-light);
     color: var(--text-main);
     line-height: 1.6;
-    overflow-x: hidden;
     width: 100%;
 }
 
@@ -732,7 +730,7 @@ h3 { font-size: 1.5rem; }
     margin-bottom: 5rem;
     border-left: 2px solid rgba(0, 0, 0, 0.06);
     transition: border-color 0.4s ease, opacity 0.4s ease, transform 0.4s ease;
-    opacity: 0.15;
+    opacity: 0.4;
     transform: translateY(20px);
 }
 
@@ -745,7 +743,7 @@ h3 { font-size: 1.5rem; }
 .milestone-title {
     font-size: 1.8rem;
     font-weight: 600;
-    color: var(--text-dark);
+    color: var(--text-main);
     margin-bottom: 1rem;
 }
 
