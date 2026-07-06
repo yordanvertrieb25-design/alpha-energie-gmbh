@@ -170,6 +170,14 @@ test.describe('Kampagne Backend Stress Tests', () => {
       expect(email).toBeNull();
       expect(duration).toBeLessThan(7500); // Axios timeout is 5000ms + network overhead, should be < 7.5s
     });
+
+    test('Crawl website with private or loopback IP (SSRF) - should be blocked and return null', async () => {
+      const emailPrivate = await crawlWebsiteForEmail('http://10.0.0.1/malformed');
+      expect(emailPrivate).toBeNull();
+
+      const emailPrivate2 = await crawlWebsiteForEmail('http://192.168.1.1/index.html');
+      expect(emailPrivate2).toBeNull();
+    });
   });
 
   // 2. CSV formatting and escaping

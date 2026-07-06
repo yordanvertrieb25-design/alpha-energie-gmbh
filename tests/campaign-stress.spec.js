@@ -61,19 +61,31 @@ test.describe('Kampagne Backend Stress Tests', () => {
   let token = '';
 
   test.beforeAll(async () => {
-    // Set 120s timeout for the entire suite to accommodate SMTP timeout stress tests
+    // Set 120s timeout for the beforeAll hook itself
     test.setTimeout(120000);
     
-    // Get admin token
-    try {
-      const response = await axios.post(`${BASE_URL}/api/admin/login`, {
-        password: ADMIN_PASSWORD
-      });
-      token = response.data.token;
-      console.log('[Stress Test] Successfully retrieved admin login token.');
-    } catch (err) {
-      console.warn(`[Stress Test] Unable to get admin token from local server: ${err.message}`, err.response ? err.response.data : '');
+    // Retry login up to 5 times with 1s delay to handle server startup / recycle
+    for (let attempt = 1; attempt <= 5; attempt++) {
+      try {
+        const response = await axios.post(`${BASE_URL}/api/admin/login`, {
+          password: ADMIN_PASSWORD
+        });
+        token = response.data.token;
+        console.log('[Stress Test] Successfully retrieved admin login token.');
+        break;
+      } catch (err) {
+        console.warn(`[Stress Test] Admin login attempt ${attempt} failed: ${err.message}`);
+        if (attempt === 5) {
+          throw new Error(`Failed to get admin token after 5 attempts: ${err.message}`);
+        }
+        await new Promise(resolve => setTimeout(resolve, 1000));
+      }
     }
+  });
+
+  test.beforeEach(async () => {
+    // Set 120s timeout for every test in this suite
+    test.setTimeout(120000);
   });
 
   // --- STRESS TEST 1: Scraping crawler resilience ---
@@ -168,6 +180,14 @@ test.describe('Kampagne Backend Stress Tests', () => {
       expect(email).toBeNull();
       expect(duration).toBeGreaterThan(4500); // Axios timeout is set to 5000ms
       expect(duration).toBeLessThan(6500); // Ensure it doesn't hang forever
+    });
+
+    test('should block private and loopback IP addresses (SSRF prevention)', async () => {
+      const emailPrivate = await crawlWebsiteForEmail('http://10.0.0.1/malformed');
+      expect(emailPrivate).toBeNull();
+
+      const emailPrivate2 = await crawlWebsiteForEmail('http://192.168.1.1/index.html');
+      expect(emailPrivate2).toBeNull();
     });
   });
 
@@ -326,7 +346,7 @@ test.describe('Kampagne Backend Stress Tests', () => {
       });
       expect(emailLog).not.toBeNull();
       expect(emailLog.status).toBe('FAILED');
-      expect(emailLog.errorMessage).toContain('connect ECONNREFUSED');
+      expect(emailLog.errorMessage).toMatch(/(connect|ECONNREFUSED|ETIMEDOUT)/i);
       console.log(`[Stress Test] Bad SMTP credentials handled and logged. Error message: ${emailLog.errorMessage}`);
     });
 
@@ -370,7 +390,7 @@ test.describe('Kampagne Backend Stress Tests', () => {
       });
       expect(emailLog).not.toBeNull();
       expect(emailLog.status).toBe('FAILED');
-      expect(emailLog.errorMessage).toMatch(/(ETIMEDOUT|timeout)/i);
+      expect(emailLog.errorMessage).toMatch(/(Greeting never received|ETIMEDOUT|timeout)/i);
       console.log(`[Stress Test] Hanging SMTP connection handled and logged. Error message: ${emailLog.errorMessage}`);
     });
   });

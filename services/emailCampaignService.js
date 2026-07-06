@@ -109,10 +109,13 @@ async function sendCampaign(campaignId, smtpSettings) {
   let transporter;
   let useMock = false;
 
-  if (!smtpHost || !smtpUser || !smtpPass) {
+  if (!smtpHost) {
     console.log(`[Mailer] SMTP credentials missing or incomplete. Running in simulated/mock mailer mode.`);
     useMock = true;
   } else {
+    if (!smtpUser || !smtpPass) {
+      throw new Error("SMTP connection failed: Missing user or password credentials.");
+    }
     try {
       transporter = nodemailer.createTransport({
         host: smtpHost,
@@ -125,12 +128,27 @@ async function sendCampaign(campaignId, smtpSettings) {
         timeout: 10000 // 10s timeout
       });
     } catch (err) {
-      console.error(`[Mailer] Failed to configure Nodemailer transporter: ${err.message}. Falling back to simulation.`);
-      useMock = true;
+      console.error(`[Mailer] Failed to configure Nodemailer transporter: ${err.message}`);
+      throw new Error(`SMTP connection failed: ${err.message}`);
     }
   }
 
   const imagePath = path.join(__dirname, '..', 'sales_partner_smooth.png');
+
+  // Helper to escape HTML characters to prevent XSS/HTML Injection
+  const escapeHTML = (str) => {
+    if (typeof str !== 'string') return '';
+    return str.replace(/[&<>"']/g, (m) => {
+      switch (m) {
+        case '&': return '&amp;';
+        case '<': return '&lt;';
+        case '>': return '&gt;';
+        case '"': return '&quot;';
+        case "'": return '&#39;';
+        default: return m;
+      }
+    });
+  };
 
   // Process contacts sequentially (or in chunks)
   for (const contact of contacts) {
@@ -142,11 +160,14 @@ async function sendCampaign(campaignId, smtpSettings) {
         companySize: campaign.companySize
       });
 
+      const escapedSubject = escapeHTML(subject);
+      const escapedBody = escapeHTML(body);
+
       // 2. Prepare Mail Options
       const mailOptions = {
         from: smtpFrom || '"Alpha Energie B2B" <noreply@alpha-energie.de>',
         to: contact.email || 'info@alpha-energie.de',
-        subject: subject,
+        subject: escapedSubject,
         html: `
           <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; border: 1px solid #e0e0e0; padding: 20px; border-radius: 8px;">
             <div style="text-align: center; margin-bottom: 20px;">
@@ -154,7 +175,7 @@ async function sendCampaign(campaignId, smtpSettings) {
               <p style="font-size: 14px; color: #666; margin: 5px 0 0 0;">Zukunftssichere Energielösungen</p>
             </div>
             <div style="background-color: #f9f9f9; padding: 15px; border-radius: 6px; margin-bottom: 20px;">
-              ${body.replace(/\n/g, '<br>')}
+              ${escapedBody.replace(/\n/g, '<br>')}
             </div>
             <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
             <table style="width: 100%; border-collapse: collapse;">
@@ -213,8 +234,8 @@ async function sendCampaign(campaignId, smtpSettings) {
           data: {
             scrapedContactId: contact.id,
             status: 'SUCCESS',
-            subject: subject,
-            body: body
+            subject: escapedSubject,
+            body: escapedBody
           }
         })
       ]);

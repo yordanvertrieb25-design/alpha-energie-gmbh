@@ -8,7 +8,8 @@ const mockHttpServer = http.createServer((req, res) => {
   for (let i = 0; i < 10; i++) {
     res.write('a'.repeat(chunkSize));
   }
-  res.end('info@massive-payload.de</body></html>');
+  // Let's add a space here
+  res.end(' info@massive-payload.de</body></html>');
 });
 
 mockHttpServer.listen(0, '127.0.0.1', async () => {

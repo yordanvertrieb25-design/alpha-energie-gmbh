@@ -555,29 +555,33 @@ document.addEventListener("DOMContentLoaded", async () => {
             
             // Update status progress bar and markers
             if (progressBar && statusBadge && nextBonusText) {
-                const percentage = ((val - 100) / 900) * 100;
+                const min = calcSlider.min ? parseFloat(calcSlider.min) : 5;
+                const max = calcSlider.max ? parseFloat(calcSlider.max) : 100;
+                const percentage = ((val - min) / (max - min)) * 100;
                 progressBar.style.width = `${percentage}%`;
                 
-                const marker300 = document.querySelector('.status-step-marker.step-300');
-                const marker700 = document.querySelector('.status-step-marker.step-700');
+                const markers = Array.from(document.querySelectorAll('.status-step-marker'));
+                markers.sort((a, b) => parseInt(a.dataset.value) - parseInt(b.dataset.value));
                 
-                if (marker300) {
-                    if (val >= 300) marker300.classList.add('reached');
-                    else marker300.classList.remove('reached');
-                }
-                
-                if (marker700) {
-                    if (val >= 700) marker700.classList.add('reached');
-                    else marker700.classList.remove('reached');
+                let step1 = 30, step2 = 70;
+                if (markers.length >= 2) {
+                    step1 = parseInt(markers[0].dataset.value);
+                    step2 = parseInt(markers[1].dataset.value);
+                    
+                    if (val >= step1) markers[0].classList.add('reached');
+                    else markers[0].classList.remove('reached');
+                    
+                    if (val >= step2) markers[1].classList.add('reached');
+                    else markers[1].classList.remove('reached');
                 }
                 
                 statusBadge.className = 'status-tier-badge'; // reset classes
                 
-                if (val < 300) {
+                if (val < step1) {
                     statusBadge.textContent = 'Einsteiger-Status';
                     statusBadge.classList.add('tier-einsteiger');
-                    nextBonusText.innerHTML = 'Nächster Bonus ab <strong>300</strong> Verträgen!';
-                } else if (val < 700) {
+                    nextBonusText.innerHTML = `Nächster Bonus ab <strong>${step1}</strong> Verträgen!`;
+                } else if (val < step2) {
                     statusBadge.textContent = 'Profi-Status';
                     statusBadge.classList.add('tier-profi');
                     nextBonusText.innerHTML = '<strong>+10%</strong> Sonderbonus freigeschaltet!';

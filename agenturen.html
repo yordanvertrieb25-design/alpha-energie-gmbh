@@ -135,8 +135,19 @@
                             </li>
                         </ul>
                     </div>
-                    <div class="portal-image-wrapper" style="position: relative; width: 100%; aspect-ratio: 16/10; border-radius: 12px; box-shadow: var(--shadow-lg); overflow: hidden; background-color: #121212;">
-                        <iframe src="portal-dashboard.html" title="B2B Energieportal Vorschau" style="width: 100%; height: 100%; border: none;"></iframe>
+                    <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+                        <div style="background: rgba(239, 138, 0, 0.05); border: 2px dashed var(--primary-color); border-radius: 12px; padding: 1.2rem; display: flex; align-items: center; gap: 1.2rem; box-shadow: 0 4px 15px rgba(239, 138, 0, 0.1);">
+                            <div style="background: var(--primary-color); color: white; width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-shadow: 0 0 15px rgba(239, 138, 0, 0.4); animation: pulse 2s infinite;">
+                                <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122"></path></svg>
+                            </div>
+                            <div>
+                                <strong style="color: var(--primary-color); font-size: 1.2rem; display: block; margin-bottom: 0.3rem;">Interaktive Vorschau</strong>
+                                <span style="color: var(--text-color); font-size: 1rem;">Klicken Sie in dem Portal-Bild unten auf die einzelnen Menüpunkte in der linken Seitenleiste, um alle Funktionen im Detail kennenzulernen.</span>
+                            </div>
+                        </div>
+                        <div class="portal-image-wrapper" style="position: relative; width: 100%; aspect-ratio: 16/10; border-radius: 12px; box-shadow: var(--shadow-lg); overflow: hidden; background-color: #121212;">
+                            <iframe src="portal-dashboard.html" title="B2B Energieportal Vorschau" style="width: 100%; height: 100%; border: none;"></iframe>
+                        </div>
                     </div>
                 </div>
             </div>

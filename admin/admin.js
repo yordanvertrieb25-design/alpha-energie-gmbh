@@ -117,4 +117,108 @@ if (document.querySelector('.dashboard-container')) {
     }
 
     loadData();
+
+    // --- Campaign Logic ---
+    let currentCampaignId = null;
+
+    if (document.getElementById('btn-scrape')) {
+        document.getElementById('btn-scrape').addEventListener('click', async () => {
+            const name = document.getElementById('camp-name').value;
+            const industry = document.getElementById('camp-industry').value;
+            const companySize = document.getElementById('camp-size').value;
+            const statusDiv = document.getElementById('camp-status');
+            const actionsDiv = document.getElementById('camp-actions');
+
+            if (!name || !industry || !companySize) {
+                alert('Bitte füllen Sie alle Felder aus.');
+                return;
+            }
+
+            statusDiv.style.display = 'block';
+            statusDiv.innerText = 'Scraping läuft... Dieser Vorgang kann einige Minuten dauern.';
+            statusDiv.style.color = '#3b82f6';
+            actionsDiv.style.display = 'none';
+
+            try {
+                const res = await fetch(`${API_URL}/campaigns/scrape`, {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ name, industry, companySize })
+                });
+
+                const json = await res.json();
+                
+                if (json.success) {
+                    currentCampaignId = json.campaignId;
+                    statusDiv.innerText = 'Scraping abgeschlossen!';
+                    statusDiv.style.color = '#10b981';
+                    
+                    document.getElementById('camp-result-text').innerText = `Erfolgreich ${json.contactsCount} Kontakte gefunden!`;
+                    actionsDiv.style.display = 'flex';
+                } else {
+                    statusDiv.innerText = 'Fehler: ' + (json.error || 'Unbekannt');
+                    statusDiv.style.color = '#ef4444';
+                }
+            } catch (error) {
+                statusDiv.innerText = 'Fehler beim Verbinden zum Server.';
+                statusDiv.style.color = '#ef4444';
+            }
+        });
+
+        document.getElementById('btn-export').addEventListener('click', async () => {
+            if (!currentCampaignId) return;
+            try {
+                const res = await fetch(`${API_URL}/campaigns/${currentCampaignId}/export`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (res.ok) {
+                    const blob = await res.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `campaign_${currentCampaignId}_contacts.csv`;
+                    document.body.appendChild(a);
+                    a.click();
+                    a.remove();
+                } else {
+                    alert('Fehler beim Exportieren.');
+                }
+            } catch(e) {
+                alert('Fehler beim Verbinden zum Server.');
+            }
+        });
+
+        document.getElementById('btn-send').addEventListener('click', async () => {
+            if (!currentCampaignId) return;
+            
+            if (!confirm('Möchten Sie jetzt die KI-generierten E-Mails an alle gescrapten Kontakte versenden?')) return;
+
+            const btn = document.getElementById('btn-send');
+            const originalText = btn.innerText;
+            btn.innerText = 'Wird versendet...';
+            btn.disabled = true;
+
+            try {
+                const res = await fetch(`${API_URL}/campaigns/${currentCampaignId}/send`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                const json = await res.json();
+                if (json.success) {
+                    alert(`Erfolgreich versendet: ${json.sent}\nFehlgeschlagen: ${json.failed}`);
+                } else {
+                    alert('Fehler: ' + (json.error || 'Unbekannt'));
+                }
+            } catch (error) {
+                alert('Fehler beim Verbinden zum Server.');
+            } finally {
+                btn.innerText = originalText;
+                btn.disabled = false;
+            }
+        });
+    }
 }

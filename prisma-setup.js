@@ -8,7 +8,7 @@ dotenv.config();
 const dbUrl = process.env.DATABASE_URL || '';
 
 let provider = 'postgresql';
-if (dbUrl.startsWith('file:') || dbUrl.includes('.db') || dbUrl.startsWith('sqlite:')) {
+if (!dbUrl || dbUrl.startsWith('file:') || dbUrl.includes('.db') || dbUrl.startsWith('sqlite:')) {
   provider = 'sqlite';
 }
 
