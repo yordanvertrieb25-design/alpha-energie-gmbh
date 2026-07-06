@@ -435,15 +435,14 @@
             let openScale = 'scale-100';
             if (window.innerWidth <= 800) {
                 backdrop.classList.remove('justify-center');
-                backdrop.classList.add('justify-start', 'pl-4');
-                content.classList.remove('max-w-md');
-                content.classList.add('max-w-lg', 'origin-left');
+                backdrop.classList.add('justify-start', 'pl-6');
+                content.classList.add('origin-left');
                 openScale = 'scale-[1.15]';
             } else {
                 backdrop.classList.add('justify-center');
-                backdrop.classList.remove('justify-start', 'pl-4');
-                content.classList.remove('max-w-lg', 'origin-left');
-                content.classList.add('max-w-md');
+                backdrop.classList.remove('justify-start', 'pl-6');
+                content.classList.remove('origin-left');
+                openScale = 'scale-100';
             }
             
             backdrop.classList.remove('opacity-0', 'pointer-events-none');
