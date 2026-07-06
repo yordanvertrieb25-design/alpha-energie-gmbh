@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "scripts": {
     "start": "node server.js",
-    "backend": "node server.js"
+    "backend": "node server.js",
+    "postinstall": "npx prisma generate && npx prisma db push"
   },
   "dependencies": {
     "@playwright/test": "^1.61.1",
