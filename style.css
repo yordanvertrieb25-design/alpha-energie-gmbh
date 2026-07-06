@@ -526,7 +526,7 @@ h3 { font-size: 1.5rem; }
 .hero-image-wrapper {
     position: absolute;
     bottom: 0;
-    right: max(2%, calc(50% - 620px)); /* Pushed further to the right for optimal distance */
+    right: max(-8%, calc(50% - 750px)); /* Pushed significantly further to the right */
     height: 90%; /* Leaves space at the top so head isn't cut off */
     z-index: 10;
     display: flex;
@@ -540,7 +540,7 @@ h3 { font-size: 1.5rem; }
     max-width: none;
     object-fit: contain;
     object-position: bottom center;
-    transform: scale(1.15) translateY(10%); /* Scaled down for more balanced proportions */
+    transform: scale(1.05) translateY(5%); /* Slightly scaled down to prevent him from being too large */
     transform-origin: bottom center;
     filter: drop-shadow(0 20px 40px rgba(0, 0, 0, 0.3));
     display: block;
