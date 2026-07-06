@@ -2,7 +2,7 @@
   "name": "alpha-energie",
   "version": "1.0.0",
   "scripts": {
-    "start": "serve .",
+    "start": "node server.js",
     "backend": "node server.js"
   },
   "dependencies": {
