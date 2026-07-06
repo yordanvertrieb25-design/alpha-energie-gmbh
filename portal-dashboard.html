@@ -230,7 +230,7 @@
                                 +9,2%
                             </div>
                         </div>
-                        <div class="text-sm text-emerald-500/80">Aktueller Stand per today</div>
+                        <div class="text-sm text-emerald-500/80">Aktueller Stand bis heute</div>
                         
                         <!-- Decorative glow -->
                         <div class="absolute -right-20 -bottom-20 w-64 h-64 bg-emerald-500/10 rounded-full blur-3xl"></div>
@@ -429,6 +429,15 @@
             if (svg) {
                 svg.classList.remove('nav-icon', 'mr-3', 'text-zinc-500');
                 svg.classList.add('w-6', 'h-6');
+            }
+            
+            // Mobile viewport centering fix
+            if (window.innerWidth <= 800) {
+                backdrop.classList.remove('justify-center');
+                backdrop.classList.add('justify-start', 'pl-4', 'sm:pl-10');
+            } else {
+                backdrop.classList.add('justify-center');
+                backdrop.classList.remove('justify-start', 'pl-4', 'sm:pl-10');
             }
             
             backdrop.classList.remove('opacity-0', 'pointer-events-none');
