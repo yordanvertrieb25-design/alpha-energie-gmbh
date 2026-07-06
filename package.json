@@ -6,11 +6,13 @@
     "backend": "node server.js"
   },
   "dependencies": {
+    "@playwright/test": "^1.61.1",
     "@prisma/client": "^5.22.0",
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
     "jsonwebtoken": "^9.0.3",
+    "marked": "^18.0.5",
     "playwright": "^1.61.1",
     "prisma": "^5.22.0",
     "serve": "^14.2.0"

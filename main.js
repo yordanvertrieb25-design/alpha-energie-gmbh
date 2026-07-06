@@ -36,8 +36,21 @@ document.addEventListener("DOMContentLoaded", async () => {
     try {
         await loadScript("https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js");
         await loadScript("https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js");
-        gsap.registerPlugin(ScrollTrigger);
-        initGSAPAnimations();
+        if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
+            gsap.registerPlugin(ScrollTrigger);
+            if (window.innerWidth > 768) {
+                initGSAPAnimations();
+            } else {
+                // Mobile fallback: ensure elements are visible
+                const animateElements = document.querySelectorAll(
+                    ".card, .feature-box, .news-card, .section-title, .section-text, .section-subtitle, .about-content, .hero-content"
+                );
+                animateElements.forEach((el) => {
+                    el.style.opacity = '1';
+                    el.style.transform = 'none';
+                });
+            }
+        }
     } catch (e) {
         console.error("Failed to load GSAP, falling back to CSS reveals", e);
         initFallbackAnimations();
@@ -615,3 +628,85 @@ document.addEventListener("DOMContentLoaded", async () => {
         });
     }
 });
+
+// Cookie Banner Logic
+// Cookie Banner Logic
+// Cookie Banner Logic
+(function initCookieBanner() {
+    const checkAndShowBanner = () => {
+        try {
+            // Check if user has already made a choice
+            const consentGiven = localStorage.getItem("alpha_consent_status");
+            
+            // Check if we are on the settings page
+            const isSettingsPage = window.location.pathname.includes('cookie-einstellungen');
+            
+            if (!consentGiven && !isSettingsPage) {
+                
+                // Create overlay element (avoiding words like 'cookie', 'banner', 'consent' in IDs to prevent Adblockers from hiding it)
+                const overlay = document.createElement("div");
+                overlay.id = "alphaDsgvoOverlay";
+                overlay.style.cssText = "position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.6); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); z-index: 2147483646; display: flex; align-items: center; justify-content: center;";
+                
+                // Create banner element
+                const modalBox = document.createElement("div");
+                modalBox.id = "alphaDsgvoModal";
+                modalBox.style.cssText = "background: #fff; border-radius: 16px; box-shadow: 0 20px 50px rgba(0,0,0,0.3); padding: 32px; max-width: 600px; width: 90%; z-index: 2147483647; display: flex; flex-direction: column; gap: 20px;";
+                
+                modalBox.innerHTML = `
+                    <h3 style="margin:0; font-size:1.5rem; font-weight:bold; color:#1a1a1a;">Datenschutzeinstellungen</h3>
+                    <p style="margin:0; font-size:0.95rem; color:#4a4a4a; line-height:1.6;">
+                        Wir verwenden Technologien zur Datenspeicherung, um Ihnen das beste Erlebnis auf unserer Website zu bieten. 
+                        Einige davon sind essenziell (z.B. für die Grundfunktionen der Website), während andere uns helfen, unsere Website und Ihr Erlebnis zu verbessern. 
+                        Weitere Informationen finden Sie in unserer <a href="datenschutz.html" style="color:#ef8a00; text-decoration:underline;">Datenschutzerklärung</a>.
+                    </p>
+                    <div style="display:flex; flex-direction:column; gap:12px; margin-top:10px;">
+                        <div style="display:flex; gap:12px; flex-wrap:wrap;">
+                            <button id="btnAcceptAll" style="flex:1; padding:12px; background:#ef8a00; color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:bold; font-size:1rem; transition: background 0.2s;">Alle akzeptieren</button>
+                            <button id="btnDeclineAll" style="flex:1; padding:12px; background:#f0f0f0; color:#333; border:1px solid #ddd; border-radius:8px; cursor:pointer; font-weight:bold; font-size:1rem; transition: background 0.2s;">Nur Essenzielle</button>
+                        </div>
+                        <a href="cookie-einstellungen.html" style="text-align:center; padding:8px; color:#666; text-decoration:underline; font-size:0.9rem; cursor:pointer;">Individuelle Einstellungen anpassen</a>
+                    </div>
+                `;
+                
+                overlay.appendChild(modalBox);
+                document.body.appendChild(overlay);
+                
+                // Prevent scrolling
+                document.body.style.overflow = 'hidden';
+                
+                const removeModal = () => {
+                    overlay.remove();
+                    document.body.style.overflow = '';
+                };
+                
+                // Accept all cookies
+                document.getElementById("btnAcceptAll").addEventListener("click", function() {
+                    localStorage.setItem("alpha_consent_status", "all");
+                    localStorage.setItem("cookieConsent", "all"); // Keep for settings page
+                    localStorage.setItem("cookie_analytics", "true");
+                    localStorage.setItem("cookie_marketing", "true");
+                    removeModal();
+                });
+                
+                // Decline non-essential cookies
+                document.getElementById("btnDeclineAll").addEventListener("click", function() {
+                    localStorage.setItem("alpha_consent_status", "essential");
+                    localStorage.setItem("cookieConsent", "essential"); // Keep for settings page
+                    localStorage.setItem("cookie_analytics", "false");
+                    localStorage.setItem("cookie_marketing", "false");
+                    removeModal();
+                });
+            }
+        } catch(e) {
+            console.error("DSGVO Modal Error: ", e);
+        }
+    };
+
+    // Run when DOM is ready
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', checkAndShowBanner);
+    } else {
+        checkAndShowBanner();
+    }
+})();

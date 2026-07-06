@@ -62,6 +62,42 @@ Autohäuser mit Fokus auf Elektrofahrzeuge (EVs) und Elektrofachbetriebe, die La
 
 ---
 
+### Zielgruppe 4: Gebäudeenergieberater & Sanierungsplaner
+
+Energieberater erstellen Sanierungsfahrpläne (iSFP), beraten zu Förderungen (BAFA/KfW) und optimieren die Energieeffizienz von Bestands- und Neubauten.
+
+*   **Potenzial & Vermittlungshebel:**
+    *   **Tarif- und Bezugsoptimierung (B2C/B2B):** Nach einer Sanierung ändert sich das Verbrauchsprofil drastisch. Energieberater haben das absolute Vertrauen der Eigentümer, was Energiekosten angeht.
+*   **Synergieeffekt & Mehrwert bei Strom und Gas:**
+    *   **Direkte Umsetzung der Beratung:** Der Berater rechnet nicht nur theoretische Einsparungen vor, sondern kann über das VP-Portal direkt den günstigsten Tarif für den Neuzustand des Hauses abschließen. 
+    *   **Hohe Reputation:** Die Vermittlung von zertifiziertem Ökostrom stärkt die Glaubwürdigkeit des Beraters.
+
+---
+
+### Zielgruppe 5: Baufinanzierer & Kreditvermittler
+
+Vermittler von Baufinanzierungen begleiten Kunden in der kritischen Phase des Immobilienkaufs oder Neubaus. Das Vertrauensverhältnis ist extrem hoch, und sämtliche finanzielle Verträge des Kunden liegen ohnehin auf dem Tisch.
+
+*   **Potenzial & Vermittlungshebel:**
+    *   **Neuanmeldung / Lieferantenwechsel bei Immobilienkauf:** Der Kunde zieht um und benötigt zwingend neue Versorgerverträge für Strom und Gas.
+*   **Synergieeffekt & Mehrwert bei Strom und Gas:**
+    *   **Nebenkosten-Optimierung:** Der Finanzierer rechnet die monatliche Belastung des Haushalts aus. Durch einen optimierten Energievertrag sinken die Fixkosten, was das Budget für die Finanzierungsrate stärkt.
+    *   **"One-Stop-Shop" für den Hauskäufer:** Der Bauherr erhält Finanzierung, Versicherungen und Energietarife stressfrei aus einer Hand.
+
+---
+
+### Zielgruppe 6: Bauträger & Fertighausanbieter
+
+Unternehmen, die schlüsselfertige Häuser bauen oder Immobilienprojekte entwickeln.
+
+*   **Potenzial & Vermittlungshebel:**
+    *   **Baustrom & Erstbezug (B2B/B2C):** Während der Bauphase wird Baugewerbestrom benötigt. Bei Schlüsselübergabe an die Käufer müssen die neuen Zähler auf die Eigentümer angemeldet werden.
+*   **Synergieeffekt & Mehrwert bei Strom und Gas:**
+    *   **Service-Vorsprung für Käufer:** Der Bauträger übergibt nicht nur die Schlüssel, sondern auch bereits fertig angemeldete, grüne und günstige Energietarife – ein hervorragendes Aushängeschild für die Kundenbetreuung.
+    *   **Zusätzlicher Projekt-Cashflow:** Bei Projekten mit dutzenden Einheiten summiert sich die Zähler-Provision zu einem sehr lukrativen, passiven Zusatzeinkommen für den Projektentwickler.
+
+---
+
 ### Vergleichsmatrix der Partnersegmente
 
 | Kriterium | Hausverwaltungen / Makler | Solarteure / SHK-Betriebe | EV-Autohäuser / Elektriker |
