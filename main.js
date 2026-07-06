@@ -417,28 +417,13 @@ document.addEventListener("DOMContentLoaded", async () => {
                     })
                 }).then(res => {
                     if(!res.ok) throw new Error('API Error');
-                    const successContainer = document.getElementById("form-success-container");
-                    const successPhone = document.getElementById("success-phone");
-                    const phoneInput = document.getElementById("phone");
+                    // Save for onboarding auto-fill
+                    localStorage.setItem('partnerName', fullNameVal);
+                    localStorage.setItem('partnerEmail', emailVal);
+                    localStorage.setItem('partnerPhone', phoneVal);
                     
-                    if (successPhone && phoneInput) {
-                        successPhone.textContent = phoneInput.value;
-                    }
-                    
-                    // Fade out form and fade in success container
-                    partnerForm.style.transition = "opacity 0.3s ease";
-                    partnerForm.style.opacity = "0";
-                    setTimeout(() => {
-                        partnerForm.style.display = "none";
-                        if (successContainer) {
-                            successContainer.style.display = "block";
-                            successContainer.style.opacity = "0";
-                            successContainer.style.transition = "opacity 0.3s ease";
-                            setTimeout(() => {
-                                successContainer.style.opacity = "1";
-                            }, 50);
-                        }
-                    }, 300);
+                    // Weiterleitung zur Onboarding-Seite
+                    window.location.href = "onboarding.html";
                 }).catch(err => {
                     alert('Ein Fehler ist aufgetreten. Bitte versuchen Sie es später erneut.');
                     const submitBtn = partnerForm.querySelector('button[type="submit"]');
