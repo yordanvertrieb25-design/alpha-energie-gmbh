@@ -137,7 +137,9 @@ document.addEventListener("DOMContentLoaded", async () => {
                 { opacity: 0, scale: 0.95, y: 40 },
                 { opacity: 1, scale: 1, y: 0, duration: 1.2, ease: "power2.out", delay: 0.3 }
             );
-
+            
+            // Scroll animation disabled as requested
+            /*
             gsap.to(heroImageWrapper, {
                 yPercent: 12,
                 ease: "none",
@@ -148,6 +150,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                     scrub: true
                 }
             });
+            */
         }
 
         // General reveals on scroll (Cards, feature boxes, titles, and custom animated elements)
