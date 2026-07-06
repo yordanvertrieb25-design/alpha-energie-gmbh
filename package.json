@@ -2,9 +2,9 @@
   "name": "alpha-energie",
   "version": "1.0.0",
   "scripts": {
-    "start": "node server.js",
+    "start": "npx prisma db push && node server.js",
     "backend": "node server.js",
-    "postinstall": "npx prisma generate && npx prisma db push"
+    "postinstall": "npx prisma generate"
   },
   "dependencies": {
     "@playwright/test": "^1.61.1",
