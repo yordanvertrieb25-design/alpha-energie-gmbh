@@ -126,27 +126,85 @@ async function crawlWebsiteForEmail(url) {
   return null;
 }
 
+const cancelledCampaigns = new Set();
+
+function cancelCampaign(campaignId) {
+  cancelledCampaigns.add(campaignId);
+}
+
 // Main scrape function
-async function scrapeB2BContacts({ name, industry, companySize, port }) {
+async function scrapeB2BContacts({ prisma, campaignId, name, industry, companySize, pages, port }) {
   const apiKey = process.env.GOOGLE_PLACES_API_KEY;
-  const contacts = [];
+  let totalContactsFound = 0;
+  let isStopped = false;
 
-  if (apiKey) {
-    console.log(`[Scraper] Querying Google Places API for industry "${industry}"...`);
-    try {
-      // Step 1: Text Search
-      const query = `${industry} in Germany`;
-      const searchUrl = `https://maps.googleapis.com/maps/api/place/textsearch/json?query=${encodeURIComponent(query)}&key=${apiKey}`;
-      const searchRes = await axios.get(searchUrl);
+  try {
+    if (apiKey) {
+      console.log(`[Scraper] Querying Google Places API for industry "${industry}"...`);
+      const location = companySize ? companySize : 'Germany';
+      const placeIds = new Set();
+      
+      const initialQuery = `${industry} in ${location}`.trim().replace(/\s+/g, ' ');
+      console.log(`[Scraper] Initial Query to discover ZIP codes: "${initialQuery}"`);
+      
+      const zipCodes = new Set();
+      let maxLimit = 20;
+      let modifiers = [""];
 
-      if (searchRes.data && searchRes.data.results) {
-        // Limit to 10 contacts to ensure reasonable execution time
-        const places = searchRes.data.results.slice(0, 10);
+      if (pages === 'max') {
+        console.log(`[Scraper] Starting DEEP-SCAN for "${industry}" in "${location}"...`);
+        modifiers = ["", "Agentur", "Makler", "Büro"];
+        maxLimit = Infinity; // Run until all ZIP codes are exhausted
+      } else {
+        const p = parseInt(pages) || 3;
+        maxLimit = p * 20;
+      }
+
+      // 1. Initial Query for ZIP codes
+      let initialPlaces = [];
+      try {
+        const initRes = await axios.get(`https://maps.googleapis.com/maps/api/place/textsearch/json?query=${encodeURIComponent(initialQuery)}&key=${apiKey}`);
+        if (initRes.data && initRes.data.results) {
+          for (const res of initRes.data.results) {
+            if (!placeIds.has(res.place_id)) {
+              placeIds.add(res.place_id);
+              initialPlaces.push(res);
+            }
+            if (res.formatted_address) {
+              const match = res.formatted_address.match(/\b\d{5}\b/);
+              if (match) zipCodes.add(match[0]);
+            }
+          }
+        }
+      } catch (e) {
+        console.error(`[Scraper] Initial Query error: ${e.message}`);
+      }
+
+      console.log(`[Scraper] Found ${zipCodes.size} ZIP codes for ${location}:`, Array.from(zipCodes));
+
+      // 2. Generate Queries
+      const queries = [];
+      if (zipCodes.size > 0) {
+        for (const zip of zipCodes) {
+          for (const mod of modifiers) {
+            queries.push(`${industry} ${mod} in ${zip}`.trim().replace(/\s+/g, ' '));
+          }
+        }
+      } else {
+        for (const mod of modifiers) {
+          queries.push(`${industry} ${mod} in ${location}`.trim().replace(/\s+/g, ' '));
+        }
+      }
+
+      // Helper function to process and save a batch of places
+      const processAndSavePlaces = async (batchPlaces) => {
+        if (batchPlaces.length === 0) return;
         const placesDetails = [];
 
-        for (const place of places) {
+        for (const place of batchPlaces) {
+          if (cancelledCampaigns.has(campaignId)) return; // Abort early
+
           try {
-            // Step 2: Place Details
             const detailsUrl = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${place.place_id}&fields=name,formatted_phone_number,website&key=${apiKey}`;
             const detailsRes = await axios.get(detailsUrl);
             const details = detailsRes.data.result || {};
@@ -158,120 +216,181 @@ async function scrapeB2BContacts({ name, industry, companySize, port }) {
             });
           } catch (detailsErr) {
             console.error(`[Scraper] Details error for place ${place.place_id}: ${detailsErr.message}`);
-            placesDetails.push({
-              name: place.name,
-              phone: null,
-              website: null
-            });
+            placesDetails.push({ name: place.name, phone: null, website: null });
           }
         }
 
-        // Crawl websites in chunks of 3 to limit concurrency and optimize performance
         const crawledEmails = [];
         for (let i = 0; i < placesDetails.length; i += 3) {
+          if (cancelledCampaigns.has(campaignId)) return; // Abort early
+
           const chunk = placesDetails.slice(i, i + 3);
           const chunkEmails = await Promise.all(
-            chunk.map(async (p) => {
-              if (p.website) {
-                return crawlWebsiteForEmail(p.website);
-              }
-              return null;
-            })
+            chunk.map(async (p) => p.website ? crawlWebsiteForEmail(p.website) : null)
           );
           crawledEmails.push(...chunkEmails);
         }
 
+        const dbContacts = [];
         for (let i = 0; i < placesDetails.length; i++) {
           const p = placesDetails[i];
           let email = crawledEmails[i];
 
-          // Fallback email if scraping didn't find one
           if (!email) {
             const domain = p.website ? p.website.replace(/^https?:\/\/(www\.)?/, '').split('/')[0] : `${p.name.toLowerCase().replace(/[^a-z0-9]/g, '')}.de`;
             email = `info@${domain}`;
           }
 
-          contacts.push({
-            name: p.name,
-            phone: p.phone,
-            website: p.website,
-            email,
-            status: 'PENDING'
+          // Global Deduplication check
+          const OR_conditions = [];
+          if (p.website) OR_conditions.push({ website: p.website });
+          if (p.phone) OR_conditions.push({ phone: p.phone });
+          if (email) OR_conditions.push({ email: email });
+          // If no unique fields exist, we might just check name
+          if (OR_conditions.length === 0) {
+              OR_conditions.push({ name: p.name });
+          }
+
+          const existing = await prisma.scrapedContact.findFirst({
+              where: {
+                  OR: OR_conditions
+              }
           });
+
+          if (!existing) {
+            dbContacts.push({
+              campaignId,
+              name: p.name,
+              phone: p.phone,
+              website: p.website,
+              email,
+              status: 'PENDING'
+            });
+          } else {
+            console.log(`[Scraper] Duplicate skipped: ${p.name} (${p.website || p.phone || email})`);
+          }
         }
+
+        if (dbContacts.length > 0 && !cancelledCampaigns.has(campaignId)) {
+          await prisma.scrapedContact.createMany({ data: dbContacts });
+          totalContactsFound += dbContacts.length;
+          console.log(`[Scraper] Saved ${dbContacts.length} NEW contacts. Total so far: ${totalContactsFound}`);
+        }
+      };
+
+      // Process initial places
+      await processAndSavePlaces(initialPlaces);
+
+      // 3. Process Queries sequentially
+      for (const query of queries) {
+        if (cancelledCampaigns.has(campaignId)) {
+            isStopped = true;
+            break;
+        }
+        if (totalContactsFound >= maxLimit) break;
+        if (query === initialQuery) continue;
+
+        console.log(`[Scraper] ZIP-Query: "${query}"`);
+        const searchUrl = `https://maps.googleapis.com/maps/api/place/textsearch/json?query=${encodeURIComponent(query)}&key=${apiKey}`;
+        let queryPlaces = [];
+
+        try {
+          const searchRes = await axios.get(searchUrl);
+          if (searchRes.data && searchRes.data.results) {
+            for (const res of searchRes.data.results) {
+              if (!placeIds.has(res.place_id)) {
+                placeIds.add(res.place_id);
+                queryPlaces.push(res);
+              }
+            }
+          }
+        } catch (e) {
+          console.error(`[Scraper] Query error: ${e.message}`);
+        }
+
+        await processAndSavePlaces(queryPlaces);
       }
-    } catch (err) {
-      console.error(`[Scraper] Google Places API error: ${err.message}`);
-    }
-  }
-
-  // Fallback to mock B2B data generator if API key is missing or no results were found
-  if (contacts.length === 0) {
-    console.log(`[Scraper] Using mock B2B generator for industry "${industry}"...`);
-    const mockCompanies = [
-      { suffix: 'GmbH', type: 'Solartechnik' },
-      { suffix: 'GmbH & Co. KG', type: 'Energiesysteme' },
-      { suffix: 'AG', type: 'Kraftwerke' },
-      { suffix: 'GbR', type: 'Photovoltaik Partner' },
-      { suffix: 'e.K.', type: 'Elektro- und Solartechnik' }
-    ];
-
-    const cities = ['Berlin', 'München', 'Hamburg', 'Köln', 'Frankfurt'];
-    const targetCompanies = [];
-
-    for (let i = 0; i < mockCompanies.length; i++) {
-      const city = cities[i % cities.length];
-      const comp = mockCompanies[i];
-      const businessName = `${industry} ${comp.type} ${city} ${comp.suffix}`;
-      const slug = businessName.toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
       
-      const phonePrefixes = ['030', '089', '040', '0221', '069'];
-      const phone = `+49 ${phonePrefixes[i % phonePrefixes.length]} ${Math.floor(1000000 + Math.random() * 9000000)}`;
-      
-      // Point the website to our local server endpoint to test the crawler genuinely
-      const localPort = port || 3000;
-      const website = `http://localhost:${localPort}/api/mock-website/${slug}`;
-      
-      targetCompanies.push({
-        name: businessName,
-        phone,
-        website,
-        slug
-      });
+      if (!isStopped) console.log(`[Scraper] Scraping finished. Total unique contacts found: ${totalContactsFound}`);
     }
 
-    // Crawl mock websites in chunks of 3 to limit concurrency and optimize performance
-    const crawledEmails = [];
-    for (let i = 0; i < targetCompanies.length; i += 3) {
-      const chunk = targetCompanies.slice(i, i + 3);
-      const chunkEmails = await Promise.all(
-        chunk.map(c => crawlWebsiteForEmail(c.website))
-      );
-      crawledEmails.push(...chunkEmails);
-    }
+    // Fallback to mock data if API key missing or 0 results found
+    if (totalContactsFound === 0) {
+      console.log(`[Scraper] Using mock B2B generator for industry "${industry}"...`);
+      const mockCompanies = [
+        { suffix: 'GmbH', type: 'Solartechnik' },
+        { suffix: 'GmbH & Co. KG', type: 'Energiesysteme' },
+        { suffix: 'AG', type: 'Kraftwerke' },
+        { suffix: 'GbR', type: 'Photovoltaik Partner' },
+        { suffix: 'e.K.', type: 'Elektro- und Solartechnik' }
+      ];
 
-    for (let i = 0; i < targetCompanies.length; i++) {
-      const tc = targetCompanies[i];
-      let email = crawledEmails[i];
+      const cities = ['Berlin', 'München', 'Hamburg', 'Köln', 'Frankfurt'];
+      const targetCompanies = [];
 
-      if (!email) {
-        email = `info@${tc.slug}.de`;
+      for (let i = 0; i < mockCompanies.length; i++) {
+        const city = cities[i % cities.length];
+        const comp = mockCompanies[i];
+        const businessName = `${industry} ${comp.type} ${city} ${comp.suffix}`;
+        const slug = businessName.toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
+        
+        const phonePrefixes = ['030', '089', '040', '0221', '069'];
+        const phone = `+49 ${phonePrefixes[i % phonePrefixes.length]} ${Math.floor(1000000 + Math.random() * 9000000)}`;
+        
+        const localPort = port || 3000;
+        const website = `http://localhost:${localPort}/api/mock-website/${slug}`;
+        
+        targetCompanies.push({ name: businessName, phone, website, slug });
       }
 
-      contacts.push({
-        name: tc.name,
-        phone: tc.phone,
-        website: tc.website,
-        email,
-        status: 'PENDING'
-      });
-    }
-  }
+      const crawledEmails = [];
+      for (let i = 0; i < targetCompanies.length; i += 3) {
+        const chunk = targetCompanies.slice(i, i + 3);
+        const chunkEmails = await Promise.all(
+          chunk.map(c => crawlWebsiteForEmail(c.website))
+        );
+        crawledEmails.push(...chunkEmails);
+      }
 
-  return contacts;
+      const dbContacts = [];
+      for (let i = 0; i < targetCompanies.length; i++) {
+        const tc = targetCompanies[i];
+        let email = crawledEmails[i] || `info@${tc.slug}.de`;
+
+        dbContacts.push({
+          campaignId,
+          name: tc.name,
+          phone: tc.phone,
+          website: tc.website,
+          email,
+          status: 'PENDING'
+        });
+      }
+
+      if (dbContacts.length > 0) {
+        await prisma.scrapedContact.createMany({ data: dbContacts });
+        totalContactsFound += dbContacts.length;
+      }
+    }
+  } catch (err) {
+    console.error(`[Scraper] Fatal error: ${err.message}`);
+  } finally {
+    try {
+      const finalStatus = isStopped ? 'STOPPED' : 'COMPLETED';
+      await prisma.campaign.update({
+        where: { id: campaignId },
+        data: { status: finalStatus }
+      });
+      console.log(`[Scraper] Campaign ${campaignId} marked as ${finalStatus}.`);
+    } catch (e) {
+      console.error(`[Scraper] Failed to update campaign status: ${e.message}`);
+    }
+    cancelledCampaigns.delete(campaignId); // Cleanup
+  }
 }
 
 module.exports = {
   scrapeB2BContacts,
-  crawlWebsiteForEmail
+  crawlWebsiteForEmail,
+  cancelCampaign
 };

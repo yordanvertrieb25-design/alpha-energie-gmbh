@@ -131,8 +131,9 @@ app.get('/api/admin/data', authenticateAdmin, async (req, res) => {
     try {
         const contacts = await prisma.contactRequest.findMany({ orderBy: { createdAt: 'desc' } });
         const applications = await prisma.partnerApplication.findMany({ orderBy: { createdAt: 'desc' } });
+        const appointments = await prisma.appointment.findMany({ orderBy: { createdAt: 'desc' } });
         
-        res.json({ success: true, data: { contacts, applications } });
+        res.json({ success: true, data: { contacts, applications, appointments } });
     } catch (error) {
         console.error("Error fetching admin data:", error);
         res.status(500).json({ success: false, error: 'Internal Server Error' });
@@ -142,42 +143,231 @@ app.get('/api/admin/data', authenticateAdmin, async (req, res) => {
 // 5. Scrape B2B Contacts for Campaign (Protected)
 app.post('/api/campaigns/scrape', authenticateAdmin, async (req, res) => {
     try {
-        const { name, industry, companySize } = req.body;
+        const { name, industry, companySize, pages } = req.body;
         if (!name || !industry || !companySize) {
             return res.status(400).json({ success: false, error: 'Name, industry, and companySize are required' });
         }
 
         // 1. Create campaign
         const campaign = await prisma.campaign.create({
-            data: { name, industry, companySize }
+            data: { name, industry, companySize, status: 'RUNNING' }
         });
 
-        // 2. Perform B2B contact search
-        const scraped = await scrapeB2BContacts({ name, industry, companySize, port: PORT });
+        // 2. Start scraping asynchronously in the background
+        // We do NOT await this. It runs independently.
+        scrapeB2BContacts({ 
+            prisma,
+            campaignId: campaign.id,
+            name, 
+            industry, 
+            companySize, 
+            pages, 
+            port: PORT 
+        }).catch(err => {
+            console.error(`[Scraper] Background task error for campaign ${campaign.id}:`, err);
+        });
 
-        // 3. Save all scraped contacts
-        if (scraped.length > 0) {
-            const dataToSave = scraped.map(c => ({
-                campaignId: campaign.id,
-                name: c.name,
-                phone: c.phone,
-                website: c.website,
-                email: c.email,
-                status: c.status
-            }));
-            await prisma.scrapedContact.createMany({ data: dataToSave });
-        }
-
+        // 3. Respond immediately
         res.status(201).json({
             success: true,
             campaignId: campaign.id,
-            contactsCount: scraped.length
+            message: 'Scraping started in background'
         });
     } catch (error) {
-        console.error("Error during campaign scraping:", error);
+        console.error("Error creating campaign:", error);
         res.status(500).json({ success: false, error: 'Internal Server Error' });
     }
 });
+
+// 5a. Get Campaign Status (Protected)
+app.get('/api/campaigns/:id/status', authenticateAdmin, async (req, res) => {
+    try {
+        const campaignId = parseInt(req.params.id);
+        if (isNaN(campaignId)) return res.status(400).json({ success: false, error: 'Invalid ID' });
+
+        const campaign = await prisma.campaign.findUnique({
+            where: { id: campaignId }
+        });
+        
+        if (!campaign) return res.status(404).json({ success: false, error: 'Not found' });
+
+        const contactsCount = await prisma.scrapedContact.count({
+            where: { campaignId }
+        });
+
+        res.json({
+            success: true,
+            status: campaign.status,
+            contactsCount
+        });
+    } catch (error) {
+        console.error("Error fetching campaign status:", error);
+        res.status(500).json({ success: false, error: 'Server Error' });
+    }
+});
+
+// 5c. Stop Campaign (Protected)
+app.post('/api/campaigns/:id/stop', authenticateAdmin, async (req, res) => {
+    try {
+        const campaignId = parseInt(req.params.id);
+        if (isNaN(campaignId)) return res.status(400).json({ success: false, error: 'Invalid ID' });
+
+        const { cancelCampaign } = require('./services/scraperService');
+        cancelCampaign(campaignId);
+
+        // Update in DB immediately so frontend knows it's stopped before scraper finishes cleanup
+        await prisma.campaign.update({
+            where: { id: campaignId },
+            data: { status: 'STOPPED' }
+        });
+
+        res.json({ success: true, message: 'Campaign stop requested' });
+    } catch (error) {
+        console.error("Error stopping campaign:", error);
+        res.status(500).json({ success: false, error: 'Server Error' });
+    }
+});
+
+// 5b. Get Paginated Contacts (Protected)
+app.get('/api/campaigns/:id/contacts', authenticateAdmin, async (req, res) => {
+    try {
+        const campaignId = parseInt(req.params.id);
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 50;
+        const skip = (page - 1) * limit;
+
+        if (isNaN(campaignId)) return res.status(400).json({ success: false, error: 'Invalid ID' });
+
+        const contacts = await prisma.scrapedContact.findMany({
+            where: { campaignId },
+            skip,
+            take: limit,
+            orderBy: { id: 'desc' } // Zeige neueste zuerst
+        });
+
+        const total = await prisma.scrapedContact.count({
+            where: { campaignId }
+        });
+
+        res.json({
+            success: true,
+            data: contacts,
+            total,
+            page,
+            totalPages: Math.ceil(total / limit)
+        });
+    } catch (error) {
+        console.error("Error fetching campaign contacts:", error);
+        res.status(500).json({ success: false, error: 'Server Error' });
+    }
+});
+
+// 6. Global B2B Database Endpoints
+// 6a. Get all contacts with pagination, search and filter
+app.get('/api/contacts', authenticateAdmin, async (req, res) => {
+    try {
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 50;
+        const search = req.query.search || '';
+        const statusFilter = req.query.status || '';
+        const skip = (page - 1) * limit;
+
+        const where = {};
+        
+        if (search) {
+            where.OR = [
+                { name: { contains: search } },
+                { email: { contains: search } },
+                { phone: { contains: search } },
+                { website: { contains: search } }
+            ];
+        }
+
+        if (statusFilter) {
+            where.status = statusFilter;
+        }
+
+        const contacts = await prisma.scrapedContact.findMany({
+            where,
+            skip,
+            take: limit,
+            orderBy: { createdAt: 'desc' }
+        });
+
+        const total = await prisma.scrapedContact.count({ where });
+
+        res.json({
+            success: true,
+            data: contacts,
+            total,
+            page,
+            totalPages: Math.ceil(total / limit)
+        });
+    } catch (error) {
+        console.error("Error fetching global contacts:", error);
+        res.status(500).json({ success: false, error: 'Server Error' });
+    }
+});
+
+// 6b. Update contact status
+app.patch('/api/contacts/:id/status', authenticateAdmin, async (req, res) => {
+    try {
+        const id = parseInt(req.params.id);
+        const { status } = req.body;
+        
+        if (isNaN(id) || !status) return res.status(400).json({ success: false, error: 'Invalid data' });
+
+        await prisma.scrapedContact.update({
+            where: { id },
+            data: { status }
+        });
+
+        res.json({ success: true });
+    } catch (error) {
+        console.error("Error updating contact status:", error);
+        res.status(500).json({ success: false, error: 'Server Error' });
+    }
+});
+
+// 6c. Export filtered global contacts
+app.get('/api/contacts/export', authenticateAdmin, async (req, res) => {
+    try {
+        const search = req.query.search || '';
+        const statusFilter = req.query.status || '';
+        
+        const where = {};
+        if (search) {
+            where.OR = [
+                { name: { contains: search } },
+                { email: { contains: search } },
+                { phone: { contains: search } },
+                { website: { contains: search } }
+            ];
+        }
+        if (statusFilter) {
+            where.status = statusFilter;
+        }
+
+        const contacts = await prisma.scrapedContact.findMany({
+            where,
+            orderBy: { createdAt: 'desc' }
+        });
+
+        const Parser = require('json2csv').Parser;
+        const fields = ['id', 'createdAt', 'name', 'phone', 'website', 'email', 'status'];
+        const json2csvParser = new Parser({ fields });
+        const csv = json2csvParser.parse(contacts);
+
+        res.header('Content-Type', 'text/csv');
+        res.attachment('b2b_database.csv');
+        return res.send(csv);
+    } catch (error) {
+        console.error("Error exporting global contacts:", error);
+        res.status(500).json({ success: false, error: 'Server Error' });
+    }
+});
+
+// --- Existing logic from 5c onwards ---
 
 // 6. Export Campaign Contacts as CSV (Protected)
 app.get('/api/campaigns/:id/export', authenticateAdmin, async (req, res) => {

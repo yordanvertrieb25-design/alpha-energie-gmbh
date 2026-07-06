@@ -220,25 +220,34 @@ async function sendCampaign(campaignId, smtpSettings) {
         console.log(`[Simulated Mailer] Sending email to ${contact.email} for Campaign ID ${campaignId}`);
         // Simulate minor async delay
         await new Promise(resolve => setTimeout(resolve, 100));
+        info = { messageId: 'simulated-id' };
       } else {
-        await transporter.sendMail(mailOptions);
+        info = await transporter.sendMail(mailOptions);
       }
 
       // 4. Update status and log success
-      await prisma.$transaction([
-        prisma.scrapedContact.update({
-          where: { id: contact.id },
-          data: { status: 'SENT' }
-        }),
-        prisma.emailLog.create({
-          data: {
-            scrapedContactId: contact.id,
-            status: 'SUCCESS',
-            subject: escapedSubject,
-            body: escapedBody
-          }
-        })
-      ]);
+      try {
+        await prisma.$transaction([
+          prisma.scrapedContact.update({
+            where: { id: contact.id },
+            data: { status: 'SENT' }
+          }),
+          prisma.emailLog.create({
+            data: {
+              scrapedContactId: contact.id,
+              status: 'SUCCESS',
+              subject: escapedSubject,
+              body: escapedBody
+            }
+          })
+        ]);
+      } catch (dbErr) {
+        if (dbErr.code === 'P2025') {
+          console.error(`[Mailer DB Error] Contact ${contact.id} not found when updating status.`);
+        } else {
+          throw dbErr;
+        }
+      }
 
       sentCount++;
 

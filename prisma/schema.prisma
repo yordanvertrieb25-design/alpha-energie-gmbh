@@ -44,6 +44,7 @@ model Campaign {
   name        String
   industry    String
   companySize String
+  status      String           @default("RUNNING") // RUNNING, COMPLETED, FAILED
   createdAt   DateTime         @default(now())
   contacts    ScrapedContact[]
 }

@@ -6,6 +6,7 @@
     <title>Admin Dashboard - Alpha Energie</title>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="admin.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body class="dashboard-body">
     <nav class="admin-nav">
@@ -18,17 +19,23 @@
     
     <div class="dashboard-container">
         <header class="dashboard-header">
-            <h1>Eingänge & Bewerbungen</h1>
+            <h1>Eingänge, Kampagnen & Datenbank</h1>
         </header>
 
         <div class="tabs">
-            <button class="tab-btn active" onclick="switchTab('contacts')">Kontaktanfragen</button>
-            <button class="tab-btn" onclick="switchTab('applications')">Partner-Bewerbungen</button>
+            <button class="tab-btn active" onclick="switchTab('requests')">Kontaktanfragen</button>
+            <button class="tab-btn" onclick="switchTab('partners')">Partner-Bewerbungen</button>
+            <button class="tab-btn" onclick="switchTab('appointments')">Termine</button>
             <button class="tab-btn" onclick="switchTab('campaigns')">B2B Kampagnen</button>
+            <button class="tab-btn" onclick="switchTab('db-b2b')" style="background: #e0f2fe; color: #0284c7; border: 1px solid #bae6fd;">Datenbank-B2B</button>
         </div>
 
-        <!-- Contact Requests Table -->
-        <div id="contacts-tab" class="tab-content active">
+        <!-- Requests Tab -->
+        <div id="requests-tab" class="tab-content active">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h3 style="margin-bottom: 0;">Kontaktanfragen</h3>
+                <button id="btn-export-requests" class="btn btn-outline-light" style="color: #64748b; border-color: #64748b;">CSV Export</button>
+            </div>
             <div class="table-container">
                 <table class="data-table">
                     <thead>
@@ -37,19 +44,22 @@
                             <th>Name</th>
                             <th>E-Mail</th>
                             <th>Telefon</th>
-                            <th>Bereich</th>
-                            <th>Nachricht</th>
+                            <th>Betreff</th>
                         </tr>
                     </thead>
-                    <tbody id="contacts-tbody">
-                        <tr><td colspan="6" class="text-center">Lade Daten...</td></tr>
+                    <tbody id="requests-tbody">
+                        <tr><td colspan="5" class="text-center">Lade Daten...</td></tr>
                     </tbody>
                 </table>
             </div>
         </div>
 
-        <!-- Partner Applications Table -->
-        <div id="applications-tab" class="tab-content">
+        <!-- Partners Tab -->
+        <div id="partners-tab" class="tab-content">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h3 style="margin-bottom: 0;">Partner Bewerbungen</h3>
+                <button id="btn-export-partners" class="btn btn-outline-light" style="color: #64748b; border-color: #64748b;">CSV Export</button>
+            </div>
             <div class="table-container">
                 <table class="data-table">
                     <thead>
@@ -61,43 +71,146 @@
                             <th>Erfahrung</th>
                         </tr>
                     </thead>
-                    <tbody id="applications-tbody">
+                    <tbody id="partners-tbody">
                         <tr><td colspan="5" class="text-center">Lade Daten...</td></tr>
                     </tbody>
                 </table>
             </div>
         </div>
 
-        <!-- B2B Campaigns Tab -->
+        <!-- Appointments Tab -->
+        <div id="appointments-tab" class="tab-content">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h3 style="margin-bottom: 0;">Termine</h3>
+                <button id="btn-export-appointments" class="btn btn-outline-light" style="color: #64748b; border-color: #64748b;">CSV Export</button>
+            </div>
+            <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Datum (Erstellt)</th>
+                            <th>Wunschtermin</th>
+                            <th>Name</th>
+                            <th>E-Mail</th>
+                            <th>Telefon</th>
+                        </tr>
+                    </thead>
+                    <tbody id="appointments-tbody">
+                        <tr><td colspan="5" class="text-center">Lade Daten...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Campaigns Tab -->
         <div id="campaigns-tab" class="tab-content">
             <div style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); margin-bottom: 20px;">
-                <h3 style="margin-top: 0; color: #1e293b; font-size: 1.2rem;">Neue Kampagne starten</h3>
+                <h3 style="margin-top: 0; color: #1e293b; font-size: 1.2rem;">Neue B2B Kampagne</h3>
                 <p style="color: #64748b; font-size: 0.9rem; margin-bottom: 15px;">Suche über Google Places nach B2B Unternehmen und scrapen Sie deren Kontaktdaten.</p>
-                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr auto; gap: 15px; align-items: end;">
+                <div style="display: grid; grid-template-columns: 1.5fr 1fr 1fr 1fr auto; gap: 15px; align-items: end;">
                     <div>
                         <label style="display: block; font-size: 0.85rem; color: #475569; margin-bottom: 5px;">Kampagnen-Name</label>
-                        <input type="text" id="camp-name" placeholder="z.B. Sommer-Aktion IT" style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px;">
+                        <input type="text" id="camp-name" placeholder="z.B. Dortmund Gastro" style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px;">
                     </div>
                     <div>
                         <label style="display: block; font-size: 0.85rem; color: #475569; margin-bottom: 5px;">Branche</label>
-                        <input type="text" id="camp-industry" placeholder="z.B. Handwerker" style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px;">
+                        <input type="text" id="camp-industry" placeholder="z.B. Restaurants" style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px;">
                     </div>
                     <div>
-                        <label style="display: block; font-size: 0.85rem; color: #475569; margin-bottom: 5px;">Ort / Größe</label>
-                        <input type="text" id="camp-size" placeholder="z.B. München" style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px;">
+                        <label style="display: block; font-size: 0.85rem; color: #475569; margin-bottom: 5px;">Ort / Region</label>
+                        <input type="text" id="camp-size" placeholder="z.B. Dortmund" style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px;">
+                    </div>
+                    <div>
+                        <label style="display: block; font-size: 0.85rem; color: #475569; margin-bottom: 5px;">Scan-Tiefe</label>
+                        <select id="camp-pages" style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; background: white;">
+                            <option value="1">1 Seite (~20 Treffer)</option>
+                            <option value="3" selected>3 Seiten (~60 Treffer)</option>
+                            <option value="max" style="font-weight: bold; color: #ef4444;">Deep-Scan (Extrem)</option>
+                        </select>
                     </div>
                     <div>
                         <button id="btn-scrape" style="background: #ef8a00; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: bold; height: 100%;">Suchen & Scrapen</button>
                     </div>
                 </div>
-                <div id="camp-status" style="margin-top: 15px; font-weight: 600; color: #3b82f6; display: none;">Scraping läuft... Bitte warten.</div>
-                
-                <div id="camp-actions" style="margin-top: 20px; display: none; padding-top: 15px; border-top: 1px solid #e2e8f0; gap: 15px;">
-                    <div style="flex: 1;">
-                        <p style="margin-top: 0; color: #10b981; font-weight: bold;" id="camp-result-text">Erfolgreich X Kontakte gefunden!</p>
+            </div>
+
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 15px;">
+                <div id="camp-status" style="font-weight: 600; color: #3b82f6; display: none;">Scraping läuft... Bitte warten.</div>
+                <button id="btn-stop" style="background: #ef4444; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-weight: bold; display: none;">Abbrechen</button>
+            </div>
+            
+            <div id="camp-actions" style="margin-top: 20px; display: none; padding-top: 15px; border-top: 1px solid #e2e8f0; gap: 15px;">
+                <div style="flex: 1;">
+                    <p style="margin-top: 0; color: #10b981; font-weight: bold;" id="camp-result-text">Erfolgreich X Kontakte gefunden!</p>
+                </div>
+                <button id="btn-export" style="background: #475569; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: bold;">CSV Exportieren</button>
+                <button id="btn-send" style="background: #10b981; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: bold;">KI-Mails senden</button>
+            </div>
+            
+            <div id="camp-live-table-container" style="display: none; margin-top: 30px;">
+                <h4 style="margin-bottom: 10px; color: #1e293b;">Gefundene Kontakte (Live-Ansicht)</h4>
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>E-Mail</th>
+                                <th>Telefon</th>
+                                <th>Webseite</th>
+                            </tr>
+                        </thead>
+                        <tbody id="camp-live-tbody">
+                            <!-- Data will be populated here -->
+                        </tbody>
+                    </table>
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px;">
+                    <span id="camp-pagination-info" style="color: #64748b; font-size: 0.9rem;">Seite 1 von 1</span>
+                    <div style="display: flex; gap: 10px;">
+                        <button id="btn-prev-page" class="btn btn-outline-light" style="padding: 5px 15px; color: #475569; border-color: #cbd5e1;" disabled>Zurück</button>
+                        <button id="btn-next-page" class="btn btn-outline-light" style="padding: 5px 15px; color: #475569; border-color: #cbd5e1;" disabled>Vor</button>
                     </div>
-                    <button id="btn-export" style="background: #475569; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: bold;">CSV Exportieren</button>
-                    <button id="btn-send" style="background: #10b981; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: bold;">KI-Mails senden</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Datenbank B2B Tab -->
+        <div id="db-b2b-tab" class="tab-content">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px;">
+                <h3 style="margin-bottom: 0;">Globale B2B Datenbank</h3>
+                <div style="display: flex; gap: 10px; align-items: center;">
+                    <input type="text" id="db-search" placeholder="Suchen..." style="width: 200px; padding: 8px; border: 1px solid #cbd5e1; border-radius: 6px;">
+                    <select id="db-status-filter" style="width: 200px; padding: 8px; border: 1px solid #cbd5e1; border-radius: 6px;">
+                        <option value="">Alle Status</option>
+                        <option value="Neu / Unbearbeitet">Neu / Unbearbeitet</option>
+                        <option value="Abtelefoniert">Abtelefoniert</option>
+                        <option value="Abgelehnt">Abgelehnt</option>
+                        <option value="Terminiert">Terminiert</option>
+                        <option value="Entscheider nicht angetroffen">Entscheider nicht angetroffen</option>
+                    </select>
+                    <button id="btn-db-export" class="btn btn-outline-light" style="color: #64748b; border-color: #64748b;">CSV Export</button>
+                </div>
+            </div>
+            <div class="table-container">
+                <table class="data-table" id="db-b2b-table">
+                    <thead>
+                        <tr>
+                            <th>Erfasst am</th>
+                            <th>Name</th>
+                            <th>Kontaktdaten</th>
+                            <th>Akquise-Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="db-b2b-tbody">
+                        <!-- Data populated here -->
+                    </tbody>
+                </table>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px;">
+                <span id="db-pagination-info" style="color: #64748b; font-size: 0.9rem;">Seite 1 von 1</span>
+                <div style="display: flex; gap: 10px;">
+                    <button id="btn-db-prev" class="btn btn-outline-light" style="padding: 5px 15px; color: #475569; border-color: #cbd5e1;" disabled>Zurück</button>
+                    <button id="btn-db-next" class="btn btn-outline-light" style="padding: 5px 15px; color: #475569; border-color: #cbd5e1;" disabled>Vor</button>
                 </div>
             </div>
         </div>
@@ -106,4 +219,3 @@
     <script src="admin.js"></script>
 </body>
 </html>
-
