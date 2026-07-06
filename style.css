@@ -2403,3 +2403,20 @@ section {
 .cookie-btn-settings:hover {
     color: var(--text-main);
 }
+
+/* Responsive Portal Iframe Preview */
+@media (max-width: 768px) {
+    .portal-image-wrapper {
+        overflow-x: auto !important;
+        overflow-y: hidden !important;
+        -webkit-overflow-scrolling: touch;
+        aspect-ratio: auto !important;
+        height: 500px !important;
+        border-radius: 8px !important;
+    }
+    .portal-image-wrapper iframe {
+        width: 800px !important;
+        height: 500px !important;
+        max-width: none !important;
+    }
+}

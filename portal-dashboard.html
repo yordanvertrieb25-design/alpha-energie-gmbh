@@ -354,13 +354,12 @@
                 </div>
             </div>
         </div>
-    </div>
-
-    <!-- Modal Overlay -->
-    <div id="modal-backdrop" class="fixed inset-0 z-[100] flex items-center justify-center opacity-0 pointer-events-none transition-opacity duration-300">
-        <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="closeModal()"></div>
-        <div class="relative bg-zinc-900 border border-zinc-700 rounded-2xl shadow-2xl p-6 max-w-md w-full transform scale-95 opacity-0 transition-all duration-300" id="modal-content">
-            <button onclick="closeModal()" class="absolute top-4 right-4 text-zinc-500 hover:text-white transition-colors">
+        
+        <!-- Modal Overlay -->
+        <div id="modal-backdrop" class="absolute inset-0 z-[100] flex items-center justify-center opacity-0 pointer-events-none transition-opacity duration-300">
+            <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="closeModal()"></div>
+            <div class="relative bg-zinc-900 border border-zinc-700 rounded-2xl shadow-2xl p-6 max-w-md w-full max-h-[95%] overflow-y-auto transform scale-95 opacity-0 transition-all duration-300" id="modal-content">
+                <button onclick="closeModal()" class="absolute top-4 right-4 text-zinc-500 hover:text-white transition-colors">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
             </button>
             <div class="w-12 h-12 rounded-xl bg-indigo-500/20 text-indigo-400 flex items-center justify-center mb-6" id="modal-icon-container">
@@ -372,6 +371,7 @@
                 Ausgezeichnet!
             </button>
         </div>
+    </div>
     </div>
 
     <script>
