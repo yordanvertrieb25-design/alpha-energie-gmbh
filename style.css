@@ -1144,7 +1144,7 @@ section {
     .hero-section {
         height: auto !important;
         min-height: auto !important;
-        padding: 8rem 1.5rem 4rem 1.5rem !important;
+        padding: 3rem 1.5rem 3rem 1.5rem !important;
         display: block !important; 
     }
 
@@ -1240,6 +1240,61 @@ section {
         overflow-wrap: break-word !important;
         word-wrap: break-word !important;
     }
+
+    /* Fixes for new pages (agenturen, vertriebspartner, onboarding) */
+    .hero-bullets {
+        align-items: flex-start !important;
+        margin: 0 auto 2rem auto !important;
+        max-width: fit-content;
+    }
+    .hero-bullets li {
+        font-size: 0.95rem !important;
+        text-align: left !important;
+    }
+    .status-tier-container {
+        padding: 1rem !important;
+    }
+    .calculator-card {
+        padding: 1rem !important;
+    }
+    .testimonial-card {
+        padding: 1.5rem !important;
+    }
+    .calculator-slider-container label {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 0.5rem;
+    }
+    .slider-value-display {
+        font-size: 1.5rem !important;
+        align-self: flex-start;
+    }
+    .hero-text {
+        font-size: 1.05rem !important;
+        margin-bottom: 1.5rem !important;
+    }
+
+    /* Button optimizations for mobile */
+    .hero-buttons {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 0.8rem !important;
+        width: 100% !important;
+        margin-bottom: 2.5rem !important;
+    }
+    .hero-buttons .btn {
+        width: 100% !important;
+        padding: 0.8rem 1rem !important;
+        display: flex !important;
+        align-items: center;
+        justify-content: center;
+        line-height: 1.3 !important;
+        min-height: 48px;
+    }
+    .btn-large {
+        padding: 0.8rem 1.25rem !important;
+        font-size: 1rem !important;
+    }
 }
 
 /* Additional Animations */
@@ -1270,6 +1325,7 @@ section {
 @media (max-width: 768px) {
     .hamburger {
         display: block;
+        margin-left: auto;
     }
 
     .nav-list {
