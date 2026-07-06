@@ -558,13 +558,11 @@ document.addEventListener("DOMContentLoaded", async () => {
             }
             
             // Computations
-            const sofort = val * 150;
-            const bestand = val * 12;
-            const gesamt = Math.round(val * 24.50); // (val * 150 / 12) + (val * 12) = val * 24.5
+            const sofort = val * 250;
+            const gesamt = val * 250;
             
             // Update displays with animation
             animateNumber(sofortProv, sofort);
-            animateNumber(bestandsProv, bestand);
             animateNumber(gesamtProv, gesamt);
             
             // Update slider background track
