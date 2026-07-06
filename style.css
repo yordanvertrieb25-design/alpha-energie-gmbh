@@ -1189,6 +1189,57 @@ section {
         transition: none !important;
         animation: none !important;
     }
+
+    .hero-image-wrapper {
+        display: none !important;
+    }
+
+    .card.highlight-card {
+        padding: 1.5rem !important;
+    }
+
+    html {
+        overflow-x: hidden !important;
+    }
+
+    .container {
+        padding: 0 1rem !important;
+    }
+
+    .section-pad {
+        padding: 3rem 1rem !important;
+    }
+
+    .card {
+        padding: 1.5rem !important;
+    }
+
+    .feature-box {
+        padding: 1.5rem 1.25rem !important;
+    }
+
+    .badge {
+        white-space: normal !important;
+        text-align: center;
+        max-width: 100%;
+    }
+
+    h1, .hero-title {
+        font-size: 2rem !important;
+    }
+
+    h2, .section-title {
+        font-size: 1.5rem !important;
+    }
+
+    h3, .feature-title, .card-title {
+        font-size: 1.25rem !important;
+    }
+
+    p, span, li, a, label, h1, h2, h3, h4, h5, h6 {
+        overflow-wrap: break-word !important;
+        word-wrap: break-word !important;
+    }
 }
 
 /* Additional Animations */
@@ -1968,6 +2019,7 @@ section {
 }
 
 .tooltip-text {
+    display: none;
     visibility: hidden;
     width: 200px;
     background-color: var(--text-main);
@@ -2001,6 +2053,7 @@ section {
 
 .tooltip-container:hover .tooltip-text,
 .tooltip-container:focus .tooltip-text {
+    display: block;
     visibility: visible;
     opacity: 1;
     transform: translateX(-50%) translateY(0);

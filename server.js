@@ -15,7 +15,7 @@ app.use(express.urlencoded({ extended: true }));
 
 // Serve static files from the root directory
 app.use(express.static(path.join(__dirname, 'public'))); // For future public assets if needed
-app.use(express.static(__dirname)); // Serving the HTML files from the root
+app.use(express.static(__dirname, { extensions: ['html'] })); // Serving the HTML files from the root
 
 // --- API ROUTES ---
 

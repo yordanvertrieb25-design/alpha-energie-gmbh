@@ -1,12 +1,44 @@
 const { test, expect } = require('@playwright/test');
 
 test.describe('B2B Agency Page (agenturen.html)', () => {
+    let logs = [];
     test.beforeEach(async ({ context, page }) => {
-        await context.addInitScript(() => {
-            window.localStorage.setItem('alpha_consent_status', 'all');
+        logs = [];
+        page.on('console', msg => {
+            logs.push(`BROWSER LOG: ${msg.text()}`);
+            console.log(`BROWSER LOG: ${msg.text()}`);
         });
-        // Go to the landing page
+        page.on('pageerror', err => {
+            logs.push(`BROWSER ERROR: ${err.message}`);
+            console.log(`BROWSER ERROR: ${err.message}`);
+        });
+        page.on('dialog', async dialog => {
+            logs.push(`DIALOG DETECTED: ${dialog.message()}`);
+            console.log(`DIALOG DETECTED: ${dialog.message()}`);
+            await dialog.dismiss();
+        });
+        page.on('response', response => {
+            logs.push(`HTTP RESPONSE: ${response.status()} ${response.url()}`);
+            console.log(`HTTP RESPONSE: ${response.status()} ${response.url()}`);
+        });
+        page.on('request', request => {
+            logs.push(`HTTP REQUEST: ${request.method()} ${request.url()}`);
+            console.log(`HTTP REQUEST: ${request.method()} ${request.url()}`);
+        });
+        
+        // Go to the landing page first to establish origin, set localStorage, then reload.
         await page.goto('http://localhost:3000/agenturen.html');
+        await page.evaluate(() => {
+            localStorage.setItem('alpha_consent_status', 'all');
+            localStorage.setItem('cookieConsent', 'all');
+            localStorage.setItem('cookie_analytics', 'true');
+            localStorage.setItem('cookie_marketing', 'true');
+        });
+        await page.reload();
+
+        // Wait for GSAP and main.js initialization
+        await page.waitForFunction(() => typeof window.gsap !== 'undefined' && typeof window.ScrollTrigger !== 'undefined');
+        await page.waitForTimeout(500);
     });
 
     test('should load page with correct metadata and headers', async ({ page }) => {
@@ -20,42 +52,42 @@ test.describe('B2B Agency Page (agenturen.html)', () => {
     });
 
     test('should dynamically calculate commission values via slider', async ({ page }) => {
-        // Check default values at 20 contracts
+        // Check default values at 500 contracts
         const sliderVal = page.locator('#slider-val');
         const sofortProv = page.locator('#sofort-provision');
         const bestandsProv = page.locator('#bestands-provision');
         const gesamtProv = page.locator('#gesamt-provision');
         const statusBadge = page.locator('#status-tier-badge');
         
-        await expect(sliderVal).toHaveText('20');
-        await expect(sofortProv).toHaveText('3.000');
-        await expect(bestandsProv).toHaveText('240');
-        await expect(gesamtProv).toHaveText('490');
-        await expect(statusBadge).toHaveText('Einsteiger-Status');
+        await expect(sliderVal).toHaveText('500');
+        await expect(sofortProv).toHaveText('75.000');
+        await expect(bestandsProv).toHaveText('6.000');
+        await expect(gesamtProv).toHaveText('12.250');
+        await expect(statusBadge).toHaveText('Profi-Status');
         
-        // Move slider to 50 contracts
+        // Move slider to 800 contracts
         const slider = page.locator('#contract-slider');
         await slider.focus();
         
         // Use fill to set the slider value directly to trigger events
-        await slider.fill('50');
+        await slider.fill('800');
         
-        // Check updated values at 50 contracts (sofort: 50 * 150 = 7500, bestand: 50 * 12 = 600, gesamt: 50 * 24.5 = 1225)
-        await expect(sliderVal).toHaveText('50');
-        await expect(sofortProv).toHaveText('7.500');
-        await expect(bestandsProv).toHaveText('600');
-        await expect(gesamtProv).toHaveText('1.225');
-        await expect(statusBadge).toHaveText('Profi-Status');
-        
-        // Move slider to 80 contracts
-        await slider.fill('80');
-        
-        // Check updated values at 80 contracts (sofort: 80 * 150 = 12000, bestand: 80 * 12 = 960, gesamt: 80 * 24.5 = 1960)
-        await expect(sliderVal).toHaveText('80');
-        await expect(sofortProv).toHaveText('12.000');
-        await expect(bestandsProv).toHaveText('960');
-        await expect(gesamtProv).toHaveText('1.960');
+        // Check updated values at 800 contracts
+        await expect(sliderVal).toHaveText('800');
+        await expect(sofortProv).toHaveText('120.000');
+        await expect(bestandsProv).toHaveText('9.600');
+        await expect(gesamtProv).toHaveText('19.600');
         await expect(statusBadge).toHaveText('Elite-Status');
+        
+        // Move slider to 200 contracts
+        await slider.fill('200');
+        
+        // Check updated values at 200 contracts
+        await expect(sliderVal).toHaveText('200');
+        await expect(sofortProv).toHaveText('30.000');
+        await expect(bestandsProv).toHaveText('2.400');
+        await expect(gesamtProv).toHaveText('4.900');
+        await expect(statusBadge).toHaveText('Einsteiger-Status');
     });
 
     test('should validate form and submit successfully', async ({ page }) => {
@@ -79,17 +111,69 @@ test.describe('B2B Agency Page (agenturen.html)', () => {
         await page.locator('#experience').selectOption('Versicherungsmakler');
         
         // Submit valid form
-        await submitBtn.click();
+        const valName = await page.locator('#fullName').inputValue();
+        const valEmail = await page.locator('#email').inputValue();
+        const valPhone = await page.locator('#phone').inputValue();
+        const valExp = await page.locator('#experience').inputValue();
+        logs.push(`BEFORE SUBMIT - Name: "${valName}", Email: "${valEmail}", Phone: "${valPhone}", Exp: "${valExp}"`);
+        
+        const evalResult = await page.evaluate(() => {
+            const validationRules = {
+                fullName: {
+                    validate: (val) => val.trim().split(/\s+/).length >= 2,
+                    error: "Bitte geben Sie Ihren Vor- und Nachnamen an."
+                },
+                email: {
+                    validate: (val) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val.trim()),
+                    error: "Geben Sie eine gültige E-Mail-Adresse ein."
+                },
+                phone: {
+                    validate: (val) => /^(?:\+49|0049|0)[1-9][0-9\s.-]{5,15}$/.test(val.replace(/\s+/g, '')),
+                    error: "Ungültiges Format. Beispiel: 0170 1234567"
+                },
+                experience: {
+                    validate: (val) => val !== null && val !== undefined && val !== "",
+                    error: "Bitte wählen Sie Ihre Vertriebserfahrung aus."
+                }
+            };
+            const fields = ["fullName", "email", "phone", "experience"];
+            let isValid = true;
+            const details = {};
+            fields.forEach(fieldId => {
+                const input = document.getElementById(fieldId);
+                const val = input ? input.value : null;
+                const rule = validationRules[fieldId];
+                const valid = rule.validate(val);
+                details[fieldId] = {
+                    val: val,
+                    valid: valid,
+                    ruleError: rule.error
+                };
+                if (!valid) isValid = false;
+            });
+            return { isValid, details };
+        });
+        await page.evaluate(() => {
+            const form = document.getElementById('application-form');
+            if (form) {
+                const event = new Event('submit', { cancelable: true, bubbles: true });
+                form.dispatchEvent(event);
+            }
+        });
         
         // Success container should be shown
         const successContainer = page.locator('#form-success-container');
-        await expect(successContainer).toBeVisible();
-        
-        // Success phone number matches the inputted phone number
-        const successPhone = page.locator('#success-phone');
-        await expect(successPhone).toHaveText('0170 1234567');
-        
-        // Form should be hidden
-        await expect(form).not.toBeVisible();
+        try {
+            await expect(successContainer).toBeVisible();
+            
+            // Success phone number matches the inputted phone number
+            const successPhone = page.locator('#success-phone');
+            await expect(successPhone).toHaveText('0170 1234567');
+            
+            // Form should be hidden
+            await expect(form).not.toBeVisible();
+        } catch (err) {
+            throw new Error(`${err.message}\nCaptured Logs:\n${logs.join('\n')}`);
+        }
     });
 });

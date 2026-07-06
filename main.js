@@ -369,7 +369,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                 if (!rule.validate(input.value)) {
                     input.style.borderColor = "#ef4444";
                     if (errorDiv && errorDiv.classList.contains("error-msg")) {
-                        errorDiv.textContent = rule.error;
+                        errorDiv.textContent = input.getAttribute("data-error-msg") || rule.error;
                         errorDiv.style.display = "block";
                     }
                     isValid = false;
@@ -464,7 +464,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                         if (!rule.validate(input.value)) {
                             input.style.borderColor = "#ef4444";
                             if (errorDiv && errorDiv.classList.contains("error-msg")) {
-                                errorDiv.textContent = rule.error;
+                                errorDiv.textContent = input.getAttribute("data-error-msg") || rule.error;
                                 errorDiv.style.display = "block";
                             }
                         } else {
@@ -486,7 +486,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                     if (!rule.validate(input.value)) {
                         input.style.borderColor = "#ef4444";
                         if (errorDiv && errorDiv.classList.contains("error-msg")) {
-                            errorDiv.textContent = rule.error;
+                            errorDiv.textContent = input.getAttribute("data-error-msg") || rule.error;
                             errorDiv.style.display = "block";
                         }
                     } else {
@@ -572,29 +572,29 @@ document.addEventListener("DOMContentLoaded", async () => {
             
             // Update status progress bar and markers
             if (progressBar && statusBadge && nextBonusText) {
-                const percentage = ((val - 5) / 95) * 100;
+                const percentage = ((val - 100) / 900) * 100;
                 progressBar.style.width = `${percentage}%`;
                 
-                const marker30 = document.querySelector('.status-step-marker.step-30');
-                const marker70 = document.querySelector('.status-step-marker.step-70');
+                const marker300 = document.querySelector('.status-step-marker.step-300');
+                const marker700 = document.querySelector('.status-step-marker.step-700');
                 
-                if (marker30) {
-                    if (val >= 30) marker30.classList.add('reached');
-                    else marker30.classList.remove('reached');
+                if (marker300) {
+                    if (val >= 300) marker300.classList.add('reached');
+                    else marker300.classList.remove('reached');
                 }
                 
-                if (marker70) {
-                    if (val >= 70) marker70.classList.add('reached');
-                    else marker70.classList.remove('reached');
+                if (marker700) {
+                    if (val >= 700) marker700.classList.add('reached');
+                    else marker700.classList.remove('reached');
                 }
                 
                 statusBadge.className = 'status-tier-badge'; // reset classes
                 
-                if (val < 30) {
+                if (val < 300) {
                     statusBadge.textContent = 'Einsteiger-Status';
                     statusBadge.classList.add('tier-einsteiger');
-                    nextBonusText.innerHTML = 'Nächster Bonus ab <strong>30</strong> Verträgen!';
-                } else if (val < 70) {
+                    nextBonusText.innerHTML = 'Nächster Bonus ab <strong>300</strong> Verträgen!';
+                } else if (val < 700) {
                     statusBadge.textContent = 'Profi-Status';
                     statusBadge.classList.add('tier-profi');
                     nextBonusText.innerHTML = '<strong>+10%</strong> Sonderbonus freigeschaltet!';

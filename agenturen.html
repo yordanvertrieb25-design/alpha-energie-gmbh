@@ -40,7 +40,7 @@
             </button>
             <nav id="main-nav" class="nav">
                 <ul class="nav-list">
-                    <li class="nav-item">
+                    <li class="nav-item has-dropdown">
                         <a href="ueber-uns.html">Über uns</a>
                     </li>
                     <li class="nav-item has-dropdown">
@@ -175,10 +175,10 @@
                             <span>Kundenwechsel pro Monat:</span>
                             <span class="slider-value-display"><span id="slider-val">20</span></span>
                         </label>
-                        <input type="range" id="contract-slider" min="5" max="100" value="20" step="1" class="custom-slider">
+                        <input type="range" id="contract-slider" min="100" max="1000" value="500" step="100" class="custom-slider">
                         <div class="slider-labels">
-                            <span>5 Verträge</span>
                             <span>100 Verträge</span>
+                            <span>1000 Verträge</span>
                         </div>
                     </div>
                     
@@ -190,8 +190,8 @@
                         </div>
                         <div class="status-progress-track">
                             <div class="status-progress-bar" id="status-progress-bar" style="width: 15.789%;"></div>
-                            <div class="status-step-marker step-30" data-value="30"><span>30</span></div>
-                            <div class="status-step-marker step-70" data-value="70"><span>70</span></div>
+                            <div class="status-step-marker step-300" data-value="300"><span>300</span></div>
+                            <div class="status-step-marker step-700" data-value="700"><span>700</span></div>
                         </div>
                     </div>
                     
@@ -240,40 +240,42 @@
 
         <!-- API / White-Label Details Section -->
         <section class="bg-light section-pad">
-            <div class="container grid-split">
-                <div>
-                    <h2 class="section-title">Einfache API-Prozesse & flexible White-Label-Modelle</h2>
-                    <p class="section-text" style="margin-left: 0; line-height: 1.8; margin-bottom: 1.5rem;">
-                        Mit Alpha Energie erweitern Sie Ihr Geschäftsmodell ohne administrativen Aufwand oder technologische Hürden. Unser volldigitales Partnerportal und unsere modernen API-Schnittstellen ermöglichen einen vollautomatisierten Tarifvergleich und schnellen Vertragsabschluss in Echtzeit. Alle Prozesse laufen papierlos und sind perfekt auf Tablets für Kundengespräche vor Ort oder die Online-Beratung optimiert.
-                    </p>
-                    <p class="section-text" style="margin-left: 0; line-height: 1.8; margin-bottom: 1.5rem;">
-                        Dank unserer flexiblen White-Label-Lösungen treten Sie gegenüber Ihren Kunden stets unter Ihrem guten Namen auf. Wir bleiben im Hintergrund als zuverlässiger Abwicklungspartner. Zudem punkten Sie bei Ihren Mandanten mit Nachhaltigkeit: Wir bieten ausschließlich zertifizierten Ökostrom und klimaneutrale Erdgastarife von renommierten Anbietern zur spürbaren Senkung des CO2-Fußabdrucks.
-                    </p>
-                </div>
-                <div class="card highlight-card" style="padding: 2.5rem;">
-                    <h3 class="card-title" style="margin-bottom: 1.5rem;">Ihre Vorteile als Partner-Agentur:</h3>
-                    <ul style="display: flex; flex-direction: column; gap: 1rem; padding-left: 0; list-style: none;">
-                        <li style="display: flex; align-items: flex-start; gap: 0.8rem;">
-                            <span style="color: var(--accent-orange); font-weight: bold;">&check;</span>
-                            <span>Zusätzliche Einnahmequellen & hohe Provisionen</span>
-                        </li>
-                        <li style="display: flex; align-items: flex-start; gap: 0.8rem;">
-                            <span style="color: var(--accent-orange); font-weight: bold;">&check;</span>
-                            <span>Einfache, digitale Abwicklung via Portal oder API-Schnittstelle</span>
-                        </li>
-                        <li style="display: flex; align-items: flex-start; gap: 0.8rem;">
-                            <span style="color: var(--accent-orange); font-weight: bold;">&check;</span>
-                            <span>Zertifizierte grüne Energie- und Telekommunikationstarife</span>
-                        </li>
-                        <li style="display: flex; align-items: flex-start; gap: 0.8rem;">
-                            <span style="color: var(--accent-orange); font-weight: bold;">&check;</span>
-                            <span>White-Label-Portal zur Stärkung der eigenen Kundenbindung</span>
-                        </li>
-                        <li style="display: flex; align-items: flex-start; gap: 0.8rem;">
-                            <span style="color: var(--accent-orange); font-weight: bold;">&check;</span>
-                            <span>Persönlicher Key-Account-Support & kostenfreie Schulungen</span>
-                        </li>
-                    </ul>
+            <div class="container">
+                <div class="grid-split">
+                    <div>
+                        <h2 class="section-title">Einfache API-Prozesse & flexible White-Label-Modelle</h2>
+                        <p class="section-text" style="margin-left: 0; line-height: 1.8; margin-bottom: 1.5rem;">
+                            Mit Alpha Energie erweitern Sie Ihr Geschäftsmodell ohne administrativen Aufwand oder technologische Hürden. Unser volldigitales Partnerportal und unsere modernen API-Schnittstellen ermöglichen einen vollautomatisierten Tarifvergleich und schnellen Vertragsabschluss in Echtzeit. Alle Prozesse laufen papierlos und sind perfekt auf Tablets für Kundengespräche vor Ort oder die Online-Beratung optimiert.
+                        </p>
+                        <p class="section-text" style="margin-left: 0; line-height: 1.8; margin-bottom: 1.5rem;">
+                            Dank unserer flexiblen White-Label-Lösungen treten Sie gegenüber Ihren Kunden stets unter Ihrem guten Namen auf. Wir bleiben im Hintergrund als zuverlässiger Abwicklungspartner. Zudem punkten Sie bei Ihren Mandanten mit Nachhaltigkeit: Wir bieten ausschließlich zertifizierten Ökostrom und klimaneutrale Erdgastarife von renommierten Anbietern zur spürbaren Senkung des CO2-Fußabdrucks.
+                        </p>
+                    </div>
+                    <div class="card highlight-card" style="padding: 2.5rem; overflow-wrap: break-word; word-wrap: break-word;">
+                        <h3 class="card-title" style="margin-bottom: 1.5rem;">Ihre Vorteile als Partner-Agentur:</h3>
+                        <ul style="display: flex; flex-direction: column; gap: 1rem; padding-left: 0; list-style: none;">
+                            <li style="display: flex; align-items: flex-start; gap: 0.8rem;">
+                                <span style="color: var(--accent-orange); font-weight: bold;">&check;</span>
+                                <span>Zusätzliche Einnahmequellen & hohe Provisionen</span>
+                            </li>
+                            <li style="display: flex; align-items: flex-start; gap: 0.8rem;">
+                                <span style="color: var(--accent-orange); font-weight: bold;">&check;</span>
+                                <span>Einfache, digitale Abwicklung via Portal oder API-Schnittstelle</span>
+                            </li>
+                            <li style="display: flex; align-items: flex-start; gap: 0.8rem;">
+                                <span style="color: var(--accent-orange); font-weight: bold;">&check;</span>
+                                <span>Zertifizierte grüne Energie- und Telekommunikationstarife</span>
+                            </li>
+                            <li style="display: flex; align-items: flex-start; gap: 0.8rem;">
+                                <span style="color: var(--accent-orange); font-weight: bold;">&check;</span>
+                                <span>White-Label-Portal zur Stärkung der eigenen Kundenbindung</span>
+                            </li>
+                            <li style="display: flex; align-items: flex-start; gap: 0.8rem;">
+                                <span style="color: var(--accent-orange); font-weight: bold;">&check;</span>
+                                <span>Persönlicher Key-Account-Support & kostenfreie Schulungen</span>
+                            </li>
+                        </ul>
+                    </div>
                 </div>
             </div>
         </section>
@@ -389,7 +391,7 @@
                         <div>
                             <label for="experience" class="form-label">Agenturtyp / Branche *</label>
                             <div class="select-wrapper">
-                                <select id="experience" name="experience" class="form-select" required>
+                                <select id="experience" name="experience" class="form-select" data-error-msg="Bitte wählen Sie Ihre Branche aus." required>
                                     <option value="" disabled selected hidden>Bitte wählen...</option>
                                     <option value="Versicherungsmakler">Versicherungsmakler</option>
                                     <option value="Finanzagentur">Finanzagentur</option>
