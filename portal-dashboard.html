@@ -432,19 +432,25 @@
             }
             
             // Mobile viewport centering fix
+            let openScale = 'scale-100';
             if (window.innerWidth <= 800) {
                 backdrop.classList.remove('justify-center');
-                backdrop.classList.add('justify-start', 'pl-4', 'sm:pl-10');
+                backdrop.classList.add('justify-start', 'pl-4');
+                content.classList.remove('max-w-md');
+                content.classList.add('max-w-lg', 'origin-left');
+                openScale = 'scale-[1.15]';
             } else {
                 backdrop.classList.add('justify-center');
-                backdrop.classList.remove('justify-start', 'pl-4', 'sm:pl-10');
+                backdrop.classList.remove('justify-start', 'pl-4');
+                content.classList.remove('max-w-lg', 'origin-left');
+                content.classList.add('max-w-md');
             }
             
             backdrop.classList.remove('opacity-0', 'pointer-events-none');
             backdrop.classList.add('opacity-100');
             
-            content.classList.remove('scale-95', 'opacity-0');
-            content.classList.add('scale-100', 'opacity-100');
+            content.classList.remove('scale-95', 'opacity-0', 'scale-100', 'scale-[1.15]');
+            content.classList.add(openScale, 'opacity-100');
         }
 
         function closeModal() {
@@ -454,7 +460,7 @@
             backdrop.classList.remove('opacity-100');
             backdrop.classList.add('opacity-0', 'pointer-events-none');
             
-            content.classList.remove('scale-100', 'opacity-100');
+            content.classList.remove('scale-100', 'scale-[1.15]', 'opacity-100');
             content.classList.add('scale-95', 'opacity-0');
         }
 
