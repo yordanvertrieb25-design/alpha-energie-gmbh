@@ -186,8 +186,45 @@ h3 { font-size: 1.5rem; }
 .page-header {
     padding: var(--space-5xl) var(--space-xxl);
     text-align: center;
-    background-color: var(--bg-orange);
+    background: linear-gradient(-45deg, #0b1120, #172554, #25528d, #1e3a8a, #0b1120);
+    background-size: 400% 400%;
+    animation: heroGradientShift 15s ease infinite;
     color: white;
+    position: relative;
+    overflow: hidden;
+    z-index: 1;
+}
+
+.page-header > * {
+    position: relative;
+    z-index: 2;
+}
+
+.page-header::before,
+.page-header::after {
+    content: '';
+    position: absolute;
+    width: 600px;
+    height: 600px;
+    border-radius: 50%;
+    filter: blur(120px);
+    z-index: 0;
+    pointer-events: none;
+    opacity: 0.5;
+}
+
+.page-header::before {
+    background: radial-gradient(circle, rgba(56, 189, 248, 0.35) 0%, transparent 60%);
+    top: -50%;
+    left: -10%;
+    animation: float 10s ease-in-out infinite;
+}
+
+.page-header::after {
+    background: radial-gradient(circle, rgba(255, 155, 26, 0.35) 0%, transparent 60%);
+    bottom: -50%;
+    right: -10%;
+    animation: float 12s ease-in-out infinite reverse;
 }
 
 .flex-between { display: flex; justify-content: space-between; align-items: center; }
