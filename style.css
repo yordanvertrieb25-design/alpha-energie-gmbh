@@ -527,7 +527,7 @@ h3 { font-size: 1.5rem; }
     position: absolute;
     bottom: 0;
     right: max(-8%, calc(50% - 750px)); /* Pushed significantly further to the right */
-    height: 90%; /* Leaves space at the top so head isn't cut off */
+    height: 75%; /* Reduced height to make the man significantly smaller */
     z-index: 10;
     display: flex;
     align-items: flex-end;
@@ -540,7 +540,7 @@ h3 { font-size: 1.5rem; }
     max-width: none;
     object-fit: contain;
     object-position: bottom center;
-    transform: scale(1.05) translateY(5%); /* Slightly scaled down to prevent him from being too large */
+    transform: translateY(0); /* Reset scale to prevent artificial enlargement */
     transform-origin: bottom center;
     filter: drop-shadow(0 20px 40px rgba(0, 0, 0, 0.3));
     display: block;
