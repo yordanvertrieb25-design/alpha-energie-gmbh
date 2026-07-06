@@ -6,7 +6,7 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "sqlite"
   url      = env("DATABASE_URL")
 }
 
@@ -37,4 +37,37 @@ model Appointment {
   date      String   
   time      String   
   createdAt DateTime @default(now())
+}
+
+model Campaign {
+  id          Int              @id @default(autoincrement())
+  name        String
+  industry    String
+  companySize String
+  createdAt   DateTime         @default(now())
+  contacts    ScrapedContact[]
+}
+
+model ScrapedContact {
+  id         Int        @id @default(autoincrement())
+  campaignId Int
+  campaign   Campaign   @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  name       String
+  phone      String?
+  website    String?
+  email      String?
+  status     String     @default("PENDING") // PENDING, SENT, FAILED
+  createdAt  DateTime   @default(now())
+  emailLogs  EmailLog[]
+}
+
+model EmailLog {
+  id               Int            @id @default(autoincrement())
+  scrapedContactId Int
+  scrapedContact   ScrapedContact @relation(fields: [scrapedContactId], references: [id], onDelete: Cascade)
+  sentAt           DateTime       @default(now())
+  status           String         // SUCCESS, FAILED
+  errorMessage     String?
+  subject          String
+  body             String
 }
