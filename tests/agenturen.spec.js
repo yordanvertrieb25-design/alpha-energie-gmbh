@@ -55,14 +55,12 @@ test.describe('B2B Agency Page (agenturen.html)', () => {
         // Check default values at 500 contracts
         const sliderVal = page.locator('#slider-val');
         const sofortProv = page.locator('#sofort-provision');
-        const bestandsProv = page.locator('#bestands-provision');
         const gesamtProv = page.locator('#gesamt-provision');
         const statusBadge = page.locator('#status-tier-badge');
         
         await expect(sliderVal).toHaveText('500');
-        await expect(sofortProv).toHaveText('75.000');
-        await expect(bestandsProv).toHaveText('6.000');
-        await expect(gesamtProv).toHaveText('12.250');
+        await expect(sofortProv).toHaveText('125.000');
+        await expect(gesamtProv).toHaveText('125.000');
         await expect(statusBadge).toHaveText('Profi-Status');
         
         // Move slider to 800 contracts
@@ -74,9 +72,8 @@ test.describe('B2B Agency Page (agenturen.html)', () => {
         
         // Check updated values at 800 contracts
         await expect(sliderVal).toHaveText('800');
-        await expect(sofortProv).toHaveText('120.000');
-        await expect(bestandsProv).toHaveText('9.600');
-        await expect(gesamtProv).toHaveText('19.600');
+        await expect(sofortProv).toHaveText('200.000');
+        await expect(gesamtProv).toHaveText('200.000');
         await expect(statusBadge).toHaveText('Elite-Status');
         
         // Move slider to 200 contracts
@@ -84,9 +81,8 @@ test.describe('B2B Agency Page (agenturen.html)', () => {
         
         // Check updated values at 200 contracts
         await expect(sliderVal).toHaveText('200');
-        await expect(sofortProv).toHaveText('30.000');
-        await expect(bestandsProv).toHaveText('2.400');
-        await expect(gesamtProv).toHaveText('4.900');
+        await expect(sofortProv).toHaveText('50.000');
+        await expect(gesamtProv).toHaveText('50.000');
         await expect(statusBadge).toHaveText('Einsteiger-Status');
     });
 
@@ -161,17 +157,9 @@ test.describe('B2B Agency Page (agenturen.html)', () => {
             }
         });
         
-        // Success container should be shown
-        const successContainer = page.locator('#form-success-container');
+        // Verify redirection to onboarding.html
         try {
-            await expect(successContainer).toBeVisible();
-            
-            // Success phone number matches the inputted phone number
-            const successPhone = page.locator('#success-phone');
-            await expect(successPhone).toHaveText('0170 1234567');
-            
-            // Form should be hidden
-            await expect(form).not.toBeVisible();
+            await expect(page).toHaveURL(/.*onboarding.html/);
         } catch (err) {
             throw new Error(`${err.message}\nCaptured Logs:\n${logs.join('\n')}`);
         }

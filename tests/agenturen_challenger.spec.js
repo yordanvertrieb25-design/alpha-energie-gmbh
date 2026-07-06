@@ -45,7 +45,6 @@ test.describe('Agenturen Page - Challenger Verification', () => {
         const slider = page.locator('#contract-slider');
         const sliderVal = page.locator('#slider-val');
         const sofortProv = page.locator('#sofort-provision');
-        const bestandsProv = page.locator('#bestands-provision');
         const gesamtProv = page.locator('#gesamt-provision');
         const statusBadge = page.locator('#status-tier-badge');
         const progressBar = page.locator('#status-progress-bar');
@@ -59,12 +58,10 @@ test.describe('Agenturen Page - Challenger Verification', () => {
         await expect(sliderVal).toHaveText('100');
 
         // Verify mathematically correct calculations
-        // sofort: 100 * 150 = 15.000
-        // bestand: 100 * 12 = 1.200
-        // gesamt: Math.round(100 * 24.50) = 2.450
-        await expect(sofortProv).toHaveText('15.000');
-        await expect(bestandsProv).toHaveText('1.200');
-        await expect(gesamtProv).toHaveText('2.450');
+        // sofort: 100 * 250 = 25.000
+        // gesamt: 100 * 250 = 25.000
+        await expect(sofortProv).toHaveText('25.000');
+        await expect(gesamtProv).toHaveText('25.000');
 
         // Verify status progress bar width is 0% (since percentage is (val-100)/900 * 100)
         await expect(progressBar).toHaveAttribute('style', 'width: 0%;');
@@ -78,7 +75,6 @@ test.describe('Agenturen Page - Challenger Verification', () => {
         const slider = page.locator('#contract-slider');
         const sliderVal = page.locator('#slider-val');
         const sofortProv = page.locator('#sofort-provision');
-        const bestandsProv = page.locator('#bestands-provision');
         const gesamtProv = page.locator('#gesamt-provision');
         const statusBadge = page.locator('#status-tier-badge');
         const progressBar = page.locator('#status-progress-bar');
@@ -92,12 +88,10 @@ test.describe('Agenturen Page - Challenger Verification', () => {
         await expect(sliderVal).toHaveText('1000');
 
         // Verify mathematically correct calculations
-        // sofort: 1000 * 150 = 150.000
-        // bestand: 1000 * 12 = 12.000
-        // gesamt: Math.round(1000 * 24.50) = 24.500
-        await expect(sofortProv).toHaveText('150.000');
-        await expect(bestandsProv).toHaveText('12.000');
-        await expect(gesamtProv).toHaveText('24.500');
+        // sofort: 1000 * 250 = 250.000
+        // gesamt: 1000 * 250 = 250.000
+        await expect(sofortProv).toHaveText('250.000');
+        await expect(gesamtProv).toHaveText('250.000');
 
         // Verify status progress bar width is 100%
         await expect(progressBar).toHaveAttribute('style', 'width: 100%;');
@@ -251,17 +245,13 @@ test.describe('Agenturen Page - Challenger Verification', () => {
                 text: btn ? btn.textContent : null
             };
             return res;
+        }).catch(err => {
+            return { error: err.message };
         });
         console.log("FIELD STATUSES AFTER 4TH CLICK:", JSON.stringify(fieldStatuses));
 
-        // Success container should be shown and form hidden
-        const successContainer = page.locator('#form-success-container');
-        await expect(successContainer).toBeVisible();
-        await expect(form).not.toBeVisible();
-        
-        // Success phone number matches input
-        const successPhone = page.locator('#success-phone');
-        await expect(successPhone).toHaveText('0170 1234567');
+        // Verify redirection to onboarding.html
+        await expect(page).toHaveURL(/.*onboarding.html/);
     });
 
     test('should verify mobile responsiveness and no horizontal overflow at 320px viewport', async ({ page }) => {

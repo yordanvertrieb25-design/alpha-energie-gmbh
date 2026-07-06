@@ -23,6 +23,7 @@
     --space-lg: 1rem;     /* 16px */
     --space-xl: 1.5rem;   /* 24px */
     --space-xxl: 2rem;    /* 32px */
+    --space-40: 2.5rem;   /* 40px */
     --space-3xl: 3rem;    /* 48px */
     --space-4xl: 4rem;    /* 64px */
     --space-5xl: 6rem;    /* 96px */
@@ -97,9 +98,98 @@ h3 { font-size: 1.5rem; }
 }
 
 .text-center { text-align: center; }
-.mt-2 { margin-top: 1rem; }
-.mt-4 { margin-top: 2rem; }
-.ml-2 { margin-left: 1rem; }
+
+/* Spacing Utilities */
+.mt-xs { margin-top: var(--space-xs); }
+.mt-sm { margin-top: var(--space-sm); }
+.mt-md { margin-top: var(--space-md); }
+.mt-lg { margin-top: var(--space-lg); }
+.mt-xl { margin-top: var(--space-xl); }
+.mt-xxl { margin-top: var(--space-xxl); }
+.mt-40 { margin-top: var(--space-40); }
+.mt-3xl { margin-top: var(--space-3xl); }
+.mt-4xl { margin-top: var(--space-4xl); }
+.mt-5xl { margin-top: var(--space-5xl); }
+
+.mb-xs { margin-bottom: var(--space-xs); }
+.mb-sm { margin-bottom: var(--space-sm); }
+.mb-md { margin-bottom: var(--space-md); }
+.mb-lg { margin-bottom: var(--space-lg); }
+.mb-xl { margin-bottom: var(--space-xl); }
+.mb-xxl { margin-bottom: var(--space-xxl); }
+.mb-40 { margin-bottom: var(--space-40); }
+.mb-3xl { margin-bottom: var(--space-3xl); }
+.mb-4xl { margin-bottom: var(--space-4xl); }
+.mb-5xl { margin-bottom: var(--space-5xl); }
+
+.ml-xs { margin-left: var(--space-xs); }
+.ml-sm { margin-left: var(--space-sm); }
+.ml-md { margin-left: var(--space-md); }
+.ml-lg { margin-left: var(--space-lg); }
+.ml-xl { margin-left: var(--space-xl); }
+.ml-xxl { margin-left: var(--space-xxl); }
+.ml-40 { margin-left: var(--space-40); }
+.ml-3xl { margin-left: var(--space-3xl); }
+.ml-4xl { margin-left: var(--space-4xl); }
+.ml-5xl { margin-left: var(--space-5xl); }
+
+.p-xs { padding: var(--space-xs); }
+.p-sm { padding: var(--space-sm); }
+.p-md { padding: var(--space-md); }
+.p-lg { padding: var(--space-lg); }
+.p-xl { padding: var(--space-xl); }
+.p-xxl { padding: var(--space-xxl); }
+.p-40 { padding: var(--space-40); }
+.p-3xl { padding: var(--space-3xl); }
+.p-4xl { padding: var(--space-4xl); }
+.p-5xl { padding: var(--space-5xl); }
+
+.px-xs { padding-left: var(--space-xs); padding-right: var(--space-xs); }
+.px-sm { padding-left: var(--space-sm); padding-right: var(--space-sm); }
+.px-md { padding-left: var(--space-md); padding-right: var(--space-md); }
+.px-lg { padding-left: var(--space-lg); padding-right: var(--space-lg); }
+.px-xl { padding-left: var(--space-xl); padding-right: var(--space-xl); }
+.px-xxl { padding-left: var(--space-xxl); padding-right: var(--space-xxl); }
+.px-40 { padding-left: var(--space-40); padding-right: var(--space-40); }
+.px-3xl { padding-left: var(--space-3xl); padding-right: var(--space-3xl); }
+.px-4xl { padding-left: var(--space-4xl); padding-right: var(--space-4xl); }
+.px-5xl { padding-left: var(--space-5xl); padding-right: var(--space-5xl); }
+
+.py-xs { padding-top: var(--space-xs); padding-bottom: var(--space-xs); }
+.py-sm { padding-top: var(--space-sm); padding-bottom: var(--space-sm); }
+.py-md { padding-top: var(--space-md); padding-bottom: var(--space-md); }
+.py-lg { padding-top: var(--space-lg); padding-bottom: var(--space-lg); }
+.py-xl { padding-top: var(--space-xl); padding-bottom: var(--space-xl); }
+.py-xxl { padding-top: var(--space-xxl); padding-bottom: var(--space-xxl); }
+.py-40 { padding-top: var(--space-40); padding-bottom: var(--space-40); }
+.py-3xl { padding-top: var(--space-3xl); padding-bottom: var(--space-3xl); }
+.py-4xl { padding-top: var(--space-4xl); padding-bottom: var(--space-4xl); }
+.py-5xl { padding-top: var(--space-5xl); padding-bottom: var(--space-5xl); }
+
+.gap-xs { gap: var(--space-xs); }
+.gap-sm { gap: var(--space-sm); }
+.gap-md { gap: var(--space-md); }
+.gap-lg { gap: var(--space-lg); }
+.gap-xl { gap: var(--space-xl); }
+.gap-xxl { gap: var(--space-xxl); }
+.gap-40 { gap: var(--space-40); }
+.gap-3xl { gap: var(--space-3xl); }
+.gap-4xl { gap: var(--space-4xl); }
+.gap-5xl { gap: var(--space-5xl); }
+
+/* Legacy Spacing Utilities to ensure backward compatibility */
+.mt-2 { margin-top: var(--space-lg); }
+.mt-4 { margin-top: var(--space-xxl); }
+.ml-2 { margin-left: var(--space-lg); }
+
+/* Centralized Page Header Class */
+.page-header {
+    padding: var(--space-5xl) var(--space-xxl);
+    text-align: center;
+    background-color: var(--bg-orange);
+    color: white;
+}
+
 .flex-between { display: flex; justify-content: space-between; align-items: center; }
 .bg-light { background-color: var(--bg-alt); }
 
@@ -1127,6 +1217,24 @@ section {
 }
 
 @media (max-width: 768px) {
+    :root {
+        --space-xl: 1rem;     /* 16px */
+        --space-xxl: 1.5rem;  /* 24px */
+        --space-40: 1.75rem;  /* 28px */
+        --space-3xl: 2rem;    /* 32px */
+        --space-4xl: 2.5rem;  /* 40px */
+        --space-5xl: 3.5rem;  /* 56px */
+    }
+
+    .page-header {
+        padding: var(--space-3xl) var(--space-xl);
+    }
+
+    #calendar-times {
+        grid-template-columns: 1fr !important;
+        gap: var(--space-sm) !important;
+    }
+
     .topbar {
         flex-direction: column;
         text-align: center;
@@ -1168,10 +1276,6 @@ section {
     
     .hero-content {
         margin: 0 auto;
-    }
-
-    .section-pad {
-        padding: 3rem 1.5rem;
     }
 
     .form-grid {
