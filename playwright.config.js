@@ -1,11 +1,14 @@
 const { defineConfig } = require('@playwright/test');
 
 module.exports = defineConfig({
+  timeout: 30000,
   testDir: './tests',
-  fullyParallel: false,
+  fullyParallel: true,
   retries: 0,
   workers: 1,
   reporter: 'list',
+  timeout: 30000,
+  globalTimeout: 300000,
   use: {
     baseURL: 'http://localhost:3000',
     headless: true,
@@ -18,3 +21,4 @@ module.exports = defineConfig({
     stderr: 'pipe',
   },
 });
+

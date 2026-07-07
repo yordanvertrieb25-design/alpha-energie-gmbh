@@ -15,6 +15,14 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Casing check for robots.txt to prevent case-insensitive matches on Windows environments
+app.use((req, res, next) => {
+    if (req.path.toLowerCase() === '/robots.txt' && req.path !== '/robots.txt') {
+        return res.status(404).send('Not Found');
+    }
+    next();
+});
+
 // Serve static files from the root directory
 app.use(express.static(path.join(__dirname, 'public'))); // For future public assets if needed
 app.use(express.static(__dirname, { extensions: ['html'] })); // Serving the HTML files from the root

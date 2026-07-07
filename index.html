@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Startseite - Alpha Energie GmbH – Deine Energiedistribution</title>
-    <meta name="description" content="Energievermarktung seit 2015. Wir sind dein zuverlässiger Partner für den Vertrieb von Energieprodukten und helfen dir, als Handelsvertreter erfolgreich zu sein.">
+    <title>B2B-Energielösungen & Energievertrieb - Alpha Energie GmbH</title>
+    <meta name="description" content="Alpha Energie GmbH ist Ihr Partner für nachhaltige B2B-Energielösungen (Energieaudits, PV) & erstklassigen B2C-Energievertrieb mit dem VP-Portal.">
+    <link rel="canonical" href="https://alpha-energie.de/">
     
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -14,6 +15,43 @@
     <!-- CSS and JS -->
     <link rel="stylesheet" href="style.css">
     <script src="main.js" defer></script>
+
+    <!-- Schema.org Structured Data -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "Alpha Energie GmbH",
+      "url": "https://alpha-energie.de/",
+      "logo": "https://alpha-energie.de/logo.png",
+      "contactPoint": {
+        "@type": "ContactPoint",
+        "contactType": "customer service",
+        "email": "info@alpha-energie.de"
+      },
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "Alter Hellweg 50",
+        "addressLocality": "Dortmund",
+        "postalCode": "44379",
+        "addressCountry": "DE"
+      }
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Startseite",
+          "item": "https://alpha-energie.de/"
+        }
+      ]
+    }
+    </script>
 </head>
 <body>
     <!-- Topbar -->
@@ -376,7 +414,7 @@
                 </div>
 
                 <div class="footer-widget links-widget">
-                    <h4 class="widget-title">Unternehmen</h4>
+                    <h3 class="widget-title">Unternehmen</h3>
                     <ul class="footer-links">
                         <li><a href="ueber-uns.html">Über uns</a></li>
                         <li><a href="karriere.html">Karriere</a></li>
@@ -385,7 +423,7 @@
                 </div>
 
                 <div class="footer-widget links-widget">
-                    <h4 class="widget-title">Lösungen</h4>
+                    <h3 class="widget-title">Lösungen</h3>
                     <ul class="footer-links">
                         <li><a href="vertriebspartner.html">Für Vertriebspartner</a></li>
                         <li><a href="gewerbekunden.html">Für Gewerbekunden</a></li>
@@ -395,11 +433,12 @@
                 </div>
 
                 <div class="footer-widget links-widget">
-                    <h4 class="widget-title">Rechtliches</h4>
+                    <h3 class="widget-title">Rechtliches</h3>
                     <ul class="footer-links">
                         <li><a href="datenschutz.html">Datenschutz</a></li>
                         <li><a href="impressum.html">Impressum</a></li>
                         <li><a href="cookie-einstellungen.html">Cookie-Einstellungen</a></li>
+                        <li><a href="cookie-richtlinie.html">Cookie-Richtlinie</a></li>
                         <li><a href="https://vp.alpha-energie.de">VP-Portal</a></li>
                     </ul>
                 </div>
@@ -410,9 +449,7 @@
             </div>
             
             <div class="cookie-settings mt-2">
-                <a href="cookie-einstellungen.html" class="cookie-link">Optionen verwalten</a> | 
-                <a href="cookie-einstellungen.html" class="cookie-link">Dienste verwalten</a> | 
-                <a href="cookie-einstellungen.html" class="cookie-link">Einstellungen ansehen</a>
+                <a href="cookie-einstellungen.html" class="cookie-link">Cookie-Einstellungen verwalten</a>
             </div>
         </div>
     </footer>
