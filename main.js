@@ -84,8 +84,11 @@ document.addEventListener("DOMContentLoaded", async () => {
         item.addEventListener('click', (e) => {
             if (window.innerWidth <= 768) {
                 if (e.target === item.firstElementChild) {
-                    e.preventDefault();
-                    item.classList.toggle('active');
+                    // Only prevent default if there's actually a dropdown inside
+                    if (item.querySelector('.dropdown')) {
+                        e.preventDefault();
+                        item.classList.toggle('active');
+                    }
                 }
             }
         });

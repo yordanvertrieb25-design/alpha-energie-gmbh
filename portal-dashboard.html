@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="de" class="dark">
+<html lang="de">
 <head>
     <meta name="robots" content="noindex">
     <meta charset="UTF-8">
@@ -24,8 +24,8 @@
             transform-origin: top left;
         }
         .mockup-window {
-            background-color: #121212;
-            color: #ffffff;
+            background-color: #f8fafc;
+            color: #0f172a;
             width: 100%;
             height: 100%;
             display: flex;
@@ -34,8 +34,8 @@
         }
         .sidebar {
             width: 250px;
-            background-color: #18181b;
-            border-right: 1px solid #27272a;
+            background-color: #ffffff;
+            border-right: 1px solid #e2e8f0;
             padding: 1.5rem;
             display: flex;
             flex-direction: column;
@@ -43,21 +43,21 @@
         .main-content {
             flex: 1;
             padding: 2rem;
-            background-color: #121212;
+            background-color: #f8fafc;
         }
         .nav-item {
             display: flex;
             align-items: center;
             padding: 0.75rem 1rem;
             border-radius: 8px;
-            color: #a1a1aa;
+            color: #64748b;
             margin-bottom: 0.25rem;
             transition: all 0.2s;
             cursor: pointer;
         }
         .nav-item:hover, .nav-item.active {
-            background-color: #27272a;
-            color: #ffffff;
+            background-color: #f1f5f9;
+            color: #0f172a;
         }
         .nav-icon {
             margin-right: 0.75rem;
@@ -73,14 +73,14 @@
             margin-left: auto;
         }
         .card {
-            background-color: #18181b;
-            border: 1px solid #27272a;
+            background-color: #ffffff;
+            border: 1px solid #e2e8f0;
             border-radius: 16px;
             padding: 1.5rem;
         }
         .gradient-card {
-            background: linear-gradient(135deg, #134e4a 0%, #18181b 100%);
-            border: 1px solid #2dd4bf33;
+            background: linear-gradient(135deg, #f0fdfa 0%, #ffffff 100%);
+            border: 1px solid #ccfbf1;
         }
         .status-badge {
             font-size: 0.75rem;
@@ -195,25 +195,25 @@
                 <!-- Header -->
                 <div class="flex justify-between items-center mb-8">
                     <div class="relative w-96">
-                        <svg class="absolute left-3 top-1/2 transform -translate-y-1/2 text-zinc-500 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-                        <input type="text" placeholder="Suche..." class="w-full bg-zinc-900 border border-zinc-800 text-sm text-zinc-300 rounded-full py-2 pl-10 pr-4 focus:outline-none focus:border-zinc-700">
+                        <svg class="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-500 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                        <input type="text" placeholder="Suche..." class="w-full bg-white border border-slate-200 text-sm text-slate-700 rounded-full py-2 pl-10 pr-4 focus:outline-none focus:border-slate-200">
                     </div>
                     <div class="flex items-center space-x-6">
                         <div class="relative">
-                            <svg class="w-6 h-6 text-zinc-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
+                            <svg class="w-6 h-6 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
                             <span class="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full border-2 border-[#121212]">12</span>
                         </div>
-                        <div class="flex items-center space-x-3 border-l border-zinc-800 pl-6">
-                            <img src="https://i.pravatar.cc/100?img=11" alt="Profile" class="w-8 h-8 rounded-full border border-zinc-700">
-                            <span class="text-sm font-medium text-zinc-300">Abmelden</span>
+                        <div class="flex items-center space-x-3 border-l border-slate-200 pl-6">
+                            <img src="https://i.pravatar.cc/100?img=11" alt="Profile" class="w-8 h-8 rounded-full border border-slate-200">
+                            <span class="text-sm font-medium text-slate-700">Abmelden</span>
                         </div>
                     </div>
                 </div>
 
                 <!-- Title -->
                 <div class="mb-8">
-                    <h1 class="text-3xl font-bold text-white mb-1">Willkommen, Max Mustermann!</h1>
-                    <p class="text-zinc-400">Dashboard Übersicht</p>
+                    <h1 class="text-3xl font-bold text-slate-900 mb-1">Willkommen, Max Mustermann!</h1>
+                    <p class="text-slate-500">Dashboard Übersicht</p>
                 </div>
 
                 <!-- Top Grid -->
@@ -221,11 +221,11 @@
                     <!-- Provision Card -->
                     <div class="card gradient-card relative overflow-hidden">
                         <div class="flex justify-between items-start mb-6">
-                            <h3 class="text-zinc-300 font-medium">Gesamtprovision 2026</h3>
-                            <svg class="w-5 h-5 text-zinc-500 cursor-pointer" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"></path></svg>
+                            <h3 class="text-slate-700 font-medium">Gesamtprovision 2026</h3>
+                            <svg class="w-5 h-5 text-slate-500 cursor-pointer" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"></path></svg>
                         </div>
                         <div class="flex items-end mb-8 flex-wrap gap-y-2">
-                            <div class="text-3xl sm:text-4xl lg:text-5xl font-bold text-white tracking-tight mr-4 whitespace-nowrap">€ 89.450,00</div>
+                            <div class="text-3xl sm:text-4xl lg:text-5xl font-bold text-slate-900 tracking-tight mr-4 whitespace-nowrap">€ 89.450,00</div>
                             <div class="flex items-center text-emerald-400 text-sm font-medium mb-1 whitespace-nowrap">
                                 <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 11l5-5m0 0l5 5m-5-5v12"></path></svg>
                                 +9,2%
@@ -239,7 +239,7 @@
 
                     <!-- Chart Card -->
                     <div class="card">
-                        <h3 class="text-zinc-300 font-medium mb-6">Provisionsentwicklung 2026</h3>
+                        <h3 class="text-slate-700 font-medium mb-6">Provisionsentwicklung 2026</h3>
                         <div class="h-32 w-full relative">
                             <!-- Mock Chart using SVG -->
                             <svg viewBox="0 0 400 100" class="w-full h-full overflow-visible" preserveAspectRatio="none">
@@ -250,16 +250,16 @@
                                     </linearGradient>
                                 </defs>
                                 <!-- Grid lines -->
-                                <line x1="0" y1="25" x2="400" y2="25" stroke="#27272a" stroke-width="1" />
-                                <line x1="0" y1="50" x2="400" y2="50" stroke="#27272a" stroke-width="1" />
-                                <line x1="0" y1="75" x2="400" y2="75" stroke="#27272a" stroke-width="1" />
+                                <line x1="0" y1="25" x2="400" y2="25" stroke="#e2e8f0" stroke-width="1" />
+                                <line x1="0" y1="50" x2="400" y2="50" stroke="#e2e8f0" stroke-width="1" />
+                                <line x1="0" y1="75" x2="400" y2="75" stroke="#e2e8f0" stroke-width="1" />
                                 <!-- Area -->
                                 <path d="M0,80 C30,70 50,90 80,60 C110,30 130,80 160,50 C190,20 220,60 250,40 C280,20 310,50 340,30 C370,10 390,0 400,0 L400,100 L0,100 Z" fill="url(#chartGradient)" />
                                 <!-- Line -->
                                 <path d="M0,80 C30,70 50,90 80,60 C110,30 130,80 160,50 C190,20 220,60 250,40 C280,20 310,50 340,30 C370,10 390,0 400,0" fill="none" stroke="#8b5cf6" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
                             </svg>
                         </div>
-                        <div class="flex justify-between w-full text-xs text-zinc-500 mt-4 px-1">
+                        <div class="flex justify-between w-full text-xs text-slate-500 mt-4 px-1">
                         <span>Jan</span><span>Mrz</span><span>Mai</span><span>Jul</span><span>Sep</span><span>Nov</span>
                     </div>
                     </div>
@@ -270,56 +270,53 @@
                     <!-- Activities Card -->
                     <div class="card col-span-3 flex flex-col">
                         <div class="flex justify-between items-center mb-6">
-                            <h3 class="text-zinc-100 font-medium">Aktuelle Kundenaktivitäten</h3>
+                            <h3 class="text-slate-900 font-medium">Aktuelle Kundenaktivitäten</h3>
                         </div>
-                        <div class="grid grid-cols-12 text-xs text-zinc-500 font-medium border-b border-zinc-800 pb-3 mb-3">
+                        <div class="grid grid-cols-12 text-xs text-slate-500 font-medium border-b border-slate-200 pb-3 mb-3">
                             <div class="col-span-8">Kunden</div>
                             <div class="col-span-4 text-right">Status</div>
                         </div>
                         
                         <div class="flex flex-col space-y-1">
                             <!-- Item 1 -->
-                            <div class="group flex items-center justify-between p-3 -mx-3 rounded-xl hover:bg-zinc-800/50 transition-colors cursor-pointer border-b border-zinc-800/50">
+                            <div class="group flex items-center justify-between p-3 -mx-3 rounded-xl hover:bg-slate-50 transition-colors cursor-pointer border-b border-slate-100">
                                 <div class="flex items-center">
-                                    <img src="https://i.pravatar.cc/100?img=5" alt="Erika Schmidt" class="w-10 h-10 rounded-full mr-4">
                                     <div>
-                                        <div class="text-sm font-medium text-zinc-100">Erika Schmidt</div>
-                                        <div class="text-xs text-zinc-500">Vertriebspartner Wagner</div>
+                                        <div class="text-sm font-medium text-slate-900">Erika Schmidt</div>
+                                        <div class="text-xs text-slate-500">Vertriebspartner Wagner</div>
                                     </div>
                                 </div>
                                 <div class="flex items-center">
                                     <span class="status-badge status-green mr-4">Vertrag abgeschlossen</span>
-                                    <svg class="w-4 h-4 text-zinc-600 group-hover:text-zinc-300 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                                    <svg class="w-4 h-4 text-slate-400 group-hover:text-slate-700 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
                                 </div>
                             </div>
                             
                             <!-- Item 2 -->
-                            <div class="group flex items-center justify-between p-3 -mx-3 rounded-xl hover:bg-zinc-800/50 transition-colors cursor-pointer border-b border-zinc-800/50">
+                            <div class="group flex items-center justify-between p-3 -mx-3 rounded-xl hover:bg-slate-50 transition-colors cursor-pointer border-b border-slate-100">
                                 <div class="flex items-center">
-                                    <img src="https://i.pravatar.cc/100?img=12" alt="Felix Weber" class="w-10 h-10 rounded-full mr-4">
                                     <div>
-                                        <div class="text-sm font-medium text-zinc-100">Felix Weber</div>
-                                        <div class="text-xs text-zinc-500">Vertriebspartner Wagner</div>
+                                        <div class="text-sm font-medium text-slate-900">Felix Weber</div>
+                                        <div class="text-xs text-slate-500">Vertriebspartner Wagner</div>
                                     </div>
                                 </div>
                                 <div class="flex items-center">
                                     <span class="status-badge status-blue mr-4">Angebot gesendet</span>
-                                    <svg class="w-4 h-4 text-zinc-600 group-hover:text-zinc-300 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                                    <svg class="w-4 h-4 text-slate-400 group-hover:text-slate-700 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
                                 </div>
                             </div>
 
                             <!-- Item 3 -->
-                            <div class="group flex items-center justify-between p-3 -mx-3 rounded-xl hover:bg-zinc-800/50 transition-colors cursor-pointer">
+                            <div class="group flex items-center justify-between p-3 -mx-3 rounded-xl hover:bg-slate-50 transition-colors cursor-pointer">
                                 <div class="flex items-center">
-                                    <img src="https://i.pravatar.cc/100?img=13" alt="Thomas Wagner" class="w-10 h-10 rounded-full mr-4">
                                     <div>
-                                        <div class="text-sm font-medium text-zinc-100">Thomas Wagner</div>
-                                        <div class="text-xs text-zinc-500">Vertriebspartner Wagner</div>
+                                        <div class="text-sm font-medium text-slate-900">Thomas Wagner</div>
+                                        <div class="text-xs text-slate-500">Vertriebspartner Wagner</div>
                                     </div>
                                 </div>
                                 <div class="flex items-center">
                                     <span class="status-badge status-orange mr-4">Neuer Kunde</span>
-                                    <svg class="w-4 h-4 text-zinc-600 group-hover:text-zinc-300 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                                    <svg class="w-4 h-4 text-slate-400 group-hover:text-slate-700 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
                                 </div>
                             </div>
                         </div>
@@ -327,28 +324,28 @@
 
                     <!-- Tasks Card -->
                     <div class="card col-span-2 flex flex-col">
-                        <h3 class="text-zinc-100 font-medium mb-6">Nächste Aufgaben</h3>
-                        <div class="text-xs text-zinc-500 font-medium border-b border-zinc-800 pb-3 mb-3">
+                        <h3 class="text-slate-900 font-medium mb-6">Nächste Aufgaben</h3>
+                        <div class="text-xs text-slate-500 font-medium border-b border-slate-200 pb-3 mb-3">
                             Aufgaben
                         </div>
 
                         <div class="flex flex-col space-y-1">
                             <!-- Task 1 -->
-                            <div class="group flex items-center justify-between p-3 -mx-3 rounded-xl hover:bg-zinc-800/50 transition-colors cursor-pointer border-b border-zinc-800/50">
+                            <div class="group flex items-center justify-between p-3 -mx-3 rounded-xl hover:bg-slate-50 transition-colors cursor-pointer border-b border-slate-100">
                                 <div>
-                                    <div class="text-sm font-medium text-zinc-200">Meeting mit Müller GmbH</div>
-                                    <div class="text-xs text-zinc-500 mt-1">13. Jan, 2026 - 19:00</div>
+                                    <div class="text-sm font-medium text-slate-800">Meeting mit Müller GmbH</div>
+                                    <div class="text-xs text-slate-500 mt-1">13. Jan, 2026 - 19:00</div>
                                 </div>
-                                <svg class="w-4 h-4 text-zinc-600 group-hover:text-zinc-300 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                                <svg class="w-4 h-4 text-slate-400 group-hover:text-slate-700 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
                             </div>
 
                             <!-- Task 2 -->
-                            <div class="group flex items-center justify-between p-3 -mx-3 rounded-xl hover:bg-zinc-800/50 transition-colors cursor-pointer">
+                            <div class="group flex items-center justify-between p-3 -mx-3 rounded-xl hover:bg-slate-50 transition-colors cursor-pointer">
                                 <div>
-                                    <div class="text-sm font-medium text-zinc-200">Vertriebsschulung</div>
-                                    <div class="text-xs text-zinc-500 mt-1">13. Jan, 2026 - 10:00</div>
+                                    <div class="text-sm font-medium text-slate-800">Vertriebsschulung</div>
+                                    <div class="text-xs text-slate-500 mt-1">13. Jan, 2026 - 10:00</div>
                                 </div>
-                                <svg class="w-4 h-4 text-zinc-600 group-hover:text-zinc-300 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                                <svg class="w-4 h-4 text-slate-400 group-hover:text-slate-700 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
                             </div>
                         </div>
                     </div>
@@ -359,14 +356,14 @@
         <!-- Modal Overlay -->
         <div id="modal-backdrop" class="absolute inset-0 z-[100] flex items-center justify-center opacity-0 pointer-events-none transition-opacity duration-300">
             <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="closeModal()"></div>
-            <div class="relative bg-zinc-900 border border-zinc-700 rounded-2xl shadow-2xl p-6 max-w-md w-full max-h-[95%] overflow-y-auto transform scale-95 opacity-0 transition-all duration-300" id="modal-content">
-                <button onclick="closeModal()" class="absolute top-4 right-4 text-zinc-500 hover:text-white transition-colors">
+            <div class="relative bg-white border border-slate-200 rounded-2xl shadow-2xl p-6 max-w-md w-full max-h-[95%] overflow-y-auto transform scale-95 opacity-0 transition-all duration-300" id="modal-content">
+                <button onclick="closeModal()" class="absolute top-4 right-4 text-slate-500 hover:text-slate-900 transition-colors">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
             </button>
             <div class="w-12 h-12 rounded-xl bg-indigo-500/20 text-indigo-400 flex items-center justify-center mb-6" id="modal-icon-container">
             </div>
-            <h2 class="text-2xl font-bold text-white mb-3" id="modal-title">Titel</h2>
-            <p class="text-zinc-400 leading-relaxed text-sm" id="modal-desc">Beschreibung</p>
+            <h2 class="text-2xl font-bold text-slate-900 mb-3" id="modal-title">Titel</h2>
+            <p class="text-slate-500 leading-relaxed text-sm" id="modal-desc">Beschreibung</p>
             <div id="modal-animation-container" class="hidden mt-6 mb-2"></div>
             <button onclick="closeModal()" class="mt-5 w-full bg-indigo-600 hover:bg-indigo-500 text-white font-medium py-2.5 rounded-xl transition-colors">
                 Ausgezeichnet!
@@ -403,12 +400,12 @@
                         <div class="anim-scanner absolute left-0 right-0 h-[2px] bg-sky-400 z-20"></div>
                         
                         <!-- Background Text -->
-                        <div class="absolute bottom-3 text-[10px] text-zinc-500 font-semibold tracking-widest uppercase z-0">Drop & Scan</div>
+                        <div class="absolute bottom-3 text-[10px] text-slate-500 font-semibold tracking-widest uppercase z-0">Drop & Scan</div>
                         
                         <!-- PDF File -->
-                        <div class="anim-file bg-zinc-800 border border-zinc-600 rounded-lg p-3 flex flex-col items-center justify-center z-10 w-24 relative shadow-2xl">
+                        <div class="anim-file bg-white border border-slate-200 rounded-lg p-3 flex flex-col items-center justify-center z-10 w-24 relative shadow-2xl">
                             <svg class="w-8 h-8 text-red-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
-                            <div class="text-[9px] text-zinc-300 font-medium mb-1">Rechnung.pdf</div>
+                            <div class="text-[9px] text-slate-700 font-medium mb-1">Rechnung.pdf</div>
                             <!-- Extracted Data Lines -->
                             <div class="w-full space-y-1.5 mt-1">
                                 <div class="h-1 bg-emerald-400 rounded-full anim-data-line"></div>
@@ -428,7 +425,7 @@
             iconContainer.innerHTML = iconHtml;
             const svg = iconContainer.querySelector('svg');
             if (svg) {
-                svg.classList.remove('nav-icon', 'mr-3', 'text-zinc-500');
+                svg.classList.remove('nav-icon', 'mr-3', 'text-slate-500');
                 svg.classList.add('w-6', 'h-6');
             }
             
@@ -471,8 +468,8 @@
                 
                 item.addEventListener('click', function() {
                     // Remove active from all, add to this
-                    document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active', 'bg-zinc-800', 'text-white'));
-                    this.classList.add('active', 'bg-zinc-800', 'text-white');
+                    document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active', 'bg-white', 'text-slate-900', 'bg-slate-100', 'text-slate-900'));
+                    this.classList.add('active');
 
                     // Extract title and icon
                     const titleRaw = this.innerText.replace('New', '').trim();
