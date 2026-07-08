@@ -144,8 +144,19 @@ async function scrapeB2BContacts({ prisma, campaignId, name, industry, companySi
       const location = companySize ? companySize : 'Germany';
       const placeIds = new Set();
       
-      const initialQuery = `${industry} in ${location}`.trim().replace(/\s+/g, ' ');
+      // Force Germany context: append "Deutschland" to ensure Google Places searches in Germany
+      const locationWithCountry = location.toLowerCase().includes('germany') || location.toLowerCase().includes('deutschland')
+        ? location
+        : `${location}, Deutschland`;
+      const initialQuery = `${industry} in ${locationWithCountry}`.trim().replace(/\s+/g, ' ');
       console.log(`[Scraper] Initial Query to discover ZIP codes: "${initialQuery}"`);
+
+      // Helper: check if a Google Places result is in Germany
+      const isGermanResult = (result) => {
+        if (!result.formatted_address) return false;
+        const addr = result.formatted_address.toLowerCase();
+        return addr.includes('deutschland') || addr.includes('germany');
+      };
       
       const zipCodes = new Set();
       let maxLimit = 20;
@@ -160,17 +171,23 @@ async function scrapeB2BContacts({ prisma, campaignId, name, industry, companySi
         maxLimit = p * 20;
       }
 
-      // 1. Initial Query for ZIP codes
+      // 1. Initial Query for ZIP codes (with region=de and language=de to bias towards Germany)
       let initialPlaces = [];
       try {
-        const initRes = await axios.get(`https://maps.googleapis.com/maps/api/place/textsearch/json?query=${encodeURIComponent(initialQuery)}&key=${apiKey}`);
+        const initRes = await axios.get(`https://maps.googleapis.com/maps/api/place/textsearch/json?query=${encodeURIComponent(initialQuery)}&region=de&language=de&key=${apiKey}`);
         if (initRes.data && initRes.data.results) {
           for (const res of initRes.data.results) {
+            // Skip non-German results
+            if (!isGermanResult(res)) {
+              console.log(`[Scraper] Filtered out non-German result: ${res.name} (${res.formatted_address})`);
+              continue;
+            }
             if (!placeIds.has(res.place_id)) {
               placeIds.add(res.place_id);
               initialPlaces.push(res);
             }
             if (res.formatted_address) {
+              // Only extract PLZ from confirmed German addresses
               const match = res.formatted_address.match(/\b\d{5}\b/);
               if (match) zipCodes.add(match[0]);
             }
@@ -187,12 +204,13 @@ async function scrapeB2BContacts({ prisma, campaignId, name, industry, companySi
       if (zipCodes.size > 0) {
         for (const zip of zipCodes) {
           for (const mod of modifiers) {
-            queries.push(`${industry} ${mod} in ${zip}`.trim().replace(/\s+/g, ' '));
+            // Include "Deutschland" in ZIP queries to prevent US ZIP code matches
+            queries.push(`${industry} ${mod} in ${zip} Deutschland`.trim().replace(/\s+/g, ' '));
           }
         }
       } else {
         for (const mod of modifiers) {
-          queries.push(`${industry} ${mod} in ${location}`.trim().replace(/\s+/g, ' '));
+          queries.push(`${industry} ${mod} in ${locationWithCountry}`.trim().replace(/\s+/g, ' '));
         }
       }
 
@@ -291,13 +309,18 @@ async function scrapeB2BContacts({ prisma, campaignId, name, industry, companySi
         if (query === initialQuery) continue;
 
         console.log(`[Scraper] ZIP-Query: "${query}"`);
-        const searchUrl = `https://maps.googleapis.com/maps/api/place/textsearch/json?query=${encodeURIComponent(query)}&key=${apiKey}`;
+        const searchUrl = `https://maps.googleapis.com/maps/api/place/textsearch/json?query=${encodeURIComponent(query)}&region=de&language=de&key=${apiKey}`;
         let queryPlaces = [];
 
         try {
           const searchRes = await axios.get(searchUrl);
           if (searchRes.data && searchRes.data.results) {
             for (const res of searchRes.data.results) {
+              // Skip non-German results
+              if (!isGermanResult(res)) {
+                console.log(`[Scraper] Filtered out non-German result: ${res.name} (${res.formatted_address})`);
+                continue;
+              }
               if (!placeIds.has(res.place_id)) {
                 placeIds.add(res.place_id);
                 queryPlaces.push(res);
