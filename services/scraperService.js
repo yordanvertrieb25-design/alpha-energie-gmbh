@@ -174,11 +174,23 @@ async function scrapeB2BContacts({ prisma, campaignId, name, industry, companySi
         do {
           let currentSearchUrl = `https://maps.googleapis.com/maps/api/place/textsearch/json?query=${encodeURIComponent(initialQuery)}&region=de&language=de&key=${apiKey}`;
           if (initialNextToken) {
-            currentSearchUrl = `https://maps.googleapis.com/maps/api/place/textsearch/json?pagetoken=${initialNextToken}&key=${apiKey}`;
-            await new Promise(resolve => setTimeout(resolve, 2000)); // Google requires a delay for page tokens
+            currentSearchUrl += `&pagetoken=${initialNextToken}`;
           }
 
-          const initRes = await axios.get(currentSearchUrl);
+          let initRes;
+          let retries = 3;
+          while (retries > 0) {
+            if (initialNextToken) {
+              await new Promise(resolve => setTimeout(resolve, 2500)); // Wait for token to become valid
+            }
+            initRes = await axios.get(currentSearchUrl);
+            if (initRes.data?.status !== 'INVALID_REQUEST') {
+              break;
+            }
+            console.log(`[Scraper] INVALID_REQUEST received for pagetoken, retrying... (${retries} left)`);
+            retries--;
+          }
+          
           console.log(`[Scraper] Google Places API response status: ${initRes.data?.status}, results count: ${initRes.data?.results?.length || 0}`);
           
           if (initRes.data?.error_message) {
@@ -336,11 +348,22 @@ async function scrapeB2BContacts({ prisma, campaignId, name, industry, companySi
             
             let currentSearchUrl = `https://maps.googleapis.com/maps/api/place/textsearch/json?query=${encodeURIComponent(query)}&region=de&language=de&key=${apiKey}`;
             if (nextToken) {
-              currentSearchUrl = `https://maps.googleapis.com/maps/api/place/textsearch/json?pagetoken=${nextToken}&key=${apiKey}`;
-              await new Promise(resolve => setTimeout(resolve, 2000));
+              currentSearchUrl += `&pagetoken=${nextToken}`;
             }
 
-            const searchRes = await axios.get(currentSearchUrl);
+            let searchRes;
+            let retries = 3;
+            while (retries > 0) {
+              if (nextToken) {
+                await new Promise(resolve => setTimeout(resolve, 2500));
+              }
+              searchRes = await axios.get(currentSearchUrl);
+              if (searchRes.data?.status !== 'INVALID_REQUEST') {
+                break;
+              }
+              console.log(`[Scraper] INVALID_REQUEST received for pagetoken (ZIP query), retrying... (${retries} left)`);
+              retries--;
+            }
             
             if (searchRes.data && searchRes.data.results) {
               for (const res of searchRes.data.results) {
