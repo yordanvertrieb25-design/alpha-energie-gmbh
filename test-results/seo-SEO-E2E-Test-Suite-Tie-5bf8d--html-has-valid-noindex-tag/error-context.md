@@ -6,17 +6,22 @@
 
 # Test info
 
-- Name: seo.spec.js >> SEO E2E Test Suite >> Tier 2: Boundary & Corner Cases >> 33.22. Non-indexable file /ueber-uns.html has valid noindex tag
+- Name: seo.spec.js >> SEO E2E Test Suite >> Tier 2: Boundary & Corner Cases >> 33.12. Non-indexable file /Marketing_Plan_Alpha_Energie_2026.html has valid noindex tag
 - Location: tests\seo.spec.js:474:7
 
 # Error details
 
 ```
-Test timeout of 60000ms exceeded.
+Error: expect(received).toBeGreaterThan(expected)
+
+Expected: > 0
+Received:   0
 ```
 
-```
-Error: locator.count: Test timeout of 60000ms exceeded.
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]: Not Found
 ```
 
 # Test source
@@ -103,8 +108,7 @@ Error: locator.count: Test timeout of 60000ms exceeded.
   79  |     const contents = [];
   80  |     for (const agent of CRAWLER_AGENTS) {
   81  |         const locator = page.locator(`meta[name="${agent}" i]`);
-> 82  |         const count = await locator.count();
-      |                                     ^ Error: locator.count: Test timeout of 60000ms exceeded.
+  82  |         const count = await locator.count();
   83  |         for (let i = 0; i < count; i++) {
   84  |             const content = await locator.nth(i).getAttribute('content');
   85  |             if (content) {
@@ -117,7 +121,8 @@ Error: locator.count: Test timeout of 60000ms exceeded.
   92  | 
   93  | function verifyRobotsMetaForNonIndexable(metas) {
   94  |     const genericMetas = metas.filter(meta => meta.agent === 'robots');
-  95  |     expect(genericMetas.length).toBeGreaterThan(0);
+> 95  |     expect(genericMetas.length).toBeGreaterThan(0);
+      |                                 ^ Error: expect(received).toBeGreaterThan(expected)
   96  | 
   97  |     const hasNoIndexOrNone = genericMetas.some(meta => {
   98  |         const directives = meta.content.split(/[,\s]+/).map(d => d.trim().toLowerCase());
@@ -205,4 +210,17 @@ Error: locator.count: Test timeout of 60000ms exceeded.
   180 |         }
   181 |         visited.add(normalizedPath);
   182 | 
+  183 |         const res = await page.request.get(urlPath);
+  184 |         expect(res.status()).toBe(200);
+  185 |         const xmlText = await res.text();
+  186 |         const parsed = await parseSingleXml(xmlText);
+  187 |         expect(parsed.error).toBeNull();
+  188 | 
+  189 |         if (parsed.isIndex) {
+  190 |             let aggregated = [];
+  191 |             for (const childUrl of parsed.urls) {
+  192 |                 try {
+  193 |                     const parsedChildUrl = new URL(childUrl, baseOrigin);
+  194 |                     const subUrls = await fetchAndParse(parsedChildUrl.pathname);
+  195 |                     aggregated = aggregated.concat(subUrls);
 ```
