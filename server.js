@@ -4,6 +4,7 @@ const cors = require('cors');
 const { PrismaClient } = require('@prisma/client');
 const jwt = require('jsonwebtoken');
 const path = require('path');
+const fs = require('fs');
 const { scrapeB2BContacts } = require('./services/scraperService');
 const { sendCampaign } = require('./services/emailCampaignService');
 
@@ -214,7 +215,7 @@ try {
   const cityData = fs.readFileSync(path.join(__dirname, 'data', 'cityToPlz.json'), 'utf8');
   cityToPlz = JSON.parse(cityData);
 } catch(e) {
-  console.log('Could not load cityToPlz.json');
+  console.error('[Startup] Could not load cityToPlz.json:', e.message);
 }
 
 const scraperProgress = require('./services/progressStore');
