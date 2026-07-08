@@ -138,6 +138,8 @@ async function scrapeB2BContacts({ prisma, campaignId, name, industry, companySi
   let totalContactsFound = 0;
   let isStopped = false;
 
+  console.log(`[Scraper] API Key present: ${!!apiKey}, length: ${apiKey ? apiKey.length : 0}, starts with: ${apiKey ? apiKey.substring(0, 8) + '...' : 'N/A'}`);
+
   try {
     if (apiKey) {
       console.log(`[Scraper] Querying Google Places API for industry "${industry}"...`);
