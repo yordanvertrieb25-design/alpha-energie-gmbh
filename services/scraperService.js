@@ -168,7 +168,6 @@ async function scrapeB2BContacts({ prisma, campaignId, name, industry, companySi
 
       // 1. Initial Query for ZIP codes (with region=de and language=de to bias towards Germany)
       let initialPlaces = [];
-      const zipCodes = new Set();
       
       if (targetPlzs && targetPlzs.length > 0) {
         console.log(`[Scraper] Using ${targetPlzs.length} PLZs provided from local database for ${location}.`);
