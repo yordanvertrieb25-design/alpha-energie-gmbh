@@ -78,6 +78,17 @@ app.get('/api/debug/places-test', async (req, res) => {
     res.json(result);
 });
 
+// DEBUG: Clear Database (temporary)
+app.get('/api/debug/clear-db', async (req, res) => {
+    try {
+        await prisma.scrapedContact.deleteMany({});
+        await prisma.campaign.deleteMany({});
+        res.json({ success: true, message: 'Database cleared successfully!' });
+    } catch (e) {
+        res.status(500).json({ success: false, error: e.message });
+    }
+});
+
 // 1. Submit Contact Form
 app.post('/api/contact', async (req, res) => {
     try {
