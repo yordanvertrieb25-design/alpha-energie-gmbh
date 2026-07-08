@@ -133,7 +133,7 @@ function cancelCampaign(campaignId) {
 }
 
 // Main scrape function
-async function scrapeB2BContacts({ prisma, campaignId, name, industry, companySize, pages, port, requirePhone }) {
+async function scrapeB2BContacts({ prisma, campaignId, name, industry, companySize, pages, port, requirePhone, targetPlzs = [] }) {
   const apiKey = process.env.GOOGLE_PLACES_API_KEY;
   let totalContactsFound = 0;
   let isStopped = false;
@@ -168,54 +168,61 @@ async function scrapeB2BContacts({ prisma, campaignId, name, industry, companySi
 
       // 1. Initial Query for ZIP codes (with region=de and language=de to bias towards Germany)
       let initialPlaces = [];
-      let initialNextToken = null;
-      try {
-        console.log(`[Scraper] Calling Google Places API (Initial Query)...`);
-        do {
-          let currentSearchUrl = `https://maps.googleapis.com/maps/api/place/textsearch/json?query=${encodeURIComponent(initialQuery)}&region=de&language=de&key=${apiKey}`;
-          if (initialNextToken) {
-            currentSearchUrl += `&pagetoken=${initialNextToken}`;
-          }
-
-          let initRes;
-          let retries = 3;
-          while (retries > 0) {
+      const zipCodes = new Set();
+      
+      if (targetPlzs && targetPlzs.length > 0) {
+        console.log(`[Scraper] Using ${targetPlzs.length} PLZs provided from local database for ${location}.`);
+        targetPlzs.forEach(z => zipCodes.add(z));
+      } else {
+        let initialNextToken = null;
+        try {
+          console.log(`[Scraper] Calling Google Places API (Initial Query)...`);
+          do {
+            let currentSearchUrl = `https://maps.googleapis.com/maps/api/place/textsearch/json?query=${encodeURIComponent(initialQuery)}&region=de&language=de&key=${apiKey}`;
             if (initialNextToken) {
-              await new Promise(resolve => setTimeout(resolve, 2500)); // Wait for token to become valid
+              currentSearchUrl += `&pagetoken=${initialNextToken}`;
             }
-            initRes = await axios.get(currentSearchUrl);
-            if (initRes.data?.status !== 'INVALID_REQUEST') {
-              break;
-            }
-            console.log(`[Scraper] INVALID_REQUEST received for pagetoken, retrying... (${retries} left)`);
-            retries--;
-          }
-          
-          console.log(`[Scraper] Google Places API response status: ${initRes.data?.status}, results count: ${initRes.data?.results?.length || 0}`);
-          
-          if (initRes.data?.error_message) {
-            console.error(`[Scraper] Google Places API ERROR: ${initRes.data.error_message}`);
-          }
-          
-          if (initRes.data && initRes.data.status === 'OK' && initRes.data.results) {
-            for (const res of initRes.data.results) {
-              if (!placeIds.has(res.place_id)) {
-                placeIds.add(res.place_id);
-                initialPlaces.push(res);
-              }
-              if (res.formatted_address) {
-                const match = res.formatted_address.match(/\b\d{5}\b/);
-                if (match) zipCodes.add(match[0]);
-              }
-            }
-          } else if (initRes.data?.status === 'ZERO_RESULTS') {
-            console.log(`[Scraper] Google Places returned 0 results for query.`);
-          }
 
-          initialNextToken = initRes.data?.next_page_token;
-        } while (initialNextToken && initialPlaces.length < 60);
-      } catch (e) {
-        console.error(`[Scraper] Initial Query error: ${e.message}`);
+            let initRes;
+            let retries = 3;
+            while (retries > 0) {
+              if (initialNextToken) {
+                await new Promise(resolve => setTimeout(resolve, 2500)); // Wait for token to become valid
+              }
+              initRes = await axios.get(currentSearchUrl);
+              if (initRes.data?.status !== 'INVALID_REQUEST') {
+                break;
+              }
+              console.log(`[Scraper] INVALID_REQUEST received for pagetoken, retrying... (${retries} left)`);
+              retries--;
+            }
+            
+            console.log(`[Scraper] Google Places API response status: ${initRes.data?.status}, results count: ${initRes.data?.results?.length || 0}`);
+            
+            if (initRes.data?.error_message) {
+              console.error(`[Scraper] Google Places API ERROR: ${initRes.data.error_message}`);
+            }
+            
+            if (initRes.data && initRes.data.status === 'OK' && initRes.data.results) {
+              for (const res of initRes.data.results) {
+                if (!placeIds.has(res.place_id)) {
+                  placeIds.add(res.place_id);
+                  initialPlaces.push(res);
+                }
+                if (res.formatted_address) {
+                  const match = res.formatted_address.match(/\b\d{5}\b/);
+                  if (match) zipCodes.add(match[0]);
+                }
+              }
+            } else if (initRes.data?.status === 'ZERO_RESULTS') {
+              console.log(`[Scraper] Google Places returned 0 results for query.`);
+            }
+
+            initialNextToken = initRes.data?.next_page_token;
+          } while (initialNextToken && initialPlaces.length < 60);
+        } catch (e) {
+          console.error(`[Scraper] Initial Query error: ${e.message}`);
+        }
       }
 
       console.log(`[Scraper] Found ${zipCodes.size} ZIP codes for ${location}:`, Array.from(zipCodes));

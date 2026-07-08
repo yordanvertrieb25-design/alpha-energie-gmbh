@@ -208,12 +208,29 @@ app.get('/api/admin/data', authenticateAdmin, async (req, res) => {
     }
 });
 
+const path = require('path');
+const fs = require('fs');
+
+let cityToPlz = {};
+try {
+  const cityData = fs.readFileSync(path.join(__dirname, 'data', 'cityToPlz.json'), 'utf8');
+  cityToPlz = JSON.parse(cityData);
+} catch(e) {
+  console.log('Could not load cityToPlz.json');
+}
+
 // 5. Scrape B2B Contacts for Campaign (Protected)
 app.post('/api/campaigns/scrape', authenticateAdmin, async (req, res) => {
     try {
         const { name, industry, companySize, pages, requirePhone } = req.body;
         if (!name || !industry || !companySize) {
             return res.status(400).json({ success: false, error: 'Name, industry, and companySize are required' });
+        }
+
+        const cityLower = companySize.trim().toLowerCase();
+        let targetPlzs = [];
+        if (cityToPlz[cityLower]) {
+            targetPlzs = cityToPlz[cityLower].plzs;
         }
 
         // 1. Create campaign
@@ -231,6 +248,7 @@ app.post('/api/campaigns/scrape', authenticateAdmin, async (req, res) => {
             companySize, 
             pages, 
             requirePhone,
+            targetPlzs,
             port: PORT 
         }).catch(err => {
             console.error(`[Scraper] Background task error for campaign ${campaign.id}:`, err);
@@ -240,6 +258,7 @@ app.post('/api/campaigns/scrape', authenticateAdmin, async (req, res) => {
         res.status(201).json({
             success: true,
             campaignId: campaign.id,
+            plzs: targetPlzs,
             message: 'Scraping started in background'
         });
     } catch (error) {

@@ -188,7 +188,8 @@ if (document.querySelector('.dashboard-container')) {
                 
                 if (json.success) {
                     currentCampaignId = json.campaignId;
-                    statusDiv.innerText = 'Scraping läuft im Hintergrund... (Seite kann offen bleiben)';
+                    let plzText = json.plzs && json.plzs.length > 0 ? ` (${json.plzs.length} PLZs gefunden: ${json.plzs.slice(0, 5).join(', ')}${json.plzs.length > 5 ? '...' : ''})` : '';
+                    statusDiv.innerText = `Scraping läuft...${plzText}`;
                     document.getElementById('btn-stop').style.display = 'block';
                     
                     // Start polling
