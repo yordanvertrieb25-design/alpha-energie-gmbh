@@ -159,7 +159,6 @@ async function scrapeB2BContacts({ prisma, campaignId, name, industry, companySi
 
       if (pages === 'max') {
         console.log(`[Scraper] Starting DEEP-SCAN for "${industry}" in "${location}"...`);
-        modifiers = ["", "Agentur", "Makler", "Büro"];
         maxLimit = Infinity; // Run until all ZIP codes are exhausted
       } else {
         const p = parseInt(pages) || 3;
