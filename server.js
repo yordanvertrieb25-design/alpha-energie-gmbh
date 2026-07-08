@@ -208,11 +208,9 @@ app.get('/api/admin/data', authenticateAdmin, async (req, res) => {
     }
 });
 
-const path = require('path');
-const fs = require('fs');
-
 let cityToPlz = {};
 try {
+  // path and fs are already required at the top of server.js
   const cityData = fs.readFileSync(path.join(__dirname, 'data', 'cityToPlz.json'), 'utf8');
   cityToPlz = JSON.parse(cityData);
 } catch(e) {
