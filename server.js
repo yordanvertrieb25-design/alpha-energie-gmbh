@@ -211,7 +211,7 @@ app.get('/api/admin/data', authenticateAdmin, async (req, res) => {
 // 5. Scrape B2B Contacts for Campaign (Protected)
 app.post('/api/campaigns/scrape', authenticateAdmin, async (req, res) => {
     try {
-        const { name, industry, companySize, pages } = req.body;
+        const { name, industry, companySize, pages, requirePhone } = req.body;
         if (!name || !industry || !companySize) {
             return res.status(400).json({ success: false, error: 'Name, industry, and companySize are required' });
         }
@@ -230,6 +230,7 @@ app.post('/api/campaigns/scrape', authenticateAdmin, async (req, res) => {
             industry, 
             companySize, 
             pages, 
+            requirePhone,
             port: PORT 
         }).catch(err => {
             console.error(`[Scraper] Background task error for campaign ${campaign.id}:`, err);
