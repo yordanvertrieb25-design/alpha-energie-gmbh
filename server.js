@@ -44,6 +44,40 @@ app.use(express.static(__dirname, { extensions: ['html'] })); // Serving the HTM
 
 // --- API ROUTES ---
 
+// DEBUG: Test Google Places API (temporary - remove after debugging)
+app.get('/api/debug/places-test', async (req, res) => {
+    const axios = require('axios');
+    const apiKey = process.env.GOOGLE_PLACES_API_KEY;
+    const result = {
+        apiKeyPresent: !!apiKey,
+        apiKeyLength: apiKey ? apiKey.length : 0,
+        apiKeyPrefix: apiKey ? apiKey.substring(0, 10) + '...' : 'N/A',
+        nodeEnv: process.env.NODE_ENV || 'not set',
+        timestamp: new Date().toISOString()
+    };
+
+    if (apiKey) {
+        try {
+            const query = encodeURIComponent('kiosk in Dortmund, Deutschland');
+            const url = `https://maps.googleapis.com/maps/api/place/textsearch/json?query=${query}&region=de&language=de&key=${apiKey}`;
+            const response = await axios.get(url, { timeout: 10000 });
+            result.googleStatus = response.data.status;
+            result.googleError = response.data.error_message || null;
+            result.resultsCount = response.data.results ? response.data.results.length : 0;
+            if (response.data.results && response.data.results.length > 0) {
+                result.sampleResults = response.data.results.slice(0, 3).map(r => ({
+                    name: r.name,
+                    address: r.formatted_address
+                }));
+            }
+        } catch (e) {
+            result.httpError = e.message;
+        }
+    }
+
+    res.json(result);
+});
+
 // 1. Submit Contact Form
 app.post('/api/contact', async (req, res) => {
     try {
