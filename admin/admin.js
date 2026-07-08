@@ -172,6 +172,8 @@ if (document.querySelector('.dashboard-container')) {
             currentPage = 1;
             if (pollInterval) clearInterval(pollInterval);
 
+            const requirePhone = document.getElementById('camp-require-phone') ? document.getElementById('camp-require-phone').checked : false;
+
             try {
                 const res = await fetch(`${API_URL}/campaigns/scrape`, {
                     method: 'POST',
@@ -179,7 +181,7 @@ if (document.querySelector('.dashboard-container')) {
                         'Content-Type': 'application/json',
                         'Authorization': `Bearer ${token}`
                     },
-                    body: JSON.stringify({ name, industry, companySize, pages: pages === 'max' ? 'max' : parseInt(pages) })
+                    body: JSON.stringify({ name, industry, companySize, pages: pages === 'max' ? 'max' : parseInt(pages), requirePhone })
                 });
 
                 const json = await res.json();

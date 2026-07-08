@@ -249,7 +249,10 @@ async function scrapeB2BContacts({ prisma, campaignId, name, industry, companySi
 
           const chunk = placesDetails.slice(i, i + 3);
           const chunkEmails = await Promise.all(
-            chunk.map(async (p) => p.website ? crawlWebsiteForEmail(p.website) : null)
+            chunk.map(async (p) => {
+              if (requirePhone && !p.phone) return null; // Skip crawling if phone required but missing
+              return p.website ? crawlWebsiteForEmail(p.website) : null;
+            })
           );
           crawledEmails.push(...chunkEmails);
         }
@@ -257,6 +260,12 @@ async function scrapeB2BContacts({ prisma, campaignId, name, industry, companySi
         const dbContacts = [];
         for (let i = 0; i < placesDetails.length; i++) {
           const p = placesDetails[i];
+          
+          if (requirePhone && !p.phone) {
+            console.log(`[Scraper] Skipped ${p.name} - No phone number`);
+            continue;
+          }
+
           let email = crawledEmails[i];
 
           if (!email) {
