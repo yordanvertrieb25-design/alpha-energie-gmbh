@@ -1,14 +1,41 @@
+# Alpha Energie GmbH — robots.txt
+# Sitemap location
 Sitemap: https://alpha-energie.de/sitemap.xml
 
+# Allow all crawlers
 User-agent: *
 Disallow:
 
+# Explicitly allow major AI/LLM bots
 User-agent: GPTBot
-Disallow:
+Allow: /
 
-User-agent: CCBot
-Disallow:
+User-agent: ChatGPT-User
+Allow: /
 
 User-agent: Google-Extended
-Disallow:
+Allow: /
 
+User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+User-agent: CCBot
+Allow: /
+
+User-agent: anthropic-ai
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Bytespider
+Allow: /
+
+User-agent: cohere-ai
+Allow: /
