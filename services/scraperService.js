@@ -176,8 +176,17 @@ async function scrapeB2BContacts({ prisma, campaignId, name, industry, companySi
       // 1. Initial Query for ZIP codes (with region=de and language=de to bias towards Germany)
       let initialPlaces = [];
       try {
-        const initRes = await axios.get(`https://maps.googleapis.com/maps/api/place/textsearch/json?query=${encodeURIComponent(initialQuery)}&region=de&language=de&key=${apiKey}`);
-        if (initRes.data && initRes.data.results) {
+        const searchUrl = `https://maps.googleapis.com/maps/api/place/textsearch/json?query=${encodeURIComponent(initialQuery)}&region=de&language=de&key=${apiKey}`;
+        console.log(`[Scraper] Calling Google Places API...`);
+        const initRes = await axios.get(searchUrl);
+        
+        // Log the full API response status (Google returns errors as 200 OK with status field)
+        console.log(`[Scraper] Google Places API response status: ${initRes.data?.status}, results count: ${initRes.data?.results?.length || 0}`);
+        if (initRes.data?.error_message) {
+          console.error(`[Scraper] Google Places API ERROR: ${initRes.data.error_message}`);
+        }
+        
+        if (initRes.data && initRes.data.status === 'OK' && initRes.data.results) {
           for (const res of initRes.data.results) {
             // Skip non-German results
             if (!isGermanResult(res)) {
@@ -194,6 +203,10 @@ async function scrapeB2BContacts({ prisma, campaignId, name, industry, companySi
               if (match) zipCodes.add(match[0]);
             }
           }
+        } else if (initRes.data?.status === 'ZERO_RESULTS') {
+          console.log(`[Scraper] Google Places returned 0 results for query: "${initialQuery}"`);
+        } else {
+          console.error(`[Scraper] Google Places API failed with status: ${initRes.data?.status} - ${initRes.data?.error_message || 'No error message'}`);
         }
       } catch (e) {
         console.error(`[Scraper] Initial Query error: ${e.message}`);
