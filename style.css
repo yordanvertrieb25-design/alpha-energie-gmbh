@@ -2420,3 +2420,705 @@ section {
         max-width: none !important;
     }
 }
+
+/* ============================================
+   B2B GEWERBEKUNDEN PAGE STYLES
+   ============================================ */
+
+/* B2B Hero Section */
+.b2b-hero {
+    min-height: calc(100vh - 80px);
+    position: relative;
+    background: linear-gradient(-45deg, #0b1120, #172554, #25528d, #1e3a8a, #0b1120);
+    background-size: 400% 400%;
+    animation: heroGradientShift 15s ease infinite;
+    overflow: hidden;
+    padding: 6rem 2rem;
+    display: flex;
+    align-items: center;
+}
+
+.b2b-hero::before,
+.b2b-hero::after {
+    content: "";
+    position: absolute;
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 1;
+    filter: blur(80px);
+    opacity: 0.7;
+}
+
+.b2b-hero::before {
+    top: -20%;
+    left: -10%;
+    width: 50vw;
+    height: 50vw;
+    background: radial-gradient(circle, rgba(56, 189, 248, 0.3) 0%, transparent 60%);
+    animation: floatOrb 15s ease-in-out infinite alternate;
+}
+
+.b2b-hero::after {
+    bottom: -20%;
+    right: -10%;
+    width: 45vw;
+    height: 45vw;
+    background: radial-gradient(circle, rgba(255, 155, 26, 0.45) 0%, transparent 60%);
+    animation: floatOrb2 18s ease-in-out infinite alternate-reverse;
+}
+
+.b2b-hero-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem;
+    align-items: center;
+    position: relative;
+    z-index: 10;
+    width: 100%;
+    max-width: var(--container-max);
+    margin: 0 auto;
+}
+
+.b2b-hero-content {
+    text-align: left;
+}
+
+.b2b-hero-content .badge {
+    background: rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.b2b-hero-content h1 {
+    font-size: clamp(2.2rem, 4vw, 3.5rem);
+    line-height: 1.15;
+    margin-bottom: 1.25rem;
+    color: #ffffff;
+    font-weight: 700;
+    letter-spacing: -1px;
+}
+
+.b2b-hero-content p {
+    font-size: clamp(1rem, 1.5vw, 1.15rem);
+    line-height: 1.7;
+    color: rgba(255, 255, 255, 0.9);
+    margin-bottom: 2rem;
+    max-width: 90%;
+}
+
+.b2b-hero-actions {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.b2b-hero-image {
+    position: relative;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+}
+
+.b2b-hero-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+/* Trust Bar */
+.trust-bar {
+    background: #ffffff;
+    padding: 4rem 2rem;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    position: relative;
+}
+
+.trust-bar::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 200px;
+    height: 200px;
+    background: radial-gradient(circle, rgba(239, 138, 0, 0.06) 0%, transparent 70%);
+    filter: blur(60px);
+    pointer-events: none;
+}
+
+.trust-bar-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 2rem;
+    max-width: var(--container-max);
+    margin: 0 auto;
+}
+
+.trust-stat {
+    text-align: center;
+    padding: 1rem;
+}
+
+.trust-stat-number {
+    font-size: clamp(2.2rem, 4vw, 3rem);
+    color: var(--accent-orange);
+    font-weight: 700;
+    line-height: 1.2;
+    margin-bottom: 0.5rem;
+}
+
+.trust-stat-label {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    font-weight: 500;
+}
+
+/* B2B Service Cards */
+.b2b-services-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
+    gap: 2rem;
+}
+
+.b2b-service-card {
+    background: #ffffff;
+    border: 1px solid rgba(239, 138, 0, 0.08);
+    border-radius: 20px;
+    padding: 2.5rem;
+    text-align: center;
+    box-shadow: var(--shadow-md);
+    transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+                box-shadow 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+                border-color 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+}
+
+.b2b-service-card::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: var(--gradient-primary);
+    opacity: 0;
+    transition: opacity 0.35s ease;
+}
+
+.b2b-service-card:hover {
+    transform: translateY(-8px);
+    box-shadow: var(--shadow-xl);
+    border-color: rgba(239, 138, 0, 0.2);
+}
+
+.b2b-service-card:hover::before {
+    opacity: 1;
+}
+
+.b2b-service-icon {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: var(--gradient-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1.5rem;
+    color: #ffffff;
+    font-size: 1.5rem;
+    box-shadow: 0 4px 15px rgba(239, 138, 0, 0.25);
+}
+
+.b2b-service-card h3 {
+    font-size: 1.35rem;
+    margin-bottom: 1rem;
+    color: var(--text-main);
+}
+
+.b2b-service-card p {
+    color: var(--text-muted);
+    line-height: 1.7;
+    margin-bottom: 1.5rem;
+    font-size: 0.95rem;
+}
+
+/* B2B Advantages Section */
+.b2b-advantages-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem;
+    align-items: center;
+}
+
+.b2b-advantages-image {
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+}
+
+.b2b-advantages-image img {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
+.b2b-advantages-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.b2b-advantage-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 1rem 1.25rem;
+    border-radius: 12px;
+    transition: background 0.3s ease;
+}
+
+.b2b-advantage-item:hover {
+    background: rgba(239, 138, 0, 0.04);
+}
+
+.b2b-advantage-icon {
+    width: 36px;
+    height: 36px;
+    min-width: 36px;
+    border-radius: 50%;
+    background: rgba(239, 138, 0, 0.1);
+    color: var(--accent-orange);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin-top: 2px;
+}
+
+.b2b-advantage-text h4 {
+    font-size: 1.05rem;
+    margin-bottom: 0.2rem;
+    color: var(--text-main);
+    font-weight: 600;
+}
+
+.b2b-advantage-text p {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    line-height: 1.6;
+    margin-bottom: 0;
+}
+
+/* Process Steps */
+.process-steps {
+    display: flex;
+    gap: 0;
+    justify-content: center;
+    padding: 2rem 0;
+    position: relative;
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+.process-step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    flex: 1;
+    position: relative;
+    padding: 0 1rem;
+}
+
+.process-step-number {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: var(--gradient-primary);
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 1.3rem;
+    margin-bottom: 1.25rem;
+    position: relative;
+    z-index: 2;
+    box-shadow: 0 4px 15px rgba(239, 138, 0, 0.3);
+}
+
+.process-step:not(:last-child)::after {
+    content: "";
+    position: absolute;
+    top: 28px;
+    left: calc(50% + 28px);
+    width: calc(100% - 56px);
+    height: 2px;
+    background: linear-gradient(90deg, var(--accent-orange), rgba(239, 138, 0, 0.2));
+    z-index: 1;
+}
+
+.process-step h4 {
+    font-size: 1.1rem;
+    margin-bottom: 0.5rem;
+    color: var(--accent-orange);
+}
+
+.process-step p {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    line-height: 1.6;
+    max-width: 200px;
+    margin: 0 auto;
+}
+
+/* Branch / Industry Cards */
+.branch-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr));
+    gap: 1.5rem;
+}
+
+.branch-card {
+    background: #ffffff;
+    padding: 2rem;
+    border-radius: 16px;
+    border: 1px solid rgba(239, 138, 0, 0.08);
+    text-align: center;
+    box-shadow: var(--shadow-sm);
+    transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+                box-shadow 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+                border-color 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.branch-card:hover {
+    border-color: var(--accent-orange);
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-lg);
+}
+
+.branch-card-icon {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    display: block;
+}
+
+.branch-card h4 {
+    font-size: 1.1rem;
+    color: var(--text-main);
+    margin-bottom: 0.5rem;
+}
+
+.branch-card p {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    line-height: 1.6;
+}
+
+/* FAQ Accordion */
+.faq-list {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.faq-item {
+    background: #ffffff;
+    border-radius: 12px;
+    margin-bottom: 0.75rem;
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    overflow: hidden;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.faq-item:hover {
+    border-color: rgba(239, 138, 0, 0.15);
+}
+
+.faq-item.active {
+    border-color: rgba(239, 138, 0, 0.25);
+    box-shadow: 0 4px 15px rgba(239, 138, 0, 0.08);
+}
+
+.faq-question {
+    padding: 1.25rem 1.5rem;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: 600;
+    color: var(--text-main);
+    font-size: 1.05rem;
+    background: transparent;
+    border: none;
+    width: 100%;
+    text-align: left;
+    font-family: inherit;
+    line-height: 1.4;
+    gap: 1rem;
+}
+
+.faq-toggle {
+    width: 28px;
+    height: 28px;
+    min-width: 28px;
+    border-radius: 50%;
+    background: rgba(239, 138, 0, 0.1);
+    color: var(--accent-orange);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    font-weight: 700;
+    transition: transform 0.3s ease, background 0.3s ease;
+}
+
+.faq-item.active .faq-toggle {
+    background: var(--accent-orange);
+    color: #ffffff;
+    transform: rotate(45deg);
+}
+
+.faq-answer {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+                padding 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    padding: 0 1.5rem;
+}
+
+.faq-item.active .faq-answer {
+    max-height: 500px;
+    padding: 0 1.5rem 1.25rem;
+}
+
+.faq-answer p {
+    color: var(--text-muted);
+    line-height: 1.7;
+    font-size: 0.95rem;
+}
+
+/* B2B CTA Section */
+.b2b-cta-section {
+    background: linear-gradient(-45deg, #0b1120, #172554, #25528d, #1e3a8a, #0b1120);
+    background-size: 400% 400%;
+    animation: heroGradientShift 15s ease infinite;
+    padding: 5rem 2rem;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    color: #ffffff;
+}
+
+.b2b-cta-section::before {
+    content: "";
+    position: absolute;
+    top: -30%;
+    right: -15%;
+    width: 500px;
+    height: 500px;
+    background: radial-gradient(circle, rgba(239, 138, 0, 0.2) 0%, transparent 60%);
+    filter: blur(80px);
+    pointer-events: none;
+}
+
+.b2b-cta-section h2 {
+    color: #ffffff;
+    font-size: clamp(1.8rem, 3.5vw, 2.8rem);
+    margin-bottom: 1rem;
+    position: relative;
+    z-index: 2;
+}
+
+.b2b-cta-section > p {
+    color: rgba(255, 255, 255, 0.85);
+    max-width: 700px;
+    margin: 0 auto 2rem;
+    font-size: 1.1rem;
+    line-height: 1.7;
+    position: relative;
+    z-index: 2;
+}
+
+.b2b-cta-section .btn {
+    position: relative;
+    z-index: 2;
+}
+
+.b2b-cta-badges {
+    display: flex;
+    gap: 2.5rem;
+    justify-content: center;
+    margin-top: 2.5rem;
+    flex-wrap: wrap;
+    position: relative;
+    z-index: 2;
+}
+
+.b2b-cta-badge {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 0.95rem;
+}
+
+.b2b-cta-badge-icon {
+    color: var(--accent-orange);
+    font-size: 1.3rem;
+}
+
+/* Rechnung Upload Section */
+.upload-section {
+    background: linear-gradient(180deg, #ffffff 0%, var(--bg-alt) 100%);
+}
+
+.upload-box {
+    max-width: 700px;
+    margin: 0 auto;
+    background: #ffffff;
+    border: 2px dashed rgba(239, 138, 0, 0.3);
+    border-radius: 20px;
+    padding: 3rem 2rem;
+    text-align: center;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.upload-box:hover {
+    border-color: var(--accent-orange);
+    box-shadow: 0 10px 30px rgba(239, 138, 0, 0.1);
+}
+
+.upload-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    display: block;
+}
+
+.upload-box h3 {
+    font-size: 1.3rem;
+    margin-bottom: 0.75rem;
+    color: var(--text-main);
+}
+
+.upload-box p {
+    color: var(--text-muted);
+    margin-bottom: 1.5rem;
+    font-size: 0.95rem;
+}
+
+/* ============================================
+   B2B PAGE RESPONSIVE STYLES
+   ============================================ */
+
+@media (max-width: 991px) {
+    .b2b-hero-grid {
+        grid-template-columns: 1fr;
+        text-align: center;
+        gap: 2.5rem;
+    }
+
+    .b2b-hero-content {
+        text-align: center;
+    }
+
+    .b2b-hero-content p {
+        max-width: 100%;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .b2b-hero-actions {
+        justify-content: center;
+    }
+
+    .b2b-advantages-grid {
+        grid-template-columns: 1fr;
+        gap: 2.5rem;
+    }
+
+    .process-step:not(:last-child)::after {
+        display: none;
+    }
+
+    .trust-bar-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .b2b-hero {
+        padding: 3rem 1.5rem;
+        min-height: auto;
+    }
+
+    .trust-bar {
+        padding: 2.5rem 1rem;
+    }
+
+    .trust-bar-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 1.5rem;
+    }
+
+    .process-steps {
+        flex-direction: column;
+        align-items: center;
+        gap: 0;
+    }
+
+    .process-step {
+        padding: 0;
+        margin-bottom: 2rem;
+    }
+
+    .process-step:not(:last-child)::after {
+        display: none;
+    }
+
+    .branch-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+    }
+
+    .b2b-cta-badges {
+        flex-direction: column;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .b2b-cta-section {
+        padding: 3rem 1.5rem;
+    }
+
+    .faq-question {
+        font-size: 0.95rem;
+        padding: 1rem 1.25rem;
+    }
+
+    .b2b-advantage-item {
+        padding: 0.75rem;
+    }
+
+    .upload-box {
+        padding: 2rem 1.5rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .branch-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .trust-bar-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+
+    .trust-stat {
+        padding: 0.5rem;
+    }
+}
