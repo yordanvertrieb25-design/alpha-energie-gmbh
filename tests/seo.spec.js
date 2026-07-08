@@ -17,7 +17,7 @@ function scanHtmlFiles(dir, fileList = []) {
                 continue;
             }
             // Ignore specific folders
-            if (['node_modules', 'tests', 'memory-bank', '.agents', 'test-results', 'public', 'prisma', 'services', 'partner_akquise_plan', 'admin'].includes(trimmedFile)) {
+            if (['node_modules', 'tests', 'memory-bank', '.agents', 'test-results', 'public', 'prisma', 'services', 'partner_akquise_plan'].includes(trimmedFile)) {
                 continue;
             }
             scanHtmlFiles(fullPath, fileList);
@@ -90,6 +90,24 @@ async function getRobotsMetaContents(page) {
     return contents;
 }
 
+function verifyRobotsMetaForNonIndexable(metas) {
+    const genericMetas = metas.filter(meta => meta.agent === 'robots');
+    expect(genericMetas.length).toBeGreaterThan(0);
+
+    const hasNoIndexOrNone = genericMetas.some(meta => {
+        const directives = meta.content.split(/[,\s]+/).map(d => d.trim().toLowerCase());
+        return directives.includes('noindex') || directives.includes('none');
+    });
+    expect(hasNoIndexOrNone).toBe(true);
+
+    const specificMetas = metas.filter(meta => meta.agent !== 'robots');
+    for (const meta of specificMetas) {
+        const directives = meta.content.split(/[,\s]+/).map(d => d.trim().toLowerCase());
+        const permitsCrawling = directives.some(d => d === 'index' || d === 'all');
+        expect(permitsCrawling).toBe(false);
+    }
+}
+
 function isPathBlocked(block, path) {
     let longestMatch = null;
     for (const rule of block.rules) {
@@ -129,6 +147,8 @@ function normalizeToHtml(pathOrHref) {
 // Robust XML sitemap parser helper
 async function parseSitemapUrls(page) {
     const visited = new Set();
+    const baseOrigin = new URL(page.url()).origin;
+
     const parseSingleXml = async (xmlStr) => {
         return await page.evaluate((xml) => {
             const parser = new DOMParser();
@@ -137,9 +157,18 @@ async function parseSitemapUrls(page) {
             if (parserErrors.length > 0) {
                 return { error: parserErrors[0].textContent, urls: [] };
             }
-            const isIndex = xmlDoc.documentElement && xmlDoc.documentElement.nodeName.toLowerCase() === 'sitemapindex';
-            const locs = xmlDoc.getElementsByTagName("loc");
-            const urls = Array.from(locs).map(loc => loc.textContent.trim());
+            const docEl = xmlDoc.documentElement;
+            const rootName = docEl ? (docEl.localName || docEl.nodeName.split(':').pop()) : '';
+            const isIndex = rootName.toLowerCase() === 'sitemapindex';
+            
+            const allElements = xmlDoc.getElementsByTagName("*");
+            const urls = [];
+            for (const el of Array.from(allElements)) {
+                const name = el.localName || el.nodeName.split(':').pop();
+                if (name.toLowerCase() === 'loc') {
+                    urls.push(el.textContent.trim());
+                }
+            }
             return { error: null, isIndex, urls };
         }, xmlStr);
     };
@@ -161,7 +190,7 @@ async function parseSitemapUrls(page) {
             let aggregated = [];
             for (const childUrl of parsed.urls) {
                 try {
-                    const parsedChildUrl = new URL(childUrl, 'http://localhost:3000');
+                    const parsedChildUrl = new URL(childUrl, baseOrigin);
                     const subUrls = await fetchAndParse(parsedChildUrl.pathname);
                     aggregated = aggregated.concat(subUrls);
                 } catch (e) {
@@ -437,9 +466,7 @@ test.describe('SEO E2E Test Suite', () => {
       if (nonIndexablePages.length > 0) {
         await page.goto(`/${nonIndexablePages[0]}`);
         const metas = await getRobotsMetaContents(page);
-        expect(metas.length).toBeGreaterThan(0);
-        const hasNoIndexOrNone = metas.some(meta => meta.content.includes('noindex') || meta.content.includes('none'));
-        expect(hasNoIndexOrNone).toBe(true);
+        verifyRobotsMetaForNonIndexable(metas);
       }
     });
 
@@ -447,9 +474,7 @@ test.describe('SEO E2E Test Suite', () => {
       test(`33.${idx + 1}. Non-indexable file /${pageName} has valid noindex tag`, async ({ page }) => {
         await page.goto(`/${pageName}`);
         const metas = await getRobotsMetaContents(page);
-        expect(metas.length).toBeGreaterThan(0);
-        const hasNoIndexOrNone = metas.some(meta => meta.content.includes('noindex') || meta.content.includes('none'));
-        expect(hasNoIndexOrNone).toBe(true);
+        verifyRobotsMetaForNonIndexable(metas);
       });
     });
 
@@ -527,14 +552,22 @@ test.describe('SEO E2E Test Suite', () => {
             return false;
           };
 
-          const checkContext = (obj) => {
-            if (obj && obj['@context'] && contextMatches(obj['@context'])) {
-              return true;
+          const checkContext = (obj, inheritedContext = null) => {
+            if (!obj || typeof obj !== 'object') {
+              return false;
             }
-            if (obj && obj['@graph'] && Array.isArray(obj['@graph'])) {
-              return obj['@graph'].some(item => checkContext(item));
+            if (Array.isArray(obj)) {
+              return obj.length > 0 && obj.every(item => checkContext(item, inheritedContext));
             }
-            return false;
+            
+            const currentContext = obj['@context'] ? obj['@context'] : inheritedContext;
+            const hasValidContext = currentContext && contextMatches(currentContext);
+
+            if (obj['@graph'] && Array.isArray(obj['@graph'])) {
+              return obj['@graph'].length > 0 && obj['@graph'].every(item => checkContext(item, currentContext));
+            }
+
+            return !!hasValidContext;
           };
 
           expect(checkContext(parsed)).toBe(true);
@@ -577,9 +610,7 @@ test.describe('SEO E2E Test Suite', () => {
           
           await page.goto(`/${file}`);
           const metas = await getRobotsMetaContents(page);
-          expect(metas.length).toBeGreaterThan(0);
-          const hasNoIndexOrNone = metas.some(meta => meta.content.includes('noindex') || meta.content.includes('none'));
-          expect(hasNoIndexOrNone).toBe(true);
+          verifyRobotsMetaForNonIndexable(metas);
         } catch (err) {
           errors.push({ file, error: err.message });
         }
@@ -664,24 +695,32 @@ test.describe('SEO E2E Test Suite', () => {
       await page.goto('/');
       const navLinks = page.locator('header a');
       const count = await navLinks.count();
+      const localOrigin = new URL(page.url()).origin;
       for (let i = 0; i < count; i++) {
         const href = await navLinks.nth(i).getAttribute('href');
         if (href && !href.startsWith('#') && !href.startsWith('tel:') && !href.startsWith('mailto:')) {
+          let testUrl = href;
           let isExternal = false;
-          try {
-            const parsed = new URL(href, 'http://localhost:3000');
-            if (parsed.hostname !== 'localhost' && parsed.hostname !== '127.0.0.1') {
+          if (href.startsWith('http://') || href.startsWith('https://') || href.startsWith('//')) {
+            try {
+              const urlToParse = href.startsWith('//') ? `https:${href}` : href;
+              const parsed = new URL(urlToParse);
+              const hostname = parsed.hostname.toLowerCase();
+              if (hostname === 'alpha-energie.de' || hostname === 'www.alpha-energie.de') {
+                testUrl = localOrigin + parsed.pathname + parsed.search + parsed.hash;
+              } else if (hostname !== 'localhost' && hostname !== '127.0.0.1') {
+                isExternal = true;
+              }
+            } catch (e) {
               isExternal = true;
             }
-          } catch (e) {
-            // Treat as relative / non-external
           }
           if (isExternal) {
             continue;
           }
-          const normalized = normalizeToHtml(href);
+          const normalized = normalizeToHtml(testUrl);
           if (indexablePages.includes(normalized)) {
-            const response = await page.request.get(href);
+            const response = await page.request.get(testUrl);
             expect(response.status()).toBe(200);
           }
         }
@@ -708,9 +747,7 @@ test.describe('SEO E2E Test Suite', () => {
         try {
           await page.goto(url);
           const metas = await getRobotsMetaContents(page);
-          expect(metas.length).toBeGreaterThan(0);
-          const hasNoIndexOrNone = metas.some(meta => meta.content.includes('noindex') || meta.content.includes('none'));
-          expect(hasNoIndexOrNone).toBe(true);
+          verifyRobotsMetaForNonIndexable(metas);
         } catch (err) {
           errors.push({ url, error: err.message });
         }
@@ -803,6 +840,7 @@ test.describe('SEO E2E Test Suite', () => {
         for (let i = 0; i < count; i++) {
           const alt = await images.nth(i).getAttribute('alt');
           expect(alt).not.toBeNull();
+          expect(alt.trim().length).toBeGreaterThan(0);
         }
       });
 
@@ -814,9 +852,9 @@ test.describe('SEO E2E Test Suite', () => {
         });
         
         let prevLevel = 0;
-        for (const level of headings) {
-          expect(level).toBeLessThanOrEqual(prevLevel + 1);
-          prevLevel = level;
+        for (const currentLevel of headings) {
+          expect(currentLevel).toBeLessThanOrEqual(prevLevel + 1);
+          prevLevel = currentLevel;
         }
       });
 
@@ -828,12 +866,21 @@ test.describe('SEO E2E Test Suite', () => {
           'click here',
           'here',
           'klicken',
+          'klick',
           'hier',
           'mehr',
           'click',
           'mehr erfahren',
           'erfahren',
-          'hier klicken'
+          'hier klicken',
+          'klick hier'
+        ];
+
+        const badPhrases = [
+          'click here',
+          'hier klicken',
+          'mehr erfahren',
+          'klick hier'
         ];
         
         for (let i = 0; i < count; i++) {
@@ -847,13 +894,16 @@ test.describe('SEO E2E Test Suite', () => {
           }
           
           const trimmed = text
-            .replace(/[!.,?:\-–—→()]/g, '')
+            .replace(/[!.,?:\-–—→()<>]/g, '')
             .trim()
             .replace(/\s+/g, ' ')
             .toLowerCase();
             
           if (trimmed) {
             expect(genericWords).not.toContain(trimmed);
+            for (const phrase of badPhrases) {
+              expect(trimmed).not.toContain(phrase);
+            }
           }
         }
       });

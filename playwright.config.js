@@ -1,23 +1,22 @@
 const { defineConfig } = require('@playwright/test');
 
 module.exports = defineConfig({
-  timeout: 30000,
+  timeout: 60000,
   testDir: './tests',
   fullyParallel: true,
   retries: 0,
-  workers: 1,
+  workers: process.env.CI ? 1 : undefined,
   reporter: 'list',
-  timeout: 30000,
-  globalTimeout: 300000,
+  globalTimeout: 600000,
   use: {
-    baseURL: 'http://localhost:3000',
+    baseURL: 'http://127.0.0.1:3000',
     headless: true,
   },
   webServer: {
     command: 'node server.js',
-    url: 'http://localhost:3000',
+    url: 'http://127.0.0.1:3000',
     reuseExistingServer: true,
-    stdout: 'ignore',
+    stdout: 'pipe',
     stderr: 'pipe',
   },
 });

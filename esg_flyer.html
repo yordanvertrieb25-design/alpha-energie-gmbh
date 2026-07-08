@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta name="robots" content="noindex">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alpha Energie - ESG & Energie B2B Flyer</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        :root {
+            --primary: #0B3C2A; /* Tiefes Smaragdgrün */
+            --secondary: #333333; /* Anthrazit */
+            --accent: #A3E635; /* Subtiles Hellgrün / Lime */
+            --bg-color: #FFFFFF;
+            --text-color: #333333;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f4f4f4;
+            color: var(--text-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            gap: 20px;
+        }
+
+        /* A5 Dimensions (Portrait) */
+        .page {
+            width: 148mm;
+            height: 210mm;
+            background-color: var(--bg-color);
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            print-color-adjust: exact;
+            -webkit-print-color-adjust: exact;
+        }
+
+        /* Watermark */
+        .watermark {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80%;
+            opacity: 0.04;
+            filter: grayscale(100%);
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        /* Layout Elements */
+        .header {
+            padding: 12mm 12mm 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            position: relative;
+            z-index: 2;
+        }
+
+        .logo {
+            width: 35mm;
+            object-fit: contain;
+        }
+
+        .badge {
+            background-color: var(--primary);
+            color: white;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 8pt;
+            font-weight: 600;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        /* Page 1 (Front) */
+        .p1-content {
+            position: relative;
+            z-index: 2;
+            padding: 12mm;
+            height: calc(100% - 30mm);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .p1-bg {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 60%;
+            background-image: url('b2b_sales_partner_bg.png');
+            background-size: cover;
+            background-position: center;
+            z-index: 1;
+        }
+
+        .p1-bg::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to bottom, rgba(255,255,255,1) 0%, rgba(255,255,255,0) 30%);
+        }
+
+        h1 {
+            font-size: 26pt;
+            line-height: 1.1;
+            color: var(--primary);
+            font-weight: 700;
+            margin-bottom: 5mm;
+            letter-spacing: -0.5px;
+        }
+
+        .subtitle {
+            font-size: 11pt;
+            color: var(--secondary);
+            font-weight: 400;
+            line-height: 1.4;
+            max-width: 90%;
+            border-left: 3px solid var(--accent);
+            padding-left: 4mm;
+        }
+
+        /* Page 2 (Back) */
+        .p2-content {
+            position: relative;
+            z-index: 2;
+            padding: 12mm;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        h2 {
+            font-size: 18pt;
+            color: var(--primary);
+            margin-bottom: 4mm;
+            line-height: 1.2;
+        }
+
+        p.intro {
+            font-size: 9pt;
+            line-height: 1.5;
+            margin-bottom: 8mm;
+            color: var(--secondary);
+        }
+
+        .benefits {
+            display: flex;
+            flex-direction: column;
+            gap: 5mm;
+            flex-grow: 1;
+        }
+
+        .benefit-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 4mm;
+        }
+
+        .icon-box {
+            width: 10mm;
+            height: 10mm;
+            background-color: var(--primary);
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 6px;
+            flex-shrink: 0;
+        }
+
+        .icon-box i {
+            width: 5mm;
+            height: 5mm;
+        }
+
+        .benefit-text h3 {
+            font-size: 9.5pt;
+            color: var(--primary);
+            margin-bottom: 1mm;
+        }
+
+        .benefit-text p {
+            font-size: 8pt;
+            line-height: 1.4;
+            color: #555;
+        }
+
+        /* Footer / CTA */
+        .footer {
+            margin-top: auto;
+            background-color: var(--primary);
+            color: white;
+            padding: 8mm;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6mm;
+        }
+
+        .qr-code {
+            width: 25mm;
+            height: 25mm;
+            background: white;
+            padding: 2mm;
+            border-radius: 4px;
+            flex-shrink: 0;
+        }
+
+        .qr-code img {
+            width: 100%;
+            height: 100%;
+        }
+
+        .cta-text h4 {
+            font-size: 10pt;
+            color: var(--accent);
+            margin-bottom: 1.5mm;
+        }
+
+        .cta-text p {
+            font-size: 7.5pt;
+            line-height: 1.4;
+            opacity: 0.9;
+        }
+
+        .contact-info {
+            font-size: 7pt;
+            margin-top: 4mm;
+            text-align: center;
+            color: #777;
+        }
+
+        @media print {
+            body {
+                background: none;
+                padding: 0;
+            }
+            .page {
+                box-shadow: none;
+                page-break-after: always;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- FRONT PAGE -->
+    <div class="page">
+        <img src="logo.png" alt="Watermark" class="watermark">
+        <div class="p1-bg"></div>
+        
+        <div class="header">
+            <img src="logo.png" alt="Alpha Energie GmbH" class="logo">
+            <span class="badge">Partner-Programm</span>
+        </div>
+
+        <div class="p1-content">
+            <div>
+                <h1>Ihr Upgrade im<br>B2B-Energievertrieb.</h1>
+                <p class="subtitle">Werden Sie Partner der Alpha Energie GmbH. Bieten Sie Ihren Kunden zertifizierte ESG-Lösungen und profitieren Sie vom stärksten Partner-Portal am Markt.</p>
+            </div>
+            <!-- The bottom is filled by the background image -->
+        </div>
+    </div>
+
+    <!-- BACK PAGE -->
+    <div class="page">
+        <img src="logo.png" alt="Watermark" class="watermark">
+        
+        <div class="p2-content">
+            <h2>Der Markt wächst.<br>Sichern Sie sich Ihren Anteil.</h2>
+            <p class="intro">
+                Durch die EU-Regulierung (CSRD) stehen mittelständische Unternehmen massiv unter Druck, Emissionen zu senken. Hier setzen Sie an: Liefern Sie nicht nur Energie, sondern messbare <strong>Dekarbonisierung</strong> und <strong>strategische Beratung</strong>.
+            </p>
+
+            <div class="benefits">
+                <div class="benefit-item">
+                    <div class="icon-box">
+                        <i data-lucide="leaf"></i>
+                    </div>
+                    <div class="benefit-text">
+                        <h3>Nachhaltiges Portfolio</h3>
+                        <p>Positionieren Sie sich als echter Lösungsanbieter. Bieten Sie zertifizierten Grünstrom, PPA-Modelle und intelligente Energie-Konzepte, die den CO₂-Fußabdruck Ihrer Kunden senken.</p>
+                    </div>
+                </div>
+
+                <div class="benefit-item">
+                    <div class="icon-box">
+                        <i data-lucide="bar-chart-3"></i>
+                    </div>
+                    <div class="benefit-text">
+                        <h3>Das digitale B2B-Portal</h3>
+                        <p>Kalkulieren Sie komplexe B2B-Angebote in Sekunden. Verwalten Sie Leads, Verträge und Provisionen zentral an einem Ort – effizient, transparent und 100% digital.</p>
+                    </div>
+                </div>
+
+                <div class="benefit-item">
+                    <div class="icon-box">
+                        <i data-lucide="award"></i>
+                    </div>
+                    <div class="benefit-text">
+                        <h3>CSRD- & Compliance-Ready</h3>
+                        <p>Unterstützen Sie Ihre Kunden bei den Berichtspflichten. Unsere Energielösungen liefern die validen Daten, die mittelständische Unternehmen heute für ihr ESG-Rating zwingend benötigen.</p>
+                    </div>
+                </div>
+
+                <div class="benefit-item">
+                    <div class="icon-box">
+                        <i data-lucide="zap"></i>
+                    </div>
+                    <div class="benefit-text">
+                        <h3>Maximale Provisionen</h3>
+                        <p>Profitieren Sie von Best-in-Class Vergütungsmodellen. Durch Cross-Selling-Optionen wie Photovoltaik und Ladeinfrastruktur maximieren Sie Ihren Umsatz pro Kunde deutlich.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="footer">
+                <div class="qr-code">
+                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=https://web-production-b8fed.up.railway.app/&color=0B3C2A" alt="QR Code zum Partner Portal">
+                </div>
+                <div class="cta-text">
+                    <h4>Starten Sie jetzt als Alpha Energie Partner.</h4>
+                    <p>Scannen Sie den Code für die Registrierung im Partner-Portal oder kontaktieren Sie unseren Vertriebssupport für ein Onboarding-Gespräch.</p>
+                </div>
+            </div>
+
+            <div class="contact-info">
+                <strong>Alpha Energie GmbH</strong> | Das Partner-Netzwerk für ESG & Energie<br>
+                www.alpha-energie.de/partner | partner@alpha-energie.de | +49 (0) 123 456 789
+            </div>
+        </div>
+    </div>
+
+    <script>
+        lucide.createIcons();
+    </script>
+</body>
+</html>

@@ -1,29 +1,14 @@
 Sitemap: https://alpha-energie.de/sitemap.xml
 
 User-agent: *
-Disallow: /admin/
-Disallow: /portal-dashboard.html
-Disallow: /vertriebspartner-portal.html
-Disallow: /b2b-portal.html
-Disallow: /onboarding.html
+Disallow:
 
 User-agent: GPTBot
-Disallow: /admin/
-Disallow: /portal-dashboard.html
-Disallow: /vertriebspartner-portal.html
-Disallow: /b2b-portal.html
-Disallow: /onboarding.html
+Disallow:
 
 User-agent: CCBot
-Disallow: /admin/
-Disallow: /portal-dashboard.html
-Disallow: /vertriebspartner-portal.html
-Disallow: /b2b-portal.html
-Disallow: /onboarding.html
+Disallow:
 
 User-agent: Google-Extended
-Disallow: /admin/
-Disallow: /portal-dashboard.html
-Disallow: /vertriebspartner-portal.html
-Disallow: /b2b-portal.html
-Disallow: /onboarding.html
+Disallow:
+

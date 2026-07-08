@@ -15,13 +15,28 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Casing check for robots.txt to prevent case-insensitive matches on Windows environments
+// Casing check and redirect middleware to prevent mixed-case duplicate content
 app.use((req, res, next) => {
+    if (req.method === 'GET' && /[A-Z]/.test(req.path)) {
+        const lowerPath = req.path.toLowerCase();
+        const cleanPath = lowerPath.replace(/\.html$/, '');
+        const isHtml = lowerPath.endsWith('.html');
+        const isTargetPage = ['/index', '/vertriebspartner', '/agenturen', '/impressum'].includes(cleanPath);
+        const isSitemapOrRobots = lowerPath === '/robots.txt' || lowerPath === '/sitemap.xml' || lowerPath.startsWith('/sitemap');
+
+        if (isHtml || isTargetPage || isSitemapOrRobots) {
+            const query = req.url.slice(req.path.length);
+            return res.redirect(301, lowerPath + query);
+        }
+    }
+    
+    // Casing check for robots.txt to prevent case-insensitive matches on Windows environments
     if (req.path.toLowerCase() === '/robots.txt' && req.path !== '/robots.txt') {
         return res.status(404).send('Not Found');
     }
     next();
 });
+
 
 // Serve static files from the root directory
 app.use(express.static(path.join(__dirname, 'public'))); // For future public assets if needed
