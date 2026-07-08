@@ -168,36 +168,40 @@ async function scrapeB2BContacts({ prisma, campaignId, name, industry, companySi
 
       // 1. Initial Query for ZIP codes (with region=de and language=de to bias towards Germany)
       let initialPlaces = [];
+      let initialNextToken = null;
       try {
-        const searchUrl = `https://maps.googleapis.com/maps/api/place/textsearch/json?query=${encodeURIComponent(initialQuery)}&region=de&language=de&key=${apiKey}`;
-        console.log(`[Scraper] Calling Google Places API...`);
-        const initRes = await axios.get(searchUrl);
-        
-        // Log the full API response status (Google returns errors as 200 OK with status field)
-        console.log(`[Scraper] Google Places API response status: ${initRes.data?.status}, results count: ${initRes.data?.results?.length || 0}`);
-        if (initRes.data?.error_message) {
-          console.error(`[Scraper] Google Places API ERROR: ${initRes.data.error_message}`);
-        }
-        
-        if (initRes.data && initRes.data.status === 'OK' && initRes.data.results) {
-          for (const res of initRes.data.results) {
-            // We removed the strict isGermanResult check because domestic addresses omit "Deutschland".
-            // The region=de and query parameter are enough to ensure German results.
-            if (!placeIds.has(res.place_id)) {
-              placeIds.add(res.place_id);
-              initialPlaces.push(res);
-            }
-            if (res.formatted_address) {
-              // Only extract PLZ from confirmed German addresses
-              const match = res.formatted_address.match(/\b\d{5}\b/);
-              if (match) zipCodes.add(match[0]);
-            }
+        console.log(`[Scraper] Calling Google Places API (Initial Query)...`);
+        do {
+          let currentSearchUrl = `https://maps.googleapis.com/maps/api/place/textsearch/json?query=${encodeURIComponent(initialQuery)}&region=de&language=de&key=${apiKey}`;
+          if (initialNextToken) {
+            currentSearchUrl = `https://maps.googleapis.com/maps/api/place/textsearch/json?pagetoken=${initialNextToken}&key=${apiKey}`;
+            await new Promise(resolve => setTimeout(resolve, 2000)); // Google requires a delay for page tokens
           }
-        } else if (initRes.data?.status === 'ZERO_RESULTS') {
-          console.log(`[Scraper] Google Places returned 0 results for query: "${initialQuery}"`);
-        } else {
-          console.error(`[Scraper] Google Places API failed with status: ${initRes.data?.status} - ${initRes.data?.error_message || 'No error message'}`);
-        }
+
+          const initRes = await axios.get(currentSearchUrl);
+          console.log(`[Scraper] Google Places API response status: ${initRes.data?.status}, results count: ${initRes.data?.results?.length || 0}`);
+          
+          if (initRes.data?.error_message) {
+            console.error(`[Scraper] Google Places API ERROR: ${initRes.data.error_message}`);
+          }
+          
+          if (initRes.data && initRes.data.status === 'OK' && initRes.data.results) {
+            for (const res of initRes.data.results) {
+              if (!placeIds.has(res.place_id)) {
+                placeIds.add(res.place_id);
+                initialPlaces.push(res);
+              }
+              if (res.formatted_address) {
+                const match = res.formatted_address.match(/\b\d{5}\b/);
+                if (match) zipCodes.add(match[0]);
+              }
+            }
+          } else if (initRes.data?.status === 'ZERO_RESULTS') {
+            console.log(`[Scraper] Google Places returned 0 results for query.`);
+          }
+
+          initialNextToken = initRes.data?.next_page_token;
+        } while (initialNextToken && initialPlaces.length < 60);
       } catch (e) {
         console.error(`[Scraper] Initial Query error: ${e.message}`);
       }
@@ -323,19 +327,31 @@ async function scrapeB2BContacts({ prisma, campaignId, name, industry, companySi
         if (query === initialQuery) continue;
 
         console.log(`[Scraper] ZIP-Query: "${query}"`);
-        const searchUrl = `https://maps.googleapis.com/maps/api/place/textsearch/json?query=${encodeURIComponent(query)}&region=de&language=de&key=${apiKey}`;
         let queryPlaces = [];
+        let nextToken = null;
 
         try {
-          const searchRes = await axios.get(searchUrl);
-          if (searchRes.data && searchRes.data.results) {
-            for (const res of searchRes.data.results) {
-              if (!placeIds.has(res.place_id)) {
-                placeIds.add(res.place_id);
-                queryPlaces.push(res);
+          do {
+            if (cancelledCampaigns.has(campaignId) || totalContactsFound + queryPlaces.length >= maxLimit) break;
+            
+            let currentSearchUrl = `https://maps.googleapis.com/maps/api/place/textsearch/json?query=${encodeURIComponent(query)}&region=de&language=de&key=${apiKey}`;
+            if (nextToken) {
+              currentSearchUrl = `https://maps.googleapis.com/maps/api/place/textsearch/json?pagetoken=${nextToken}&key=${apiKey}`;
+              await new Promise(resolve => setTimeout(resolve, 2000));
+            }
+
+            const searchRes = await axios.get(currentSearchUrl);
+            
+            if (searchRes.data && searchRes.data.results) {
+              for (const res of searchRes.data.results) {
+                if (!placeIds.has(res.place_id)) {
+                  placeIds.add(res.place_id);
+                  queryPlaces.push(res);
+                }
               }
             }
-          }
+            nextToken = searchRes.data?.next_page_token;
+          } while (nextToken);
         } catch (e) {
           console.error(`[Scraper] Query error: ${e.message}`);
         }
