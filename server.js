@@ -360,6 +360,7 @@ app.get('/api/contacts', authenticateAdmin, async (req, res) => {
         const limit = parseInt(req.query.limit) || 50;
         const search = req.query.search || '';
         const statusFilter = req.query.status || '';
+        const cityFilter = req.query.city || '';
         const skip = (page - 1) * limit;
 
         const where = {};
@@ -376,12 +377,20 @@ app.get('/api/contacts', authenticateAdmin, async (req, res) => {
         if (statusFilter) {
             where.status = statusFilter;
         }
+        
+        if (cityFilter) {
+            where.campaign = { companySize: cityFilter };
+        }
 
         const contacts = await prisma.scrapedContact.findMany({
             where,
             skip,
             take: limit,
-            orderBy: { createdAt: 'desc' }
+            include: { campaign: true },
+            orderBy: [
+                { campaign: { companySize: 'asc' } },
+                { createdAt: 'desc' }
+            ]
         });
 
         const total = await prisma.scrapedContact.count({ where });
@@ -425,6 +434,8 @@ app.get('/api/contacts/export', authenticateAdmin, async (req, res) => {
         const search = req.query.search || '';
         const statusFilter = req.query.status || '';
         
+        const cityFilter = req.query.city || '';
+        
         const where = {};
         if (search) {
             where.OR = [
@@ -437,16 +448,34 @@ app.get('/api/contacts/export', authenticateAdmin, async (req, res) => {
         if (statusFilter) {
             where.status = statusFilter;
         }
+        if (cityFilter) {
+            where.campaign = { companySize: cityFilter };
+        }
 
         const contacts = await prisma.scrapedContact.findMany({
             where,
-            orderBy: { createdAt: 'desc' }
+            include: { campaign: true },
+            orderBy: [
+                { campaign: { companySize: 'asc' } },
+                { createdAt: 'desc' }
+            ]
         });
 
+        const formattedContacts = contacts.map(c => ({
+            id: c.id,
+            createdAt: c.createdAt,
+            stadt: c.campaign?.companySize || 'Unbekannt',
+            name: c.name,
+            phone: c.phone,
+            website: c.website,
+            email: c.email,
+            status: c.status
+        }));
+        
         const Parser = require('json2csv').Parser;
-        const fields = ['id', 'createdAt', 'name', 'phone', 'website', 'email', 'status'];
+        const fields = ['id', 'createdAt', 'stadt', 'name', 'phone', 'website', 'email', 'status'];
         const json2csvParser = new Parser({ fields });
-        const csv = json2csvParser.parse(contacts);
+        const csv = json2csvParser.parse(formattedContacts);
 
         res.header('Content-Type', 'text/csv');
         res.attachment('b2b_database.csv');
@@ -454,6 +483,20 @@ app.get('/api/contacts/export', authenticateAdmin, async (req, res) => {
     } catch (error) {
         console.error("Error exporting global contacts:", error);
         res.status(500).json({ success: false, error: 'Server Error' });
+    }
+});
+
+// 6d. Get distinct cities for filter
+app.get('/api/cities', authenticateAdmin, async (req, res) => {
+    try {
+        const campaigns = await prisma.campaign.findMany({
+            select: { companySize: true },
+            distinct: ['companySize']
+        });
+        const cities = campaigns.map(c => c.companySize).filter(c => c).sort();
+        res.json({ success: true, data: cities });
+    } catch(e) {
+        res.status(500).json({ success: false });
     }
 });
 
