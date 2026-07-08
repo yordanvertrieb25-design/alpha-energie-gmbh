@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=Manrope:wght@400;500;600;700&display=swap');
+
 /* Base Reset */
 *, *::before, *::after {
     box-sizing: border-box;
@@ -7,14 +9,14 @@
 
 :root {
     /* Color Palette */
-    --primary-color: #ef8a00; /* New website-wide orange */
-    --primary-dark: #d67a00; /* Slightly darker shade for hovers */
-    --bg-orange: #ef8a00; /* Hero background orange */
+    --primary-color: #0a1f44; /* Navy */
+    --primary-dark: #6fa820; /* Slightly darker shade for hovers */
+    --bg-orange: #ef8a00; /* Hero background lime green */
     --bg-light: #ffffff;
-    --bg-alt: #f8f9fa;
-    --text-main: #1f2937;
-    --text-muted: #4b5563;
-    --accent-orange: #ef8a00;
+    --bg-alt: #f8f9fa; /* Light Grey */
+    --text-main: #0a1f44; /* Navy */
+    --text-muted: #2e3d55; /* Slate Blue */
+    --accent-orange: #ef8a00; /* Lime Green */
     
     /* Spacing Scale (4px/8px-based) */
     --space-xs: 0.25rem;  /* 4px */
@@ -36,7 +38,7 @@
     --shadow-glow: 0 10px 30px rgba(239, 138, 0, 0.15);
     
     /* Gradients */
-    --gradient-hero: linear-gradient(135deg, #ff9b1a 0%, #ef8a00 50%, #d46b00 100%);
+    --gradient-hero: linear-gradient(135deg, #ff9b1a 0%, #ef8a00 50%, #669a1b 100%);
     --gradient-primary: linear-gradient(135deg, #ff9b1a 0%, #ef8a00 100%);
     --gradient-glow: radial-gradient(circle, rgba(239, 138, 0, 0.08) 0%, transparent 70%);
 
@@ -46,11 +48,18 @@
     --glass-blur: blur(12px);
     
     /* Typography */
-    --font-main: 'Outfit', sans-serif;
+    --font-main: 'Manrope', sans-serif;
+    --font-display: 'Sora', sans-serif;
     
     /* Layout */
-    --container-max: 1200px;
-    --section-pad: 7.5rem 2rem;
+    --container-max: 1152px;
+    --section-pad: 5rem 1.5rem;
+}
+
+@media (min-width: 769px) {
+    :root {
+        --section-pad: 7rem 2rem;
+    }
 }
 
 html {
@@ -79,7 +88,8 @@ ul {
 }
 
 /* Typography */
-h1, h2, h3, h4 {
+h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-display);
     line-height: 1.2;
     margin-bottom: 1rem;
     font-weight: 700;
@@ -502,10 +512,14 @@ h3 { font-size: 1.5rem; }
     background-size: 400% 400%;
     animation: heroGradientShift 15s ease infinite;
     overflow: hidden;
-    padding: 6rem 2rem;
+    padding: 2rem 2rem;
     display: flex;
     align-items: center;
-}
+
+    width: 100vw !important;
+    margin-left: calc(-50vw + 50%) !important;
+    border-radius: 0 !important;
+    max-width: 100vw !important;}
 
 @keyframes heroGradientShift {
     0% { background-position: 0% 50%; }
@@ -598,9 +612,9 @@ h3 { font-size: 1.5rem; }
 }
 
 .hero-title-mega {
-    font-size: clamp(2.2rem, 4vw, 3.5rem);
+    font-size: clamp(1.8rem, 3.2vw, 2.8rem);
     line-height: 1.15;
-    margin-bottom: 1.25rem;
+    margin-bottom: 1rem;
     color: #ffffff;
     font-weight: 700;
     letter-spacing: -1px;
@@ -653,8 +667,8 @@ h3 { font-size: 1.5rem; }
 .hero-image-wrapper {
     position: absolute;
     bottom: 0;
-    right: max(-8%, calc(50% - 750px)); /* Pushed significantly further to the right */
-    height: 75%; /* Reduced height to make the man significantly smaller */
+    right: max(2%, calc(50% - 600px));
+    height: 95%;
     z-index: 10;
     display: flex;
     align-items: flex-end;
@@ -824,7 +838,7 @@ h3 { font-size: 1.5rem; }
     font-weight: 700;
     color: var(--accent-orange);
     line-height: 1;
-    font-family: 'Outfit', sans-serif;
+    font-family: var(--font-display);
     transition: transform 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.15s ease;
     text-shadow: 0 10px 30px rgba(239, 138, 0, 0.15);
 }
@@ -1145,6 +1159,23 @@ section {
     background-color: var(--text-main);
     color: #ffffff;
     padding: 5rem 0 2rem;
+}
+
+.footer-top.grid-4 {
+    grid-template-columns: 2fr 1fr 1fr 1fr;
+    gap: 2rem;
+}
+
+@media (max-width: 1024px) {
+    .footer-top.grid-4 {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+@media (max-width: 600px) {
+    .footer-top.grid-4 {
+        grid-template-columns: 1fr;
+    }
 }
 
 .footer-title {
@@ -1599,11 +1630,12 @@ section {
 }
 
 .stat-number {
-    font-size: 3.5rem;
+    font-size: clamp(2.2rem, 8vw, 3.5rem);
     font-weight: 700;
     color: var(--accent-orange);
     margin-bottom: var(--space-sm);
     line-height: 1;
+    white-space: nowrap;
 }
 
 .stat-label {
@@ -1667,6 +1699,8 @@ section {
     font-weight: 600;
     color: var(--text-main);
     margin-top: 0.5rem;
+    word-break: break-word;
+    hyphens: auto;
 }
 
 .portfolio-text {
@@ -1721,6 +1755,8 @@ section {
     font-size: 1.3rem;
     font-weight: 600;
     color: var(--text-main);
+    word-break: break-word;
+    hyphens: auto;
 }
 
 .benefit-summary-text {
@@ -2258,7 +2294,7 @@ section {
 
 /* Specific styling to make the man larger on the homepage hero section */
 .homepage-hero-image {
-    transform: scale(1.38) translateY(5%) !important;
+    transform: scale(1.25) translateY(14%) !important;
 }
 
 /* ==========================================================================
@@ -2285,7 +2321,7 @@ section {
         transform: scale(1.05) translateY(8%) !important;
     }
     .homepage-hero-image {
-        transform: scale(1.22) translateY(3%) !important;
+        transform: scale(1.22) translateY(16%) !important;
     }
     .hero-grid {
         gap: 1.5rem;

@@ -85,7 +85,7 @@ test.describe('Adversarial SEO & GEO Audit Suite', () => {
   test('1. Sitemap.xml mixed-case request handles casing strictly', async ({ request }) => {
     // Standard webservers on Linux are case-sensitive. Express static on Windows serves mixed-case files,
     // which causes duplicate content issues if Googlebot accesses /Sitemap.xml or /Sitemap.XML.
-    const res = await request.get('/Sitemap.xml');
+    const res = await request.get('/Sitemap.xml', { maxRedirects: 0 });
     // It should either return 404 Not Found (strict casing) or redirect (301/302) to lowercase /sitemap.xml
     expect([301, 302, 404]).toContain(res.status());
   });
@@ -93,7 +93,7 @@ test.describe('Adversarial SEO & GEO Audit Suite', () => {
   test('2. Target pages mixed-case requests handle casing strictly', async ({ request }) => {
     const mixedCasePages = ['/Index.html', '/Vertriebspartner.html', '/Agenturen.html', '/Impressum.html'];
     for (const pagePath of mixedCasePages) {
-      const res = await request.get(pagePath);
+      const res = await request.get(pagePath, { maxRedirects: 0 });
       // Enforce redirect or 404 to avoid duplicate content indexing of mixed-case URLs
       expect([301, 302, 404]).toContain(res.status());
     }
