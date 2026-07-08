@@ -153,13 +153,6 @@ async function scrapeB2BContacts({ prisma, campaignId, name, industry, companySi
       const initialQuery = `${industry} in ${locationWithCountry}`.trim().replace(/\s+/g, ' ');
       console.log(`[Scraper] Initial Query to discover ZIP codes: "${initialQuery}"`);
 
-      // Helper: check if a Google Places result is in Germany
-      const isGermanResult = (result) => {
-        if (!result.formatted_address) return false;
-        const addr = result.formatted_address.toLowerCase();
-        return addr.includes('deutschland') || addr.includes('germany');
-      };
-      
       const zipCodes = new Set();
       let maxLimit = 20;
       let modifiers = [""];
@@ -188,11 +181,8 @@ async function scrapeB2BContacts({ prisma, campaignId, name, industry, companySi
         
         if (initRes.data && initRes.data.status === 'OK' && initRes.data.results) {
           for (const res of initRes.data.results) {
-            // Skip non-German results
-            if (!isGermanResult(res)) {
-              console.log(`[Scraper] Filtered out non-German result: ${res.name} (${res.formatted_address})`);
-              continue;
-            }
+            // We removed the strict isGermanResult check because domestic addresses omit "Deutschland".
+            // The region=de and query parameter are enough to ensure German results.
             if (!placeIds.has(res.place_id)) {
               placeIds.add(res.place_id);
               initialPlaces.push(res);
@@ -331,11 +321,6 @@ async function scrapeB2BContacts({ prisma, campaignId, name, industry, companySi
           const searchRes = await axios.get(searchUrl);
           if (searchRes.data && searchRes.data.results) {
             for (const res of searchRes.data.results) {
-              // Skip non-German results
-              if (!isGermanResult(res)) {
-                console.log(`[Scraper] Filtered out non-German result: ${res.name} (${res.formatted_address})`);
-                continue;
-              }
               if (!placeIds.has(res.place_id)) {
                 placeIds.add(res.place_id);
                 queryPlaces.push(res);
