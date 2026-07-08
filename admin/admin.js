@@ -381,16 +381,36 @@ if (document.querySelector('.dashboard-container')) {
     let dbCurrentPage = 1;
     let dbSearchTerm = '';
     let dbStatusFilterVal = '';
+    let dbCityFilterVal = '';
 
     const dbSearchInput = document.getElementById('db-search');
     const dbStatusFilter = document.getElementById('db-status-filter');
+    const dbCityFilter = document.getElementById('db-city-filter');
     const dbTbody = document.getElementById('db-b2b-tbody');
     const dbPrevBtn = document.getElementById('btn-db-prev');
     const dbNextBtn = document.getElementById('btn-db-next');
     const dbPageInfo = document.getElementById('db-pagination-info');
     const dbExportBtn = document.getElementById('btn-db-export');
 
+    async function loadCities() {
+        if (!dbCityFilter) return;
+        try {
+            const res = await fetch(`${API_URL}/cities`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const json = await res.json();
+            if (json.success && json.data) {
+                dbCityFilter.innerHTML = '<option value="">Alle Städte</option>' + 
+                    json.data.map(c => `<option value="${c}">${c}</option>`).join('');
+            }
+        } catch (e) {
+            console.error('Error loading cities', e);
+        }
+    }
+
     if (dbSearchInput) {
+        loadCities();
+        
         // Debounce search
         let searchTimeout;
         dbSearchInput.addEventListener('input', (e) => {
@@ -404,6 +424,12 @@ if (document.querySelector('.dashboard-container')) {
 
         dbStatusFilter.addEventListener('change', (e) => {
             dbStatusFilterVal = e.target.value;
+            dbCurrentPage = 1;
+            fetchGlobalContacts();
+        });
+        
+        dbCityFilter.addEventListener('change', (e) => {
+            dbCityFilterVal = e.target.value;
             dbCurrentPage = 1;
             fetchGlobalContacts();
         });
@@ -424,7 +450,8 @@ if (document.querySelector('.dashboard-container')) {
             try {
                 const query = new URLSearchParams({
                     search: dbSearchTerm,
-                    status: dbStatusFilterVal
+                    status: dbStatusFilterVal,
+                    city: dbCityFilterVal
                 }).toString();
 
                 const res = await fetch(`${API_URL}/contacts/export?${query}`, {
@@ -459,7 +486,8 @@ if (document.querySelector('.dashboard-container')) {
                 page: dbCurrentPage,
                 limit: 50,
                 search: dbSearchTerm,
-                status: dbStatusFilterVal
+                status: dbStatusFilterVal,
+                city: dbCityFilterVal
             }).toString();
 
             const res = await fetch(`${API_URL}/contacts?${query}`, {
@@ -476,45 +504,33 @@ if (document.querySelector('.dashboard-container')) {
                 dbNextBtn.disabled = dbCurrentPage >= totalPages;
 
                 if (json.data.length === 0) {
-                    dbTbody.innerHTML = '<tr><td colspan="4" class="text-center">Keine Kontakte gefunden...</td></tr>';
+                    dbTbody.innerHTML = '<tr><td colspan="5" class="text-center">Keine Kontakte gefunden.</td></tr>';
                 } else {
                     dbTbody.innerHTML = json.data.map(c => {
-                        const date = new Date(c.createdAt).toLocaleDateString('de-DE');
-                        const statusOptions = [
-                            { value: 'PENDING', label: 'Neu / Unbearbeitet' },
-                            { value: 'Neu / Unbearbeitet', label: 'Neu / Unbearbeitet' },
-                            { value: 'Abtelefoniert', label: 'Abtelefoniert' },
-                            { value: 'Abgelehnt', label: 'Abgelehnt' },
-                            { value: 'Terminiert', label: 'Terminiert' },
-                            { value: 'Entscheider nicht angetroffen', label: 'Entscheider nicht angetroffen' }
-                        ];
-
-                        // Build <option> tags and handle the fallback logic
-                        let currentStatus = c.status || 'Neu / Unbearbeitet';
-                        if (currentStatus === 'PENDING') currentStatus = 'Neu / Unbearbeitet';
-                        
-                        // Render unique options based on currentStatus matching
-                        const uniqueOptions = [...new Map(statusOptions.map(item => [item.label, item])).values()];
-                        const optionsHtml = uniqueOptions.map(opt => 
-                            `<option value="${opt.label}" ${opt.label === currentStatus ? 'selected' : ''}>${opt.label}</option>`
-                        ).join('');
-
+                        const dateStr = new Date(c.createdAt).toLocaleString('de-DE');
+                        const city = (c.campaign && c.campaign.companySize) ? c.campaign.companySize : '-';
                         return `
                         <tr>
-                            <td>${date}</td>
-                            <td style="font-weight: 500;">${c.name}</td>
+                            <td>${dateStr}</td>
+                            <td>${city}</td>
+                            <td><strong>${c.name}</strong></td>
                             <td>
-                                <div><i class="fas fa-envelope" style="width: 20px; color: #64748b;"></i> ${c.email ? `<a href="mailto:${c.email}">${c.email}</a>` : '-'}</div>
-                                <div><i class="fas fa-phone" style="width: 20px; color: #64748b;"></i> ${c.phone || '-'}</div>
-                                <div><i class="fas fa-globe" style="width: 20px; color: #64748b;"></i> ${c.website ? `<a href="${c.website}" target="_blank" style="color: #3b82f6;">Website</a>` : '-'}</div>
+                                ${c.email ? `<a href="mailto:${c.email}">${c.email}</a>` : '-'}<br>
+                                ${c.phone || '-'}<br>
+                                ${c.website ? `<a href="${c.website}" target="_blank" style="font-size:0.8rem">Webseite</a>` : ''}
                             </td>
                             <td>
-                                <select class="form-control status-dropdown" data-id="${c.id}" style="padding: 5px; font-size: 0.9rem; border-color: ${currentStatus === 'Terminiert' ? '#10b981' : currentStatus === 'Abgelehnt' ? '#ef4444' : '#cbd5e1'};">
-                                    ${optionsHtml}
+                                <select class="status-dropdown" data-id="${c.id}" style="padding: 4px; border-radius: 4px; border: 1px solid #cbd5e1;">
+                                    <option value="Neu / Unbearbeitet" ${c.status === 'Neu / Unbearbeitet' || c.status === 'PENDING' ? 'selected' : ''}>Neu / Unbearbeitet</option>
+                                    <option value="Abtelefoniert" ${c.status === 'Abtelefoniert' ? 'selected' : ''}>Abtelefoniert</option>
+                                    <option value="Abgelehnt" ${c.status === 'Abgelehnt' ? 'selected' : ''}>Abgelehnt</option>
+                                    <option value="Terminiert" ${c.status === 'Terminiert' ? 'selected' : ''}>Terminiert</option>
+                                    <option value="Entscheider nicht angetroffen" ${c.status === 'Entscheider nicht angetroffen' ? 'selected' : ''}>Entscheider nicht angetroffen</option>
                                 </select>
                             </td>
                         </tr>
-                    `}).join('');
+                        `;
+                    }).join('');
 
                     // Add event listeners for the newly rendered dropdowns
                     document.querySelectorAll('.status-dropdown').forEach(select => {
