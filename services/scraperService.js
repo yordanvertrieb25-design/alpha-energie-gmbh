@@ -133,7 +133,7 @@ function cancelCampaign(campaignId) {
 }
 
 // Main scrape function
-async function scrapeB2BContacts({ prisma, campaignId, name, industry, companySize, pages, port }) {
+async function scrapeB2BContacts({ prisma, campaignId, name, industry, companySize, pages, port, requirePhone }) {
   const apiKey = process.env.GOOGLE_PLACES_API_KEY;
   let totalContactsFound = 0;
   let isStopped = false;
