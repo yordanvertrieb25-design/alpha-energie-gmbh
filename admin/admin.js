@@ -252,7 +252,22 @@ if (document.querySelector('.dashboard-container')) {
                         document.getElementById('camp-result-text').innerText = `${json.contactsCount} Kontakte in der Datenbank!`;
                         document.getElementById('camp-actions').style.display = 'flex';
                     } else {
-                        statusDiv.innerText = `Scraping läuft... Bisher gefunden: ${json.contactsCount}`;
+                        let statusHtml = `Scraping läuft... Bisher gefunden: <b>${json.contactsCount}</b>`;
+                        if (json.progress) {
+                            const { totalPlzs, finishedPlzs, currentPlz } = json.progress;
+                            const total = totalPlzs ? totalPlzs.length : 0;
+                            const finished = finishedPlzs ? finishedPlzs.length : 0;
+                            const remaining = total - finished - (currentPlz ? 1 : 0);
+                            statusHtml += `<div style="font-size: 0.85rem; margin-top: 5px; color: #475569;">`;
+                            if (total > 0) {
+                                statusHtml += `<div><b>Insgesamt zu scannen:</b> ${total} PLZs</div>`;
+                                if (currentPlz) statusHtml += `<div><b>Aktuell durchsucht:</b> <span style="color: #3b82f6;">${currentPlz}</span></div>`;
+                                if (finished > 0) statusHtml += `<div><b>Erledigt (${finished}):</b> <span style="color: #10b981;">${finishedPlzs.slice(-5).join(', ')}${finished > 5 ? '...' : ''}</span></div>`;
+                                if (remaining > 0) statusHtml += `<div><b>Noch ausstehend:</b> ${remaining} PLZs</div>`;
+                            }
+                            statusHtml += `</div>`;
+                        }
+                        statusDiv.innerHTML = statusHtml;
                     }
 
                     // Refresh current page

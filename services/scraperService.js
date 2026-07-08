@@ -1,6 +1,11 @@
 const axios = require('axios');
 const dns = require('dns').promises;
 const { URL } = require('url');
+const puppeteer = require('puppeteer-extra');
+const StealthPlugin = require('puppeteer-extra-plugin-stealth');
+puppeteer.use(StealthPlugin());
+
+const scraperProgress = require('./progressStore');
 
 function isPrivateOrLoopbackIp(ip) {
   if (typeof ip !== 'string') return false;
@@ -225,6 +230,13 @@ async function scrapeB2BContacts({ prisma, campaignId, name, industry, companySi
 
       console.log(`[Scraper] Found ${zipCodes.size} ZIP codes for ${location}:`, Array.from(zipCodes));
 
+      const zipArray = Array.from(zipCodes);
+      scraperProgress[campaignId] = {
+        totalPlzs: zipArray,
+        finishedPlzs: [],
+        currentPlz: null
+      };
+
       // 2. Generate Queries
       const queries = [];
       if (zipCodes.size > 0) {
@@ -343,6 +355,12 @@ async function scrapeB2BContacts({ prisma, campaignId, name, industry, companySi
         if (totalContactsFound >= maxLimit) break;
         if (query === initialQuery) continue;
 
+        const match = query.match(/\b\d{5}\b/);
+        const currentPlz = match ? match[0] : null;
+        if (currentPlz && scraperProgress[campaignId]) {
+          scraperProgress[campaignId].currentPlz = currentPlz;
+        }
+
         console.log(`[Scraper] ZIP-Query: "${query}"`);
         let queryPlaces = [];
         let nextToken = null;
@@ -385,6 +403,9 @@ async function scrapeB2BContacts({ prisma, campaignId, name, industry, companySi
         }
 
         await processAndSavePlaces(queryPlaces);
+        if (currentPlz && scraperProgress[campaignId] && !scraperProgress[campaignId].finishedPlzs.includes(currentPlz)) {
+          scraperProgress[campaignId].finishedPlzs.push(currentPlz);
+        }
       }
       
       if (!isStopped) console.log(`[Scraper] Scraping finished. Total unique contacts found: ${totalContactsFound}`);
@@ -457,7 +478,13 @@ async function scrapeB2BContacts({ prisma, campaignId, name, industry, companySi
         where: { id: campaignId },
         data: { status: finalStatus }
       });
-      console.log(`[Scraper] Campaign ${campaignId} marked as ${finalStatus}.`);
+      
+      // Clear progress when done
+      if (scraperProgress[campaignId]) {
+        delete scraperProgress[campaignId];
+      }
+
+      console.log(`[Scraper] Campaign ${campaignId} finished. Found ${totalContactsFound} total. Stopped? ${isStopped}`);
     } catch (e) {
       console.error(`[Scraper] Failed to update campaign status: ${e.message}`);
     }

@@ -217,6 +217,8 @@ try {
   console.log('Could not load cityToPlz.json');
 }
 
+const scraperProgress = require('./services/progressStore');
+
 // 5. Scrape B2B Contacts for Campaign (Protected)
 app.post('/api/campaigns/scrape', authenticateAdmin, async (req, res) => {
     try {
@@ -284,7 +286,8 @@ app.get('/api/campaigns/:id/status', authenticateAdmin, async (req, res) => {
         res.json({
             success: true,
             status: campaign.status,
-            contactsCount
+            contactsCount,
+            progress: scraperProgress[campaignId] || null
         });
     } catch (error) {
         console.error("Error fetching campaign status:", error);
