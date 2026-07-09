@@ -1,3 +1,7 @@
+window.onerror = function(msg, url, lineNo, columnNo, error) {
+    alert("JS Error: " + msg + "\nLine: " + lineNo + "\n" + (error ? error.stack : ""));
+    return false;
+};
 // Admin Authentication & Logic
 
 const isLocalDev = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') && window.location.port !== '3000';
