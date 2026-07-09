@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Temporärer Tarifrechner (egON API Test)</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #0ea5e9;
+            --primary-hover: #0284c7;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --success: #10b981;
+            --error: #ef4444;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg);
+            color: var(--text-main);
+            margin: 0;
+            padding: 2rem;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1000px;
+            display: grid;
+            grid-template-columns: 350px 1fr;
+            gap: 2rem;
+            align-items: start;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            border: 1px solid var(--border);
+        }
+
+        .card h2 {
+            margin-top: 0;
+            font-size: 1.25rem;
+            margin-bottom: 1.5rem;
+            color: var(--text-main);
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            color: var(--text-muted);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.95rem;
+            box-sizing: border-box;
+            transition: border-color 0.2s;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.1);
+        }
+
+        button {
+            width: 100%;
+            padding: 0.875rem;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            margin-top: 1rem;
+        }
+
+        button:hover {
+            background-color: var(--primary-hover);
+        }
+
+        button:disabled {
+            background-color: var(--text-muted);
+            cursor: not-allowed;
+        }
+
+        /* Results styling */
+        .results-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+        
+        .results-header h2 {
+            margin: 0;
+        }
+
+        .rate-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1.25rem;
+            margin-bottom: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .rate-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        .rate-info {
+            flex: 1;
+        }
+
+        .provider-name {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .rate-name {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--text-main);
+            margin: 0.25rem 0 0.5rem 0;
+        }
+
+        .rate-details {
+            display: flex;
+            gap: 1.5rem;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        .rate-details div span {
+            font-weight: 600;
+            color: var(--text-main);
+        }
+
+        .rate-price {
+            text-align: right;
+            background: #f0f9ff;
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            border: 1px solid #bae6fd;
+        }
+
+        .price-month {
+            font-size: 1.75rem;
+            font-weight: 800;
+            color: var(--primary);
+        }
+        
+        .price-year {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+            margin-top: 0.25rem;
+        }
+
+        .loader {
+            display: none;
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-muted);
+        }
+
+        .error-message {
+            display: none;
+            background-color: #fef2f2;
+            color: var(--error);
+            padding: 1rem;
+            border-radius: 6px;
+            border: 1px solid #fecaca;
+            margin-bottom: 1.5rem;
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            background-color: #dcfce7;
+            color: #166534;
+            margin-bottom: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- Sidebar Form -->
+        <div class="card">
+            <h2>Tarif-Abfrage</h2>
+            <form id="tariffForm">
+                <div class="form-group">
+                    <label for="apiToken">egON API Token (JWT)</label>
+                    <input type="password" id="apiToken" class="form-control" placeholder="eyJhbGciOiJIUzI1Ni..." required>
+                </div>
+                
+                <hr style="border: 0; border-top: 1px solid var(--border); margin: 1.5rem 0;">
+
+                <div class="form-group">
+                    <label for="branch">Sparte</label>
+                    <select id="branch" class="form-control" required>
+                        <option value="electric">Strom</option>
+                        <option value="gas">Gas</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="consum">Jahresverbrauch (kWh)</label>
+                    <input type="number" id="consum" class="form-control" value="2500" required>
+                </div>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div class="form-group">
+                        <label for="zip">PLZ</label>
+                        <input type="text" id="zip" class="form-control" value="44137" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="city">Ort</label>
+                        <input type="text" id="city" class="form-control" value="Dortmund" required>
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1rem;">
+                    <div class="form-group">
+                        <label for="street">Straße</label>
+                        <input type="text" id="street" class="form-control" value="Kampstr" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="houseNumber">Hausnr.</label>
+                        <input type="text" id="houseNumber" class="form-control" value="55" required>
+                    </div>
+                </div>
+
+                <button type="submit" id="submitBtn">Tarife berechnen</button>
+            </form>
+        </div>
+
+        <!-- Results Area -->
+        <div>
+            <div class="results-header">
+                <h2 id="resultsTitle">Ergebnisse</h2>
+            </div>
+            
+            <div id="errorMessage" class="error-message"></div>
+            <div id="loader" class="loader">Lade Tarife von egON Gateway...</div>
+            <div id="resultsContainer">
+                <div style="text-align: center; color: var(--text-muted); padding: 3rem; background: var(--card-bg); border-radius: 12px; border: 1px dashed var(--border);">
+                    Bitte geben Sie Ihre Daten und den API Token ein, um Tarife abzurufen.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('tariffForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const btn = document.getElementById('submitBtn');
+            const loader = document.getElementById('loader');
+            const resultsContainer = document.getElementById('resultsContainer');
+            const errorMessage = document.getElementById('errorMessage');
+            const resultsTitle = document.getElementById('resultsTitle');
+
+            // Get Form Data
+            const token = document.getElementById('apiToken').value.trim();
+            const branch = document.getElementById('branch').value;
+            const consum = document.getElementById('consum').value;
+            const zip = document.getElementById('zip').value;
+            const city = document.getElementById('city').value;
+            const street = document.getElementById('street').value;
+            const houseNumber = document.getElementById('houseNumber').value;
+
+            // UI State
+            btn.disabled = true;
+            loader.style.display = 'block';
+            resultsContainer.innerHTML = '';
+            errorMessage.style.display = 'none';
+            resultsTitle.innerText = 'Lade Ergebnisse...';
+
+            try {
+                // Use local proxy to avoid CORS issues
+                const url = new URL(window.location.origin + '/api/proxy/rates');
+                url.searchParams.append('zip', zip);
+                url.searchParams.append('city', city);
+                url.searchParams.append('street', street);
+                url.searchParams.append('houseNumber', houseNumber);
+                url.searchParams.append('branch', branch);
+                url.searchParams.append('consum', consum);
+                url.searchParams.append('country', '81'); // Default for Germany usually
+                url.searchParams.append('type', 'private'); // Add type (private/business)
+
+                const response = await fetch(url.toString(), {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Accept': 'application/json'
+                    }
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.message || `API Fehler: ${response.status} ${response.statusText}`);
+                }
+
+                if (data && data.result && data.result.length > 0) {
+                    resultsTitle.innerText = `${data.total || data.result.length} Tarife gefunden`;
+                    
+                    data.result.forEach(rate => {
+                        const card = document.createElement('div');
+                        card.className = 'rate-card';
+                        
+                        const ecoBadge = rate.optEco ? '<span class="badge">Öko-Tarif</span>' : '';
+                        
+                        card.innerHTML = `
+                            <div class="rate-info">
+                                ${ecoBadge}
+                                <div class="provider-name">${rate.provider_name}</div>
+                                <div class="rate-name">${rate.rate_name}</div>
+                                <div class="rate-details">
+                                    <div>Arbeitspreis: <span>${rate.workPrice ? rate.workPrice.toFixed(2) : '-'} ct/kWh</span></div>
+                                    <div>Grundpreis: <span>${rate.basePriceMonth ? rate.basePriceMonth.toFixed(2) : '-'} €/Monat</span></div>
+                                    <div>Preisgarantie: <span>${rate.optGuarantee || 'Keine'} ${rate.optGuarantee ? 'Monate' : ''}</span></div>
+                                </div>
+                            </div>
+                            <div class="rate-price">
+                                <div class="price-month">${rate.totalPriceMonth ? rate.totalPriceMonth.toFixed(2).replace('.', ',') : '-'} €</div>
+                                <div class="price-year">Abschlag / Monat</div>
+                                <div class="price-year" style="margin-top: 10px;">Gesamt im 1. Jahr: <strong>${rate.totalPrice ? rate.totalPrice.toFixed(2).replace('.', ',') : '-'} €</strong></div>
+                            </div>
+                        `;
+                        resultsContainer.appendChild(card);
+                    });
+                } else {
+                    resultsTitle.innerText = 'Keine Tarife gefunden';
+                    resultsContainer.innerHTML = '<div style="text-align: center; padding: 2rem;">Für diese Adresse und Verbrauch wurden keine Tarife gefunden.</div>';
+                }
+
+            } catch (error) {
+                errorMessage.innerText = error.message;
+                errorMessage.style.display = 'block';
+                resultsTitle.innerText = 'Fehler aufgetreten';
+            } finally {
+                btn.disabled = false;
+                loader.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>

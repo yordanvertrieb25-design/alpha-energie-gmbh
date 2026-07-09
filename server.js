@@ -79,6 +79,33 @@ app.get('/api/debug/places-test', async (req, res) => {
     res.json(result);
 });
 
+// Proxy for egON API to bypass CORS
+app.get('/api/proxy/rates', async (req, res) => {
+    try {
+        const axios = require('axios');
+        const authHeader = req.headers.authorization;
+        if (!authHeader) {
+            return res.status(401).json({ message: "No authorization header provided" });
+        }
+
+        const queryParams = new URLSearchParams(req.query).toString();
+        const targetUrl = `https://gateway.eg-on.com/rates/?${queryParams}`;
+
+        const response = await axios.get(targetUrl, {
+            headers: {
+                'Authorization': authHeader,
+                'Accept': 'application/json'
+            },
+            validateStatus: () => true // Allow any status code
+        });
+
+        res.status(response.status).json(response.data);
+    } catch (error) {
+        console.error("Proxy error:", error.message);
+        res.status(500).json({ message: "Proxy error: " + error.message });
+    }
+});
+
 // DEBUG: Clear Database (temporary)
 app.get('/api/debug/clear-db', async (req, res) => {
     try {
