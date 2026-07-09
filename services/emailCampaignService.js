@@ -7,8 +7,10 @@ const fs = require('fs');
 const prisma = new PrismaClient();
 
 // Helper to generate personalized template via Gemini API
+// Helper to generate personalized template via Gemini API
 async function generateAIEmail({ contactName, industry, companySize }) {
   const apiKey = process.env.GEMINI_API_KEY;
+  const isAdvisor = /berater|advisor|consult|esg|energy|energie/i.test(industry);
 
   if (!apiKey) {
     console.log(`[Gemini API] GEMINI_API_KEY not set. Using template fallback.`);
@@ -20,7 +22,30 @@ async function generateAIEmail({ contactName, industry, companySize }) {
     // Using the recommended gemini-1.5-flash model
     const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
 
-    const prompt = `
+    let prompt = '';
+    if (isAdvisor) {
+      prompt = `
+Du bist ein erfahrener B2B-Vertriebsleiter bei der Alpha Energie GmbH.
+Schreibe eine personalisierte, professionelle und überzeugende Erstkontakt-E-Mail (auf Deutsch) an den Energie- / ESG-Berater "${contactName}".
+Ziel ist es, ihn/sie als Vertriebspartner für unsere exklusiven B2B-Strom- und Gastarife zu gewinnen.
+
+Inhaltliche Vorgaben:
+1. Verwende die professionelle Sie-Form.
+2. Zeige auf, wie der Berater seinen Umsatz steigern kann, indem er seinen Gewerbekunden unsere Alpha Energie B2B-Sondertarife (Ökostrom und Gas) vermittelt.
+3. Betone das attraktive Provisionsmodell:
+   - Upfront Abschluss-Provisionen von 1,5 bis 2,5 Cent/kWh (bis zu 2.500 € pro Gewerbekunde).
+   - Jährlich wiederkehrende Bestandspflege-Provisionen (Portfolio-Provisionen) pro Zähler zur langfristigen Einkommenssicherung.
+4. Hebe hervor, dass Alpha Energie die komplette Backoffice-Abwicklung übernimmt (Upload der Stromrechnung/Gasrechnung im VP-Portal reicht, Zeitaufwand unter 5 Minuten).
+5. Schließe mit einem klaren Call-to-Action (z.B. Einladung zu einer kurzen 10-15-minütigen Websession/Kennenlerngespräch).
+6. Das Ausgabeformat MUSS exakt wie folgt sein:
+Subject: [Der Betreff der E-Mail]
+
+[Der Inhalt der E-Mail]
+
+Gib KEINE zusätzlichen Kommentare, Einleitungen, Markdown-Formatierungen (wie \`\`\`html) oder Erklärungen aus. Nur das beschriebene Format.
+`;
+    } else {
+      prompt = `
 Du bist ein erfahrener B2B-Vertriebsleiter bei der Alpha Energie GmbH, einem führenden deutschen Anbieter für Photovoltaikanlagen und Energielösungen.
 Schreibe eine personalisierte, professionelle und überzeugende Erstkontakt-E-Mail (auf Deutsch) an ein Unternehmen, um eine B2B-Partnerschaft vorzuschlagen.
 
@@ -41,6 +66,7 @@ Subject: [Der Betreff der E-Mail]
 
 Gib KEINE zusätzlichen Kommentare, Einleitungen, Markdown-Formatierungen (wie \`\`\`html) oder Erklärungen aus. Nur das beschriebene Format.
 `;
+    }
 
     const result = await model.generateContent(prompt);
     const responseText = result.response.text().trim();
@@ -71,6 +97,32 @@ Gib KEINE zusätzlichen Kommentare, Einleitungen, Markdown-Formatierungen (wie \
 }
 
 function getFallbackTemplate(contactName, industry, companySize) {
+  const isAdvisor = /berater|advisor|consult|esg|energy|energie/i.test(industry);
+
+  if (isAdvisor) {
+    const subject = `Partnerschaft für Energie- & ESG-Berater: B2B-Tarife vermitteln & attraktive Provisionen sichern`;
+    const body = `Sehr geehrte(r) Herr/Frau ${contactName},
+
+als Gebäudeenergieberater bzw. ESG-Spezialist optimieren Sie täglich die Energieeffizienz und Betriebskosten Ihrer gewerblichen Mandanten. Doch oft bleibt ein Hebel ungenutzt: die direkte Optimierung der Strom- und Gasbezugsverträge.
+
+Die Alpha Energie GmbH bietet Ihnen als B2B-Partner exklusiven Zugang zu maßgeschneiderten Gewerbestrom- und Gastarifen (100% Ökostrom), die für Ihre Kunden erhebliche Einsparungen bedeuten.
+
+Sichern Sie sich mit minimalem Aufwand attraktive Zusatzerträge:
+• Hohe Abschluss-Provisionen: 1,5 bis 2,5 Cent/kWh upfront (bis zu 2.500 € Einmalprovision pro Gewerbekunde).
+• Wiederkehrende Bestandspflege-Provisionen: Sichern Sie sich langfristig passive Einnahmen pro aktiv geschaltetem Zähler durch unsere Portfolio-Provisionen.
+• Null bürokratischer Aufwand: Sie laden einfach die letzte Stromrechnung Ihres Kunden im Portal hoch – wir übernehmen den gesamten Wechselprozess und das komplette Backoffice für Sie.
+
+Gerne stellen wir Ihnen unser digitales Partnerportal in einer kurzen, 10-15-minütigen Websession vor und zeigen Ihnen, wie einfach Sie das Modell als echten Mehrwert für Ihre Kunden integrieren können.
+
+Bitte lassen Sie uns wissen, wann Sie für ein kurzes Kennenlernen verfügbar sind.
+
+Mit freundlichen Grüßen,
+
+Ihr B2B-Team
+Alpha Energie GmbH`;
+    return { subject, body };
+  }
+
   const subject = `Kooperationsanfrage: B2B-Partnerschaft mit Alpha Energie GmbH`;
   const body = `Sehr geehrte Damen und Herren von ${contactName},
 
@@ -283,5 +335,6 @@ async function sendCampaign(campaignId, smtpSettings) {
 
 module.exports = {
   generateAIEmail,
+  getFallbackTemplate,
   sendCampaign
 };

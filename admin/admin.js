@@ -146,65 +146,79 @@ if (document.querySelector('.dashboard-container')) {
     let currentPage = 1;
     let currentStatus = null;
 
-    if (document.getElementById('btn-scrape')) {
-        document.getElementById('btn-scrape').addEventListener('click', async () => {
-            const name = document.getElementById('camp-name').value;
-            const industry = document.getElementById('camp-industry').value;
-            const companySize = document.getElementById('camp-size').value;
-            const pages = document.getElementById('camp-pages').value;
-            const statusDiv = document.getElementById('camp-status');
-            const actionsDiv = document.getElementById('camp-actions');
-            const tableContainer = document.getElementById('camp-live-table-container');
+    const triggerScrapeCampaign = async (targetIndustry) => {
+        const companySize = document.getElementById('camp-size').value.trim();
+        const pages = document.getElementById('camp-pages').value;
+        const statusDiv = document.getElementById('camp-status');
+        const actionsDiv = document.getElementById('camp-actions');
+        const tableContainer = document.getElementById('camp-live-table-container');
 
-            if (!name || !industry || !companySize) {
-                alert('Bitte füllen Sie alle Felder aus.');
-                return;
-            }
+        if (!companySize) {
+            alert('Bitte geben Sie einen Ort oder eine PLZ ein.');
+            return;
+        }
 
-            statusDiv.style.display = 'block';
-            statusDiv.innerText = 'Kampagne wird gestartet...';
-            statusDiv.style.color = '#3b82f6';
-            actionsDiv.style.display = 'none';
-            document.getElementById('btn-stop').style.display = 'none';
-            tableContainer.style.display = 'block';
-            document.getElementById('camp-live-tbody').innerHTML = '<tr><td colspan="4" class="text-center">Warte auf erste Kontakte...</td></tr>';
+        // Dynamische Generierung von Name und Branche
+        const dateString = new Date().toLocaleDateString('de-DE');
+        const name = `${companySize} - ${targetIndustry} (${dateString})`;
+        const industry = targetIndustry;
+
+        statusDiv.style.display = 'block';
+        statusDiv.innerText = 'Kampagne wird gestartet...';
+        statusDiv.style.color = '#3b82f6';
+        actionsDiv.style.display = 'none';
+        document.getElementById('btn-stop').style.display = 'none';
+        tableContainer.style.display = 'block';
+        document.getElementById('camp-live-tbody').innerHTML = '<tr><td colspan="4" class="text-center">Warte auf erste Kontakte...</td></tr>';
+        
+        currentPage = 1;
+        if (pollInterval) clearInterval(pollInterval);
+
+        const requirePhone = document.getElementById('camp-require-phone') ? document.getElementById('camp-require-phone').checked : false;
+
+        try {
+            const res = await fetch(`${API_URL}/campaigns/scrape`, {
+                method: 'POST',
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ name, industry, companySize, pages: pages === 'max' ? 'max' : parseInt(pages), requirePhone })
+            });
+
+            const json = await res.json();
             
-            currentPage = 1;
-            if (pollInterval) clearInterval(pollInterval);
-
-            const requirePhone = document.getElementById('camp-require-phone') ? document.getElementById('camp-require-phone').checked : false;
-
-            try {
-                const res = await fetch(`${API_URL}/campaigns/scrape`, {
-                    method: 'POST',
-                    headers: { 
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
-                    },
-                    body: JSON.stringify({ name, industry, companySize, pages: pages === 'max' ? 'max' : parseInt(pages), requirePhone })
-                });
-
-                const json = await res.json();
+            if (json.success) {
+                currentCampaignId = json.campaignId;
+                let plzText = json.plzs && json.plzs.length > 0 ? ` (${json.plzs.length} PLZs gefunden: ${json.plzs.slice(0, 5).join(', ')}${json.plzs.length > 5 ? '...' : ''})` : '';
+                statusDiv.innerText = `Scraping läuft...${plzText}`;
+                document.getElementById('btn-stop').style.display = 'block';
                 
-                if (json.success) {
-                    currentCampaignId = json.campaignId;
-                    let plzText = json.plzs && json.plzs.length > 0 ? ` (${json.plzs.length} PLZs gefunden: ${json.plzs.slice(0, 5).join(', ')}${json.plzs.length > 5 ? '...' : ''})` : '';
-                    statusDiv.innerText = `Scraping läuft...${plzText}`;
-                    document.getElementById('btn-stop').style.display = 'block';
-                    
-                    // Start polling
-                    pollInterval = setInterval(pollCampaignStatus, 3000);
-                    // Fetch first page immediately
-                    fetchContactsPage(currentPage);
-                } else {
-                    statusDiv.innerText = 'Fehler: ' + (json.error || 'Unbekannt');
-                    statusDiv.style.color = '#ef4444';
-                }
-            } catch (error) {
-                statusDiv.innerText = 'Fehler beim Verbinden zum Server.';
+                // Start polling
+                pollInterval = setInterval(pollCampaignStatus, 3000);
+                // Fetch first page immediately
+                fetchContactsPage(currentPage);
+            } else {
+                statusDiv.innerText = 'Fehler: ' + (json.error || 'Unbekannt');
                 statusDiv.style.color = '#ef4444';
             }
+        } catch (error) {
+            statusDiv.innerText = 'Fehler beim Verbinden zum Server.';
+            statusDiv.style.color = '#ef4444';
+        }
+    };
+
+    if (document.getElementById('btn-scrape-energie')) {
+        document.getElementById('btn-scrape-energie').addEventListener('click', () => triggerScrapeCampaign('Energieberater'));
+    }
+    if (document.getElementById('btn-scrape-esg')) {
+        document.getElementById('btn-scrape-esg').addEventListener('click', () => triggerScrapeCampaign('ESG Berater'));
+    }
+    if (document.getElementById('btn-preview-email')) {
+        document.getElementById('btn-preview-email').addEventListener('click', () => {
+            console.log('[UI] Opening Goldstandard email preview.');
         });
+    }
 
         if (document.getElementById('btn-stop')) {
             document.getElementById('btn-stop').addEventListener('click', async () => {

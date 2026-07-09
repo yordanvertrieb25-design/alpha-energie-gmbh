@@ -136,7 +136,7 @@ function cancelCampaign(campaignId) {
 
 // Main scrape function
 async function scrapeB2BContacts({ prisma, campaignId, name, industry, companySize, pages, port, requirePhone, targetPlzs = [] }) {
-  const apiKey = process.env.GOOGLE_PLACES_API_KEY;
+  const apiKey = process.env.NODE_ENV === 'test' ? null : process.env.GOOGLE_PLACES_API_KEY;
   let totalContactsFound = 0;
   let isStopped = false;
 
@@ -258,18 +258,19 @@ async function scrapeB2BContacts({ prisma, campaignId, name, industry, companySi
           if (cancelledCampaigns.has(campaignId)) return; // Abort early
 
           try {
-            const detailsUrl = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${place.place_id}&fields=name,formatted_phone_number,website&key=${apiKey}`;
+            const detailsUrl = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${place.place_id}&fields=name,formatted_phone_number,website,formatted_address&key=${apiKey}`;
             const detailsRes = await axios.get(detailsUrl);
             const details = detailsRes.data.result || {};
 
             placesDetails.push({
               name: details.name || place.name,
               phone: details.formatted_phone_number || null,
-              website: details.website || null
+              website: details.website || null,
+              address: details.formatted_address || place.formatted_address || null
             });
           } catch (detailsErr) {
             console.error(`[Scraper] Details error for place ${place.place_id}: ${detailsErr.message}`);
-            placesDetails.push({ name: place.name, phone: null, website: null });
+            placesDetails.push({ name: place.name, phone: null, website: null, address: place.formatted_address || null });
           }
         }
 
@@ -326,6 +327,7 @@ async function scrapeB2BContacts({ prisma, campaignId, name, industry, companySi
               phone: p.phone,
               website: p.website,
               email,
+              address: p.address,
               status: 'PENDING'
             });
           } else {
@@ -457,6 +459,7 @@ async function scrapeB2BContacts({ prisma, campaignId, name, industry, companySi
           phone: tc.phone,
           website: tc.website,
           email,
+          address: "Musterstraße 1, 12345 Musterstadt",
           status: 'PENDING'
         });
       }

@@ -57,6 +57,7 @@ model ScrapedContact {
   phone      String?
   website    String?
   email      String?
+  address    String?
   status     String     @default("PENDING") // PENDING, SENT, FAILED
   createdAt  DateTime   @default(now())
   emailLogs  EmailLog[]

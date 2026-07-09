@@ -6,7 +6,7 @@ const jwt = require('jsonwebtoken');
 const path = require('path');
 const fs = require('fs');
 const { scrapeB2BContacts } = require('./services/scraperService');
-const { sendCampaign } = require('./services/emailCampaignService');
+const { sendCampaign, getFallbackTemplate } = require('./services/emailCampaignService');
 
 const prisma = new PrismaClient();
 const app = express();
@@ -257,8 +257,24 @@ app.post('/api/campaigns/scrape', authenticateAdmin, async (req, res) => {
 
         const cityLower = companySize.trim().toLowerCase();
         let targetPlzs = [];
-        if (cityToPlz[cityLower]) {
+        if (/^\d{5}$/.test(cityLower)) {
+            // It's a 5-digit zip code. Find the city that contains it (ignoring numeric key entries)
+            for (const [cityKey, cityData] of Object.entries(cityToPlz)) {
+                if (!/^\d{5}$/.test(cityKey) && cityData.plzs && cityData.plzs.includes(cityLower)) {
+                    targetPlzs = cityData.plzs;
+                    console.log(`[Scraper API] PLZ ${cityLower} resolved to city "${cityData.originalName}" with ${targetPlzs.length} PLZs.`);
+                    break;
+                }
+            }
+            // Fallback: if PLZ is not associated with any city in the map, scan just this PLZ
+            if (targetPlzs.length === 0) {
+                targetPlzs = [cityLower];
+            }
+        } else if (cityToPlz[cityLower]) {
             targetPlzs = cityToPlz[cityLower].plzs;
+            console.log(`[Scraper API] City name "${cityLower}" resolved to ${targetPlzs.length} PLZs.`);
+        } else {
+            console.log(`[Scraper API] No predefined PLZs found for "${companySize}". Using free text query.`);
         }
 
         // 1. Create campaign
@@ -266,29 +282,61 @@ app.post('/api/campaigns/scrape', authenticateAdmin, async (req, res) => {
             data: { name, industry, companySize, status: 'RUNNING' }
         });
 
-        // 2. Start scraping asynchronously in the background
-        // We do NOT await this. It runs independently.
-        scrapeB2BContacts({ 
-            prisma,
-            campaignId: campaign.id,
-            name, 
-            industry, 
-            companySize, 
-            pages, 
-            requirePhone,
-            targetPlzs,
-            port: PORT 
-        }).catch(err => {
-            console.error(`[Scraper] Background task error for campaign ${campaign.id}:`, err);
-        });
+        const isSync = process.env.NODE_ENV === 'test' || req.body.sync === true;
 
-        // 3. Respond immediately
-        res.status(201).json({
-            success: true,
-            campaignId: campaign.id,
-            plzs: targetPlzs,
-            message: 'Scraping started in background'
-        });
+        if (isSync) {
+            // Synchronously await the scraping process
+            try {
+                await scrapeB2BContacts({ 
+                    prisma,
+                    campaignId: campaign.id,
+                    name, 
+                    industry, 
+                    companySize, 
+                    pages, 
+                    requirePhone,
+                    targetPlzs,
+                    port: PORT 
+                });
+            } catch (err) {
+                console.error(`[Scraper] Synchronous task error for campaign ${campaign.id}:`, err);
+            }
+
+            const contactsCount = await prisma.scrapedContact.count({
+                where: { campaignId: campaign.id }
+            });
+
+            return res.status(201).json({
+                success: true,
+                campaignId: campaign.id,
+                plzs: targetPlzs,
+                contactsCount,
+                message: 'Scraping completed synchronously'
+            });
+        } else {
+            // 2. Start scraping asynchronously in the background
+            scrapeB2BContacts({ 
+                prisma,
+                campaignId: campaign.id,
+                name, 
+                industry, 
+                companySize, 
+                pages, 
+                requirePhone,
+                targetPlzs,
+                port: PORT 
+            }).catch(err => {
+                console.error(`[Scraper] Background task error for campaign ${campaign.id}:`, err);
+            });
+
+            // 3. Respond immediately
+            return res.status(201).json({
+                success: true,
+                campaignId: campaign.id,
+                plzs: targetPlzs,
+                message: 'Scraping started in background'
+            });
+        }
     } catch (error) {
         console.error("Error creating campaign:", error);
         res.status(500).json({ success: false, error: 'Internal Server Error' });
@@ -599,6 +647,59 @@ app.post('/api/campaigns/:id/send', authenticateAdmin, async (req, res) => {
     } catch (error) {
         console.error("Error sending campaign emails:", error);
         res.status(500).json({ success: false, error: 'Internal Server Error' });
+    }
+});
+
+// 7a. Get Rendered Email Preview (Public)
+app.get('/api/email/preview', (req, res) => {
+    try {
+        const { subject, body } = getFallbackTemplate('Max Mustermann', 'Energieberater', 'Mittelstand');
+        const imageSrc = '/sales_partner_smooth.png';
+        const html = `
+          <!DOCTYPE html>
+          <html>
+          <head>
+            <meta charset="utf-8">
+            <title>E-Mail Template Preview</title>
+          </head>
+          <body style="background-color: #f1f5f9; padding: 20px; font-family: Arial, sans-serif;">
+            <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; border: 1px solid #e0e0e0; padding: 20px; border-radius: 8px; background-color: #ffffff;">
+              <div style="text-align: center; margin-bottom: 20px;">
+                <h2 style="color: #0056b3; margin: 0;">Alpha Energie GmbH</h2>
+                <p style="font-size: 14px; color: #666; margin: 5px 0 0 0;">Zukunftssichere B2B-Tarife & Vertriebspartnerschaften</p>
+              </div>
+              <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; padding: 15px; border-radius: 6px; margin-bottom: 20px;">
+                <strong style="color: #475569;">Betreff:</strong> ${subject}
+              </div>
+              <div style="background-color: #f9f9f9; padding: 15px; border-radius: 6px; margin-bottom: 20px; white-space: pre-wrap;">${body}</div>
+              <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
+              <table style="width: 100%; border-collapse: collapse;">
+                <tr>
+                  <td style="width: 120px; vertical-align: top; padding-right: 15px;">
+                    <img src="${imageSrc}" alt="Ihr Alpha Energie Ansprechpartner" style="width: 120px; height: auto; border-radius: 8px;" />
+                  </td>
+                  <td style="vertical-align: middle;">
+                    <strong style="color: #0056b3; font-size: 16px;">Alpha Energie B2B Vertrieb</strong><br>
+                    <span style="color: #555; font-size: 14px;">Partnerschafts- und Vertriebs-Service</span><br>
+                    <a href="https://www.alpha-energie.de" style="color: #0056b3; text-decoration: none; font-size: 14px;">www.alpha-energie.de</a>
+                  </td>
+                </tr>
+              </table>
+              <br>
+              <div style="font-size: 11px; color: #999; text-align: center; border-top: 1px solid #eee; padding-top: 15px; margin-top: 15px;">
+                Sie erhalten diese B2B-Kooperationsanfrage als potenzieller Geschäftspartner. 
+                <br>Wenn Sie keine weiteren E-Mails von uns wünschen, können Sie sich 
+                <a href="#" style="color: #666;">hier abmelden</a>.
+              </div>
+            </div>
+          </body>
+          </html>
+        `;
+        res.setHeader('Content-Type', 'text/html; charset=utf-8');
+        res.status(200).send(html);
+    } catch (error) {
+        console.error("Error generating email preview:", error);
+        res.status(500).send("Internal Server Error");
     }
 });
 
