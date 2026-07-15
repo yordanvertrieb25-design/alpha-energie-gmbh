@@ -95,24 +95,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
 
 
-    // 4. Video Mute Toggle Logic
-    const muteToggleBtn = document.getElementById('mute-toggle-btn');
-    const introVideo = document.getElementById('intro-video');
-    
-    const svgUnmuted = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"><path fill="white" d="M11 5L6 9H2v6h4l5 4V5z"/><path stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M15.54 8.46a5 5 0 0 1 0 7.07 M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>`;
-    const svgMuted = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"><path fill="white" d="M11 5L6 9H2v6h4l5 4V5z"/><line x1="3" y1="3" x2="21" y2="21" stroke="#ff3b30" stroke-width="2.5" stroke-linecap="round"/></svg>`;
-    
-    if (muteToggleBtn && introVideo) {
-        muteToggleBtn.addEventListener('click', () => {
-            if (introVideo.muted) {
-                introVideo.muted = false;
-                document.getElementById('mute-icon').innerHTML = svgUnmuted;
-            } else {
-                introVideo.muted = true;
-                document.getElementById('mute-icon').innerHTML = svgMuted;
-            }
-        });
-    }
+
 
 
     // --- GSAP Animation Orchestration ---
