@@ -333,8 +333,81 @@ async function sendCampaign(campaignId, smtpSettings) {
   return { sent: sentCount, failed: failedCount };
 }
 
+async function sendSingleContact(contactId, smtpSettings) {
+  const { smtpHost, smtpPort, smtpUser, smtpPass, smtpFrom } = smtpSettings;
+  const contact = await prisma.scrapedContact.findUnique({
+    where: { id: parseInt(contactId) },
+    include: { campaign: true }
+  });
+
+  if (!contact || !contact.email) throw new Error("Kontakt nicht gefunden oder keine E-Mail");
+
+  let transporter;
+  let useMock = false;
+
+  if (!smtpHost) {
+    console.log(`[Mailer] SMTP credentials missing or incomplete. Running in simulated/mock mailer mode.`);
+    useMock = true;
+  } else {
+    transporter = nodemailer.createTransport({
+      host: smtpHost,
+      port: parseInt(smtpPort) || 587,
+      secure: parseInt(smtpPort) === 465,
+      auth: { user: smtpUser, pass: smtpPass }
+    });
+  }
+
+  const { subject, body } = await generateAIEmail({
+    contactName: contact.name,
+    industry: contact.campaign?.industry || 'Erneuerbare Energien',
+    companySize: contact.campaign?.companySize || 'Deutschland'
+  });
+
+  const escapedSubject = escapeHTML(subject);
+  const escapedBody = escapeHTML(body);
+
+  const mailOptions = {
+    from: smtpFrom || '"Alpha Energie B2B" <noreply@alpha-energie.de>',
+    to: contact.email,
+    subject: escapedSubject,
+    html: `
+      <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; border: 1px solid #e0e0e0; padding: 20px; border-radius: 8px;">
+        <div style="text-align: center; margin-bottom: 20px;">
+          <h2 style="color: #0056b3; margin: 0;">Alpha Energie GmbH</h2>
+        </div>
+        <div style="background-color: #f9f9f9; padding: 15px; border-radius: 6px; margin-bottom: 20px;">
+          ${escapedBody.replace(/\n/g, '<br>')}
+        </div>
+        <div style="font-size: 11px; color: #999; text-align: center;">
+          <a href="#" style="color: #666;">Abmelden</a>
+        </div>
+      </div>
+    `
+  };
+
+  if (useMock) {
+    console.log(`[Mock Mailer] Fake-Sending email to ${contact.email} with subject: "${escapedSubject}"`);
+    await new Promise(resolve => setTimeout(resolve, 500)); // Simulate network delay
+  } else {
+    await transporter.sendMail(mailOptions);
+  }
+  await prisma.$transaction([
+    prisma.scrapedContact.update({ where: { id: contact.id }, data: { status: 'SENT' } }),
+    prisma.emailLog.create({
+      data: {
+        scrapedContactId: contact.id,
+        status: 'SUCCESS',
+        subject: escapedSubject,
+        body: escapedBody
+      }
+    })
+  ]);
+  return { success: true };
+}
+
 module.exports = {
   generateAIEmail,
   getFallbackTemplate,
-  sendCampaign
+  sendCampaign,
+  sendSingleContact
 };

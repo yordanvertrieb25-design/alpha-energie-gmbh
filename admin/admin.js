@@ -314,16 +314,44 @@ if (document.querySelector('.dashboard-container')) {
 
                     const tbody = document.getElementById('camp-live-tbody');
                     if (json.data.length === 0) {
-                        tbody.innerHTML = '<tr><td colspan="4" class="text-center">Noch keine Kontakte gefunden...</td></tr>';
+                        tbody.innerHTML = '<tr><td colspan="6" class="text-center">Noch keine Kontakte gefunden...</td></tr>';
                     } else {
                         tbody.innerHTML = json.data.map(c => `
                             <tr>
                                 <td>${c.name}</td>
+                                <td>${c.address || '-'}</td>
                                 <td>${c.email ? `<a href="mailto:${c.email}">${c.email}</a>` : '-'}</td>
                                 <td>${c.phone || '-'}</td>
                                 <td>${c.website ? `<a href="${c.website}" target="_blank">Link</a>` : '-'}</td>
+                                <td><button class="btn-send-single" data-id="${c.id}" style="background: #10b981; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer;">Senden</button></td>
                             </tr>
                         `).join('');
+                        
+                        document.querySelectorAll('.btn-send-single').forEach(btn => {
+                            btn.addEventListener('click', async (e) => {
+                                const cid = e.target.getAttribute('data-id');
+                                if (!confirm('E-Mail an diesen Kontakt senden?')) return;
+                                e.target.disabled = true;
+                                e.target.innerText = 'Sende...';
+                                try {
+                                    const res = await fetch(`${API_URL}/contacts/${cid}/send`, { method: 'POST', headers: { 'Authorization': `Bearer ${token}` } });
+                                    const data = await res.json();
+                                    if(data.success) {
+                                        alert('E-Mail versendet!');
+                                        e.target.innerText = 'Gesendet';
+                                        e.target.style.background = '#64748b';
+                                    } else {
+                                        alert('Fehler: ' + data.error);
+                                        e.target.disabled = false;
+                                        e.target.innerText = 'Senden';
+                                    }
+                                } catch(err) {
+                                    alert('Fehler beim Senden.');
+                                    e.target.disabled = false;
+                                    e.target.innerText = 'Senden';
+                                }
+                            });
+                        });
                     }
                 }
             } catch (e) {
@@ -393,7 +421,7 @@ if (document.querySelector('.dashboard-container')) {
                 btn.disabled = false;
             }
         });
-    }
+// brace removed here
 
     // --- Global B2B Database Logic ---
     let dbCurrentPage = 1;
@@ -522,7 +550,7 @@ if (document.querySelector('.dashboard-container')) {
                 dbNextBtn.disabled = dbCurrentPage >= totalPages;
 
                 if (json.data.length === 0) {
-                    dbTbody.innerHTML = '<tr><td colspan="5" class="text-center">Keine Kontakte gefunden.</td></tr>';
+                    dbTbody.innerHTML = '<tr><td colspan="7" class="text-center">Keine Kontakte gefunden.</td></tr>';
                 } else {
                     dbTbody.innerHTML = json.data.map(c => {
                         const dateStr = new Date(c.createdAt).toLocaleString('de-DE');
@@ -531,6 +559,7 @@ if (document.querySelector('.dashboard-container')) {
                         <tr>
                             <td>${dateStr}</td>
                             <td>${city}</td>
+                            <td>${c.address || '-'}</td>
                             <td><strong>${c.name}</strong></td>
                             <td>
                                 ${c.email ? `<a href="mailto:${c.email}">${c.email}</a>` : '-'}<br>
@@ -546,9 +575,36 @@ if (document.querySelector('.dashboard-container')) {
                                     <option value="Entscheider nicht angetroffen" ${c.status === 'Entscheider nicht angetroffen' ? 'selected' : ''}>Entscheider nicht angetroffen</option>
                                 </select>
                             </td>
+                            <td><button class="btn-send-single" data-id="${c.id}" style="background: #10b981; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer;">Senden</button></td>
                         </tr>
                         `;
                     }).join('');
+
+                    document.querySelectorAll('.btn-send-single').forEach(btn => {
+                        btn.addEventListener('click', async (e) => {
+                            const cid = e.target.getAttribute('data-id');
+                            if (!confirm('E-Mail an diesen Kontakt senden?')) return;
+                            e.target.disabled = true;
+                            e.target.innerText = 'Sende...';
+                            try {
+                                const res = await fetch(`${API_URL}/contacts/${cid}/send`, { method: 'POST', headers: { 'Authorization': `Bearer ${token}` } });
+                                const data = await res.json();
+                                if(data.success) {
+                                    alert('E-Mail versendet!');
+                                    e.target.innerText = 'Gesendet';
+                                    e.target.style.background = '#64748b';
+                                } else {
+                                    alert('Fehler: ' + data.error);
+                                    e.target.disabled = false;
+                                    e.target.innerText = 'Senden';
+                                }
+                            } catch(err) {
+                                alert('Fehler beim Senden.');
+                                e.target.disabled = false;
+                                e.target.innerText = 'Senden';
+                            }
+                        });
+                    });
 
                     // Add event listeners for the newly rendered dropdowns
                     document.querySelectorAll('.status-dropdown').forEach(select => {

@@ -6,7 +6,7 @@ const jwt = require('jsonwebtoken');
 const path = require('path');
 const fs = require('fs');
 const { scrapeB2BContacts } = require('./services/scraperService');
-const { sendCampaign, getFallbackTemplate } = require('./services/emailCampaignService');
+const { sendCampaign, sendSingleContact, getFallbackTemplate } = require('./services/emailCampaignService');
 
 const prisma = new PrismaClient();
 const app = express();
@@ -540,6 +540,7 @@ app.get('/api/contacts/export', authenticateAdmin, async (req, res) => {
             id: c.id,
             createdAt: c.createdAt,
             stadt: c.campaign?.companySize || 'Unbekannt',
+            adresse: c.address || '',
             name: c.name,
             phone: c.phone,
             website: c.website,
@@ -548,7 +549,7 @@ app.get('/api/contacts/export', authenticateAdmin, async (req, res) => {
         }));
         
         const Parser = require('json2csv').Parser;
-        const fields = ['id', 'createdAt', 'stadt', 'name', 'phone', 'website', 'email', 'status'];
+        const fields = ['id', 'createdAt', 'stadt', 'adresse', 'name', 'phone', 'website', 'email', 'status'];
         const json2csvParser = new Parser({ fields });
         const csv = json2csvParser.parse(formattedContacts);
 
@@ -595,12 +596,13 @@ app.get('/api/campaigns/:id/export', authenticateAdmin, async (req, res) => {
         }
 
         // Generate DACH style Excel-compatible semicolon separated CSV
-        const headers = ['Name', 'Phone', 'Website', 'Email', 'Status', 'CreatedAt'];
+        const headers = ['Name', 'Adresse', 'Phone', 'Website', 'Email', 'Status', 'CreatedAt'];
         const headerLine = headers.map(h => `"${h}"`).join(';');
         
         const rows = campaign.contacts.map(contact => {
             return [
                 contact.name || '',
+                contact.address || '',
                 contact.phone || '',
                 contact.website || '',
                 contact.email || '',
@@ -650,6 +652,21 @@ app.post('/api/campaigns/:id/send', authenticateAdmin, async (req, res) => {
     }
 });
 
+// 7a. Send Email to Single Contact (Protected)
+app.post('/api/contacts/:id/send', authenticateAdmin, async (req, res) => {
+    try {
+        const contactId = parseInt(req.params.id);
+        if (isNaN(contactId)) {
+            return res.status(400).json({ success: false, error: 'Invalid Contact ID' });
+        }
+        
+        await sendSingleContact(contactId, req.body);
+        res.json({ success: true });
+    } catch (error) {
+        console.error("Error sending single email:", error);
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
 // 7a. Get Rendered Email Preview (Public)
 app.get('/api/email/preview', (req, res) => {
     try {
