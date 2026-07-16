@@ -603,6 +603,26 @@ document.addEventListener("DOMContentLoaded", async () => {
             }
         });
     }
+
+    // 6. Autoplay videos on scroll
+    const scrollVideos = document.querySelectorAll('.autoplay-on-scroll');
+    if (scrollVideos.length > 0) {
+        const videoObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    // Start playing if in view
+                    entry.target.play().catch(e => console.log("Video play blocked:", e));
+                } else {
+                    // Pause if out of view
+                    entry.target.pause();
+                }
+            });
+        }, { threshold: 0.1 });
+
+        scrollVideos.forEach(video => {
+            videoObserver.observe(video);
+        });
+    }
 });
 
 // Cookie Banner Logic
