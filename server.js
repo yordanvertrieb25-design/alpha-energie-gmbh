@@ -216,6 +216,36 @@ app.post('/api/appointments', async (req, res) => {
         const newAppointment = await prisma.appointment.create({
             data: { name, email, phone, date, time }
         });
+
+        // Send email notification to backoffice
+        try {
+            if (process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS) {
+                const transporter = nodemailer.createTransport({
+                    host: process.env.SMTP_HOST,
+                    port: parseInt(process.env.SMTP_PORT) || 587,
+                    secure: parseInt(process.env.SMTP_PORT) === 465,
+                    auth: {
+                        user: process.env.SMTP_USER,
+                        pass: process.env.SMTP_PASS
+                    }
+                });
+
+                const mailOptions = {
+                    from: process.env.SMTP_FROM || '"Alpha Energie System" <noreply@alpha-energie.de>',
+                    to: 'bewerbung@alpha-energy.network',
+                    subject: `Neuer Termin gebucht: ${date} um ${time} Uhr`,
+                    text: `Ein neuer Termin wurde gebucht:\n\nName: ${name}\nE-Mail: ${email}\nTelefon: ${phone || 'Nicht angegeben'}\nDatum: ${date}\nUhrzeit: ${time}\n\nBitte im Admin-Panel prüfen.`
+                };
+
+                await transporter.sendMail(mailOptions);
+                console.log(`Notification email sent to bewerbung@alpha-energy.network for appointment on ${date} at ${time}`);
+            } else {
+                console.log("SMTP credentials missing. Notification email not sent.");
+            }
+        } catch (mailError) {
+            console.error("Error sending notification email for appointment:", mailError);
+        }
+
         res.status(201).json({ success: true, data: newAppointment });
     } catch (error) {
         console.error("Error creating appointment:", error);

@@ -58,6 +58,62 @@ if (document.querySelector('.dashboard-container')) {
         document.getElementById(`${tabName}-tab`).classList.add('active');
     };
 
+    window.downloadICS = function(name, dateStr, timeStr, email, phone) {
+        let year, month, day;
+        if (dateStr.includes('-')) {
+            const p = dateStr.split('-');
+            year = p[0]; month = p[1]; day = p[2];
+        } else if (dateStr.includes('.')) {
+            const p = dateStr.split('.');
+            day = p[0]; month = p[1]; year = p[2];
+            if (year.length === 2) year = "20" + year;
+        } else {
+            alert('Datumsformat nicht erkannt: ' + dateStr);
+            return;
+        }
+
+        const timeParts = (timeStr || "00:00").split(':');
+        const hour = timeParts[0].padStart(2, '0');
+        const minute = timeParts[1].padStart(2, '0');
+
+        const startDate = new Date(`${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}T${hour}:${minute}:00`);
+        const endDate = new Date(startDate.getTime() + 60 * 60 * 1000); // 1 hour duration
+
+        const formatICSDate = (date) => {
+            return date.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+        };
+
+        // Escape special chars for ICS
+        const safeName = (name || "").replace(/,/g, '\\,').replace(/;/g, '\\;');
+        const safeEmail = (email || "").replace(/,/g, '\\,').replace(/;/g, '\\;');
+        const safePhone = (phone || "").replace(/,/g, '\\,').replace(/;/g, '\\;');
+
+        const icsString = [
+            "BEGIN:VCALENDAR",
+            "VERSION:2.0",
+            "PRODID:-//Alpha Energie//NONSGML v1.0//EN",
+            "BEGIN:VEVENT",
+            `UID:${new Date().getTime()}@alpha-energie.network`,
+            `DTSTAMP:${formatICSDate(new Date())}`,
+            `DTSTART:${formatICSDate(startDate)}`,
+            `DTEND:${formatICSDate(endDate)}`,
+            `SUMMARY:Termin mit ${safeName}`,
+            `DESCRIPTION:Kontakt:\\nName: ${safeName}\\nE-Mail: ${safeEmail}\\nTelefon: ${safePhone || '-'}`,
+            "END:VEVENT",
+            "END:VCALENDAR"
+        ].join("\r\n");
+
+        const blob = new Blob([icsString], { type: 'text/calendar;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `termin_${(name || 'Unbekannt').replace(/\\s+/g, '_')}.ics`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+    };
+
     window.deleteEntry = async function(type, id) {
         if (!confirm('Möchten Sie diesen Eintrag wirklich löschen?')) return;
         
@@ -181,20 +237,31 @@ if (document.querySelector('.dashboard-container')) {
             return;
         }
 
-        tbody.innerHTML = appointments.map(a => `
+        tbody.innerHTML = appointments.map(a => {
+            const escapedName = (a.name || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+            const escapedDate = (a.date || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+            const escapedTime = (a.time || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+            const escapedEmail = (a.email || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+            const escapedPhone = (a.phone || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+
+            return `
             <tr>
                 <td>${new Date(a.createdAt).toLocaleString('de-DE')}</td>
                 <td><strong>${a.date}</strong> um ${a.time} Uhr</td>
                 <td>${a.name}</td>
                 <td><a href="mailto:${a.email}">${a.email}</a></td>
                 <td>${a.phone ? `<a href="tel:${a.phone}">${a.phone}</a>` : '-'}</td>
-                <td style="text-align: center;">
+                <td style="text-align: center; white-space: nowrap;">
+                    <button onclick="downloadICS('${escapedName}', '${escapedDate}', '${escapedTime}', '${escapedEmail}', '${escapedPhone}')" style="background: none; border: none; color: #3b82f6; cursor: pointer; padding: 4px; margin-right: 5px;" title="An Thunderbird/Kalender senden">
+                        <i class="fa-regular fa-calendar-plus"></i>
+                    </button>
                     <button onclick="deleteEntry('appointments', ${a.id})" style="background: none; border: none; color: #ef4444; cursor: pointer; padding: 4px;" title="Löschen">
                         <i class="fa-solid fa-trash"></i>
                     </button>
                 </td>
             </tr>
-        `).join('');
+            `;
+        }).join('');
     }
 
     loadData();
