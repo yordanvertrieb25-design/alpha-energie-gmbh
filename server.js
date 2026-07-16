@@ -267,6 +267,36 @@ app.get('/api/admin/data', authenticateAdmin, async (req, res) => {
     }
 });
 
+// 4a. Delete Contact Request
+app.delete('/api/admin/contacts/:id', authenticateAdmin, async (req, res) => {
+    try {
+        await prisma.contactRequest.delete({ where: { id: parseInt(req.params.id) } });
+        res.json({ success: true });
+    } catch (e) {
+        res.status(500).json({ success: false, error: e.message });
+    }
+});
+
+// 4b. Delete Partner Application
+app.delete('/api/admin/partner-applications/:id', authenticateAdmin, async (req, res) => {
+    try {
+        await prisma.partnerApplication.delete({ where: { id: parseInt(req.params.id) } });
+        res.json({ success: true });
+    } catch (e) {
+        res.status(500).json({ success: false, error: e.message });
+    }
+});
+
+// 4c. Delete Appointment
+app.delete('/api/admin/appointments/:id', authenticateAdmin, async (req, res) => {
+    try {
+        await prisma.appointment.delete({ where: { id: parseInt(req.params.id) } });
+        res.json({ success: true });
+    } catch (e) {
+        res.status(500).json({ success: false, error: e.message });
+    }
+});
+
 let cityToPlz = {};
 try {
   // path and fs are already required at the top of server.js

@@ -58,6 +58,26 @@ if (document.querySelector('.dashboard-container')) {
         document.getElementById(`${tabName}-tab`).classList.add('active');
     };
 
+    window.deleteEntry = async function(type, id) {
+        if (!confirm('Möchten Sie diesen Eintrag wirklich löschen?')) return;
+        
+        try {
+            const res = await fetch(`${API_URL}/admin/${type}/${id}`, {
+                method: 'DELETE',
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const data = await res.json();
+            if (data.success) {
+                // Optional: alert('Eintrag erfolgreich gelöscht.');
+                loadData();
+            } else {
+                alert('Fehler beim Löschen: ' + (data.error || 'Unbekannt'));
+            }
+        } catch (e) {
+            alert('Fehler bei der Verbindung zum Server.');
+        }
+    };
+
     // Load Data
     async function loadData() {
         try {
@@ -88,7 +108,7 @@ if (document.querySelector('.dashboard-container')) {
         const tbody = document.getElementById('requests-tbody');
         if (!tbody) return;
         if (contacts.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="5" class="text-center">Keine Kontaktanfragen gefunden.</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="6" class="text-center">Keine Kontaktanfragen gefunden.</td></tr>';
             return;
         }
 
@@ -100,6 +120,11 @@ if (document.querySelector('.dashboard-container')) {
                 <td>${c.phone ? `<a href="tel:${c.phone}">${c.phone}</a>` : '-'}</td>
                 <td>${c.subject}</td>
                 <td>${c.message.length > 50 ? c.message.substring(0, 50) + '...' : c.message}</td>
+                <td style="text-align: center;">
+                    <button onclick="deleteEntry('contacts', ${c.id})" style="background: none; border: none; color: #ef4444; cursor: pointer; padding: 4px;" title="Löschen">
+                        <i class="fa-solid fa-trash"></i>
+                    </button>
+                </td>
             </tr>
         `).join('');
     }
@@ -108,7 +133,7 @@ if (document.querySelector('.dashboard-container')) {
         const tbody = document.getElementById('partners-tbody');
         if (!tbody) return;
         if (apps.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="7" class="text-center">Keine Bewerbungen gefunden.</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="8" class="text-center">Keine Bewerbungen gefunden.</td></tr>';
             return;
         }
 
@@ -126,6 +151,11 @@ if (document.querySelector('.dashboard-container')) {
                 <td style="text-align: center;">${apptStatus}</td>
                 <td style="text-align: center;">
                     <input type="checkbox" class="zugangsdaten-cb" style="width: 18px; height: 18px; cursor: pointer; accent-color: #10b981;">
+                </td>
+                <td style="text-align: center;">
+                    <button onclick="deleteEntry('partner-applications', ${a.id})" style="background: none; border: none; color: #ef4444; cursor: pointer; padding: 4px;" title="Löschen">
+                        <i class="fa-solid fa-trash"></i>
+                    </button>
                 </td>
             </tr>
             `;
@@ -147,7 +177,7 @@ if (document.querySelector('.dashboard-container')) {
         const tbody = document.getElementById('appointments-tbody');
         if (!tbody) return;
         if (!appointments || appointments.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="5" class="text-center">Keine Termine gefunden.</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="6" class="text-center">Keine Termine gefunden.</td></tr>';
             return;
         }
 
@@ -158,6 +188,11 @@ if (document.querySelector('.dashboard-container')) {
                 <td>${a.name}</td>
                 <td><a href="mailto:${a.email}">${a.email}</a></td>
                 <td>${a.phone ? `<a href="tel:${a.phone}">${a.phone}</a>` : '-'}</td>
+                <td style="text-align: center;">
+                    <button onclick="deleteEntry('appointments', ${a.id})" style="background: none; border: none; color: #ef4444; cursor: pointer; padding: 4px;" title="Löschen">
+                        <i class="fa-solid fa-trash"></i>
+                    </button>
+                </td>
             </tr>
         `).join('');
     }
