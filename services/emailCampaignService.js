@@ -218,7 +218,7 @@ async function sendCampaign(campaignId, smtpSettings) {
       // 2. Prepare Mail Options
       const mailOptions = {
         from: smtpFrom || '"Alpha Energie B2B" <noreply@alpha-energie.de>',
-        to: contact.email || 'info@alpha-energie.de',
+        to: contact.email || 'info@alpha-energy.network',
         subject: escapedSubject,
         html: `
           <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; border: 1px solid #e0e0e0; padding: 20px; border-radius: 8px;">
