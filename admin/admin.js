@@ -74,7 +74,7 @@ if (document.querySelector('.dashboard-container')) {
             const json = await res.json();
             if (json.success) {
                 renderContacts(json.data.contacts);
-                renderApplications(json.data.applications);
+                renderApplications(json.data.applications, json.data.appointments);
                 renderAppointments(json.data.appointments);
             } else {
                 alert('Fehler beim Laden der Daten.');
@@ -104,26 +104,32 @@ if (document.querySelector('.dashboard-container')) {
         `).join('');
     }
 
-    function renderApplications(apps) {
+    function renderApplications(apps, appointments = []) {
         const tbody = document.getElementById('partners-tbody');
         if (!tbody) return;
         if (apps.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="6" class="text-center">Keine Bewerbungen gefunden.</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="7" class="text-center">Keine Bewerbungen gefunden.</td></tr>';
             return;
         }
 
-        tbody.innerHTML = apps.map(a => `
+        tbody.innerHTML = apps.map(a => {
+            const hasAppt = appointments.some(appt => appt.email && appt.email.toLowerCase() === a.email.toLowerCase());
+            const apptStatus = hasAppt ? '<span style="color: #10b981; font-weight: bold;"><i class="fa-solid fa-check"></i> Ja</span>' : '<span style="color: #64748b;">Nein</span>';
+
+            return `
             <tr class="partner-row">
                 <td>${new Date(a.createdAt).toLocaleString('de-DE')}</td>
                 <td>${a.fullName}</td>
                 <td><a href="mailto:${a.email}">${a.email}</a></td>
                 <td><a href="tel:${a.phone}">${a.phone}</a></td>
                 <td>${a.experience}</td>
+                <td style="text-align: center;">${apptStatus}</td>
                 <td style="text-align: center;">
                     <input type="checkbox" class="zugangsdaten-cb" style="width: 18px; height: 18px; cursor: pointer; accent-color: #10b981;">
                 </td>
             </tr>
-        `).join('');
+            `;
+        }).join('');
 
         document.querySelectorAll('.zugangsdaten-cb').forEach(cb => {
             cb.addEventListener('change', (e) => {
