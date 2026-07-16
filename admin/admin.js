@@ -108,19 +108,33 @@ if (document.querySelector('.dashboard-container')) {
         const tbody = document.getElementById('partners-tbody');
         if (!tbody) return;
         if (apps.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="5" class="text-center">Keine Bewerbungen gefunden.</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="6" class="text-center">Keine Bewerbungen gefunden.</td></tr>';
             return;
         }
 
         tbody.innerHTML = apps.map(a => `
-            <tr>
+            <tr class="partner-row">
                 <td>${new Date(a.createdAt).toLocaleString('de-DE')}</td>
                 <td>${a.fullName}</td>
                 <td><a href="mailto:${a.email}">${a.email}</a></td>
                 <td><a href="tel:${a.phone}">${a.phone}</a></td>
                 <td>${a.experience}</td>
+                <td style="text-align: center;">
+                    <input type="checkbox" class="zugangsdaten-cb" style="width: 18px; height: 18px; cursor: pointer; accent-color: #10b981;">
+                </td>
             </tr>
         `).join('');
+
+        document.querySelectorAll('.zugangsdaten-cb').forEach(cb => {
+            cb.addEventListener('change', (e) => {
+                const tr = e.target.closest('tr');
+                if (e.target.checked) {
+                    tr.style.backgroundColor = '#dcfce7';
+                } else {
+                    tr.style.backgroundColor = '';
+                }
+            });
+        });
     }
 
     function renderAppointments(appointments) {
