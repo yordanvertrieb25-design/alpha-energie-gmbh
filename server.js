@@ -5,6 +5,7 @@ const { PrismaClient } = require('@prisma/client');
 const jwt = require('jsonwebtoken');
 const path = require('path');
 const fs = require('fs');
+const nodemailer = require('nodemailer');
 const { scrapeB2BContacts } = require('./services/scraperService');
 const { sendCampaign, sendSingleContact, getFallbackTemplate } = require('./services/emailCampaignService');
 
@@ -138,6 +139,36 @@ app.post('/api/partner-application', async (req, res) => {
         const newApp = await prisma.partnerApplication.create({
             data: { fullName, email, phone, experience }
         });
+
+        // Send email notification to backoffice
+        try {
+            if (process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS) {
+                const transporter = nodemailer.createTransport({
+                    host: process.env.SMTP_HOST,
+                    port: parseInt(process.env.SMTP_PORT) || 587,
+                    secure: parseInt(process.env.SMTP_PORT) === 465,
+                    auth: {
+                        user: process.env.SMTP_USER,
+                        pass: process.env.SMTP_PASS
+                    }
+                });
+
+                const mailOptions = {
+                    from: process.env.SMTP_FROM || '"Alpha Energie System" <noreply@alpha-energie.de>',
+                    to: 'bewerbung@alpha-energy.network',
+                    subject: `Neue Registrierung (Agentur/VP): ${fullName}`,
+                    text: `Eine neue Partner-Registrierung ist eingegangen:\n\nName: ${fullName}\nE-Mail: ${email}\nTelefon: ${phone || 'Nicht angegeben'}\nErfahrung: ${experience || 'Nicht angegeben'}\n\nBitte im Admin-Panel prüfen.`
+                };
+
+                await transporter.sendMail(mailOptions);
+                console.log(`Notification email sent to bewerbung@alpha-energy.network for ${fullName}`);
+            } else {
+                console.log("SMTP credentials missing. Notification email not sent.");
+            }
+        } catch (mailError) {
+            console.error("Error sending notification email:", mailError);
+        }
+
         res.status(201).json({ success: true, data: newApp });
     } catch (error) {
         console.error("Error saving application:", error);
