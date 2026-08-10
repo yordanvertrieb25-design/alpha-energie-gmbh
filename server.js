@@ -377,7 +377,7 @@ app.post('/api/admin/partner-applications/:id/send-master-data-email', authentic
             }
         });
 
-        const stammdatenLink = `https://${req.get('host')}/stammdaten.html?id=${application.id}`;
+        const stammdatenLink = `https://alpha-energie.de/stammdaten.html?id=${application.id}`;
 
         const htmlBody = `
         <div style="font-family: Arial, sans-serif; color: #333; max-width: 600px; margin: 0 auto;">
