@@ -21,13 +21,44 @@ model ContactRequest {
 }
 
 model PartnerApplication {
-  id         Int      @id @default(autoincrement())
-  fullName   String
-  email      String
-  phone      String
-  experience String
-  notes      String?
-  createdAt  DateTime @default(now())
+  id               Int      @id @default(autoincrement())
+  fullName         String
+  email            String
+  phone            String
+  experience       String
+  notes            String?
+  
+  // --- Stammdaten ---
+  salutation       String?
+  firstName        String?
+  lastName         String?
+  birthDate        String?
+  
+  // --- Adresse ---
+  street           String?
+  houseNr          String?
+  plz              String?
+  city             String?
+  country          String? @default("Deutschland")
+  
+  // --- Unternehmen ---
+  isVatLiable      Boolean? @default(false)
+  companyName      String?
+  legalForm        String?
+  taxId            String?
+  taxOffice        String?
+  
+  // --- Bankverbindung ---
+  iban             String?
+  bic              String?
+  bankName         String?
+  
+  // --- Kontakt / Uploads ---
+  website          String?
+  tradeLicenseUrl  String?
+  masterDataStatus String? @default("PENDING") // PENDING, SUBMITTED
+  
+  createdAt        DateTime @default(now())
 }
 
 model Appointment {

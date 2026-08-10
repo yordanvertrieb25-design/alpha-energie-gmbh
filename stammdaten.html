@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stammdaten erfassen - Alpha Energie GmbH</title>
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .form-section {
+            background: #fff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+            margin-bottom: 30px;
+        }
+        .form-section h2 {
+            font-size: 1.5rem;
+            color: var(--primary-dark);
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #f1f5f9;
+        }
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+        .form-group label {
+            display: block;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #475569;
+            margin-bottom: 8px;
+        }
+        .form-group input[type="text"],
+        .form-group input[type="email"],
+        .form-group input[type="date"],
+        .form-group select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            font-family: 'Manrope', sans-serif;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: var(--primary-orange);
+            box-shadow: 0 0 0 3px rgba(239, 138, 0, 0.1);
+        }
+        .btn-submit {
+            background: var(--primary-orange);
+            color: #fff;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            width: 100%;
+            transition: all 0.3s ease;
+        }
+        .btn-submit:hover {
+            background: #d17800;
+            transform: translateY(-2px);
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+        .logo-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        .logo-header img {
+            max-width: 250px;
+        }
+    </style>
+</head>
+<body style="background: #f8fafc; color: var(--text-main); font-family: 'Manrope', sans-serif;">
+
+<div class="container">
+    <div class="logo-header">
+        <img src="logo.png" alt="Alpha Energie GmbH">
+        <h1 style="margin-top: 20px; color: var(--primary-dark);">Stammdatenerfassung</h1>
+        <p style="color: #64748b;">Bitte vervollständigen Sie Ihre Daten für die Vertriebspartnerschaft.</p>
+    </div>
+
+    <div id="message-container" style="display: none; padding: 20px; background: #dcfce7; color: #166534; border-radius: 8px; margin-bottom: 20px; font-weight: 600; text-align: center;">
+        Vielen Dank! Ihre Daten wurden erfolgreich übermittelt.
+    </div>
+
+    <form id="stammdaten-form" style="display: none;">
+        <!-- Persönliche Daten -->
+        <div class="form-section">
+            <h2>Persönliche Daten</h2>
+            <div class="form-grid">
+                <div class="form-group full-width">
+                    <label>Anrede</label>
+                    <select name="salutation">
+                        <option value="kein Titel">kein Titel</option>
+                        <option value="Frau">Frau</option>
+                        <option value="Herr">Herr</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Vorname *</label>
+                    <input type="text" name="firstName" required>
+                </div>
+                <div class="form-group">
+                    <label>Nachname *</label>
+                    <input type="text" name="lastName" required>
+                </div>
+                <div class="form-group">
+                    <label>Geburtsdatum *</label>
+                    <input type="date" name="birthDate" required>
+                </div>
+            </div>
+        </div>
+
+        <!-- Adresse -->
+        <div class="form-section">
+            <h2>Adresse</h2>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Straße *</label>
+                    <input type="text" name="street" required>
+                </div>
+                <div class="form-group">
+                    <label>Hausnummer *</label>
+                    <input type="text" name="houseNr" required>
+                </div>
+                <div class="form-group">
+                    <label>PLZ *</label>
+                    <input type="text" name="plz" required>
+                </div>
+                <div class="form-group">
+                    <label>Ort *</label>
+                    <input type="text" name="city" required>
+                </div>
+                <div class="form-group full-width">
+                    <label>Land</label>
+                    <select name="country">
+                        <option value="Deutschland" selected>Deutschland</option>
+                        <option value="Österreich">Österreich</option>
+                        <option value="Schweiz">Schweiz</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Kontaktdaten -->
+        <div class="form-section">
+            <h2>Kontaktdaten</h2>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Telefon / Mobilrufnummer *</label>
+                    <input type="text" name="phone" required>
+                </div>
+                <div class="form-group">
+                    <label>E-Mail *</label>
+                    <input type="email" name="email" required readonly style="background: #f1f5f9; cursor: not-allowed;">
+                </div>
+                <div class="form-group full-width">
+                    <label>Webseite (optional)</label>
+                    <input type="text" name="website" placeholder="https://www...">
+                </div>
+            </div>
+        </div>
+
+        <!-- Unternehmensdaten -->
+        <div class="form-section">
+            <h2>Unternehmen</h2>
+            <div class="form-grid">
+                <div class="form-group full-width">
+                    <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                        <input type="checkbox" name="isVatLiable" value="true" style="width: 20px; height: 20px; accent-color: var(--primary-orange);">
+                        USt. pflichtig
+                    </label>
+                </div>
+                <div class="form-group full-width">
+                    <label>Firma (Unternehmensname)</label>
+                    <input type="text" name="companyName">
+                </div>
+                <div class="form-group full-width">
+                    <label>Rechtsform</label>
+                    <select name="legalForm">
+                        <option value="keine gewählt">keine gewählt</option>
+                        <option value="Einzelunternehmen">Einzelunternehmen</option>
+                        <option value="GmbH">GmbH</option>
+                        <option value="UG (haftungsbeschränkt)">UG (haftungsbeschränkt)</option>
+                        <option value="GbR">GbR</option>
+                        <option value="AG">AG</option>
+                        <option value="Sonstige">Sonstige</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Steuernummer</label>
+                    <input type="text" name="taxId">
+                </div>
+                <div class="form-group">
+                    <label>Finanzamt</label>
+                    <input type="text" name="taxOffice">
+                </div>
+            </div>
+        </div>
+
+        <!-- Bankverbindung -->
+        <div class="form-section">
+            <h2>Bankverbindung</h2>
+            <div class="form-grid">
+                <div class="form-group full-width">
+                    <label>Name der Bank *</label>
+                    <input type="text" name="bankName" required>
+                </div>
+                <div class="form-group full-width">
+                    <label>IBAN *</label>
+                    <input type="text" name="iban" required placeholder="DE...">
+                </div>
+                <div class="form-group full-width">
+                    <label>BIC (optional bei deutschen Konten)</label>
+                    <input type="text" name="bic">
+                </div>
+            </div>
+        </div>
+
+        <!-- Dokumente Upload -->
+        <div class="form-section">
+            <h2>Dokumente</h2>
+            <div class="form-group full-width">
+                <label>Gewerbeanmeldung / Handelsregisterauszug (PDF oder Bild) *</label>
+                <input type="file" name="tradeLicense" accept=".pdf,image/*" required style="border: 2px dashed #cbd5e1; padding: 30px; text-align: center; background: #f8fafc;">
+            </div>
+        </div>
+
+        <button type="submit" class="btn-submit" id="submit-btn">Daten jetzt übermitteln</button>
+    </form>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', async () => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const appId = urlParams.get('id');
+
+    if (!appId) {
+        alert('Ungültiger Link. Bitte prüfen Sie Ihre E-Mail.');
+        return;
+    }
+
+    // Fetch existing application data
+    try {
+        const res = await fetch(`/api/partner/stammdaten/${appId}`);
+        const json = await res.json();
+        
+        if (json.success) {
+            const data = json.data;
+            document.getElementById('stammdaten-form').style.display = 'block';
+            
+            // Pre-fill data
+            const form = document.getElementById('stammdaten-form');
+            if(data.fullName) {
+                const parts = data.fullName.split(' ');
+                form.firstName.value = parts[0] || '';
+                form.lastName.value = parts.slice(1).join(' ') || '';
+            }
+            if(data.email) form.email.value = data.email;
+            if(data.phone) form.phone.value = data.phone;
+            
+        } else {
+            alert('Daten konnten nicht geladen werden. Link abgelaufen?');
+        }
+    } catch (err) {
+        alert('Netzwerkfehler beim Laden der Daten.');
+    }
+
+    // Handle Form Submit
+    document.getElementById('stammdaten-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const form = e.target;
+        const submitBtn = document.getElementById('submit-btn');
+        submitBtn.disabled = true;
+        submitBtn.innerText = 'Wird übermittelt...';
+
+        const formData = new FormData(form);
+
+        try {
+            const res = await fetch(`/api/partner/stammdaten/${appId}`, {
+                method: 'POST',
+                body: formData
+            });
+            const result = await res.json();
+
+            if (result.success) {
+                form.style.display = 'none';
+                document.getElementById('message-container').style.display = 'block';
+            } else {
+                alert('Fehler: ' + (result.error || 'Unbekannter Fehler'));
+                submitBtn.disabled = false;
+                submitBtn.innerText = 'Daten jetzt übermitteln';
+            }
+        } catch (error) {
+            alert('Verbindungsfehler. Bitte später erneut versuchen.');
+            submitBtn.disabled = false;
+            submitBtn.innerText = 'Daten jetzt übermitteln';
+        }
+    });
+});
+</script>
+</body>
+</html>

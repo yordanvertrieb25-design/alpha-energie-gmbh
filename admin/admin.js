@@ -217,6 +217,9 @@ if (document.querySelector('.dashboard-container')) {
                     </button>
                 </td>
                 <td style="text-align: center;">
+                    <button onclick="sendStammdatenEmail(${a.id})" class="btn-send-stammdaten" style="background: #ef8a00; color: white; border: none; border-radius: 4px; padding: 6px; cursor: pointer; font-size: 0.75rem; font-weight: bold; margin-bottom: 5px; width: 100%;" title="E-Mail zur Stammdatenerfassung senden">
+                        <i class="fa-solid fa-envelope"></i> Stammdatenemail senden
+                    </button>
                     <button onclick="deleteEntry('partner-applications', ${a.id})" style="background: none; border: none; color: #ef4444; cursor: pointer; padding: 4px;" title="Löschen">
                         <i class="fa-solid fa-trash"></i>
                     </button>
@@ -821,4 +824,40 @@ if (document.querySelector('.dashboard-container')) {
             }
         });
     }
+
+    // --- Stammdaten Email Logic ---
+    window.sendStammdatenEmail = async function(id) {
+        if (!confirm('Stammdaten-E-Mail wirklich an diesen Partner senden?')) return;
+        const btn = document.querySelector(`button[onclick="sendStammdatenEmail(${id})"]`);
+        if(btn) {
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Sendet...';
+        }
+        try {
+            const res = await fetch(`${API_URL}/admin/partner-applications/${id}/send-master-data-email`, {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const data = await res.json();
+            if (data.success) {
+                alert('E-Mail erfolgreich gesendet!');
+                if(btn) {
+                    btn.innerHTML = '<i class="fa-solid fa-check"></i> Gesendet';
+                    btn.style.background = '#10b981';
+                }
+            } else {
+                alert('Fehler beim Senden: ' + (data.error || 'Unbekannt'));
+                if(btn) {
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fa-solid fa-envelope"></i> Stammdatenemail senden';
+                }
+            }
+        } catch(e) {
+            alert('Netzwerkfehler beim Senden.');
+            if(btn) {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fa-solid fa-envelope"></i> Stammdatenemail senden';
+            }
+        }
+    };
 }

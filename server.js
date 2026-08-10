@@ -6,6 +6,25 @@ const jwt = require('jsonwebtoken');
 const path = require('path');
 const fs = require('fs');
 const nodemailer = require('nodemailer');
+const multer = require('multer');
+
+// Configure multer
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        const dir = path.join(__dirname, 'public', 'uploads');
+        if (!fs.existsSync(dir)){
+            fs.mkdirSync(dir, { recursive: true });
+        }
+        cb(null, dir);
+    },
+    filename: function (req, file, cb) {
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        const ext = path.extname(file.originalname);
+        cb(null, file.fieldname + '-' + uniqueSuffix + ext);
+    }
+});
+const upload = multer({ storage: storage });
+
 const { scrapeB2BContacts } = require('./services/scraperService');
 const { sendCampaign, sendSingleContact, getFallbackTemplate } = require('./services/emailCampaignService');
 
@@ -335,6 +354,120 @@ app.patch('/api/admin/partner-applications/:id/notes', authenticateAdmin, async 
 app.delete('/api/admin/appointments/:id', authenticateAdmin, async (req, res) => {
     try {
         await prisma.appointment.delete({ where: { id: parseInt(req.params.id) } });
+        res.json({ success: true });
+    } catch (e) {
+        res.status(500).json({ success: false, error: e.message });
+    }
+});
+
+// Send Master Data Email (Stammdaten)
+app.post('/api/admin/partner-applications/:id/send-master-data-email', authenticateAdmin, async (req, res) => {
+    try {
+        const appId = parseInt(req.params.id);
+        const application = await prisma.partnerApplication.findUnique({ where: { id: appId } });
+        if (!application) return res.status(404).json({ success: false, error: 'Bewerbung nicht gefunden.' });
+
+        const transporter = nodemailer.createTransport({
+            host: process.env.SMTP_HOST || 'smtp.ionos.de',
+            port: process.env.SMTP_PORT || 465,
+            secure: true,
+            auth: {
+                user: process.env.SMTP_USER,
+                pass: process.env.SMTP_PASS
+            }
+        });
+
+        const stammdatenLink = `https://${req.get('host')}/stammdaten.html?id=${application.id}`;
+
+        const htmlBody = `
+        <div style="font-family: Arial, sans-serif; color: #333; max-width: 600px; margin: 0 auto;">
+            <p>Hallo ${application.fullName},</p>
+            <p>Vielen Dank für Dein Interesse an einer Vertriebspartnerschaft mit Alpha Energie!</p>
+            <p>Damit wir Deine Registrierung abschließen und Dir Deine Zugangsdaten freischalten können, benötigen wir noch einige Stammdaten von Dir.</p>
+            <p>Bitte klicke auf den folgenden Link, um Deine Daten (inkl. Gewerbeanmeldung / Handelsregisterauszug) sicher bei uns zu hinterlegen:</p>
+            <div style="text-align: center; margin: 30px 0;">
+                <a href="${stammdatenLink}" style="background-color: #ef8a00; color: white; padding: 12px 25px; text-decoration: none; border-radius: 5px; font-weight: bold;">Stammdaten hinterlegen</a>
+            </div>
+            <p>Mit freundlichen Grüßen,</p>
+            <p><strong>Dein Team der Alpha Energie GmbH</strong></p>
+            <hr style="border: 0; border-top: 1px solid #eee; margin: 30px 0;" />
+            <div style="font-size: 0.85rem; color: #666;">
+                <strong>Alpha Energie GmbH</strong><br>
+                Alter Hellweg 50 | 44379 Dortmund<br>
+                Telefon: 0231 39989390<br>
+                E-Mail: info@alpha-energy.network<br>
+                Geschäftsführer: Tolga Canga<br>
+                Registergericht: Amtsgericht Dortmund, HRB 38030
+            </div>
+        </div>
+        `;
+
+        await transporter.sendMail({
+            from: `"Alpha Energie GmbH" <${process.env.SMTP_FROM}>`,
+            to: application.email,
+            bcc: "yordan.vertrieb25@gmail.com", // Test-Kopie wie vom User gewünscht
+            subject: 'Wichtige Stammdaten für Deine Vertriebspartnerschaft',
+            html: htmlBody
+        });
+
+        res.json({ success: true, message: 'E-Mail gesendet.' });
+    } catch (e) {
+        console.error("Error sending stammdaten email:", e);
+        res.status(500).json({ success: false, error: e.message });
+    }
+});
+
+// GET Partner Application for form (public)
+app.get('/api/partner/stammdaten/:id', async (req, res) => {
+    try {
+        const appId = parseInt(req.params.id);
+        const application = await prisma.partnerApplication.findUnique({ where: { id: appId } });
+        if (!application) return res.status(404).json({ success: false, error: 'Nicht gefunden.' });
+        
+        res.json({ success: true, data: application });
+    } catch (e) {
+        res.status(500).json({ success: false, error: e.message });
+    }
+});
+
+// Submit Stammdaten (with file upload)
+app.post('/api/partner/stammdaten/:id', upload.single('tradeLicense'), async (req, res) => {
+    try {
+        const appId = parseInt(req.params.id);
+        const data = req.body;
+        
+        let updateData = {
+            salutation: data.salutation,
+            firstName: data.firstName,
+            lastName: data.lastName,
+            birthDate: data.birthDate,
+            street: data.street,
+            houseNr: data.houseNr,
+            plz: data.plz,
+            city: data.city,
+            country: data.country,
+            isVatLiable: data.isVatLiable === 'true',
+            companyName: data.companyName,
+            legalForm: data.legalForm,
+            taxId: data.taxId,
+            taxOffice: data.taxOffice,
+            iban: data.iban,
+            bic: data.bic,
+            bankName: data.bankName,
+            website: data.website,
+            phone: data.phone, // update phone
+            masterDataStatus: 'SUBMITTED'
+        };
+
+        if (req.file) {
+            updateData.tradeLicenseUrl = '/uploads/' + req.file.filename;
+        }
+
+        await prisma.partnerApplication.update({
+            where: { id: appId },
+            data: updateData
+        });
+
         res.json({ success: true });
     } catch (e) {
         res.status(500).json({ success: false, error: e.message });
