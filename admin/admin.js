@@ -225,7 +225,6 @@ if (document.querySelector('.dashboard-container')) {
                     </button>
                 </td>
             </tr>
-            </tr>
             `;
         }).join('');
 
