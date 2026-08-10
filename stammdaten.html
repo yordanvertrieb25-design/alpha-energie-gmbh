@@ -7,6 +7,11 @@
     <link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
     <style>
+        :root {
+            --primary-orange: #ef8a00;
+            --primary-dark: #1e293b;
+            --text-main: #334155;
+        }
         .form-section {
             background: #fff;
             padding: 30px;
@@ -245,6 +250,63 @@
         <button type="submit" class="btn-submit" id="submit-btn">Daten jetzt übermitteln</button>
     </form>
 </div>
+
+<!-- FOOTER -->
+<footer id="main-footer" class="footer" style="background: #0f172a; color: #fff; padding: 60px 0 30px; margin-top: 40px;">
+    <div class="container" style="max-width: 1200px; padding: 0 20px; margin: 0 auto;">
+        <div class="footer-top" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 40px; margin-bottom: 40px;">
+            <div class="footer-widget brand-widget">
+                <a href="/">
+                    <img src="logo.png" alt="Alpha Energie GmbH" style="max-width: 200px; filter: brightness(0) invert(1);">
+                </a>
+                <p style="color: #94a3b8; font-size: 0.95rem; margin-top: 20px; line-height: 1.6;">Alpha Energie GmbH ist dein kompetenter Begleiter und Berater bei der Energiekostenoptimierung!</p>
+                <p style="color: rgba(255,255,255,0.7); font-size: 0.9rem; margin-top: 15px;">Alter Hellweg 50, 44379 Dortmund</p>
+                <div style="margin-top: 30px;">
+                    <div style="width: 250px; height: 85px; overflow: hidden; border-radius: 6px; background-color: #fff; position: relative;">
+                        <img src="bdeb-mitglied.png" alt="BDEB Mitglied" style="width: 100%; height: 250px; object-fit: contain; position: absolute; top: 50%; left: 0; transform: translateY(-50%);">
+                        <div style="position: absolute; top: 0; left: 0; bottom: 0; width: 12px; background: #fff;"></div>
+                        <div style="position: absolute; top: 0; right: 0; bottom: 0; width: 12px; background: #fff;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="footer-widget links-widget">
+                <h3 style="color: #fff; font-size: 1.2rem; margin-bottom: 20px;">Unternehmen</h3>
+                <ul style="list-style: none; padding: 0; margin: 0;">
+                    <li style="margin-bottom: 12px;"><a href="ueber-uns.html" style="color: #94a3b8; text-decoration: none; transition: color 0.3s;">Über uns</a></li>
+                    <li style="margin-bottom: 12px;"><a href="karriere.html" style="color: #94a3b8; text-decoration: none; transition: color 0.3s;">Karriere</a></li>
+                    <li style="margin-bottom: 12px;"><a href="kontakt.html" style="color: #94a3b8; text-decoration: none; transition: color 0.3s;">Kontakt</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-widget links-widget">
+                <h3 style="color: #fff; font-size: 1.2rem; margin-bottom: 20px;">Lösungen</h3>
+                <ul style="list-style: none; padding: 0; margin: 0;">
+                    <li style="margin-bottom: 12px;"><a href="vertriebspartner.html" style="color: #94a3b8; text-decoration: none; transition: color 0.3s;">Für Vertriebspartner</a></li>
+                    <li style="margin-bottom: 12px;"><a href="gewerbekunden.html" style="color: #94a3b8; text-decoration: none; transition: color 0.3s;">Für Gewerbekunden</a></li>
+                    <li style="margin-bottom: 12px;"><a href="produktgeber.html" style="color: #94a3b8; text-decoration: none; transition: color 0.3s;">Für Produktgeber</a></li>
+                    <li style="margin-bottom: 12px;"><a href="agenturen.html" style="color: #94a3b8; text-decoration: none; transition: color 0.3s;">Für Agenturen</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-widget links-widget">
+                <h3 style="color: #fff; font-size: 1.2rem; margin-bottom: 20px;">Rechtliches</h3>
+                <ul style="list-style: none; padding: 0; margin: 0;">
+                    <li style="margin-bottom: 12px;"><a href="datenschutz.html" style="color: #94a3b8; text-decoration: none; transition: color 0.3s;">Datenschutz</a></li>
+                    <li style="margin-bottom: 12px;"><a href="impressum.html" style="color: #94a3b8; text-decoration: none; transition: color 0.3s;">Impressum</a></li>
+                    <li style="margin-bottom: 12px;"><a href="cookie-einstellungen.html" style="color: #94a3b8; text-decoration: none; transition: color 0.3s;">Cookie-Einstellungen</a></li>
+                    <li style="margin-bottom: 12px;"><a href="cookie-richtlinie.html" style="color: #94a3b8; text-decoration: none; transition: color 0.3s;">Cookie-Richtlinie</a></li>
+                    <li style="margin-bottom: 12px;"><a href="https://vp.alpha-energie.de" style="color: #94a3b8; text-decoration: none; transition: color 0.3s;">VP-Portal</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <div style="border-top: 1px solid rgba(255,255,255,0.1); padding-top: 30px; display: flex; justify-content: space-between; flex-wrap: wrap; align-items: center;">
+            <p style="color: #64748b; font-size: 0.9rem;">&copy; Copyright 2026. Alle Rechte vorbehalten. Alpha Energie GmbH</p>
+            <a href="cookie-einstellungen.html" style="color: #94a3b8; font-size: 0.85rem; text-decoration: none;">Cookie-Einstellungen verwalten</a>
+        </div>
+    </div>
+</footer>
 
 <script>
 document.addEventListener('DOMContentLoaded', async () => {
