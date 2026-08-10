@@ -385,12 +385,18 @@ app.post('/api/admin/partner-applications/:id/send-master-data-email', authentic
                 <img src="https://alpha-energie.de/logo.png" alt="Alpha Energie GmbH" style="max-width: 200px;">
             </div>
             <p>Hallo ${application.fullName},</p>
-            <p>Vielen Dank für Dein Interesse an einer Vertriebspartnerschaft mit Alpha Energie!</p>
-            <p>Damit wir Deine Registrierung abschließen und Dir Deine Zugangsdaten freischalten können, benötigen wir noch einige Stammdaten von Dir.</p>
-            <p>Bitte klicke auf den folgenden Link, um Deine Daten (inkl. Gewerbeanmeldung / Handelsregisterauszug) sicher bei uns zu hinterlegen:</p>
-            <div style="text-align: center; margin: 30px 0;">
-                <a href="${stammdatenLink}" style="background-color: #ef8a00; color: white; padding: 12px 25px; text-decoration: none; border-radius: 5px; font-weight: bold;">Stammdaten hinterlegen</a>
+            <p>herzlichen Dank für Deine Bewerbung und Dein Vertrauen in die Alpha Energie GmbH! Wir freuen uns sehr über Dein Interesse an einer Vertriebspartnerschaft.</p>
+            <p>Um Deine Registrierung zügig abzuschließen und Deinen Account freizuschalten, benötigen wir im nächsten Schritt noch einige Stammdaten von Dir.</p>
+            <p><strong>So geht es jetzt weiter:</strong></p>
+            <ol style="line-height: 1.6; margin-bottom: 20px;">
+                <li>Klicke auf den Button unten und trage Deine restlichen Daten ein (inkl. Upload Deiner Gewerbeanmeldung oder Deines Handelsregisterauszugs).</li>
+                <li>Unser Backoffice-Team prüft Deine Unterlagen schnellstmöglich.</li>
+                <li>Sobald alles verifiziert ist, senden wir Dir Deine persönlichen Zugangsdaten für das Vertriebsportal zu, und Du kannst direkt starten!</li>
+            </ol>
+            <div style="text-align: center; margin: 35px 0;">
+                <a href="${stammdatenLink}" style="background-color: #ef8a00; color: white; padding: 14px 28px; text-decoration: none; border-radius: 5px; font-weight: bold; font-size: 1.1rem;">Jetzt Stammdaten hinterlegen</a>
             </div>
+            <p>Solltest Du vorab Fragen haben, kannst Du jederzeit auf diese E-Mail antworten.</p>
             <p>Mit freundlichen Grüßen,</p>
             <p><strong>Dein Team der Alpha Energie GmbH</strong></p>
             <hr style="border: 0; border-top: 1px solid #eee; margin: 30px 0;" />
