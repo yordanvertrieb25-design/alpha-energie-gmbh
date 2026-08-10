@@ -38,7 +38,7 @@ async function main() {
         }
     });
 
-    const stammdatenLink = `http://localhost:3000/stammdaten.html?id=${testApp.id}`;
+    const stammdatenLink = `https://alpha-energie.de/stammdaten.html?id=${testApp.id}`;
 
     const htmlBody = `
     <div style="font-family: Arial, sans-serif; color: #333; max-width: 600px; margin: 0 auto;">

@@ -251,35 +251,42 @@ document.addEventListener('DOMContentLoaded', async () => {
     const urlParams = new URLSearchParams(window.location.search);
     const appId = urlParams.get('id');
 
-    if (!appId) {
-        alert('Ungültiger Link. Bitte prüfen Sie Ihre E-Mail.');
-        return;
-    }
+    // IMMER das Formular anzeigen (auch für Tests ohne ID)
+    document.getElementById('stammdaten-form').style.display = 'block';
 
-    // Fetch existing application data
-    try {
-        const res = await fetch(`/api/partner/stammdaten/${appId}`);
-        const json = await res.json();
-        
-        if (json.success) {
-            const data = json.data;
-            document.getElementById('stammdaten-form').style.display = 'block';
+    if (appId) {
+        // Fetch existing application data
+        try {
+            const res = await fetch(`/api/partner/stammdaten/${appId}`);
+            const json = await res.json();
             
-            // Pre-fill data
-            const form = document.getElementById('stammdaten-form');
-            if(data.fullName) {
-                const parts = data.fullName.split(' ');
-                form.firstName.value = parts[0] || '';
-                form.lastName.value = parts.slice(1).join(' ') || '';
+            if (json.success) {
+                const data = json.data;
+                
+                // Pre-fill data
+                const form = document.getElementById('stammdaten-form');
+                if(data.fullName) {
+                    const parts = data.fullName.split(' ');
+                    form.firstName.value = parts[0] || '';
+                    form.lastName.value = parts.slice(1).join(' ') || '';
+                }
+                if(data.email) form.email.value = data.email;
+                if(data.phone) form.phone.value = data.phone;
+                
+            } else {
+                console.warn('Daten konnten nicht geladen werden.');
             }
-            if(data.email) form.email.value = data.email;
-            if(data.phone) form.phone.value = data.phone;
-            
-        } else {
-            alert('Daten konnten nicht geladen werden. Link abgelaufen?');
+        } catch (err) {
+            console.error('Netzwerkfehler beim Laden der Daten.');
         }
-    } catch (err) {
-        alert('Netzwerkfehler beim Laden der Daten.');
+    } else {
+        // Test-Modus ohne ID: Mache E-Mail-Feld beschreibbar
+        const emailField = document.querySelector('input[name="email"]');
+        if (emailField) {
+            emailField.removeAttribute('readonly');
+            emailField.style.cursor = 'text';
+            emailField.style.background = '#fff';
+        }
     }
 
     // Handle Form Submit
