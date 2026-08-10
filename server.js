@@ -174,7 +174,7 @@ app.post('/api/partner-application', async (req, res) => {
 
                 const mailOptions = {
                     from: process.env.SMTP_FROM || '"Alpha Energie System" <noreply@alpha-energie.de>',
-                    to: 'bewerbung@alpha-energy.network',
+                    to: 'info@alpha-energy.network',
                     subject: `Neue Registrierung (Agentur/VP): ${fullName}`,
                     text: `Eine neue Partner-Registrierung ist eingegangen:\n\nName: ${fullName}\nE-Mail: ${email}\nTelefon: ${phone || 'Nicht angegeben'}\nErfahrung: ${experience || 'Nicht angegeben'}\n\nBitte im Admin-Panel prüfen.`
                 };
