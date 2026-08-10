@@ -225,8 +225,55 @@ if (document.querySelector('.dashboard-container')) {
                     </button>
                 </td>
             </tr>
+            </tr>
             `;
         }).join('');
+
+        // ----------------- RENDER STAMMDATEN TAB -----------------
+        const stBody = document.getElementById('stammdaten-tbody');
+        if (stBody) {
+            const stammdatenApps = apps.filter(a => a.masterDataStatus === 'SUBMITTED');
+            if (stammdatenApps.length === 0) {
+                stBody.innerHTML = '<tr><td colspan="7" class="text-center">Noch keine Stammdaten eingereicht.</td></tr>';
+            } else {
+                stBody.innerHTML = stammdatenApps.map(a => {
+                    const downloadLink = a.tradeLicenseUrl ? `<a href="${a.tradeLicenseUrl}" target="_blank" style="color: #3b82f6; text-decoration: underline;"><i class="fa-solid fa-download"></i> Download / Ansehen</a>` : '-';
+                    return `
+                    <tr>
+                        <td>${new Date(a.updatedAt || a.createdAt).toLocaleString('de-DE')}</td>
+                        <td>
+                            <strong>${a.firstName || ''} ${a.lastName || ''}</strong><br>
+                            <span style="color: #64748b; font-size: 0.85rem;">${a.companyName || ''}</span>
+                        </td>
+                        <td>
+                            ${a.street || ''} ${a.houseNr || ''}<br>
+                            ${a.plz || ''} ${a.city || ''}<br>
+                            ${a.country || ''}
+                        </td>
+                        <td>
+                            <a href="mailto:${a.email}">${a.email}</a><br>
+                            <a href="tel:${a.phone}">${a.phone}</a><br>
+                            ${a.website ? `<a href="${a.website}" target="_blank" style="font-size: 0.85rem;">${a.website}</a>` : ''}
+                        </td>
+                        <td>
+                            <strong>${a.bankName || ''}</strong><br>
+                            ${a.iban || ''}<br>
+                            ${a.bic || ''}
+                        </td>
+                        <td style="font-size: 0.85rem;">
+                            USt-pflichtig: <strong>${a.isVatLiable ? 'Ja' : 'Nein'}</strong><br>
+                            Form: ${a.legalForm || '-'}<br>
+                            StNr: ${a.taxId || '-'}<br>
+                            FA: ${a.taxOffice || '-'}
+                        </td>
+                        <td style="text-align: center;">
+                            ${downloadLink}
+                        </td>
+                    </tr>
+                    `;
+                }).join('');
+            }
+        }
 
         document.querySelectorAll('.zugangsdaten-cb').forEach(cb => {
             cb.addEventListener('change', (e) => {

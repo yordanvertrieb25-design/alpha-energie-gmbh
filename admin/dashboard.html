@@ -27,6 +27,7 @@
         <div class="tabs">
             <button class="tab-btn active" onclick="switchTab('requests')">Kontaktanfragen</button>
             <button class="tab-btn" onclick="switchTab('partners')">Partner-Bewerbungen</button>
+            <button class="tab-btn" onclick="switchTab('stammdaten')">Stammdaten</button>
             <button class="tab-btn" onclick="switchTab('appointments')">Termine</button>
             <button class="tab-btn" onclick="switchTab('campaigns')">B2B Kampagnen</button>
             <button class="tab-btn" onclick="switchTab('db-b2b')" style="background: #e0f2fe; color: #0284c7; border: 1px solid #bae6fd;">Datenbank-B2B</button>
@@ -80,6 +81,31 @@
                     </thead>
                     <tbody id="partners-tbody">
                         <tr><td colspan="8" class="text-center">Lade Daten...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Stammdaten Tab -->
+        <div id="stammdaten-tab" class="tab-content">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h3 style="margin-bottom: 0;">Eingereichte Stammdaten</h3>
+            </div>
+            <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Bewerbungsdatum</th>
+                            <th>Name & Firma</th>
+                            <th>Anschrift</th>
+                            <th>Kontakt</th>
+                            <th>Bankverbindung</th>
+                            <th>Steuer & Info</th>
+                            <th>Gewerbeschein</th>
+                        </tr>
+                    </thead>
+                    <tbody id="stammdaten-tbody">
+                        <tr><td colspan="7" class="text-center">Lade Daten...</td></tr>
                     </tbody>
                 </table>
             </div>
