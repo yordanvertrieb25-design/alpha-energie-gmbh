@@ -317,6 +317,20 @@ app.delete('/api/admin/partner-applications/:id', authenticateAdmin, async (req,
     }
 });
 
+// Update Partner Application Notes
+app.patch('/api/admin/partner-applications/:id/notes', authenticateAdmin, async (req, res) => {
+    try {
+        const { notes } = req.body;
+        await prisma.partnerApplication.update({
+            where: { id: parseInt(req.params.id) },
+            data: { notes }
+        });
+        res.json({ success: true });
+    } catch (e) {
+        res.status(500).json({ success: false, error: e.message });
+    }
+});
+
 // 4c. Delete Appointment
 app.delete('/api/admin/appointments/:id', authenticateAdmin, async (req, res) => {
     try {

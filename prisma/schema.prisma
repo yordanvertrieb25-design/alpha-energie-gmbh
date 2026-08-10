@@ -26,6 +26,7 @@ model PartnerApplication {
   email      String
   phone      String
   experience String
+  notes      String?
   createdAt  DateTime @default(now())
 }
 

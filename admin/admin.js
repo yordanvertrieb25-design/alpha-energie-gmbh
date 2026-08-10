@@ -189,13 +189,15 @@ if (document.querySelector('.dashboard-container')) {
         const tbody = document.getElementById('partners-tbody');
         if (!tbody) return;
         if (apps.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="8" class="text-center">Keine Bewerbungen gefunden.</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="9" class="text-center">Keine Bewerbungen gefunden.</td></tr>';
             return;
         }
 
         tbody.innerHTML = apps.map(a => {
             const hasAppt = appointments.some(appt => appt.email && appt.email.toLowerCase() === a.email.toLowerCase());
             const apptStatus = hasAppt ? '<span style="color: #10b981; font-weight: bold;"><i class="fa-solid fa-check"></i> Ja</span>' : '<span style="color: #64748b;">Nein</span>';
+            const displayNotes = a.notes ? a.notes.replace(/\n/g, '<br>') : '<span style="color: #94a3b8; font-style: italic;">Keine Notizen</span>';
+            const rawNotes = (a.notes || '').replace(/'/g, "\\'").replace(/"/g, '&quot;').replace(/\n/g, '\\n');
 
             return `
             <tr class="partner-row">
@@ -207,6 +209,12 @@ if (document.querySelector('.dashboard-container')) {
                 <td style="text-align: center;">${apptStatus}</td>
                 <td style="text-align: center;">
                     <input type="checkbox" class="zugangsdaten-cb" style="width: 18px; height: 18px; cursor: pointer; accent-color: #10b981;">
+                </td>
+                <td style="min-width: 200px;">
+                    <div style="font-size: 0.85rem; margin-bottom: 5px; max-height: 80px; overflow-y: auto;">${displayNotes}</div>
+                    <button onclick="openNotesModal(${a.id}, '${rawNotes}')" style="background: none; border: none; color: #3b82f6; cursor: pointer; font-size: 0.85rem; padding: 0;">
+                        <i class="fa-solid fa-pen"></i> Bearbeiten
+                    </button>
                 </td>
                 <td style="text-align: center;">
                     <button onclick="deleteEntry('partner-applications', ${a.id})" style="background: none; border: none; color: #ef4444; cursor: pointer; padding: 4px;" title="Löschen">
@@ -759,5 +767,58 @@ if (document.querySelector('.dashboard-container')) {
         } catch (e) {
             console.error('Fetch global contacts error', e);
         }
+    }
+
+    // --- Notes Modal Logic ---
+    let currentNotesAppId = null;
+    const notesModal = document.getElementById('notes-modal');
+    const notesTextarea = document.getElementById('notes-textarea');
+    const notesSaveBtn = document.getElementById('notes-btn-save');
+    const notesCancelBtn = document.getElementById('notes-btn-cancel');
+
+    window.openNotesModal = function(id, currentNotes) {
+        currentNotesAppId = id;
+        notesTextarea.value = currentNotes || '';
+        notesModal.style.display = 'flex';
+        notesTextarea.focus();
+    };
+
+    if (notesCancelBtn) {
+        notesCancelBtn.addEventListener('click', () => {
+            notesModal.style.display = 'none';
+        });
+    }
+
+    if (notesSaveBtn) {
+        notesSaveBtn.addEventListener('click', async () => {
+            if (!currentNotesAppId) return;
+            const newNotes = notesTextarea.value;
+            notesSaveBtn.disabled = true;
+            notesSaveBtn.innerText = 'Speichert...';
+
+            try {
+                const res = await fetch(`${API_URL}/admin/partner-applications/${currentNotesAppId}/notes`, {
+                    method: 'PATCH',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}` 
+                    },
+                    body: JSON.stringify({ notes: newNotes })
+                });
+                const data = await res.json();
+                
+                if (data.success) {
+                    notesModal.style.display = 'none';
+                    loadData(); // Reload table
+                } else {
+                    alert('Fehler beim Speichern der Notiz: ' + (data.error || 'Unbekannt'));
+                }
+            } catch (err) {
+                alert('Netzwerkfehler beim Speichern.');
+            } finally {
+                notesSaveBtn.disabled = false;
+                notesSaveBtn.innerText = 'Speichern';
+            }
+        });
     }
 }
