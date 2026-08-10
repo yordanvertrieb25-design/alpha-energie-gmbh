@@ -381,6 +381,9 @@ app.post('/api/admin/partner-applications/:id/send-master-data-email', authentic
 
         const htmlBody = `
         <div style="font-family: Arial, sans-serif; color: #333; max-width: 600px; margin: 0 auto;">
+            <div style="text-align: center; margin-bottom: 20px;">
+                <img src="https://alpha-energie.de/logo.png" alt="Alpha Energie GmbH" style="max-width: 200px;">
+            </div>
             <p>Hallo ${application.fullName},</p>
             <p>Vielen Dank für Dein Interesse an einer Vertriebspartnerschaft mit Alpha Energie!</p>
             <p>Damit wir Deine Registrierung abschließen und Dir Deine Zugangsdaten freischalten können, benötigen wir noch einige Stammdaten von Dir.</p>

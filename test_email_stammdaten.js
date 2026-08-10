@@ -4,14 +4,14 @@ const prisma = new PrismaClient();
 async function main() {
     // Check if test application exists
     let testApp = await prisma.partnerApplication.findFirst({
-        where: { email: 'yordan.vertrieb25@gmail.com' }
+        where: { email: 'backoffice@alpha-energie-gmbh.de' }
     });
 
     if (!testApp) {
         testApp = await prisma.partnerApplication.create({
             data: {
                 fullName: 'Yordan Test',
-                email: 'yordan.vertrieb25@gmail.com',
+                email: 'backoffice@alpha-energie-gmbh.de',
                 phone: '0123456789',
                 experience: 'Test Experience'
             }
@@ -42,6 +42,9 @@ async function main() {
 
     const htmlBody = `
     <div style="font-family: Arial, sans-serif; color: #333; max-width: 600px; margin: 0 auto;">
+        <div style="text-align: center; margin-bottom: 20px;">
+            <img src="https://alpha-energie.de/logo.png" alt="Alpha Energie GmbH" style="max-width: 200px;">
+        </div>
         <p>Hallo ${testApp.fullName},</p>
         <p>Vielen Dank für Dein Interesse an einer Vertriebspartnerschaft mit Alpha Energie!</p>
         <p>Damit wir Deine Registrierung abschließen und Dir Deine Zugangsdaten freischalten können, benötigen wir noch einige Stammdaten von Dir.</p>
