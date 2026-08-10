@@ -19,6 +19,7 @@
     "json2csv": "^6.0.0-alpha.2",
     "jsonwebtoken": "^9.0.3",
     "marked": "^18.0.5",
+    "multer": "^2.2.0",
     "nodemailer": "^9.0.3",
     "playwright": "^1.61.1",
     "postleitzahlen": "^1.0.0",

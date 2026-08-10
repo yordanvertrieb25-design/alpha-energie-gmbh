@@ -1,3 +1,7 @@
+window.onerror = function(msg, url, lineNo, columnNo, error) {
+    alert("JS Error: " + msg + "\nLine: " + lineNo + "\n" + (error ? error.stack : ""));
+    return false;
+};
 // Admin Authentication & Logic
 
 const isLocalDev = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') && window.location.port !== '3000';
@@ -54,6 +58,82 @@ if (document.querySelector('.dashboard-container')) {
         document.getElementById(`${tabName}-tab`).classList.add('active');
     };
 
+    window.downloadICS = function(name, dateStr, timeStr, email, phone) {
+        let year, month, day;
+        if (dateStr.includes('-')) {
+            const p = dateStr.split('-');
+            year = p[0]; month = p[1]; day = p[2];
+        } else if (dateStr.includes('.')) {
+            const p = dateStr.split('.');
+            day = p[0]; month = p[1]; year = p[2];
+            if (year.length === 2) year = "20" + year;
+        } else {
+            alert('Datumsformat nicht erkannt: ' + dateStr);
+            return;
+        }
+
+        const timeParts = (timeStr || "00:00").split(':');
+        const hour = timeParts[0].padStart(2, '0');
+        const minute = timeParts[1].padStart(2, '0');
+
+        const startDate = new Date(`${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}T${hour}:${minute}:00`);
+        const endDate = new Date(startDate.getTime() + 60 * 60 * 1000); // 1 hour duration
+
+        const formatICSDate = (date) => {
+            return date.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+        };
+
+        // Escape special chars for ICS
+        const safeName = (name || "").replace(/,/g, '\\,').replace(/;/g, '\\;');
+        const safeEmail = (email || "").replace(/,/g, '\\,').replace(/;/g, '\\;');
+        const safePhone = (phone || "").replace(/,/g, '\\,').replace(/;/g, '\\;');
+
+        const icsString = [
+            "BEGIN:VCALENDAR",
+            "VERSION:2.0",
+            "PRODID:-//Alpha Energie//NONSGML v1.0//EN",
+            "BEGIN:VEVENT",
+            `UID:${new Date().getTime()}@alpha-energie.network`,
+            `DTSTAMP:${formatICSDate(new Date())}`,
+            `DTSTART:${formatICSDate(startDate)}`,
+            `DTEND:${formatICSDate(endDate)}`,
+            `SUMMARY:Termin mit ${safeName}`,
+            `DESCRIPTION:Kontakt:\\nName: ${safeName}\\nE-Mail: ${safeEmail}\\nTelefon: ${safePhone || '-'}`,
+            "END:VEVENT",
+            "END:VCALENDAR"
+        ].join("\r\n");
+
+        const blob = new Blob([icsString], { type: 'text/calendar;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `termin_${(name || 'Unbekannt').replace(/\\s+/g, '_')}.ics`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+    };
+
+    window.deleteEntry = async function(type, id) {
+        if (!confirm('Möchten Sie diesen Eintrag wirklich löschen?')) return;
+        
+        try {
+            const res = await fetch(`${API_URL}/admin/${type}/${id}`, {
+                method: 'DELETE',
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const data = await res.json();
+            if (data.success) {
+                // Optional: alert('Eintrag erfolgreich gelöscht.');
+                loadData();
+            } else {
+                alert('Fehler beim Löschen: ' + (data.error || 'Unbekannt'));
+            }
+        } catch (e) {
+            alert('Fehler bei der Verbindung zum Server.');
+        }
+    };
+
     // Load Data
     async function loadData() {
         try {
@@ -70,7 +150,7 @@ if (document.querySelector('.dashboard-container')) {
             const json = await res.json();
             if (json.success) {
                 renderContacts(json.data.contacts);
-                renderApplications(json.data.applications);
+                renderApplications(json.data.applications, json.data.appointments);
                 renderAppointments(json.data.appointments);
             } else {
                 alert('Fehler beim Laden der Daten.');
@@ -84,7 +164,7 @@ if (document.querySelector('.dashboard-container')) {
         const tbody = document.getElementById('requests-tbody');
         if (!tbody) return;
         if (contacts.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="5" class="text-center">Keine Kontaktanfragen gefunden.</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="6" class="text-center">Keine Kontaktanfragen gefunden.</td></tr>';
             return;
         }
 
@@ -96,46 +176,153 @@ if (document.querySelector('.dashboard-container')) {
                 <td>${c.phone ? `<a href="tel:${c.phone}">${c.phone}</a>` : '-'}</td>
                 <td>${c.subject}</td>
                 <td>${c.message.length > 50 ? c.message.substring(0, 50) + '...' : c.message}</td>
+                <td style="text-align: center;">
+                    <button onclick="deleteEntry('contacts', ${c.id})" style="background: none; border: none; color: #ef4444; cursor: pointer; padding: 4px;" title="Löschen">
+                        <i class="fa-solid fa-trash"></i>
+                    </button>
+                </td>
             </tr>
         `).join('');
     }
 
-    function renderApplications(apps) {
+    function renderApplications(apps, appointments = []) {
         const tbody = document.getElementById('partners-tbody');
         if (!tbody) return;
         if (apps.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="5" class="text-center">Keine Bewerbungen gefunden.</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="9" class="text-center">Keine Bewerbungen gefunden.</td></tr>';
             return;
         }
 
-        tbody.innerHTML = apps.map(a => `
-            <tr>
+        tbody.innerHTML = apps.map(a => {
+            const hasAppt = appointments.some(appt => appt.email && appt.email.toLowerCase() === a.email.toLowerCase());
+            const apptStatus = hasAppt ? '<span style="color: #10b981; font-weight: bold;"><i class="fa-solid fa-check"></i> Ja</span>' : '<span style="color: #64748b;">Nein</span>';
+            const displayNotes = a.notes ? a.notes.replace(/\n/g, '<br>') : '<span style="color: #94a3b8; font-style: italic;">Keine Notizen</span>';
+            const rawNotes = (a.notes || '').replace(/'/g, "\\'").replace(/"/g, '&quot;').replace(/\n/g, '\\n');
+
+            return `
+            <tr class="partner-row">
                 <td>${new Date(a.createdAt).toLocaleString('de-DE')}</td>
                 <td>${a.fullName}</td>
                 <td><a href="mailto:${a.email}">${a.email}</a></td>
                 <td><a href="tel:${a.phone}">${a.phone}</a></td>
                 <td>${a.experience}</td>
+                <td style="text-align: center;">${apptStatus}</td>
+                <td style="text-align: center;">
+                    <input type="checkbox" class="zugangsdaten-cb" style="width: 18px; height: 18px; cursor: pointer; accent-color: #10b981;">
+                </td>
+                <td style="min-width: 200px;">
+                    <div style="font-size: 0.85rem; margin-bottom: 5px; max-height: 80px; overflow-y: auto;">${displayNotes}</div>
+                    <button onclick="openNotesModal(${a.id}, '${rawNotes}')" style="background: none; border: none; color: #3b82f6; cursor: pointer; font-size: 0.85rem; padding: 0;">
+                        <i class="fa-solid fa-pen"></i> Bearbeiten
+                    </button>
+                </td>
+                <td style="text-align: center;">
+                    <button onclick="sendStammdatenEmail(${a.id})" class="btn-send-stammdaten" style="background: #ef8a00; color: white; border: none; border-radius: 4px; padding: 6px; cursor: pointer; font-size: 0.75rem; font-weight: bold; margin-bottom: 5px; width: 100%;" title="E-Mail zur Stammdatenerfassung senden">
+                        <i class="fa-solid fa-envelope"></i> Stammdatenemail senden
+                    </button>
+                    <button onclick="deleteEntry('partner-applications', ${a.id})" style="background: none; border: none; color: #ef4444; cursor: pointer; padding: 4px;" title="Löschen">
+                        <i class="fa-solid fa-trash"></i>
+                    </button>
+                </td>
             </tr>
-        `).join('');
+            `;
+        }).join('');
+
+        // ----------------- RENDER STAMMDATEN TAB -----------------
+        const stBody = document.getElementById('stammdaten-tbody');
+        if (stBody) {
+            const stammdatenApps = apps.filter(a => a.masterDataStatus === 'SUBMITTED');
+            if (stammdatenApps.length === 0) {
+                stBody.innerHTML = '<tr><td colspan="7" class="text-center">Noch keine Stammdaten eingereicht.</td></tr>';
+            } else {
+                stBody.innerHTML = stammdatenApps.map(a => {
+                    const dlTrade = a.tradeLicenseUrl ? `<div style="margin-bottom: 5px;"><a href="${a.tradeLicenseUrl}" target="_blank" style="color: #3b82f6; text-decoration: underline; font-size: 0.85rem;"><i class="fa-solid fa-download"></i> Gewerbeschein</a></div>` : '';
+                    const dlFront = a.idCardFrontUrl ? `<div style="margin-bottom: 5px;"><a href="${a.idCardFrontUrl}" target="_blank" style="color: #3b82f6; text-decoration: underline; font-size: 0.85rem;"><i class="fa-solid fa-download"></i> Ausweis (Vorn)</a></div>` : '';
+                    const dlBack = a.idCardBackUrl ? `<div><a href="${a.idCardBackUrl}" target="_blank" style="color: #3b82f6; text-decoration: underline; font-size: 0.85rem;"><i class="fa-solid fa-download"></i> Ausweis (Hinten)</a></div>` : '';
+                    const downloadLinks = (dlTrade || dlFront || dlBack) ? (dlTrade + dlFront + dlBack) : '-';
+                    
+                    return `
+                    <tr>
+                        <td>${new Date(a.updatedAt || a.createdAt).toLocaleString('de-DE')}</td>
+                        <td>
+                            <strong>${a.firstName || ''} ${a.lastName || ''}</strong><br>
+                            <span style="color: #64748b; font-size: 0.85rem;">${a.companyName || ''}</span>
+                        </td>
+                        <td>
+                            ${a.street || ''} ${a.houseNr || ''}<br>
+                            ${a.plz || ''} ${a.city || ''}<br>
+                            ${a.country || ''}
+                        </td>
+                        <td>
+                            <a href="mailto:${a.email}">${a.email}</a><br>
+                            <a href="tel:${a.phone}">${a.phone}</a><br>
+                            ${a.website ? `<a href="${a.website}" target="_blank" style="font-size: 0.85rem;">${a.website}</a>` : ''}
+                        </td>
+                        <td>
+                            <strong>${a.bankName || ''}</strong><br>
+                            ${a.iban || ''}<br>
+                            ${a.bic || ''}
+                        </td>
+                        <td style="font-size: 0.85rem;">
+                            USt-pflichtig: <strong>${a.isVatLiable ? 'Ja' : 'Nein'}</strong><br>
+                            Form: ${a.legalForm || '-'}<br>
+                            StNr: ${a.taxId || '-'}<br>
+                            FA: ${a.taxOffice || '-'}
+                        </td>
+                        <td style="text-align: left;">
+                            ${downloadLinks}
+                        </td>
+                    </tr>
+                    `;
+                }).join('');
+            }
+        }
+
+        document.querySelectorAll('.zugangsdaten-cb').forEach(cb => {
+            cb.addEventListener('change', (e) => {
+                const tr = e.target.closest('tr');
+                if (e.target.checked) {
+                    tr.style.backgroundColor = '#dcfce7';
+                } else {
+                    tr.style.backgroundColor = '';
+                }
+            });
+        });
     }
 
     function renderAppointments(appointments) {
         const tbody = document.getElementById('appointments-tbody');
         if (!tbody) return;
         if (!appointments || appointments.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="5" class="text-center">Keine Termine gefunden.</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="6" class="text-center">Keine Termine gefunden.</td></tr>';
             return;
         }
 
-        tbody.innerHTML = appointments.map(a => `
+        tbody.innerHTML = appointments.map(a => {
+            const escapedName = (a.name || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+            const escapedDate = (a.date || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+            const escapedTime = (a.time || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+            const escapedEmail = (a.email || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+            const escapedPhone = (a.phone || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+
+            return `
             <tr>
                 <td>${new Date(a.createdAt).toLocaleString('de-DE')}</td>
                 <td><strong>${a.date}</strong> um ${a.time} Uhr</td>
                 <td>${a.name}</td>
                 <td><a href="mailto:${a.email}">${a.email}</a></td>
                 <td>${a.phone ? `<a href="tel:${a.phone}">${a.phone}</a>` : '-'}</td>
+                <td style="text-align: center; white-space: nowrap;">
+                    <button onclick="downloadICS('${escapedName}', '${escapedDate}', '${escapedTime}', '${escapedEmail}', '${escapedPhone}')" style="background: none; border: none; color: #3b82f6; cursor: pointer; padding: 4px; margin-right: 5px;" title="An Thunderbird/Kalender senden">
+                        <i class="fa-regular fa-calendar-plus"></i>
+                    </button>
+                    <button onclick="deleteEntry('appointments', ${a.id})" style="background: none; border: none; color: #ef4444; cursor: pointer; padding: 4px;" title="Löschen">
+                        <i class="fa-solid fa-trash"></i>
+                    </button>
+                </td>
             </tr>
-        `).join('');
+            `;
+        }).join('');
     }
 
     loadData();
@@ -146,65 +333,79 @@ if (document.querySelector('.dashboard-container')) {
     let currentPage = 1;
     let currentStatus = null;
 
-    if (document.getElementById('btn-scrape')) {
-        document.getElementById('btn-scrape').addEventListener('click', async () => {
-            const name = document.getElementById('camp-name').value;
-            const industry = document.getElementById('camp-industry').value;
-            const companySize = document.getElementById('camp-size').value;
-            const pages = document.getElementById('camp-pages').value;
-            const statusDiv = document.getElementById('camp-status');
-            const actionsDiv = document.getElementById('camp-actions');
-            const tableContainer = document.getElementById('camp-live-table-container');
+    const triggerScrapeCampaign = async (targetIndustry) => {
+        const companySize = document.getElementById('camp-size').value.trim();
+        const pages = document.getElementById('camp-pages').value;
+        const statusDiv = document.getElementById('camp-status');
+        const actionsDiv = document.getElementById('camp-actions');
+        const tableContainer = document.getElementById('camp-live-table-container');
 
-            if (!name || !industry || !companySize) {
-                alert('Bitte füllen Sie alle Felder aus.');
-                return;
-            }
+        if (!companySize) {
+            alert('Bitte geben Sie einen Ort oder eine PLZ ein.');
+            return;
+        }
 
-            statusDiv.style.display = 'block';
-            statusDiv.innerText = 'Kampagne wird gestartet...';
-            statusDiv.style.color = '#3b82f6';
-            actionsDiv.style.display = 'none';
-            document.getElementById('btn-stop').style.display = 'none';
-            tableContainer.style.display = 'block';
-            document.getElementById('camp-live-tbody').innerHTML = '<tr><td colspan="4" class="text-center">Warte auf erste Kontakte...</td></tr>';
+        // Dynamische Generierung von Name und Branche
+        const dateString = new Date().toLocaleDateString('de-DE');
+        const name = `${companySize} - ${targetIndustry} (${dateString})`;
+        const industry = targetIndustry;
+
+        statusDiv.style.display = 'block';
+        statusDiv.innerText = 'Kampagne wird gestartet...';
+        statusDiv.style.color = '#3b82f6';
+        actionsDiv.style.display = 'none';
+        document.getElementById('btn-stop').style.display = 'none';
+        tableContainer.style.display = 'block';
+        document.getElementById('camp-live-tbody').innerHTML = '<tr><td colspan="4" class="text-center">Warte auf erste Kontakte...</td></tr>';
+        
+        currentPage = 1;
+        if (pollInterval) clearInterval(pollInterval);
+
+        const requirePhone = document.getElementById('camp-require-phone') ? document.getElementById('camp-require-phone').checked : false;
+
+        try {
+            const res = await fetch(`${API_URL}/campaigns/scrape`, {
+                method: 'POST',
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ name, industry, companySize, pages: pages === 'max' ? 'max' : parseInt(pages), requirePhone })
+            });
+
+            const json = await res.json();
             
-            currentPage = 1;
-            if (pollInterval) clearInterval(pollInterval);
-
-            const requirePhone = document.getElementById('camp-require-phone') ? document.getElementById('camp-require-phone').checked : false;
-
-            try {
-                const res = await fetch(`${API_URL}/campaigns/scrape`, {
-                    method: 'POST',
-                    headers: { 
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
-                    },
-                    body: JSON.stringify({ name, industry, companySize, pages: pages === 'max' ? 'max' : parseInt(pages), requirePhone })
-                });
-
-                const json = await res.json();
+            if (json.success) {
+                currentCampaignId = json.campaignId;
+                let plzText = json.plzs && json.plzs.length > 0 ? ` (${json.plzs.length} PLZs gefunden: ${json.plzs.slice(0, 5).join(', ')}${json.plzs.length > 5 ? '...' : ''})` : '';
+                statusDiv.innerText = `Scraping läuft...${plzText}`;
+                document.getElementById('btn-stop').style.display = 'block';
                 
-                if (json.success) {
-                    currentCampaignId = json.campaignId;
-                    let plzText = json.plzs && json.plzs.length > 0 ? ` (${json.plzs.length} PLZs gefunden: ${json.plzs.slice(0, 5).join(', ')}${json.plzs.length > 5 ? '...' : ''})` : '';
-                    statusDiv.innerText = `Scraping läuft...${plzText}`;
-                    document.getElementById('btn-stop').style.display = 'block';
-                    
-                    // Start polling
-                    pollInterval = setInterval(pollCampaignStatus, 3000);
-                    // Fetch first page immediately
-                    fetchContactsPage(currentPage);
-                } else {
-                    statusDiv.innerText = 'Fehler: ' + (json.error || 'Unbekannt');
-                    statusDiv.style.color = '#ef4444';
-                }
-            } catch (error) {
-                statusDiv.innerText = 'Fehler beim Verbinden zum Server.';
+                // Start polling
+                pollInterval = setInterval(pollCampaignStatus, 3000);
+                // Fetch first page immediately
+                fetchContactsPage(currentPage);
+            } else {
+                statusDiv.innerText = 'Fehler: ' + (json.error || 'Unbekannt');
                 statusDiv.style.color = '#ef4444';
             }
+        } catch (error) {
+            statusDiv.innerText = 'Fehler beim Verbinden zum Server.';
+            statusDiv.style.color = '#ef4444';
+        }
+    };
+
+    if (document.getElementById('btn-scrape-energie')) {
+        document.getElementById('btn-scrape-energie').addEventListener('click', () => triggerScrapeCampaign('Energieberater'));
+    }
+    if (document.getElementById('btn-scrape-esg')) {
+        document.getElementById('btn-scrape-esg').addEventListener('click', () => triggerScrapeCampaign('ESG Berater'));
+    }
+    if (document.getElementById('btn-preview-email')) {
+        document.getElementById('btn-preview-email').addEventListener('click', () => {
+            console.log('[UI] Opening Goldstandard email preview.');
         });
+    }
 
         if (document.getElementById('btn-stop')) {
             document.getElementById('btn-stop').addEventListener('click', async () => {
@@ -296,16 +497,44 @@ if (document.querySelector('.dashboard-container')) {
 
                     const tbody = document.getElementById('camp-live-tbody');
                     if (json.data.length === 0) {
-                        tbody.innerHTML = '<tr><td colspan="4" class="text-center">Noch keine Kontakte gefunden...</td></tr>';
+                        tbody.innerHTML = '<tr><td colspan="6" class="text-center">Noch keine Kontakte gefunden...</td></tr>';
                     } else {
                         tbody.innerHTML = json.data.map(c => `
                             <tr>
                                 <td>${c.name}</td>
+                                <td>${c.address || '-'}</td>
                                 <td>${c.email ? `<a href="mailto:${c.email}">${c.email}</a>` : '-'}</td>
                                 <td>${c.phone || '-'}</td>
                                 <td>${c.website ? `<a href="${c.website}" target="_blank">Link</a>` : '-'}</td>
+                                <td><button class="btn-send-single" data-id="${c.id}" style="background: #10b981; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer;">Senden</button></td>
                             </tr>
                         `).join('');
+                        
+                        document.querySelectorAll('.btn-send-single').forEach(btn => {
+                            btn.addEventListener('click', async (e) => {
+                                const cid = e.target.getAttribute('data-id');
+                                if (!confirm('E-Mail an diesen Kontakt senden?')) return;
+                                e.target.disabled = true;
+                                e.target.innerText = 'Sende...';
+                                try {
+                                    const res = await fetch(`${API_URL}/contacts/${cid}/send`, { method: 'POST', headers: { 'Authorization': `Bearer ${token}` } });
+                                    const data = await res.json();
+                                    if(data.success) {
+                                        alert('E-Mail versendet!');
+                                        e.target.innerText = 'Gesendet';
+                                        e.target.style.background = '#64748b';
+                                    } else {
+                                        alert('Fehler: ' + data.error);
+                                        e.target.disabled = false;
+                                        e.target.innerText = 'Senden';
+                                    }
+                                } catch(err) {
+                                    alert('Fehler beim Senden.');
+                                    e.target.disabled = false;
+                                    e.target.innerText = 'Senden';
+                                }
+                            });
+                        });
                     }
                 }
             } catch (e) {
@@ -375,7 +604,7 @@ if (document.querySelector('.dashboard-container')) {
                 btn.disabled = false;
             }
         });
-    }
+// brace removed here
 
     // --- Global B2B Database Logic ---
     let dbCurrentPage = 1;
@@ -504,7 +733,7 @@ if (document.querySelector('.dashboard-container')) {
                 dbNextBtn.disabled = dbCurrentPage >= totalPages;
 
                 if (json.data.length === 0) {
-                    dbTbody.innerHTML = '<tr><td colspan="5" class="text-center">Keine Kontakte gefunden.</td></tr>';
+                    dbTbody.innerHTML = '<tr><td colspan="7" class="text-center">Keine Kontakte gefunden.</td></tr>';
                 } else {
                     dbTbody.innerHTML = json.data.map(c => {
                         const dateStr = new Date(c.createdAt).toLocaleString('de-DE');
@@ -513,6 +742,7 @@ if (document.querySelector('.dashboard-container')) {
                         <tr>
                             <td>${dateStr}</td>
                             <td>${city}</td>
+                            <td>${c.address || '-'}</td>
                             <td><strong>${c.name}</strong></td>
                             <td>
                                 ${c.email ? `<a href="mailto:${c.email}">${c.email}</a>` : '-'}<br>
@@ -528,9 +758,36 @@ if (document.querySelector('.dashboard-container')) {
                                     <option value="Entscheider nicht angetroffen" ${c.status === 'Entscheider nicht angetroffen' ? 'selected' : ''}>Entscheider nicht angetroffen</option>
                                 </select>
                             </td>
+                            <td><button class="btn-send-single" data-id="${c.id}" style="background: #10b981; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer;">Senden</button></td>
                         </tr>
                         `;
                     }).join('');
+
+                    document.querySelectorAll('.btn-send-single').forEach(btn => {
+                        btn.addEventListener('click', async (e) => {
+                            const cid = e.target.getAttribute('data-id');
+                            if (!confirm('E-Mail an diesen Kontakt senden?')) return;
+                            e.target.disabled = true;
+                            e.target.innerText = 'Sende...';
+                            try {
+                                const res = await fetch(`${API_URL}/contacts/${cid}/send`, { method: 'POST', headers: { 'Authorization': `Bearer ${token}` } });
+                                const data = await res.json();
+                                if(data.success) {
+                                    alert('E-Mail versendet!');
+                                    e.target.innerText = 'Gesendet';
+                                    e.target.style.background = '#64748b';
+                                } else {
+                                    alert('Fehler: ' + data.error);
+                                    e.target.disabled = false;
+                                    e.target.innerText = 'Senden';
+                                }
+                            } catch(err) {
+                                alert('Fehler beim Senden.');
+                                e.target.disabled = false;
+                                e.target.innerText = 'Senden';
+                            }
+                        });
+                    });
 
                     // Add event listeners for the newly rendered dropdowns
                     document.querySelectorAll('.status-dropdown').forEach(select => {
@@ -564,4 +821,93 @@ if (document.querySelector('.dashboard-container')) {
             console.error('Fetch global contacts error', e);
         }
     }
+
+    // --- Notes Modal Logic ---
+    let currentNotesAppId = null;
+    const notesModal = document.getElementById('notes-modal');
+    const notesTextarea = document.getElementById('notes-textarea');
+    const notesSaveBtn = document.getElementById('notes-btn-save');
+    const notesCancelBtn = document.getElementById('notes-btn-cancel');
+
+    window.openNotesModal = function(id, currentNotes) {
+        currentNotesAppId = id;
+        notesTextarea.value = currentNotes || '';
+        notesModal.style.display = 'flex';
+        notesTextarea.focus();
+    };
+
+    if (notesCancelBtn) {
+        notesCancelBtn.addEventListener('click', () => {
+            notesModal.style.display = 'none';
+        });
+    }
+
+    if (notesSaveBtn) {
+        notesSaveBtn.addEventListener('click', async () => {
+            if (!currentNotesAppId) return;
+            const newNotes = notesTextarea.value;
+            notesSaveBtn.disabled = true;
+            notesSaveBtn.innerText = 'Speichert...';
+
+            try {
+                const res = await fetch(`${API_URL}/admin/partner-applications/${currentNotesAppId}/notes`, {
+                    method: 'PATCH',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}` 
+                    },
+                    body: JSON.stringify({ notes: newNotes })
+                });
+                const data = await res.json();
+                
+                if (data.success) {
+                    notesModal.style.display = 'none';
+                    loadData(); // Reload table
+                } else {
+                    alert('Fehler beim Speichern der Notiz: ' + (data.error || 'Unbekannt'));
+                }
+            } catch (err) {
+                alert('Netzwerkfehler beim Speichern.');
+            } finally {
+                notesSaveBtn.disabled = false;
+                notesSaveBtn.innerText = 'Speichern';
+            }
+        });
+    }
+
+    // --- Stammdaten Email Logic ---
+    window.sendStammdatenEmail = async function(id) {
+        if (!confirm('Stammdaten-E-Mail wirklich an diesen Partner senden?')) return;
+        const btn = document.querySelector(`button[onclick="sendStammdatenEmail(${id})"]`);
+        if(btn) {
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Sendet...';
+        }
+        try {
+            const res = await fetch(`${API_URL}/admin/partner-applications/${id}/send-master-data-email`, {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const data = await res.json();
+            if (data.success) {
+                alert('E-Mail erfolgreich gesendet!');
+                if(btn) {
+                    btn.innerHTML = '<i class="fa-solid fa-check"></i> Gesendet';
+                    btn.style.background = '#10b981';
+                }
+            } else {
+                alert('Fehler beim Senden: ' + (data.error || 'Unbekannt'));
+                if(btn) {
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fa-solid fa-envelope"></i> Stammdatenemail senden';
+                }
+            }
+        } catch(e) {
+            alert('Netzwerkfehler beim Senden.');
+            if(btn) {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fa-solid fa-envelope"></i> Stammdatenemail senden';
+            }
+        }
+    };
 }

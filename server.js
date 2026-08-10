@@ -5,8 +5,28 @@ const { PrismaClient } = require('@prisma/client');
 const jwt = require('jsonwebtoken');
 const path = require('path');
 const fs = require('fs');
+const nodemailer = require('nodemailer');
+const multer = require('multer');
+
+// Configure multer
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        const dir = path.join(__dirname, 'public', 'uploads');
+        if (!fs.existsSync(dir)){
+            fs.mkdirSync(dir, { recursive: true });
+        }
+        cb(null, dir);
+    },
+    filename: function (req, file, cb) {
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        const ext = path.extname(file.originalname);
+        cb(null, file.fieldname + '-' + uniqueSuffix + ext);
+    }
+});
+const upload = multer({ storage: storage });
+
 const { scrapeB2BContacts } = require('./services/scraperService');
-const { sendCampaign } = require('./services/emailCampaignService');
+const { sendCampaign, sendSingleContact, getFallbackTemplate } = require('./services/emailCampaignService');
 
 const prisma = new PrismaClient();
 const app = express();
@@ -79,6 +99,33 @@ app.get('/api/debug/places-test', async (req, res) => {
     res.json(result);
 });
 
+// Proxy for egON API to bypass CORS
+app.get('/api/proxy/rates', async (req, res) => {
+    try {
+        const axios = require('axios');
+        const authHeader = req.headers.authorization;
+        if (!authHeader) {
+            return res.status(401).json({ message: "No authorization header provided" });
+        }
+
+        const queryParams = new URLSearchParams(req.query).toString();
+        const targetUrl = `https://gateway.eg-on.com/rates/?${queryParams}`;
+
+        const response = await axios.get(targetUrl, {
+            headers: {
+                'Authorization': authHeader,
+                'Accept': 'application/json'
+            },
+            validateStatus: () => true // Allow any status code
+        });
+
+        res.status(response.status).json(response.data);
+    } catch (error) {
+        console.error("Proxy error:", error.message);
+        res.status(500).json({ message: "Proxy error: " + error.message });
+    }
+});
+
 // DEBUG: Clear Database (temporary)
 app.get('/api/debug/clear-db', async (req, res) => {
     try {
@@ -111,6 +158,36 @@ app.post('/api/partner-application', async (req, res) => {
         const newApp = await prisma.partnerApplication.create({
             data: { fullName, email, phone, experience }
         });
+
+        // Send email notification to backoffice
+        try {
+            if (process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS) {
+                const transporter = nodemailer.createTransport({
+                    host: process.env.SMTP_HOST,
+                    port: parseInt(process.env.SMTP_PORT) || 587,
+                    secure: parseInt(process.env.SMTP_PORT) === 465,
+                    auth: {
+                        user: process.env.SMTP_USER,
+                        pass: process.env.SMTP_PASS
+                    }
+                });
+
+                const mailOptions = {
+                    from: process.env.SMTP_FROM || '"Alpha Energie System" <noreply@alpha-energie.de>',
+                    to: 'bewerbung@alpha-energy.network',
+                    subject: `Neue Registrierung (Agentur/VP): ${fullName}`,
+                    text: `Eine neue Partner-Registrierung ist eingegangen:\n\nName: ${fullName}\nE-Mail: ${email}\nTelefon: ${phone || 'Nicht angegeben'}\nErfahrung: ${experience || 'Nicht angegeben'}\n\nBitte im Admin-Panel prüfen.`
+                };
+
+                await transporter.sendMail(mailOptions);
+                console.log(`Notification email sent to bewerbung@alpha-energy.network for ${fullName}`);
+            } else {
+                console.log("SMTP credentials missing. Notification email not sent.");
+            }
+        } catch (mailError) {
+            console.error("Error sending notification email:", mailError);
+        }
+
         res.status(201).json({ success: true, data: newApp });
     } catch (error) {
         console.error("Error saving application:", error);
@@ -158,6 +235,36 @@ app.post('/api/appointments', async (req, res) => {
         const newAppointment = await prisma.appointment.create({
             data: { name, email, phone, date, time }
         });
+
+        // Send email notification to backoffice
+        try {
+            if (process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS) {
+                const transporter = nodemailer.createTransport({
+                    host: process.env.SMTP_HOST,
+                    port: parseInt(process.env.SMTP_PORT) || 587,
+                    secure: parseInt(process.env.SMTP_PORT) === 465,
+                    auth: {
+                        user: process.env.SMTP_USER,
+                        pass: process.env.SMTP_PASS
+                    }
+                });
+
+                const mailOptions = {
+                    from: process.env.SMTP_FROM || '"Alpha Energie System" <noreply@alpha-energie.de>',
+                    to: 'bewerbung@alpha-energy.network',
+                    subject: `Neuer Termin gebucht: ${date} um ${time} Uhr`,
+                    text: `Ein neuer Termin wurde gebucht:\n\nName: ${name}\nE-Mail: ${email}\nTelefon: ${phone || 'Nicht angegeben'}\nDatum: ${date}\nUhrzeit: ${time}\n\nBitte im Admin-Panel prüfen.`
+                };
+
+                await transporter.sendMail(mailOptions);
+                console.log(`Notification email sent to bewerbung@alpha-energy.network for appointment on ${date} at ${time}`);
+            } else {
+                console.log("SMTP credentials missing. Notification email not sent.");
+            }
+        } catch (mailError) {
+            console.error("Error sending notification email for appointment:", mailError);
+        }
+
         res.status(201).json({ success: true, data: newAppointment });
     } catch (error) {
         console.error("Error creating appointment:", error);
@@ -209,6 +316,185 @@ app.get('/api/admin/data', authenticateAdmin, async (req, res) => {
     }
 });
 
+// 4a. Delete Contact Request
+app.delete('/api/admin/contacts/:id', authenticateAdmin, async (req, res) => {
+    try {
+        await prisma.contactRequest.delete({ where: { id: parseInt(req.params.id) } });
+        res.json({ success: true });
+    } catch (e) {
+        res.status(500).json({ success: false, error: e.message });
+    }
+});
+
+// 4b. Delete Partner Application
+app.delete('/api/admin/partner-applications/:id', authenticateAdmin, async (req, res) => {
+    try {
+        await prisma.partnerApplication.delete({ where: { id: parseInt(req.params.id) } });
+        res.json({ success: true });
+    } catch (e) {
+        res.status(500).json({ success: false, error: e.message });
+    }
+});
+
+// Update Partner Application Notes
+app.patch('/api/admin/partner-applications/:id/notes', authenticateAdmin, async (req, res) => {
+    try {
+        const { notes } = req.body;
+        await prisma.partnerApplication.update({
+            where: { id: parseInt(req.params.id) },
+            data: { notes }
+        });
+        res.json({ success: true });
+    } catch (e) {
+        res.status(500).json({ success: false, error: e.message });
+    }
+});
+
+// 4c. Delete Appointment
+app.delete('/api/admin/appointments/:id', authenticateAdmin, async (req, res) => {
+    try {
+        await prisma.appointment.delete({ where: { id: parseInt(req.params.id) } });
+        res.json({ success: true });
+    } catch (e) {
+        res.status(500).json({ success: false, error: e.message });
+    }
+});
+
+// Send Master Data Email (Stammdaten)
+app.post('/api/admin/partner-applications/:id/send-master-data-email', authenticateAdmin, async (req, res) => {
+    try {
+        const appId = parseInt(req.params.id);
+        const application = await prisma.partnerApplication.findUnique({ where: { id: appId } });
+        if (!application) return res.status(404).json({ success: false, error: 'Bewerbung nicht gefunden.' });
+
+        const transporter = nodemailer.createTransport({
+            host: process.env.SMTP_HOST || 'smtp.ionos.de',
+            port: process.env.SMTP_PORT || 465,
+            secure: true,
+            auth: {
+                user: process.env.SMTP_USER,
+                pass: process.env.SMTP_PASS
+            }
+        });
+
+        const stammdatenLink = `https://alpha-energie.de/stammdaten.html?id=${application.id}`;
+
+        const htmlBody = `
+        <div style="font-family: Arial, sans-serif; color: #333; max-width: 600px; margin: 0 auto;">
+            <div style="text-align: center; margin-bottom: 20px;">
+                <img src="https://alpha-energie.de/logo.png" alt="Alpha Energie GmbH" style="max-width: 200px;">
+            </div>
+            <p>Hallo ${application.fullName},</p>
+            <p>herzlichen Dank für Deine Bewerbung und Dein Vertrauen in die Alpha Energie GmbH! Wir freuen uns sehr über Dein Interesse an einer Vertriebspartnerschaft.</p>
+            <p>Um Deine Registrierung zügig abzuschließen und Deinen Account freizuschalten, benötigen wir im nächsten Schritt noch einige Stammdaten von Dir.</p>
+            <p><strong>So geht es jetzt weiter:</strong></p>
+            <ol style="line-height: 1.6; margin-bottom: 20px;">
+                <li>Klicke auf den Button unten und trage Deine restlichen Daten ein (inkl. Upload Deiner Gewerbeanmeldung oder Deines Handelsregisterauszugs).</li>
+                <li>Unser Backoffice-Team prüft Deine Unterlagen schnellstmöglich.</li>
+                <li>Sobald alles verifiziert ist, senden wir Dir Deine persönlichen Zugangsdaten für das Vertriebsportal zu, und Du kannst direkt starten!</li>
+            </ol>
+            <div style="text-align: center; margin: 35px 0;">
+                <a href="${stammdatenLink}" style="background-color: #ef8a00; color: white; padding: 14px 28px; text-decoration: none; border-radius: 5px; font-weight: bold; font-size: 1.1rem;">Jetzt Stammdaten hinterlegen</a>
+            </div>
+            <p>Solltest Du vorab Fragen haben, kannst Du jederzeit auf diese E-Mail antworten.</p>
+            <p>Mit freundlichen Grüßen,</p>
+            <p><strong>Dein Team der Alpha Energie GmbH</strong></p>
+            <hr style="border: 0; border-top: 1px solid #eee; margin: 30px 0;" />
+            <div style="font-size: 0.85rem; color: #666;">
+                <strong>Alpha Energie GmbH</strong><br>
+                Alter Hellweg 50 | 44379 Dortmund<br>
+                Telefon: 0231 39989390<br>
+                E-Mail: info@alpha-energy.network<br>
+                Geschäftsführer: Tolga Canga<br>
+                Registergericht: Amtsgericht Dortmund, HRB 38030
+            </div>
+        </div>
+        `;
+
+        await transporter.sendMail({
+            from: `"Alpha Energie GmbH" <${process.env.SMTP_FROM}>`,
+            to: application.email,
+            bcc: "yordan.vertrieb25@gmail.com", // Test-Kopie wie vom User gewünscht
+            subject: 'Wichtige Stammdaten für Deine Vertriebspartnerschaft',
+            html: htmlBody
+        });
+
+        res.json({ success: true, message: 'E-Mail gesendet.' });
+    } catch (e) {
+        console.error("Error sending stammdaten email:", e);
+        res.status(500).json({ success: false, error: e.message });
+    }
+});
+
+// GET Partner Application for form (public)
+app.get('/api/partner/stammdaten/:id', async (req, res) => {
+    try {
+        const appId = parseInt(req.params.id);
+        const application = await prisma.partnerApplication.findUnique({ where: { id: appId } });
+        if (!application) return res.status(404).json({ success: false, error: 'Nicht gefunden.' });
+        
+        res.json({ success: true, data: application });
+    } catch (e) {
+        res.status(500).json({ success: false, error: e.message });
+    }
+});
+
+// Submit Stammdaten (with file upload)
+app.post('/api/partner/stammdaten/:id', upload.fields([
+    { name: 'tradeLicense', maxCount: 1 },
+    { name: 'idCardFront', maxCount: 1 },
+    { name: 'idCardBack', maxCount: 1 }
+]), async (req, res) => {
+    try {
+        const appId = parseInt(req.params.id);
+        const data = req.body;
+        
+        let updateData = {
+            salutation: data.salutation,
+            firstName: data.firstName,
+            lastName: data.lastName,
+            birthDate: data.birthDate,
+            street: data.street,
+            houseNr: data.houseNr,
+            plz: data.plz,
+            city: data.city,
+            country: data.country,
+            isVatLiable: data.isVatLiable === 'true',
+            companyName: data.companyName,
+            legalForm: data.legalForm,
+            taxId: data.taxId,
+            taxOffice: data.taxOffice,
+            iban: data.iban,
+            bic: data.bic,
+            bankName: data.bankName,
+            website: data.website,
+            phone: data.phone, // update phone
+            masterDataStatus: 'SUBMITTED'
+        };
+
+        if (req.files) {
+            if (req.files.tradeLicense && req.files.tradeLicense[0]) {
+                updateData.tradeLicenseUrl = '/uploads/' + req.files.tradeLicense[0].filename;
+            }
+            if (req.files.idCardFront && req.files.idCardFront[0]) {
+                updateData.idCardFrontUrl = '/uploads/' + req.files.idCardFront[0].filename;
+            }
+            if (req.files.idCardBack && req.files.idCardBack[0]) {
+                updateData.idCardBackUrl = '/uploads/' + req.files.idCardBack[0].filename;
+            }
+        }
+
+        await prisma.partnerApplication.update({
+            where: { id: appId },
+            data: updateData
+        });
+
+        res.json({ success: true });
+    } catch (e) {
+        res.status(500).json({ success: false, error: e.message });
+    }
+});
+
 let cityToPlz = {};
 try {
   // path and fs are already required at the top of server.js
@@ -230,8 +516,24 @@ app.post('/api/campaigns/scrape', authenticateAdmin, async (req, res) => {
 
         const cityLower = companySize.trim().toLowerCase();
         let targetPlzs = [];
-        if (cityToPlz[cityLower]) {
+        if (/^\d{5}$/.test(cityLower)) {
+            // It's a 5-digit zip code. Find the city that contains it (ignoring numeric key entries)
+            for (const [cityKey, cityData] of Object.entries(cityToPlz)) {
+                if (!/^\d{5}$/.test(cityKey) && cityData.plzs && cityData.plzs.includes(cityLower)) {
+                    targetPlzs = cityData.plzs;
+                    console.log(`[Scraper API] PLZ ${cityLower} resolved to city "${cityData.originalName}" with ${targetPlzs.length} PLZs.`);
+                    break;
+                }
+            }
+            // Fallback: if PLZ is not associated with any city in the map, scan just this PLZ
+            if (targetPlzs.length === 0) {
+                targetPlzs = [cityLower];
+            }
+        } else if (cityToPlz[cityLower]) {
             targetPlzs = cityToPlz[cityLower].plzs;
+            console.log(`[Scraper API] City name "${cityLower}" resolved to ${targetPlzs.length} PLZs.`);
+        } else {
+            console.log(`[Scraper API] No predefined PLZs found for "${companySize}". Using free text query.`);
         }
 
         // 1. Create campaign
@@ -239,29 +541,61 @@ app.post('/api/campaigns/scrape', authenticateAdmin, async (req, res) => {
             data: { name, industry, companySize, status: 'RUNNING' }
         });
 
-        // 2. Start scraping asynchronously in the background
-        // We do NOT await this. It runs independently.
-        scrapeB2BContacts({ 
-            prisma,
-            campaignId: campaign.id,
-            name, 
-            industry, 
-            companySize, 
-            pages, 
-            requirePhone,
-            targetPlzs,
-            port: PORT 
-        }).catch(err => {
-            console.error(`[Scraper] Background task error for campaign ${campaign.id}:`, err);
-        });
+        const isSync = process.env.NODE_ENV === 'test' || req.body.sync === true;
 
-        // 3. Respond immediately
-        res.status(201).json({
-            success: true,
-            campaignId: campaign.id,
-            plzs: targetPlzs,
-            message: 'Scraping started in background'
-        });
+        if (isSync) {
+            // Synchronously await the scraping process
+            try {
+                await scrapeB2BContacts({ 
+                    prisma,
+                    campaignId: campaign.id,
+                    name, 
+                    industry, 
+                    companySize, 
+                    pages, 
+                    requirePhone,
+                    targetPlzs,
+                    port: PORT 
+                });
+            } catch (err) {
+                console.error(`[Scraper] Synchronous task error for campaign ${campaign.id}:`, err);
+            }
+
+            const contactsCount = await prisma.scrapedContact.count({
+                where: { campaignId: campaign.id }
+            });
+
+            return res.status(201).json({
+                success: true,
+                campaignId: campaign.id,
+                plzs: targetPlzs,
+                contactsCount,
+                message: 'Scraping completed synchronously'
+            });
+        } else {
+            // 2. Start scraping asynchronously in the background
+            scrapeB2BContacts({ 
+                prisma,
+                campaignId: campaign.id,
+                name, 
+                industry, 
+                companySize, 
+                pages, 
+                requirePhone,
+                targetPlzs,
+                port: PORT 
+            }).catch(err => {
+                console.error(`[Scraper] Background task error for campaign ${campaign.id}:`, err);
+            });
+
+            // 3. Respond immediately
+            return res.status(201).json({
+                success: true,
+                campaignId: campaign.id,
+                plzs: targetPlzs,
+                message: 'Scraping started in background'
+            });
+        }
     } catch (error) {
         console.error("Error creating campaign:", error);
         res.status(500).json({ success: false, error: 'Internal Server Error' });
@@ -465,6 +799,7 @@ app.get('/api/contacts/export', authenticateAdmin, async (req, res) => {
             id: c.id,
             createdAt: c.createdAt,
             stadt: c.campaign?.companySize || 'Unbekannt',
+            adresse: c.address || '',
             name: c.name,
             phone: c.phone,
             website: c.website,
@@ -473,7 +808,7 @@ app.get('/api/contacts/export', authenticateAdmin, async (req, res) => {
         }));
         
         const Parser = require('json2csv').Parser;
-        const fields = ['id', 'createdAt', 'stadt', 'name', 'phone', 'website', 'email', 'status'];
+        const fields = ['id', 'createdAt', 'stadt', 'adresse', 'name', 'phone', 'website', 'email', 'status'];
         const json2csvParser = new Parser({ fields });
         const csv = json2csvParser.parse(formattedContacts);
 
@@ -520,12 +855,13 @@ app.get('/api/campaigns/:id/export', authenticateAdmin, async (req, res) => {
         }
 
         // Generate DACH style Excel-compatible semicolon separated CSV
-        const headers = ['Name', 'Phone', 'Website', 'Email', 'Status', 'CreatedAt'];
+        const headers = ['Name', 'Adresse', 'Phone', 'Website', 'Email', 'Status', 'CreatedAt'];
         const headerLine = headers.map(h => `"${h}"`).join(';');
         
         const rows = campaign.contacts.map(contact => {
             return [
                 contact.name || '',
+                contact.address || '',
                 contact.phone || '',
                 contact.website || '',
                 contact.email || '',
@@ -572,6 +908,74 @@ app.post('/api/campaigns/:id/send', authenticateAdmin, async (req, res) => {
     } catch (error) {
         console.error("Error sending campaign emails:", error);
         res.status(500).json({ success: false, error: 'Internal Server Error' });
+    }
+});
+
+// 7a. Send Email to Single Contact (Protected)
+app.post('/api/contacts/:id/send', authenticateAdmin, async (req, res) => {
+    try {
+        const contactId = parseInt(req.params.id);
+        if (isNaN(contactId)) {
+            return res.status(400).json({ success: false, error: 'Invalid Contact ID' });
+        }
+        
+        await sendSingleContact(contactId, req.body);
+        res.json({ success: true });
+    } catch (error) {
+        console.error("Error sending single email:", error);
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+// 7a. Get Rendered Email Preview (Public)
+app.get('/api/email/preview', (req, res) => {
+    try {
+        const { subject, body } = getFallbackTemplate('Max Mustermann', 'Energieberater', 'Mittelstand');
+        const imageSrc = '/sales_partner_smooth.png';
+        const html = `
+          <!DOCTYPE html>
+          <html>
+          <head>
+            <meta charset="utf-8">
+            <title>E-Mail Template Preview</title>
+          </head>
+          <body style="background-color: #f1f5f9; padding: 20px; font-family: Arial, sans-serif;">
+            <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; border: 1px solid #e0e0e0; padding: 20px; border-radius: 8px; background-color: #ffffff;">
+              <div style="text-align: center; margin-bottom: 20px;">
+                <h2 style="color: #0056b3; margin: 0;">Alpha Energie GmbH</h2>
+                <p style="font-size: 14px; color: #666; margin: 5px 0 0 0;">Zukunftssichere B2B-Tarife & Vertriebspartnerschaften</p>
+              </div>
+              <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; padding: 15px; border-radius: 6px; margin-bottom: 20px;">
+                <strong style="color: #475569;">Betreff:</strong> ${subject}
+              </div>
+              <div style="background-color: #f9f9f9; padding: 15px; border-radius: 6px; margin-bottom: 20px; white-space: pre-wrap;">${body}</div>
+              <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
+              <table style="width: 100%; border-collapse: collapse;">
+                <tr>
+                  <td style="width: 120px; vertical-align: top; padding-right: 15px;">
+                    <img src="${imageSrc}" alt="Ihr Alpha Energie Ansprechpartner" style="width: 120px; height: auto; border-radius: 8px;" />
+                  </td>
+                  <td style="vertical-align: middle;">
+                    <strong style="color: #0056b3; font-size: 16px;">Alpha Energie B2B Vertrieb</strong><br>
+                    <span style="color: #555; font-size: 14px;">Partnerschafts- und Vertriebs-Service</span><br>
+                    <a href="https://www.alpha-energie.de" style="color: #0056b3; text-decoration: none; font-size: 14px;">www.alpha-energie.de</a>
+                  </td>
+                </tr>
+              </table>
+              <br>
+              <div style="font-size: 11px; color: #999; text-align: center; border-top: 1px solid #eee; padding-top: 15px; margin-top: 15px;">
+                Sie erhalten diese B2B-Kooperationsanfrage als potenzieller Geschäftspartner. 
+                <br>Wenn Sie keine weiteren E-Mails von uns wünschen, können Sie sich 
+                <a href="#" style="color: #666;">hier abmelden</a>.
+              </div>
+            </div>
+          </body>
+          </html>
+        `;
+        res.setHeader('Content-Type', 'text/html; charset=utf-8');
+        res.status(200).send(html);
+    } catch (error) {
+        console.error("Error generating email preview:", error);
+        res.status(500).send("Internal Server Error");
     }
 });
 
