@@ -440,7 +440,11 @@ app.get('/api/partner/stammdaten/:id', async (req, res) => {
 });
 
 // Submit Stammdaten (with file upload)
-app.post('/api/partner/stammdaten/:id', upload.single('tradeLicense'), async (req, res) => {
+app.post('/api/partner/stammdaten/:id', upload.fields([
+    { name: 'tradeLicense', maxCount: 1 },
+    { name: 'idCardFront', maxCount: 1 },
+    { name: 'idCardBack', maxCount: 1 }
+]), async (req, res) => {
     try {
         const appId = parseInt(req.params.id);
         const data = req.body;
@@ -468,8 +472,16 @@ app.post('/api/partner/stammdaten/:id', upload.single('tradeLicense'), async (re
             masterDataStatus: 'SUBMITTED'
         };
 
-        if (req.file) {
-            updateData.tradeLicenseUrl = '/uploads/' + req.file.filename;
+        if (req.files) {
+            if (req.files.tradeLicense && req.files.tradeLicense[0]) {
+                updateData.tradeLicenseUrl = '/uploads/' + req.files.tradeLicense[0].filename;
+            }
+            if (req.files.idCardFront && req.files.idCardFront[0]) {
+                updateData.idCardFrontUrl = '/uploads/' + req.files.idCardFront[0].filename;
+            }
+            if (req.files.idCardBack && req.files.idCardBack[0]) {
+                updateData.idCardBackUrl = '/uploads/' + req.files.idCardBack[0].filename;
+            }
         }
 
         await prisma.partnerApplication.update({

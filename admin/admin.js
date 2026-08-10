@@ -237,7 +237,11 @@ if (document.querySelector('.dashboard-container')) {
                 stBody.innerHTML = '<tr><td colspan="7" class="text-center">Noch keine Stammdaten eingereicht.</td></tr>';
             } else {
                 stBody.innerHTML = stammdatenApps.map(a => {
-                    const downloadLink = a.tradeLicenseUrl ? `<a href="${a.tradeLicenseUrl}" target="_blank" style="color: #3b82f6; text-decoration: underline;"><i class="fa-solid fa-download"></i> Download / Ansehen</a>` : '-';
+                    const dlTrade = a.tradeLicenseUrl ? `<div style="margin-bottom: 5px;"><a href="${a.tradeLicenseUrl}" target="_blank" style="color: #3b82f6; text-decoration: underline; font-size: 0.85rem;"><i class="fa-solid fa-download"></i> Gewerbeschein</a></div>` : '';
+                    const dlFront = a.idCardFrontUrl ? `<div style="margin-bottom: 5px;"><a href="${a.idCardFrontUrl}" target="_blank" style="color: #3b82f6; text-decoration: underline; font-size: 0.85rem;"><i class="fa-solid fa-download"></i> Ausweis (Vorn)</a></div>` : '';
+                    const dlBack = a.idCardBackUrl ? `<div><a href="${a.idCardBackUrl}" target="_blank" style="color: #3b82f6; text-decoration: underline; font-size: 0.85rem;"><i class="fa-solid fa-download"></i> Ausweis (Hinten)</a></div>` : '';
+                    const downloadLinks = (dlTrade || dlFront || dlBack) ? (dlTrade + dlFront + dlBack) : '-';
+                    
                     return `
                     <tr>
                         <td>${new Date(a.updatedAt || a.createdAt).toLocaleString('de-DE')}</td>
@@ -266,8 +270,8 @@ if (document.querySelector('.dashboard-container')) {
                             StNr: ${a.taxId || '-'}<br>
                             FA: ${a.taxOffice || '-'}
                         </td>
-                        <td style="text-align: center;">
-                            ${downloadLink}
+                        <td style="text-align: left;">
+                            ${downloadLinks}
                         </td>
                     </tr>
                     `;

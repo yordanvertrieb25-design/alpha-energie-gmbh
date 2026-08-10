@@ -241,9 +241,19 @@
         <!-- Dokumente Upload -->
         <div class="form-section">
             <h2>Dokumente</h2>
-            <div class="form-group full-width">
+            <div class="form-group full-width" style="margin-bottom: 25px;">
                 <label>Gewerbeanmeldung / Handelsregisterauszug (PDF oder Bild) *</label>
-                <input type="file" name="tradeLicense" accept=".pdf,image/*" required style="border: 2px dashed #cbd5e1; padding: 30px; text-align: center; background: #f8fafc;">
+                <input type="file" name="tradeLicense" accept=".pdf,image/*" required style="border: 2px dashed #cbd5e1; padding: 30px; text-align: center; background: #f8fafc; width: 100%;">
+            </div>
+            <div class="form-grid">
+                <div class="form-group full-width">
+                    <label>Personalausweis (Vorderseite) *</label>
+                    <input type="file" name="idCardFront" accept=".pdf,image/*" required style="border: 2px dashed #cbd5e1; padding: 20px; text-align: center; background: #f8fafc; width: 100%;">
+                </div>
+                <div class="form-group full-width">
+                    <label>Personalausweis (Rückseite) *</label>
+                    <input type="file" name="idCardBack" accept=".pdf,image/*" required style="border: 2px dashed #cbd5e1; padding: 20px; text-align: center; background: #f8fafc; width: 100%;">
+                </div>
             </div>
         </div>
 

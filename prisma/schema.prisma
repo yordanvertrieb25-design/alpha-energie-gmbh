@@ -56,6 +56,8 @@ model PartnerApplication {
   // --- Kontakt / Uploads ---
   website          String?
   tradeLicenseUrl  String?
+  idCardFrontUrl   String?
+  idCardBackUrl    String?
   masterDataStatus String? @default("PENDING") // PENDING, SUBMITTED
   
   createdAt        DateTime @default(now())
