@@ -959,4 +959,109 @@ if (document.querySelector('.dashboard-container')) {
             alert('Netzwerkfehler beim Senden.');
         }
     };
+
+    // --- Affiliate Logic ---
+    window.loadAffiliates = async function() {
+        try {
+            const res = await fetch(`${API_URL}/admin/affiliates`, { headers: { 'Authorization': `Bearer ${token}` } });
+            const json = await res.json();
+            if (json.success) {
+                const tbody = document.getElementById('affiliates-tbody');
+                tbody.innerHTML = '';
+                if(json.data.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="5" class="text-center">Keine Werbelinks gefunden.</td></tr>';
+                    return;
+                }
+                json.data.forEach(a => {
+                    const host = window.location.origin;
+                    // Standard port could be 3000 locally
+                    const fullLink = `${host}/vertriebspartner.html?ref=${a.code}`;
+                    const count = a._count ? a._count.applications : 0;
+                    const row = `
+                        <tr>
+                            <td>${new Date(a.createdAt).toLocaleString()}</td>
+                            <td>${a.name}</td>
+                            <td>
+                                <code>${a.code}</code><br>
+                                <a href="${fullLink}" target="_blank" style="font-size: 0.8rem; color: #3b82f6;">Link testen</a>
+                            </td>
+                            <td>${count}</td>
+                            <td>
+                                <button class="btn btn-outline-light" onclick="showAffiliatePartners(${a.id})" style="padding: 4px 8px; font-size: 0.85rem;">Partner anzeigen</button>
+                            </td>
+                        </tr>
+                    `;
+                    tbody.innerHTML += row;
+                });
+            }
+        } catch(e) {
+            console.error("Error loading affiliates", e);
+        }
+    };
+
+    window.createAffiliateLink = async function() {
+        const nameInput = document.getElementById('new-affiliate-name');
+        const name = nameInput.value.trim();
+        if(!name) {
+            alert('Bitte einen Namen eingeben.');
+            return;
+        }
+        
+        try {
+            const res = await fetch(`${API_URL}/admin/affiliates`, {
+                method: 'POST',
+                headers: { 
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ name })
+            });
+            const data = await res.json();
+            if(data.success) {
+                nameInput.value = '';
+                loadAffiliates();
+            } else {
+                alert('Fehler: ' + data.error);
+            }
+        } catch(e) {
+            alert('Netzwerkfehler');
+        }
+    };
+
+    window.showAffiliatePartners = async function(id) {
+        try {
+            const res = await fetch(`${API_URL}/admin/affiliates/${id}/applications`, { headers: { 'Authorization': `Bearer ${token}` } });
+            const data = await res.json();
+            if(data.success) {
+                const tbody = document.getElementById('affiliate-partners-tbody');
+                tbody.innerHTML = '';
+                if(data.data.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="3" class="text-center">Noch keine Partner über diesen Link registriert.</td></tr>';
+                } else {
+                    data.data.forEach(p => {
+                        tbody.innerHTML += `
+                            <tr>
+                                <td>${new Date(p.createdAt).toLocaleString()}</td>
+                                <td>${p.fullName}</td>
+                                <td>${p.email}</td>
+                            </tr>
+                        `;
+                    });
+                }
+                document.getElementById('affiliate-partners-modal').style.display = 'flex';
+            }
+        } catch(e) {
+            console.error(e);
+        }
+    };
+
+    window.closeAffiliateModal = function() {
+        document.getElementById('affiliate-partners-modal').style.display = 'none';
+    };
+
+    // Bind event for tab switch
+    const affiliateTabBtn = document.querySelector('button[onclick="switchTab(\\\'affiliates\\\')"]');
+    if(affiliateTabBtn) {
+        affiliateTabBtn.addEventListener('click', loadAffiliates);
+    }
 }

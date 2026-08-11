@@ -61,6 +61,10 @@ model PartnerApplication {
   masterDataStatus String? @default("PENDING") // PENDING, SUBMITTED
   
   createdAt        DateTime @default(now())
+  
+  // --- Affiliate ---
+  affiliateLinkId  Int?
+  affiliateLink    AffiliateLink? @relation(fields: [affiliateLinkId], references: [id])
 }
 
 model Appointment {
@@ -107,3 +111,12 @@ model EmailLog {
   subject          String
   body             String
 }
+
+model AffiliateLink {
+  id               Int                  @id @default(autoincrement())
+  code             String               @unique
+  name             String
+  createdAt        DateTime             @default(now())
+  applications     PartnerApplication[]
+}
+

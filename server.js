@@ -154,9 +154,20 @@ app.post('/api/contact', async (req, res) => {
 // 2. Submit Partner Application Form
 app.post('/api/partner-application', async (req, res) => {
     try {
-        const { fullName, email, phone, experience } = req.body;
+        const { fullName, email, phone, experience, refCode } = req.body;
+        
+        let affiliateLinkId = null;
+        if (refCode) {
+            const affiliate = await prisma.affiliateLink.findUnique({
+                where: { code: refCode }
+            });
+            if (affiliate) {
+                affiliateLinkId = affiliate.id;
+            }
+        }
+
         const newApp = await prisma.partnerApplication.create({
-            data: { fullName, email, phone, experience }
+            data: { fullName, email, phone, experience, affiliateLinkId }
         });
 
         // Send email notification to backoffice
@@ -1004,6 +1015,51 @@ app.get('/api/mock-website/:slug', (req, res) => {
         </body>
         </html>
     `);
+});
+
+// --- Affiliate API ---
+app.post('/api/admin/affiliates', authenticateAdmin, async (req, res) => {
+    try {
+        const { name } = req.body;
+        const code = Math.random().toString(36).substring(2, 8); // random short string
+        const newAffiliate = await prisma.affiliateLink.create({
+            data: { name, code }
+        });
+        res.json({ success: true, data: newAffiliate });
+    } catch (error) {
+        console.error("Error creating affiliate:", error);
+        res.status(500).json({ success: false, error: 'Failed to create affiliate link' });
+    }
+});
+
+app.get('/api/admin/affiliates', authenticateAdmin, async (req, res) => {
+    try {
+        const affiliates = await prisma.affiliateLink.findMany({
+            include: {
+                _count: {
+                    select: { applications: true }
+                }
+            },
+            orderBy: { createdAt: 'desc' }
+        });
+        res.json({ success: true, data: affiliates });
+    } catch (error) {
+        console.error("Error fetching affiliates:", error);
+        res.status(500).json({ success: false, error: 'Failed to fetch affiliates' });
+    }
+});
+
+app.get('/api/admin/affiliates/:id/applications', authenticateAdmin, async (req, res) => {
+    try {
+        const applications = await prisma.partnerApplication.findMany({
+            where: { affiliateLinkId: parseInt(req.params.id) },
+            orderBy: { createdAt: 'desc' }
+        });
+        res.json({ success: true, data: applications });
+    } catch (error) {
+        console.error("Error fetching affiliate applications:", error);
+        res.status(500).json({ success: false, error: 'Failed to fetch applications' });
+    }
 });
 
 // Serve Admin Pages explicitly to avoid conflicts

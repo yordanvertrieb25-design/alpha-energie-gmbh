@@ -394,6 +394,10 @@ document.addEventListener("DOMContentLoaded", async () => {
                 const isFileProtocol = window.location.protocol === 'file:';
                 const API_URL = (isLocalDev || isFileProtocol) ? 'http://localhost:3000/api/partner-application' : '/api/partner-application';
 
+                // Check for ref parameter in URL
+                const urlParams = new URLSearchParams(window.location.search);
+                const refCode = urlParams.get('ref');
+
                 // Send to Backend API
                 fetch(API_URL, {
                     method: 'POST',
@@ -402,7 +406,8 @@ document.addEventListener("DOMContentLoaded", async () => {
                         fullName: fullNameVal,
                         email: emailVal,
                         phone: phoneVal,
-                        experience: experienceVal
+                        experience: experienceVal,
+                        refCode: refCode
                     })
                 }).then(res => {
                     if(!res.ok) throw new Error('API Error');

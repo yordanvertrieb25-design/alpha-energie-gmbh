@@ -31,6 +31,7 @@
             <button class="tab-btn" onclick="switchTab('appointments')">Termine</button>
             <button class="tab-btn" onclick="switchTab('campaigns')">B2B Kampagnen</button>
             <button class="tab-btn" onclick="switchTab('db-b2b')" style="background: #e0f2fe; color: #0284c7; border: 1px solid #bae6fd;">Datenbank-B2B</button>
+            <button class="tab-btn" onclick="switchTab('affiliates')">Werbelinks</button>
         </div>
 
         <!-- Requests Tab -->
@@ -261,6 +262,39 @@
                 </div>
             </div>
         </div>
+        
+        <!-- Werbelinks Tab -->
+        <div id="affiliates-tab" class="tab-content">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h3 style="margin-bottom: 0;">Werbelinks (Affiliates)</h3>
+            </div>
+            
+            <div style="background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                <h4 style="margin-top: 0;">Neuen Link generieren</h4>
+                <div style="display: flex; gap: 10px;">
+                    <input type="text" id="new-affiliate-name" placeholder="Name des Partners / Werbers" class="form-control" style="max-width: 300px; padding: 8px; border: 1px solid #cbd5e1; border-radius: 6px;">
+                    <button class="btn" style="background: #10b981; color: white; border: none; padding: 8px 15px; border-radius: 6px; cursor: pointer; font-weight: bold;" onclick="createAffiliateLink()">Link generieren</button>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Datum</th>
+                            <th>Name</th>
+                            <th>Link (Code)</th>
+                            <th>Generierte Partner</th>
+                            <th>Aktion</th>
+                        </tr>
+                    </thead>
+                    <tbody id="affiliates-tbody">
+                        <tr><td colspan="5" class="text-center">Lade Daten...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
     </div>
     
     <!-- Notes Modal -->
@@ -294,6 +328,29 @@
             <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 15px;">
                 <button id="email-modal-cancel" class="btn btn-outline-light" style="color: #64748b; border-color: #cbd5e1;">Abbrechen</button>
                 <button id="email-modal-send" style="background: #ef8a00; color: white; border: none; padding: 8px 15px; border-radius: 6px; cursor: pointer; font-weight: bold;"><i class="fa-solid fa-paper-plane"></i> Jetzt Senden</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Affiliate Partners Modal -->
+    <div id="affiliate-partners-modal" class="modal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center;">
+        <div class="modal-content" style="background: white; padding: 20px; border-radius: 8px; width: 600px; max-width: 90%; max-height: 80vh; overflow-y: auto;">
+            <div class="modal-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <h2 style="margin: 0;">Generierte Partner</h2>
+                <span class="close-modal" onclick="closeAffiliateModal()" style="cursor: pointer; font-size: 24px;">&times;</span>
+            </div>
+            <div class="modal-body">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Datum</th>
+                            <th>Name</th>
+                            <th>E-Mail</th>
+                        </tr>
+                    </thead>
+                    <tbody id="affiliate-partners-tbody">
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
