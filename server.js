@@ -421,7 +421,6 @@ app.post('/api/admin/partner-applications/:id/send-master-data-email', authentic
         await transporter.sendMail({
             from: `"Alpha Energie GmbH" <${process.env.SMTP_FROM}>`,
             to: recipientEmail,
-            bcc: "yordan.vertrieb25@gmail.com", // Test-Kopie wie vom User gewünscht
             subject: emailSubject,
             html: htmlBody
         });
