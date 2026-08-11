@@ -212,17 +212,19 @@ if (document.querySelector('.dashboard-container')) {
                 </td>
                 <td style="min-width: 200px;">
                     <div style="font-size: 0.85rem; margin-bottom: 5px; max-height: 80px; overflow-y: auto;">${displayNotes}</div>
-                    <button onclick="openNotesModal(${a.id}, '${rawNotes}')" style="background: none; border: none; color: #3b82f6; cursor: pointer; font-size: 0.85rem; padding: 0;">
-                        <i class="fa-solid fa-pen"></i> Bearbeiten
-                    </button>
-                </td>
-                <td style="text-align: center;">
-                    <button onclick="sendStammdatenEmail(${a.id})" class="btn-send-stammdaten" style="background: #ef8a00; color: white; border: none; border-radius: 4px; padding: 6px; cursor: pointer; font-size: 0.75rem; font-weight: bold; margin-bottom: 5px; width: 100%;" title="E-Mail zur Stammdatenerfassung senden">
-                        <i class="fa-solid fa-envelope"></i> Stammdatenemail senden
-                    </button>
-                    <button onclick="deleteEntry('partner-applications', ${a.id})" style="background: none; border: none; color: #ef4444; cursor: pointer; padding: 4px;" title="Löschen">
-                        <i class="fa-solid fa-trash"></i>
-                    </button>
+                    <div style="display: flex; flex-direction: column; gap: 8px;">
+                        <div>
+                            <button onclick="openNotesModal(${a.id}, '${rawNotes}')" style="background: none; border: none; color: #3b82f6; cursor: pointer; font-size: 0.85rem; padding: 0;">
+                                <i class="fa-solid fa-pen"></i> Bearbeiten
+                            </button>
+                            <button onclick="deleteEntry('partner-applications', ${a.id})" style="background: none; border: none; color: #ef4444; cursor: pointer; padding: 0 0 0 10px; font-size: 0.85rem;" title="Löschen">
+                                <i class="fa-solid fa-trash"></i> Löschen
+                            </button>
+                        </div>
+                        <button onclick="sendStammdatenEmail(${a.id})" class="btn-send-stammdaten" style="background: #ef8a00; color: white; border: none; border-radius: 4px; padding: 6px; cursor: pointer; font-size: 0.75rem; font-weight: bold; width: 100%; text-align: center;" title="E-Mail zur Stammdatenerfassung senden">
+                            <i class="fa-solid fa-envelope"></i> Stammdatenemail senden
+                        </button>
+                    </div>
                 </td>
             </tr>
             `;
