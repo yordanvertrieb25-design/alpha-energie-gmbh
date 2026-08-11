@@ -221,7 +221,7 @@ if (document.querySelector('.dashboard-container')) {
                                 <i class="fa-solid fa-trash"></i> Löschen
                             </button>
                         </div>
-                        <button onclick="sendStammdatenEmail(${a.id})" class="btn-send-stammdaten" style="background: #ef8a00; color: white; border: none; border-radius: 4px; padding: 6px; cursor: pointer; font-size: 0.75rem; font-weight: bold; width: 100%; text-align: center;" title="E-Mail zur Stammdatenerfassung senden">
+                        <button onclick="openEmailModal(${a.id}, '${a.email.replace(/'/g, "\\'")}', '${a.fullName.replace(/'/g, "\\'")}')" class="btn-send-stammdaten" style="background: #ef8a00; color: white; border: none; border-radius: 4px; padding: 6px; cursor: pointer; font-size: 0.75rem; font-weight: bold; width: 100%; text-align: center;" title="E-Mail zur Stammdatenerfassung senden">
                             <i class="fa-solid fa-envelope"></i> Stammdatenemail senden
                         </button>
                     </div>
@@ -878,38 +878,85 @@ if (document.querySelector('.dashboard-container')) {
     }
 
     // --- Stammdaten Email Logic ---
-    window.sendStammdatenEmail = async function(id) {
-        if (!confirm('Stammdaten-E-Mail wirklich an diesen Partner senden?')) return;
-        const btn = document.querySelector(`button[onclick="sendStammdatenEmail(${id})"]`);
-        if(btn) {
-            btn.disabled = true;
-            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Sendet...';
-        }
+    window.openEmailModal = function(id, email, fullName) {
+        const modal = document.getElementById('email-modal');
+        const toInput = document.getElementById('email-modal-to');
+        const subjectInput = document.getElementById('email-modal-subject');
+        const bodyInput = document.getElementById('email-modal-body');
+        const cancelBtn = document.getElementById('email-modal-cancel');
+        const sendBtn = document.getElementById('email-modal-send');
+
+        if (!modal) return;
+
+        toInput.value = email;
+        subjectInput.value = 'Wichtige Stammdaten für Deine Vertriebspartnerschaft';
+        
+        const stammdatenLink = `https://alpha-energie.de/stammdaten.html?id=${id}`;
+        
+        bodyInput.value = `<div style="font-family: Arial, sans-serif; color: #333; max-width: 600px; margin: 0 auto;">
+    <div style="text-align: center; margin-bottom: 20px;">
+        <img src="https://alpha-energie.de/logo.png" alt="Alpha Energie GmbH" style="max-width: 200px;">
+    </div>
+    <p>Hallo ${fullName},</p>
+    <p>herzlichen Dank für Deine Bewerbung und Dein Vertrauen in die Alpha Energie GmbH! Wir freuen uns sehr über Dein Interesse an einer Vertriebspartnerschaft.</p>
+    <p>Um Deine Registrierung zügig abzuschließen und Deinen Account freizuschalten, benötigen wir im nächsten Schritt noch einige Stammdaten von Dir.</p>
+    <p><strong>So geht es jetzt weiter:</strong></p>
+    <ol style="line-height: 1.6; margin-bottom: 20px;">
+        <li>Klicke auf den Button unten und trage Deine restlichen Daten ein (inkl. Upload Deiner Gewerbeanmeldung oder Deines Handelsregisterauszugs).</li>
+        <li>Unser Backoffice-Team prüft Deine Unterlagen schnellstmöglich.</li>
+        <li>Sobald alles verifiziert ist, senden wir Dir Deine persönlichen Zugangsdaten für das Vertriebsportal zu, und Du kannst direkt starten!</li>
+    </ol>
+    <div style="text-align: center; margin: 35px 0;">
+        <a href="${stammdatenLink}" style="background-color: #ef8a00; color: white; padding: 14px 28px; text-decoration: none; border-radius: 5px; font-weight: bold; font-size: 1.1rem;">Jetzt Stammdaten hinterlegen</a>
+    </div>
+    <p>Solltest Du vorab Fragen haben, kannst Du jederzeit auf diese E-Mail antworten.</p>
+    <p>Mit freundlichen Grüßen,</p>
+    <p><strong>Dein Team der Alpha Energie GmbH</strong></p>
+    <hr style="border: 0; border-top: 1px solid #eee; margin: 30px 0;" />
+    <div style="font-size: 0.85rem; color: #666;">
+        <strong>Alpha Energie GmbH</strong><br>
+        Alter Hellweg 50 | 44379 Dortmund<br>
+        Telefon: 0231 39989390<br>
+        E-Mail: info@alpha-energy.network<br>
+        Geschäftsführer: Tolga Canga<br>
+        Registergericht: Amtsgericht Dortmund, HRB 38030
+    </div>
+</div>`;
+
+        modal.style.display = 'flex';
+
+        cancelBtn.onclick = () => {
+            modal.style.display = 'none';
+        };
+
+        sendBtn.onclick = () => {
+            sendStammdatenEmail(id, toInput.value, subjectInput.value, bodyInput.value);
+            modal.style.display = 'none';
+        };
+    };
+
+    window.sendStammdatenEmail = async function(id, customEmail, customSubject, customBody) {
         try {
             const res = await fetch(`${API_URL}/admin/partner-applications/${id}/send-master-data-email`, {
                 method: 'POST',
-                headers: { 'Authorization': `Bearer ${token}` }
+                headers: { 
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    customEmail: customEmail,
+                    customSubject: customSubject,
+                    customBody: customBody
+                })
             });
             const data = await res.json();
             if (data.success) {
                 alert('E-Mail erfolgreich gesendet!');
-                if(btn) {
-                    btn.innerHTML = '<i class="fa-solid fa-check"></i> Gesendet';
-                    btn.style.background = '#10b981';
-                }
             } else {
                 alert('Fehler beim Senden: ' + (data.error || 'Unbekannt'));
-                if(btn) {
-                    btn.disabled = false;
-                    btn.innerHTML = '<i class="fa-solid fa-envelope"></i> Stammdatenemail senden';
-                }
             }
         } catch(e) {
             alert('Netzwerkfehler beim Senden.');
-            if(btn) {
-                btn.disabled = false;
-                btn.innerHTML = '<i class="fa-solid fa-envelope"></i> Stammdatenemail senden';
-            }
         }
     };
 }

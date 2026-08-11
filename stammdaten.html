@@ -229,11 +229,11 @@
                 </div>
                 <div class="form-group full-width">
                     <label>IBAN *</label>
-                    <input type="text" name="iban" required placeholder="DE...">
+                    <input type="text" name="iban" id="iban-input" required placeholder="DE...">
                 </div>
                 <div class="form-group full-width">
-                    <label>BIC (optional bei deutschen Konten)</label>
-                    <input type="text" name="bic">
+                    <label>BIC (wird automatisch ermittelt)</label>
+                    <input type="text" name="bic" id="bic-input" placeholder="Wird geladen...">
                 </div>
             </div>
         </div>
@@ -242,8 +242,8 @@
         <div class="form-section">
             <h2>Dokumente</h2>
             <div class="form-group full-width" style="margin-bottom: 25px;">
-                <label>Gewerbeanmeldung / Handelsregisterauszug (PDF oder Bild) *</label>
-                <input type="file" name="tradeLicense" accept=".pdf,image/*" required style="border: 2px dashed #cbd5e1; padding: 30px; text-align: center; background: #f8fafc; width: 100%;">
+                <label>Gewerbeanmeldung / Handelsregisterauszug (PDF oder Bild)</label>
+                <input type="file" name="tradeLicense" accept=".pdf,image/*" style="border: 2px dashed #cbd5e1; padding: 30px; text-align: center; background: #f8fafc; width: 100%;">
             </div>
             <div class="form-grid">
                 <div class="form-group full-width">
@@ -359,6 +359,30 @@ document.addEventListener('DOMContentLoaded', async () => {
             emailField.style.cursor = 'text';
             emailField.style.background = '#fff';
         }
+    }
+
+    // Auto-fetch BIC from IBAN
+    const ibanInput = document.getElementById('iban-input');
+    const bicInput = document.getElementById('bic-input');
+    if (ibanInput && bicInput) {
+        ibanInput.addEventListener('blur', async () => {
+            const iban = ibanInput.value.replace(/\s+/g, '').toUpperCase();
+            if (iban.length >= 15) {
+                bicInput.value = 'Wird ermittelt...';
+                try {
+                    const response = await fetch(`https://openiban.com/validate/${iban}?getBIC=true`);
+                    const data = await response.json();
+                    if (data.valid && data.bankData && data.bankData.bic) {
+                        bicInput.value = data.bankData.bic;
+                    } else {
+                        bicInput.value = '';
+                    }
+                } catch (err) {
+                    console.error('Fehler beim Abrufen der BIC', err);
+                    bicInput.value = '';
+                }
+            }
+        });
     }
 
     // Handle Form Submit

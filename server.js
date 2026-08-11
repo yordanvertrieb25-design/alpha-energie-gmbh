@@ -367,6 +367,10 @@ app.post('/api/admin/partner-applications/:id/send-master-data-email', authentic
         const application = await prisma.partnerApplication.findUnique({ where: { id: appId } });
         if (!application) return res.status(404).json({ success: false, error: 'Bewerbung nicht gefunden.' });
 
+        const { customEmail, customSubject, customBody } = req.body;
+        const recipientEmail = customEmail || application.email;
+        const emailSubject = customSubject || 'Wichtige Stammdaten für Deine Vertriebspartnerschaft';
+
         const transporter = nodemailer.createTransport({
             host: process.env.SMTP_HOST || 'smtp.ionos.de',
             port: process.env.SMTP_PORT || 465,
@@ -379,43 +383,46 @@ app.post('/api/admin/partner-applications/:id/send-master-data-email', authentic
 
         const stammdatenLink = `https://alpha-energie.de/stammdaten.html?id=${application.id}`;
 
-        const htmlBody = `
-        <div style="font-family: Arial, sans-serif; color: #333; max-width: 600px; margin: 0 auto;">
-            <div style="text-align: center; margin-bottom: 20px;">
-                <img src="https://alpha-energie.de/logo.png" alt="Alpha Energie GmbH" style="max-width: 200px;">
+        let htmlBody = customBody;
+        if (!htmlBody) {
+            htmlBody = `
+            <div style="font-family: Arial, sans-serif; color: #333; max-width: 600px; margin: 0 auto;">
+                <div style="text-align: center; margin-bottom: 20px;">
+                    <img src="https://alpha-energie.de/logo.png" alt="Alpha Energie GmbH" style="max-width: 200px;">
+                </div>
+                <p>Hallo ${application.fullName},</p>
+                <p>herzlichen Dank für Deine Bewerbung und Dein Vertrauen in die Alpha Energie GmbH! Wir freuen uns sehr über Dein Interesse an einer Vertriebspartnerschaft.</p>
+                <p>Um Deine Registrierung zügig abzuschließen und Deinen Account freizuschalten, benötigen wir im nächsten Schritt noch einige Stammdaten von Dir.</p>
+                <p><strong>So geht es jetzt weiter:</strong></p>
+                <ol style="line-height: 1.6; margin-bottom: 20px;">
+                    <li>Klicke auf den Button unten und trage Deine restlichen Daten ein (inkl. Upload Deiner Gewerbeanmeldung oder Deines Handelsregisterauszugs).</li>
+                    <li>Unser Backoffice-Team prüft Deine Unterlagen schnellstmöglich.</li>
+                    <li>Sobald alles verifiziert ist, senden wir Dir Deine persönlichen Zugangsdaten für das Vertriebsportal zu, und Du kannst direkt starten!</li>
+                </ol>
+                <div style="text-align: center; margin: 35px 0;">
+                    <a href="${stammdatenLink}" style="background-color: #ef8a00; color: white; padding: 14px 28px; text-decoration: none; border-radius: 5px; font-weight: bold; font-size: 1.1rem;">Jetzt Stammdaten hinterlegen</a>
+                </div>
+                <p>Solltest Du vorab Fragen haben, kannst Du jederzeit auf diese E-Mail antworten.</p>
+                <p>Mit freundlichen Grüßen,</p>
+                <p><strong>Dein Team der Alpha Energie GmbH</strong></p>
+                <hr style="border: 0; border-top: 1px solid #eee; margin: 30px 0;" />
+                <div style="font-size: 0.85rem; color: #666;">
+                    <strong>Alpha Energie GmbH</strong><br>
+                    Alter Hellweg 50 | 44379 Dortmund<br>
+                    Telefon: 0231 39989390<br>
+                    E-Mail: info@alpha-energy.network<br>
+                    Geschäftsführer: Tolga Canga<br>
+                    Registergericht: Amtsgericht Dortmund, HRB 38030
+                </div>
             </div>
-            <p>Hallo ${application.fullName},</p>
-            <p>herzlichen Dank für Deine Bewerbung und Dein Vertrauen in die Alpha Energie GmbH! Wir freuen uns sehr über Dein Interesse an einer Vertriebspartnerschaft.</p>
-            <p>Um Deine Registrierung zügig abzuschließen und Deinen Account freizuschalten, benötigen wir im nächsten Schritt noch einige Stammdaten von Dir.</p>
-            <p><strong>So geht es jetzt weiter:</strong></p>
-            <ol style="line-height: 1.6; margin-bottom: 20px;">
-                <li>Klicke auf den Button unten und trage Deine restlichen Daten ein (inkl. Upload Deiner Gewerbeanmeldung oder Deines Handelsregisterauszugs).</li>
-                <li>Unser Backoffice-Team prüft Deine Unterlagen schnellstmöglich.</li>
-                <li>Sobald alles verifiziert ist, senden wir Dir Deine persönlichen Zugangsdaten für das Vertriebsportal zu, und Du kannst direkt starten!</li>
-            </ol>
-            <div style="text-align: center; margin: 35px 0;">
-                <a href="${stammdatenLink}" style="background-color: #ef8a00; color: white; padding: 14px 28px; text-decoration: none; border-radius: 5px; font-weight: bold; font-size: 1.1rem;">Jetzt Stammdaten hinterlegen</a>
-            </div>
-            <p>Solltest Du vorab Fragen haben, kannst Du jederzeit auf diese E-Mail antworten.</p>
-            <p>Mit freundlichen Grüßen,</p>
-            <p><strong>Dein Team der Alpha Energie GmbH</strong></p>
-            <hr style="border: 0; border-top: 1px solid #eee; margin: 30px 0;" />
-            <div style="font-size: 0.85rem; color: #666;">
-                <strong>Alpha Energie GmbH</strong><br>
-                Alter Hellweg 50 | 44379 Dortmund<br>
-                Telefon: 0231 39989390<br>
-                E-Mail: info@alpha-energy.network<br>
-                Geschäftsführer: Tolga Canga<br>
-                Registergericht: Amtsgericht Dortmund, HRB 38030
-            </div>
-        </div>
-        `;
+            `;
+        }
 
         await transporter.sendMail({
             from: `"Alpha Energie GmbH" <${process.env.SMTP_FROM}>`,
-            to: application.email,
+            to: recipientEmail,
             bcc: "yordan.vertrieb25@gmail.com", // Test-Kopie wie vom User gewünscht
-            subject: 'Wichtige Stammdaten für Deine Vertriebspartnerschaft',
+            subject: emailSubject,
             html: htmlBody
         });
 

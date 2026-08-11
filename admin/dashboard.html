@@ -275,6 +275,29 @@
         </div>
     </div>
 
+    <!-- Stammdaten Email Modal -->
+    <div id="email-modal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center;">
+        <div style="background: white; padding: 20px; border-radius: 8px; width: 600px; max-width: 90%; max-height: 90vh; overflow-y: auto;">
+            <h3 style="margin-top: 0;">Stammdaten-E-Mail bearbeiten</h3>
+            <div style="margin-bottom: 15px;">
+                <label style="display: block; font-weight: bold; margin-bottom: 5px;">Empfänger E-Mail</label>
+                <input type="email" id="email-modal-to" style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 4px;">
+            </div>
+            <div style="margin-bottom: 15px;">
+                <label style="display: block; font-weight: bold; margin-bottom: 5px;">Betreff</label>
+                <input type="text" id="email-modal-subject" style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 4px;">
+            </div>
+            <div style="margin-bottom: 15px;">
+                <label style="display: block; font-weight: bold; margin-bottom: 5px;">Nachricht (HTML)</label>
+                <textarea id="email-modal-body" style="width: 100%; height: 300px; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; resize: vertical; font-family: monospace;"></textarea>
+            </div>
+            <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 15px;">
+                <button id="email-modal-cancel" class="btn btn-outline-light" style="color: #64748b; border-color: #cbd5e1;">Abbrechen</button>
+                <button id="email-modal-send" style="background: #ef8a00; color: white; border: none; padding: 8px 15px; border-radius: 6px; cursor: pointer; font-weight: bold;"><i class="fa-solid fa-paper-plane"></i> Jetzt Senden</button>
+            </div>
+        </div>
+    </div>
+
     <script src="admin.js?v=5"></script>
 </body>
 </html>
