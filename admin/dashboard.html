@@ -25,8 +25,8 @@
         </header>
 
         <div class="tabs">
-            <button class="tab-btn active" onclick="switchTab('requests')">Kontaktanfragen</button>
-            <button class="tab-btn" onclick="switchTab('partners')">Partner-Bewerbungen</button>
+            <button class="tab-btn" onclick="switchTab('requests')">Kontaktanfragen</button>
+            <button class="tab-btn active" onclick="switchTab('partners')">Partner-Bewerbungen</button>
             <button class="tab-btn" onclick="switchTab('stammdaten')">Stammdaten</button>
             <button class="tab-btn" onclick="switchTab('werbelink')" style="background: #f0fdf4; color: #15803d; border: 1px solid #bbf7d0; font-weight: 600;"><i class="fa-solid fa-link"></i> Anfragen über Werbelink</button>
             <button class="tab-btn" onclick="switchTab('appointments')">Termine</button>
@@ -36,7 +36,7 @@
         </div>
 
         <!-- Requests Tab -->
-        <div id="requests-tab" class="tab-content active">
+        <div id="requests-tab" class="tab-content">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
                 <h3 style="margin-bottom: 0;">Kontaktanfragen</h3>
                 <button id="btn-export-requests" class="btn btn-outline-light" style="color: #64748b; border-color: #64748b;">CSV Export</button>
@@ -61,7 +61,7 @@
         </div>
 
         <!-- Partners Tab -->
-        <div id="partners-tab" class="tab-content">
+        <div id="partners-tab" class="tab-content active">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
                 <h3 style="margin-bottom: 0;">Partner Bewerbungen</h3>
                 <button id="btn-export-partners" class="btn btn-outline-light" style="color: #64748b; border-color: #64748b;">CSV Export</button>
