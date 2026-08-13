@@ -1,11 +1,18 @@
 document.addEventListener("DOMContentLoaded", async () => {
-    // 0. Store referral code if present in URL
+    // 0. Store referral code if present in URL and handle direct Werbelink routing
     try {
         const urlParams = new URLSearchParams(window.location.search);
-        const refFromUrl = urlParams.get('ref') || urlParams.get('refCode') || urlParams.get('aff');
+        const refFromUrl = urlParams.get('ref') || urlParams.get('partner') || urlParams.get('refCode') || urlParams.get('aff');
         if (refFromUrl) {
             sessionStorage.setItem('affiliate_ref', refFromUrl);
             localStorage.setItem('affiliate_ref', refFromUrl);
+
+            // If landing on root index page via Werbelink, directly redirect to Stammdatenblatt form
+            const isHomePage = window.location.pathname === '/' || window.location.pathname.endsWith('/index.html') || window.location.pathname === '';
+            if (isHomePage) {
+                window.location.href = `stammdaten.html?ref=${encodeURIComponent(refFromUrl)}`;
+                return;
+            }
         }
     } catch (e) {
         console.error('Error saving ref code:', e);

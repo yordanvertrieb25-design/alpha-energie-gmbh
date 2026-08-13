@@ -28,6 +28,7 @@
             <button class="tab-btn active" onclick="switchTab('requests')">Kontaktanfragen</button>
             <button class="tab-btn" onclick="switchTab('partners')">Partner-Bewerbungen</button>
             <button class="tab-btn" onclick="switchTab('stammdaten')">Stammdaten</button>
+            <button class="tab-btn" onclick="switchTab('werbelink')" style="background: #f0fdf4; color: #15803d; border: 1px solid #bbf7d0; font-weight: 600;"><i class="fa-solid fa-link"></i> Anfragen über Werbelink</button>
             <button class="tab-btn" onclick="switchTab('appointments')">Termine</button>
             <button class="tab-btn" onclick="switchTab('campaigns')">B2B Kampagnen</button>
             <button class="tab-btn" onclick="switchTab('db-b2b')" style="background: #e0f2fe; color: #0284c7; border: 1px solid #bae6fd;">Datenbank-B2B</button>
@@ -296,6 +297,89 @@
             </div>
         </div>
 
+        <!-- Werbelink-Anfragen Tab -->
+        <div id="werbelink-tab" class="tab-content">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h3 style="margin-bottom: 0;"><i class="fa-solid fa-link" style="color: #10b981;"></i> Anfragen über Werbelink</h3>
+                <button id="btn-export-werbelink" class="btn btn-outline-light" style="color: #64748b; border-color: #64748b;">CSV Export</button>
+            </div>
+
+            <!-- KPI Cards Grid -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px;">
+                <div style="background: white; padding: 16px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border-left: 4px solid #3b82f6;">
+                    <div style="font-size: 0.85rem; color: #64748b; font-weight: 600;">Gesamt Anfragen</div>
+                    <div id="werbelink-kpi-total" style="font-size: 1.6rem; font-weight: 700; color: #1e293b; margin-top: 4px;">0</div>
+                </div>
+                <div style="background: white; padding: 16px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border-left: 4px solid #10b981;">
+                    <div style="font-size: 0.85rem; color: #64748b; font-weight: 600;">Neue Eingänge</div>
+                    <div id="werbelink-kpi-new" style="font-size: 1.6rem; font-weight: 700; color: #10b981; margin-top: 4px;">0</div>
+                </div>
+                <div style="background: white; padding: 16px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border-left: 4px solid #f59e0b;">
+                    <div style="font-size: 0.85rem; color: #64748b; font-weight: 600;">In Bearbeitung</div>
+                    <div id="werbelink-kpi-pending" style="font-size: 1.6rem; font-weight: 700; color: #f59e0b; margin-top: 4px;">0</div>
+                </div>
+                <div style="background: white; padding: 16px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border-left: 4px solid #8b5cf6;">
+                    <div style="font-size: 0.85rem; color: #64748b; font-weight: 600;">Aktive Partner-Links</div>
+                    <div id="werbelink-kpi-partners" style="font-size: 1.6rem; font-weight: 700; color: #8b5cf6; margin-top: 4px;">0</div>
+                </div>
+            </div>
+
+            <!-- Werbelink-Generator -->
+            <div style="background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                <h4 style="margin-top: 0; margin-bottom: 12px;"><i class="fa-solid fa-wand-magic-sparkles" style="color: #ef8a00;"></i> Werbelink-Generator für Partner</h4>
+                <div style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center;">
+                    <input type="text" id="werbelink-gen-name" placeholder="Partner / Agentur Name (z.B. PartnerMax)" class="form-control" style="max-width: 300px; padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 6px;">
+                    <button class="btn" style="background: #10b981; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: bold;" onclick="generateWerbelink()">Werbelink erstellen</button>
+                </div>
+                <div id="werbelink-gen-output" style="display: none; margin-top: 15px; padding: 12px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; align-items: center; justify-content: space-between; gap: 10px;">
+                    <span id="werbelink-gen-url" style="font-family: monospace; font-weight: 600; color: #0f172a; word-break: break-all;"></span>
+                    <button onclick="copyWerbelinkToClipboard()" style="background: #0284c7; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 0.85rem; font-weight: 600; flex-shrink: 0;"><i class="fa-regular fa-copy"></i> Link kopieren</button>
+                </div>
+            </div>
+
+            <!-- Filter controls -->
+            <div style="background: white; padding: 15px 20px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); display: flex; gap: 15px; flex-wrap: wrap; align-items: center;">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <label style="font-weight: 600; font-size: 0.85rem; color: #475569;">Partner-Filter:</label>
+                    <select id="werbelink-filter-partner" style="padding: 6px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.9rem;">
+                        <option value="">Alle Partner</option>
+                    </select>
+                </div>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <label style="font-weight: 600; font-size: 0.85rem; color: #475569;">Status:</label>
+                    <select id="werbelink-filter-status" style="padding: 6px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.9rem;">
+                        <option value="">Alle Status</option>
+                        <option value="SUBMITTED">Neu / Eingereicht</option>
+                        <option value="PENDING">In Bearbeitung</option>
+                        <option value="ACCEPTED">Akzeptiert</option>
+                        <option value="REJECTED">Abgelehnt</option>
+                    </select>
+                </div>
+                <div style="display: flex; align-items: center; gap: 8px; flex: 1; min-width: 200px;">
+                    <input type="text" id="werbelink-search" placeholder="Suche nach Name, E-Mail, Firma..." style="width: 100%; padding: 6px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.9rem;">
+                </div>
+            </div>
+
+            <!-- Data Table -->
+            <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Datum</th>
+                            <th>Bewerber & Firma</th>
+                            <th>Kontakt</th>
+                            <th>Werbelink / Partner</th>
+                            <th>Status</th>
+                            <th style="width: 200px; text-align: center;">Aktionen</th>
+                        </tr>
+                    </thead>
+                    <tbody id="werbelink-tbody">
+                        <tr><td colspan="6" class="text-center">Lade Daten...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
     </div>
     
     <!-- Notes Modal -->
@@ -329,6 +413,18 @@
             <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 15px;">
                 <button id="email-modal-cancel" class="btn btn-outline-light" style="color: #64748b; border-color: #cbd5e1;">Abbrechen</button>
                 <button id="email-modal-send" style="background: #ef8a00; color: white; border: none; padding: 8px 15px; border-radius: 6px; cursor: pointer; font-weight: bold;"><i class="fa-solid fa-paper-plane"></i> Jetzt Senden</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Werbelink Detail Modal -->
+    <div id="werbelink-detail-modal" class="modal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center;">
+        <div class="modal-content" style="background: white; padding: 25px; border-radius: 10px; width: 700px; max-width: 90%; max-height: 85vh; overflow-y: auto;">
+            <div class="modal-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid #e2e8f0; padding-bottom: 10px;">
+                <h3 style="margin: 0; color: #0f172a;"><i class="fa-solid fa-user-gear" style="color: #ef8a00;"></i> Stammdaten-Details</h3>
+                <span class="close-modal" onclick="closeWerbelinkDetailModal()" style="cursor: pointer; font-size: 24px;">&times;</span>
+            </div>
+            <div id="werbelink-detail-body">
             </div>
         </div>
     </div>

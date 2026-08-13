@@ -1065,7 +1065,280 @@ if (document.querySelector('.dashboard-container')) {
         document.getElementById('affiliate-partners-modal').style.display = 'none';
     };
 
+    // --- Werbelink Anfragen Tab Logic ---
+    let cachedWerbelinkApps = [];
+
+    window.loadWerbelinkTab = async function() {
+        await populateWerbelinkPartnerFilter();
+        await fetchWerbelinkApplications();
+    };
+
+    async function populateWerbelinkPartnerFilter() {
+        const select = document.getElementById('werbelink-filter-partner');
+        if (!select) return;
+        try {
+            const res = await fetch(`${API_URL}/admin/affiliates`, { headers: { 'Authorization': `Bearer ${token}` } });
+            const json = await res.json();
+            if (json.success && json.data) {
+                const currentVal = select.value;
+                select.innerHTML = '<option value="">Alle Partner</option>' +
+                    json.data.map(p => `<option value="${p.id}">${p.name} (${p.code})</option>`).join('');
+                select.value = currentVal;
+            }
+        } catch (e) {
+            console.error('Error populating partner filter:', e);
+        }
+    }
+
+    async function fetchWerbelinkApplications() {
+        const partnerId = document.getElementById('werbelink-filter-partner')?.value || '';
+        const status = document.getElementById('werbelink-filter-status')?.value || '';
+        const search = document.getElementById('werbelink-search')?.value || '';
+
+        const query = new URLSearchParams({ partnerId, status, search }).toString();
+
+        try {
+            const res = await fetch(`${API_URL}/admin/werbelink-applications?${query}`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const json = await res.json();
+
+            if (json.success) {
+                cachedWerbelinkApps = json.data || [];
+                
+                // KPIs
+                if (json.kpis) {
+                    document.getElementById('werbelink-kpi-total').innerText = json.kpis.total || 0;
+                    document.getElementById('werbelink-kpi-new').innerText = json.kpis.newCount || 0;
+                    document.getElementById('werbelink-kpi-pending').innerText = json.kpis.pendingCount || 0;
+                    document.getElementById('werbelink-kpi-partners').innerText = json.kpis.activePartners || 0;
+                }
+
+                renderWerbelinkApplicationsTable(json.data);
+            }
+        } catch (e) {
+            console.error('Error fetching werbelink applications:', e);
+        }
+    }
+
+    function renderWerbelinkApplicationsTable(apps) {
+        const tbody = document.getElementById('werbelink-tbody');
+        if (!tbody) return;
+
+        if (!apps || apps.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="6" class="text-center">Keine Anfragen für die gewählten Filter gefunden.</td></tr>';
+            return;
+        }
+
+        tbody.innerHTML = apps.map(a => {
+            const dateStr = new Date(a.createdAt).toLocaleString('de-DE');
+            const applicantInfo = `<strong>${a.fullName}</strong>${a.companyName ? `<br><span style="color: #64748b; font-size: 0.85rem;">${a.companyName}</span>` : ''}`;
+            const contactInfo = `<a href="mailto:${a.email}">${a.email}</a><br><a href="tel:${a.phone}">${a.phone}</a>`;
+            const partnerBadge = a.affiliateLink
+                ? `<span style="background: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; padding: 4px 8px; border-radius: 6px; font-weight: 600; font-size: 0.8rem; display: inline-flex; align-items: center; gap: 5px;"><i class="fa-solid fa-link"></i> ${a.affiliateLink.name} <span style="opacity: 0.75; font-weight: 400; font-size: 0.75rem;">(${a.affiliateLink.code})</span></span>`
+                : `<span style="color: #94a3b8; font-size: 0.85rem; font-style: italic;">Keiner</span>`;
+
+            const currentStatus = a.masterDataStatus || 'SUBMITTED';
+
+            return `
+            <tr>
+                <td>${dateStr}</td>
+                <td>${applicantInfo}</td>
+                <td>${contactInfo}</td>
+                <td>${partnerBadge}</td>
+                <td>
+                    <select onchange="updateWerbelinkStatus(${a.id}, this.value)" style="padding: 4px 8px; border-radius: 6px; border: 1px solid #cbd5e1; font-weight: 600; font-size: 0.85rem; ${currentStatus === 'ACCEPTED' ? 'color: #10b981; border-color: #10b981;' : currentStatus === 'REJECTED' ? 'color: #ef4444; border-color: #ef4444;' : currentStatus === 'PENDING' ? 'color: #f59e0b; border-color: #f59e0b;' : 'color: #0369a1; border-color: #bae6fd;'}">
+                        <option value="SUBMITTED" ${currentStatus === 'SUBMITTED' ? 'selected' : ''}>Neu / Eingereicht</option>
+                        <option value="PENDING" ${currentStatus === 'PENDING' ? 'selected' : ''}>In Bearbeitung</option>
+                        <option value="ACCEPTED" ${currentStatus === 'ACCEPTED' ? 'selected' : ''}>Akzeptiert</option>
+                        <option value="REJECTED" ${currentStatus === 'REJECTED' ? 'selected' : ''}>Abgelehnt</option>
+                    </select>
+                </td>
+                <td style="text-align: center;">
+                    <div style="display: flex; justify-content: center; gap: 8px;">
+                        <button onclick="openWerbelinkDetailModal(${a.id})" class="btn" style="background: #3b82f6; color: white; border: none; padding: 4px 10px; border-radius: 4px; font-size: 0.8rem; cursor: pointer; font-weight: bold;"><i class="fa-solid fa-eye"></i> Details</button>
+                        <button onclick="deleteEntry('partner-applications', ${a.id})" style="background: none; border: none; color: #ef4444; cursor: pointer; padding: 4px;" title="Löschen"><i class="fa-solid fa-trash"></i></button>
+                    </div>
+                </td>
+            </tr>
+            `;
+        }).join('');
+    }
+
+    window.updateWerbelinkStatus = async function(id, newStatus) {
+        try {
+            const res = await fetch(`${API_URL}/admin/werbelink-applications/${id}/status`, {
+                method: 'PATCH',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ status: newStatus })
+            });
+            const data = await res.json();
+            if (data.success) {
+                fetchWerbelinkApplications();
+            } else {
+                alert('Fehler beim Aktualisieren des Status.');
+            }
+        } catch (e) {
+            alert('Netzwerkfehler.');
+        }
+    };
+
+    window.generateWerbelink = async function() {
+        const input = document.getElementById('werbelink-gen-name');
+        const name = input?.value.trim();
+        if (!name) {
+            alert('Bitte einen Partner-Namen eingeben.');
+            return;
+        }
+
+        try {
+            const res = await fetch(`${API_URL}/admin/affiliates`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ name })
+            });
+            const data = await res.json();
+
+            if (data.success && data.data) {
+                input.value = '';
+                const code = data.data.code;
+                const fullUrl = `${window.location.origin}/stammdate?ref=${code}`;
+                
+                document.getElementById('werbelink-gen-url').innerText = fullUrl;
+                document.getElementById('werbelink-gen-output').style.display = 'flex';
+                
+                populateWerbelinkPartnerFilter();
+                fetchWerbelinkApplications();
+            } else {
+                alert('Fehler: ' + (data.error || 'Erstellung fehlgeschlagen'));
+            }
+        } catch (e) {
+            alert('Netzwerkfehler beim Generieren.');
+        }
+    };
+
+    window.copyWerbelinkToClipboard = function() {
+        const urlText = document.getElementById('werbelink-gen-url')?.innerText;
+        if (!urlText) return;
+        navigator.clipboard.writeText(urlText).then(() => {
+            alert('Werbelink in die Zwischenablage kopiert!\n\n' + urlText);
+        }).catch(err => {
+            alert('Kopieren fehlgeschlagen: ' + urlText);
+        });
+    };
+
+    window.openWerbelinkDetailModal = function(appId) {
+        const app = cachedWerbelinkApps.find(a => a.id === appId);
+        if (!app) return;
+
+        const body = document.getElementById('werbelink-detail-body');
+        if (!body) return;
+
+        const dlTrade = app.tradeLicenseUrl ? `<div><a href="${app.tradeLicenseUrl}" target="_blank" style="color: #3b82f6; text-decoration: underline;"><i class="fa-solid fa-download"></i> Gewerbeschein herunterladen</a></div>` : '<span style="color: #94a3b8;">Nicht vorhanden</span>';
+        const dlFront = app.idCardFrontUrl ? `<div><a href="${app.idCardFrontUrl}" target="_blank" style="color: #3b82f6; text-decoration: underline;"><i class="fa-solid fa-download"></i> Ausweis Vorderseite</a></div>` : '';
+        const dlBack = app.idCardBackUrl ? `<div><a href="${app.idCardBackUrl}" target="_blank" style="color: #3b82f6; text-decoration: underline;"><i class="fa-solid fa-download"></i> Ausweis Rückseite</a></div>` : '';
+
+        body.innerHTML = `
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; font-size: 0.95rem;">
+                <div style="background: #f8fafc; padding: 15px; border-radius: 8px; border: 1px solid #e2e8f0;">
+                    <h4 style="margin-top: 0; color: #0369a1; margin-bottom: 10px;"><i class="fa-solid fa-user"></i> Persönliche Daten</h4>
+                    <p style="margin: 4px 0;"><strong>Name:</strong> ${app.salutation || ''} ${app.firstName || ''} ${app.lastName || app.fullName}</p>
+                    <p style="margin: 4px 0;"><strong>Geburtsdatum:</strong> ${app.birthDate || '-'}</p>
+                    <p style="margin: 4px 0;"><strong>E-Mail:</strong> <a href="mailto:${app.email}">${app.email}</a></p>
+                    <p style="margin: 4px 0;"><strong>Telefon:</strong> <a href="tel:${app.phone}">${app.phone}</a></p>
+                    <p style="margin: 4px 0;"><strong>Webseite:</strong> ${app.website ? `<a href="${app.website}" target="_blank">${app.website}</a>` : '-'}</p>
+                </div>
+
+                <div style="background: #f8fafc; padding: 15px; border-radius: 8px; border: 1px solid #e2e8f0;">
+                    <h4 style="margin-top: 0; color: #0369a1; margin-bottom: 10px;"><i class="fa-solid fa-location-dot"></i> Anschrift</h4>
+                    <p style="margin: 4px 0;"><strong>Straße:</strong> ${app.street || ''} ${app.houseNr || ''}</p>
+                    <p style="margin: 4px 0;"><strong>PLZ & Ort:</strong> ${app.plz || ''} ${app.city || ''}</p>
+                    <p style="margin: 4px 0;"><strong>Land:</strong> ${app.country || 'Deutschland'}</p>
+                </div>
+
+                <div style="background: #f8fafc; padding: 15px; border-radius: 8px; border: 1px solid #e2e8f0;">
+                    <h4 style="margin-top: 0; color: #0369a1; margin-bottom: 10px;"><i class="fa-solid fa-building"></i> Unternehmen & Steuer</h4>
+                    <p style="margin: 4px 0;"><strong>USt-Pflichtig:</strong> ${app.isVatLiable ? 'Ja' : 'Nein'}</p>
+                    <p style="margin: 4px 0;"><strong>Firmenname:</strong> ${app.companyName || '-'}</p>
+                    <p style="margin: 4px 0;"><strong>Rechtsform:</strong> ${app.legalForm || '-'}</p>
+                    <p style="margin: 4px 0;"><strong>Steuernummer:</strong> ${app.taxId || '-'}</p>
+                    <p style="margin: 4px 0;"><strong>Finanzamt:</strong> ${app.taxOffice || '-'}</p>
+                </div>
+
+                <div style="background: #f8fafc; padding: 15px; border-radius: 8px; border: 1px solid #e2e8f0;">
+                    <h4 style="margin-top: 0; color: #0369a1; margin-bottom: 10px;"><i class="fa-solid fa-piggy-bank"></i> Bankverbindung</h4>
+                    <p style="margin: 4px 0;"><strong>Bankinstitut:</strong> ${app.bankName || '-'}</p>
+                    <p style="margin: 4px 0;"><strong>IBAN:</strong> ${app.iban || '-'}</p>
+                    <p style="margin: 4px 0;"><strong>BIC:</strong> ${app.bic || '-'}</p>
+                </div>
+            </div>
+
+            <div style="margin-top: 20px; background: #f8fafc; padding: 15px; border-radius: 8px; border: 1px solid #e2e8f0;">
+                <h4 style="margin-top: 0; color: #0369a1; margin-bottom: 10px;"><i class="fa-solid fa-file-pdf"></i> Eingereichte Dokumente</h4>
+                <div style="display: flex; flex-direction: column; gap: 8px;">
+                    ${dlTrade}
+                    ${dlFront}
+                    ${dlBack}
+                </div>
+            </div>
+        `;
+
+        document.getElementById('werbelink-detail-modal').style.display = 'flex';
+    };
+
+    window.closeWerbelinkDetailModal = function() {
+        document.getElementById('werbelink-detail-modal').style.display = 'none';
+    };
+
+    // Attach listeners for filters
+    document.getElementById('werbelink-filter-partner')?.addEventListener('change', fetchWerbelinkApplications);
+    document.getElementById('werbelink-filter-status')?.addEventListener('change', fetchWerbelinkApplications);
+    
+    let werbelinkSearchDebounce;
+    document.getElementById('werbelink-search')?.addEventListener('input', () => {
+        clearTimeout(werbelinkSearchDebounce);
+        werbelinkSearchDebounce = setTimeout(fetchWerbelinkApplications, 400);
+    });
+
+    document.getElementById('btn-export-werbelink')?.addEventListener('click', () => {
+        if (!cachedWerbelinkApps || cachedWerbelinkApps.length === 0) {
+            alert('Keine Daten zum Exportieren vorhanden.');
+            return;
+        }
+        const headers = ['ID', 'Datum', 'Salutation', 'FirstName', 'LastName', 'Email', 'Phone', 'CompanyName', 'Partner', 'Status'];
+        const rows = cachedWerbelinkApps.map(a => [
+            a.id,
+            new Date(a.createdAt).toLocaleString('de-DE'),
+            `"${(a.salutation || '').replace(/"/g, '""')}"`,
+            `"${(a.firstName || '').replace(/"/g, '""')}"`,
+            `"${(a.lastName || a.fullName || '').replace(/"/g, '""')}"`,
+            `"${(a.email || '').replace(/"/g, '""')}"`,
+            `"${(a.phone || '').replace(/"/g, '""')}"`,
+            `"${(a.companyName || '').replace(/"/g, '""')}"`,
+            `"${(a.affiliateLink?.name || '').replace(/"/g, '""')}"`,
+            a.masterDataStatus || 'SUBMITTED'
+        ]);
+        const csvContent = 'data:text/csv;charset=utf-8,\uFEFF' + [headers.join(';'), ...rows.map(r => r.join(';'))].join('\n');
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement('a');
+        link.setAttribute('href', encodedUri);
+        link.setAttribute('download', `werbelink_anfragen_${new Date().toISOString().slice(0, 10)}.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    });
+
     // Bind event for tab switch
+    const werbelinkTabBtn = document.querySelector('button[onclick="switchTab(\\\'werbelink\\\')"]');
+    if (werbelinkTabBtn) {
+        werbelinkTabBtn.addEventListener('click', loadWerbelinkTab);
+    }
     const affiliateTabBtn = document.querySelector('button[onclick="switchTab(\\\'affiliates\\\')"]');
     if(affiliateTabBtn) {
         affiliateTabBtn.addEventListener('click', loadAffiliates);

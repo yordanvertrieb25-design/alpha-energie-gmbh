@@ -459,26 +459,34 @@ app.get('/api/partner/stammdaten/:id', async (req, res) => {
     }
 });
 
-// Submit Stammdaten (with file upload)
-app.post('/api/partner/stammdaten/:id', upload.fields([
+// Submit Stammdaten (with file upload, supports both existing appId and new applications via ref link)
+const stammdatenUploadHandler = upload.fields([
     { name: 'tradeLicense', maxCount: 1 },
     { name: 'idCardFront', maxCount: 1 },
     { name: 'idCardBack', maxCount: 1 }
-]), async (req, res) => {
+]);
+
+const handleStammdatenSubmit = async (req, res) => {
     try {
-        const appId = parseInt(req.params.id);
+        const rawId = req.params.id;
+        const appId = parseInt(rawId);
+        const isNew = !rawId || rawId === 'new' || isNaN(appId);
         const data = req.body;
         
-        let updateData = {
+        let payload = {
             salutation: data.salutation,
             firstName: data.firstName,
             lastName: data.lastName,
+            fullName: `${data.firstName || ''} ${data.lastName || ''}`.trim() || data.fullName || 'Unbekannt',
+            email: data.email,
+            phone: data.phone,
+            experience: data.experience || 'Über Stammdatenblatt eingereicht',
             birthDate: data.birthDate,
             street: data.street,
             houseNr: data.houseNr,
             plz: data.plz,
             city: data.city,
-            country: data.country,
+            country: data.country || 'Deutschland',
             isVatLiable: data.isVatLiable === 'true',
             companyName: data.companyName,
             legalForm: data.legalForm,
@@ -488,32 +496,54 @@ app.post('/api/partner/stammdaten/:id', upload.fields([
             bic: data.bic,
             bankName: data.bankName,
             website: data.website,
-            phone: data.phone, // update phone
             masterDataStatus: 'SUBMITTED'
         };
 
         if (req.files) {
             if (req.files.tradeLicense && req.files.tradeLicense[0]) {
-                updateData.tradeLicenseUrl = '/uploads/' + req.files.tradeLicense[0].filename;
+                payload.tradeLicenseUrl = '/uploads/' + req.files.tradeLicense[0].filename;
             }
             if (req.files.idCardFront && req.files.idCardFront[0]) {
-                updateData.idCardFrontUrl = '/uploads/' + req.files.idCardFront[0].filename;
+                payload.idCardFrontUrl = '/uploads/' + req.files.idCardFront[0].filename;
             }
             if (req.files.idCardBack && req.files.idCardBack[0]) {
-                updateData.idCardBackUrl = '/uploads/' + req.files.idCardBack[0].filename;
+                payload.idCardBackUrl = '/uploads/' + req.files.idCardBack[0].filename;
             }
         }
 
-        await prisma.partnerApplication.update({
-            where: { id: appId },
-            data: updateData
-        });
+        let refCode = data.refCode || data.ref || data.partner;
+        if (refCode) {
+            const affiliate = await prisma.affiliateLink.findFirst({
+                where: {
+                    OR: [
+                        { code: refCode },
+                        { name: { equals: refCode } }
+                    ]
+                }
+            });
+            if (affiliate) {
+                payload.affiliateLinkId = affiliate.id;
+            }
+        }
 
-        res.json({ success: true });
+        if (isNew) {
+            const newApp = await prisma.partnerApplication.create({ data: payload });
+            return res.json({ success: true, data: newApp });
+        } else {
+            const updatedApp = await prisma.partnerApplication.update({
+                where: { id: appId },
+                data: payload
+            });
+            return res.json({ success: true, data: updatedApp });
+        }
     } catch (e) {
+        console.error("Stammdaten submit error:", e);
         res.status(500).json({ success: false, error: e.message });
     }
-});
+};
+
+app.post('/api/partner/stammdaten', stammdatenUploadHandler, handleStammdatenSubmit);
+app.post('/api/partner/stammdaten/:id', stammdatenUploadHandler, handleStammdatenSubmit);
 
 let cityToPlz = {};
 try {
@@ -1063,6 +1093,81 @@ app.get('/api/admin/affiliates/:id/applications', authenticateAdmin, async (req,
         console.error("Error fetching affiliate applications:", error);
         res.status(500).json({ success: false, error: 'Failed to fetch applications' });
     }
+});
+
+// --- Werbelink Applications Admin API ---
+app.get('/api/admin/werbelink-applications', authenticateAdmin, async (req, res) => {
+    try {
+        const { partnerId, status, search } = req.query;
+
+        let where = { affiliateLinkId: { not: null } };
+        if (partnerId) {
+            where.affiliateLinkId = parseInt(partnerId);
+        }
+        if (status) {
+            where.masterDataStatus = status;
+        }
+        if (search) {
+            where.AND = [
+                {
+                    OR: [
+                        { fullName: { contains: search } },
+                        { email: { contains: search } },
+                        { phone: { contains: search } },
+                        { companyName: { contains: search } }
+                    ]
+                }
+            ];
+        }
+
+        const applications = await prisma.partnerApplication.findMany({
+            where,
+            include: { affiliateLink: true },
+            orderBy: { createdAt: 'desc' }
+        });
+
+        // KPIs
+        const total = await prisma.partnerApplication.count({ where: { affiliateLinkId: { not: null } } });
+        const newCount = await prisma.partnerApplication.count({ where: { affiliateLinkId: { not: null }, masterDataStatus: 'SUBMITTED' } });
+        const pendingCount = await prisma.partnerApplication.count({ where: { affiliateLinkId: { not: null }, masterDataStatus: 'PENDING' } });
+        const activePartners = await prisma.affiliateLink.count();
+
+        res.json({
+            success: true,
+            data: applications,
+            kpis: {
+                total,
+                newCount,
+                pendingCount,
+                activePartners
+            }
+        });
+    } catch (e) {
+        console.error("Error fetching werbelink applications:", e);
+        res.status(500).json({ success: false, error: e.message });
+    }
+});
+
+app.patch('/api/admin/werbelink-applications/:id/status', authenticateAdmin, async (req, res) => {
+    try {
+        const { status } = req.body;
+        const updated = await prisma.partnerApplication.update({
+            where: { id: parseInt(req.params.id) },
+            data: { masterDataStatus: status }
+        });
+        res.json({ success: true, data: updated });
+    } catch (e) {
+        res.status(500).json({ success: false, error: e.message });
+    }
+});
+
+// Direct access routes for Stammdatenblatt via Werbelink
+app.get('/stammdate', (req, res) => {
+    res.sendFile(path.join(__dirname, 'stammdaten.html'));
+});
+
+app.get('/stammdaten', (req, res) => {
+    res.sendFile(path.join(__dirname, 'stammdaten.html'));
 });
 
 // Serve Admin Pages explicitly to avoid conflicts
