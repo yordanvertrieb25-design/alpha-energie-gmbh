@@ -301,7 +301,10 @@
         <div id="werbelink-tab" class="tab-content">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
                 <h3 style="margin-bottom: 0;"><i class="fa-solid fa-link" style="color: #10b981;"></i> Anfragen über Werbelink</h3>
-                <button id="btn-export-werbelink" class="btn btn-outline-light" style="color: #64748b; border-color: #64748b;">CSV Export</button>
+                <div>
+                    <button onclick="openCreatePartnerModal()" class="btn" style="background: #ef8a00; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: bold; margin-right: 10px;"><i class="fa-solid fa-user-plus"></i> Partner manuell anlegen</button>
+                    <button id="btn-export-werbelink" class="btn btn-outline-light" style="color: #64748b; border-color: #64748b;">CSV Export</button>
+                </div>
             </div>
 
             <!-- KPI Cards Grid -->
@@ -426,6 +429,162 @@
             </div>
             <div id="werbelink-detail-body">
             </div>
+        </div>
+    </div>
+
+    <!-- Create Partner Modal (Manual Entry with all Stammdaten fields) -->
+    <div id="create-partner-modal" class="modal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center;">
+        <div class="modal-content" style="background: white; padding: 25px; border-radius: 12px; width: 800px; max-width: 95%; max-height: 90vh; overflow-y: auto;">
+            <div class="modal-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid #e2e8f0; padding-bottom: 12px;">
+                <h3 style="margin: 0; color: #0f172a;"><i class="fa-solid fa-user-plus" style="color: #ef8a00;"></i> Partner manuell anlegen (Stammdaten)</h3>
+                <span class="close-modal" onclick="closeCreatePartnerModal()" style="cursor: pointer; font-size: 24px;">&times;</span>
+            </div>
+            <form id="create-partner-form">
+                <!-- Section 1: Persönliche Daten -->
+                <div style="margin-bottom: 20px; background: #f8fafc; padding: 15px; border-radius: 8px; border: 1px solid #e2e8f0;">
+                    <h4 style="margin-top: 0; margin-bottom: 12px; color: #0369a1;"><i class="fa-solid fa-user"></i> Persönliche Kontaktdaten</h4>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px;">
+                        <div>
+                            <label style="display: block; font-weight: 600; font-size: 0.85rem; margin-bottom: 4px;">Anrede</label>
+                            <select name="salutation" style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 6px;">
+                                <option value="Herr">Herr</option>
+                                <option value="Frau">Frau</option>
+                                <option value="Diverse">Diverse</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label style="display: block; font-weight: 600; font-size: 0.85rem; margin-bottom: 4px;">Vorname *</label>
+                            <input type="text" name="firstName" required style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 6px;">
+                        </div>
+                        <div>
+                            <label style="display: block; font-weight: 600; font-size: 0.85rem; margin-bottom: 4px;">Nachname *</label>
+                            <input type="text" name="lastName" required style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 6px;">
+                        </div>
+                        <div>
+                            <label style="display: block; font-weight: 600; font-size: 0.85rem; margin-bottom: 4px;">E-Mail *</label>
+                            <input type="email" name="email" required style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 6px;">
+                        </div>
+                        <div>
+                            <label style="display: block; font-weight: 600; font-size: 0.85rem; margin-bottom: 4px;">Telefon</label>
+                            <input type="text" name="phone" style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 6px;">
+                        </div>
+                        <div>
+                            <label style="display: block; font-weight: 600; font-size: 0.85rem; margin-bottom: 4px;">Geburtsdatum</label>
+                            <input type="date" name="birthDate" style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 6px;">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section 2: Anschrift -->
+                <div style="margin-bottom: 20px; background: #f8fafc; padding: 15px; border-radius: 8px; border: 1px solid #e2e8f0;">
+                    <h4 style="margin-top: 0; margin-bottom: 12px; color: #0369a1;"><i class="fa-solid fa-location-dot"></i> Anschrift</h4>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px;">
+                        <div style="grid-column: span 2;">
+                            <label style="display: block; font-weight: 600; font-size: 0.85rem; margin-bottom: 4px;">Straße & Hausnummer</label>
+                            <div style="display: flex; gap: 8px;">
+                                <input type="text" name="street" placeholder="Straße" style="flex: 3; padding: 8px; border: 1px solid #cbd5e1; border-radius: 6px;">
+                                <input type="text" name="houseNr" placeholder="Nr." style="flex: 1; padding: 8px; border: 1px solid #cbd5e1; border-radius: 6px;">
+                            </div>
+                        </div>
+                        <div>
+                            <label style="display: block; font-weight: 600; font-size: 0.85rem; margin-bottom: 4px;">PLZ</label>
+                            <input type="text" name="plz" style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 6px;">
+                        </div>
+                        <div>
+                            <label style="display: block; font-weight: 600; font-size: 0.85rem; margin-bottom: 4px;">Ort</label>
+                            <input type="text" name="city" style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 6px;">
+                        </div>
+                        <div>
+                            <label style="display: block; font-weight: 600; font-size: 0.85rem; margin-bottom: 4px;">Land</label>
+                            <input type="text" name="country" value="Deutschland" style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 6px;">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section 3: Unternehmensdaten -->
+                <div style="margin-bottom: 20px; background: #f8fafc; padding: 15px; border-radius: 8px; border: 1px solid #e2e8f0;">
+                    <h4 style="margin-top: 0; margin-bottom: 12px; color: #0369a1;"><i class="fa-solid fa-building"></i> Unternehmens- & Steuerdaten</h4>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px;">
+                        <div>
+                            <label style="display: block; font-weight: 600; font-size: 0.85rem; margin-bottom: 4px;">USt-Pflichtig</label>
+                            <select name="isVatLiable" style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 6px;">
+                                <option value="false">Nein (Kleinunternehmer)</option>
+                                <option value="true">Ja (Regelbesteuerung)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label style="display: block; font-weight: 600; font-size: 0.85rem; margin-bottom: 4px;">Firmenname</label>
+                            <input type="text" name="companyName" style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 6px;">
+                        </div>
+                        <div>
+                            <label style="display: block; font-weight: 600; font-size: 0.85rem; margin-bottom: 4px;">Rechtsform</label>
+                            <input type="text" name="legalForm" placeholder="z.B. Einzelunternehmen, GmbH" style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 6px;">
+                        </div>
+                        <div>
+                            <label style="display: block; font-weight: 600; font-size: 0.85rem; margin-bottom: 4px;">Steuernummer / USt-ID</label>
+                            <input type="text" name="taxId" style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 6px;">
+                        </div>
+                        <div>
+                            <label style="display: block; font-weight: 600; font-size: 0.85rem; margin-bottom: 4px;">Finanzamt</label>
+                            <input type="text" name="taxOffice" style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 6px;">
+                        </div>
+                        <div>
+                            <label style="display: block; font-weight: 600; font-size: 0.85rem; margin-bottom: 4px;">Webseite</label>
+                            <input type="text" name="website" placeholder="https://..." style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 6px;">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section 4: Bankverbindung -->
+                <div style="margin-bottom: 20px; background: #f8fafc; padding: 15px; border-radius: 8px; border: 1px solid #e2e8f0;">
+                    <h4 style="margin-top: 0; margin-bottom: 12px; color: #0369a1;"><i class="fa-solid fa-piggy-bank"></i> Bankverbindung</h4>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px;">
+                        <div>
+                            <label style="display: block; font-weight: 600; font-size: 0.85rem; margin-bottom: 4px;">Bankname</label>
+                            <input type="text" name="bankName" style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 6px;">
+                        </div>
+                        <div>
+                            <label style="display: block; font-weight: 600; font-size: 0.85rem; margin-bottom: 4px;">IBAN</label>
+                            <input type="text" name="iban" placeholder="DE00 0000 0000 0000 0000 00" style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 6px;">
+                        </div>
+                        <div>
+                            <label style="display: block; font-weight: 600; font-size: 0.85rem; margin-bottom: 4px;">BIC</label>
+                            <input type="text" name="bic" style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 6px;">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section 5: Partner-Zuordnung & Notizen -->
+                <div style="margin-bottom: 20px; background: #f8fafc; padding: 15px; border-radius: 8px; border: 1px solid #e2e8f0;">
+                    <h4 style="margin-top: 0; margin-bottom: 12px; color: #0369a1;"><i class="fa-solid fa-link"></i> Zuordnung & Erfahrung</h4>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px;">
+                        <div>
+                            <label style="display: block; font-weight: 600; font-size: 0.85rem; margin-bottom: 4px;">Werbelink / Werber Partner</label>
+                            <select id="create-partner-affiliate-select" name="affiliateLinkId" style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 6px;">
+                                <option value="">Kein Werbelink (Direkt)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label style="display: block; font-weight: 600; font-size: 0.85rem; margin-bottom: 4px;">Erfahrung</label>
+                            <select name="experience" style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 6px;">
+                                <option value="Manuell im Admin angelegt">Manuell im Admin angelegt</option>
+                                <option value="Einsteiger">Einsteiger</option>
+                                <option value="Fortgeschritten">Fortgeschritten</option>
+                                <option value="Profi / Agentur">Profi / Agentur</option>
+                            </select>
+                        </div>
+                        <div style="grid-column: 1 / -1;">
+                            <label style="display: block; font-weight: 600; font-size: 0.85rem; margin-bottom: 4px;">Notizen / Anmerkungen</label>
+                            <textarea name="notes" rows="2" style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 6px; resize: vertical;"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="display: flex; justify-content: flex-end; gap: 12px;">
+                    <button type="button" onclick="closeCreatePartnerModal()" class="btn btn-outline-light" style="color: #64748b; border-color: #cbd5e1;">Abbrechen</button>
+                    <button type="submit" class="btn" style="background: #10b981; color: white; border: none; padding: 10px 20px; border-radius: 6px; font-weight: bold; cursor: pointer;"><i class="fa-solid fa-check"></i> Partner jetzt anlegen</button>
+                </div>
+            </form>
         </div>
     </div>
 

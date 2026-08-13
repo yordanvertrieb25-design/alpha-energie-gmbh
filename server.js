@@ -1161,6 +1161,68 @@ app.patch('/api/admin/werbelink-applications/:id/status', authenticateAdmin, asy
     }
 });
 
+// Admin endpoint to manually create partner application with full Stammdaten
+app.post('/api/admin/partner-applications/create', authenticateAdmin, async (req, res) => {
+    try {
+        const data = req.body;
+        if (!data.email || !data.fullName && (!data.firstName || !data.lastName)) {
+            return res.status(400).json({ success: false, error: 'E-Mail und Name sind erforderlich.' });
+        }
+
+        const fullName = `${data.firstName || ''} ${data.lastName || ''}`.trim() || data.fullName || 'Unbekannt';
+
+        let affiliateLinkId = null;
+        if (data.affiliateLinkId) {
+            affiliateLinkId = parseInt(data.affiliateLinkId);
+        } else if (data.refCode) {
+            const affiliate = await prisma.affiliateLink.findFirst({
+                where: {
+                    OR: [
+                        { code: data.refCode },
+                        { name: { equals: data.refCode } }
+                    ]
+                }
+            });
+            if (affiliate) affiliateLinkId = affiliate.id;
+        }
+
+        const newApp = await prisma.partnerApplication.create({
+            data: {
+                salutation: data.salutation || 'Herr',
+                firstName: data.firstName || '',
+                lastName: data.lastName || '',
+                fullName: fullName,
+                email: data.email,
+                phone: data.phone || '',
+                experience: data.experience || 'Manuell im Admin angelegt',
+                birthDate: data.birthDate || null,
+                street: data.street || null,
+                houseNr: data.houseNr || null,
+                plz: data.plz || null,
+                city: data.city || null,
+                country: data.country || 'Deutschland',
+                isVatLiable: data.isVatLiable === true || data.isVatLiable === 'true',
+                companyName: data.companyName || null,
+                legalForm: data.legalForm || null,
+                taxId: data.taxId || null,
+                taxOffice: data.taxOffice || null,
+                iban: data.iban || null,
+                bic: data.bic || null,
+                bankName: data.bankName || null,
+                website: data.website || null,
+                notes: data.notes || null,
+                masterDataStatus: data.masterDataStatus || 'SUBMITTED',
+                affiliateLinkId: affiliateLinkId
+            }
+        });
+
+        res.json({ success: true, data: newApp });
+    } catch (e) {
+        console.error("Error creating manual partner application:", e);
+        res.status(500).json({ success: false, error: e.message });
+    }
+});
+
 // Direct access routes for Stammdatenblatt via Werbelink
 app.get('/stammdate', (req, res) => {
     res.sendFile(path.join(__dirname, 'stammdaten.html'));

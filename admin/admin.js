@@ -1334,6 +1334,73 @@ if (document.querySelector('.dashboard-container')) {
         document.body.removeChild(link);
     });
 
+    // --- Manual Partner Creation Logic ---
+    window.openCreatePartnerModal = async function() {
+        const select = document.getElementById('create-partner-affiliate-select');
+        if (select) {
+            try {
+                const res = await fetch(`${API_URL}/admin/affiliates`, { headers: { 'Authorization': `Bearer ${token}` } });
+                const json = await res.json();
+                if (json.success && json.data) {
+                    select.innerHTML = '<option value="">Kein Werbelink (Direkt)</option>' +
+                        json.data.map(p => `<option value="${p.id}">${p.name} (${p.code})</option>`).join('');
+                }
+            } catch (e) {
+                console.error('Error loading affiliates for create modal:', e);
+            }
+        }
+        document.getElementById('create-partner-modal').style.display = 'flex';
+    };
+
+    window.closeCreatePartnerModal = function() {
+        document.getElementById('create-partner-modal').style.display = 'none';
+        document.getElementById('create-partner-form')?.reset();
+    };
+
+    document.getElementById('create-partner-form')?.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const form = e.target;
+        const submitBtn = form.querySelector('button[type="submit"]');
+        if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Speichert...';
+        }
+
+        const formData = new FormData(form);
+        const payload = {};
+        formData.forEach((value, key) => {
+            payload[key] = value;
+        });
+
+        try {
+            const res = await fetch(`${API_URL}/admin/partner-applications/create`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(payload)
+            });
+            const data = await res.json();
+
+            if (data.success) {
+                alert('Partner-Bewerbung erfolgreich manuell angelegt!');
+                closeCreatePartnerModal();
+                loadData();
+                fetchWerbelinkApplications();
+            } else {
+                alert('Fehler beim Anlegen: ' + (data.error || 'Unbekannt'));
+            }
+        } catch (err) {
+            alert('Netzwerkfehler beim Anlegen des Partners.');
+        } finally {
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fa-solid fa-check"></i> Partner jetzt anlegen';
+            }
+        }
+    });
+
     // Bind event for tab switch
     const werbelinkTabBtn = document.querySelector('button[onclick="switchTab(\\\'werbelink\\\')"]');
     if (werbelinkTabBtn) {
