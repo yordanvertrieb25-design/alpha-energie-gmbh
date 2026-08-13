@@ -1,4 +1,16 @@
 document.addEventListener("DOMContentLoaded", async () => {
+    // 0. Store referral code if present in URL
+    try {
+        const urlParams = new URLSearchParams(window.location.search);
+        const refFromUrl = urlParams.get('ref') || urlParams.get('refCode') || urlParams.get('aff');
+        if (refFromUrl) {
+            sessionStorage.setItem('affiliate_ref', refFromUrl);
+            localStorage.setItem('affiliate_ref', refFromUrl);
+        }
+    } catch (e) {
+        console.error('Error saving ref code:', e);
+    }
+
     // 1. Sticky Header Effect
     const header = document.getElementById("main-header");
     if (header) {
@@ -394,9 +406,9 @@ document.addEventListener("DOMContentLoaded", async () => {
                 const isFileProtocol = window.location.protocol === 'file:';
                 const API_URL = (isLocalDev || isFileProtocol) ? 'http://localhost:3000/api/partner-application' : '/api/partner-application';
 
-                // Check for ref parameter in URL
+                // Check for ref parameter in URL or saved storage
                 const urlParams = new URLSearchParams(window.location.search);
-                const refCode = urlParams.get('ref');
+                const refCode = urlParams.get('ref') || urlParams.get('refCode') || urlParams.get('aff') || sessionStorage.getItem('affiliate_ref') || localStorage.getItem('affiliate_ref');
 
                 // Send to Backend API
                 fetch(API_URL, {

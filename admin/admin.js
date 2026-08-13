@@ -198,6 +198,9 @@ if (document.querySelector('.dashboard-container')) {
             const apptStatus = hasAppt ? '<span style="color: #10b981; font-weight: bold;"><i class="fa-solid fa-check"></i> Ja</span>' : '<span style="color: #64748b;">Nein</span>';
             const displayNotes = a.notes ? a.notes.replace(/\n/g, '<br>') : '<span style="color: #94a3b8; font-style: italic;">Keine Notizen</span>';
             const rawNotes = (a.notes || '').replace(/'/g, "\\'").replace(/"/g, '&quot;').replace(/\n/g, '\\n');
+            const affiliateBadge = a.affiliateLink 
+                ? `<span style="background: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; padding: 4px 8px; border-radius: 6px; font-weight: 600; font-size: 0.8rem; display: inline-flex; align-items: center; gap: 5px;" title="Werbelink-Partner: ${a.affiliateLink.name} (${a.affiliateLink.code})"><i class="fa-solid fa-link" style="font-size: 0.75rem;"></i> ${a.affiliateLink.name} <span style="opacity: 0.75; font-weight: 400; font-size: 0.75rem;">(${a.affiliateLink.code})</span></span>`
+                : `<span style="color: #94a3b8; font-size: 0.85rem; font-style: italic;">Keiner (Direkt)</span>`;
 
             return `
             <tr class="partner-row">
@@ -205,6 +208,7 @@ if (document.querySelector('.dashboard-container')) {
                 <td>${a.fullName}</td>
                 <td><a href="mailto:${a.email}">${a.email}</a></td>
                 <td><a href="tel:${a.phone}">${a.phone}</a></td>
+                <td>${affiliateBadge}</td>
                 <td>${a.experience}</td>
                 <td style="text-align: center;">${apptStatus}</td>
                 <td style="text-align: center;">
@@ -1036,14 +1040,16 @@ if (document.querySelector('.dashboard-container')) {
                 const tbody = document.getElementById('affiliate-partners-tbody');
                 tbody.innerHTML = '';
                 if(data.data.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="3" class="text-center">Noch keine Partner über diesen Link registriert.</td></tr>';
+                    tbody.innerHTML = '<tr><td colspan="5" class="text-center">Noch keine Partner über diesen Link registriert.</td></tr>';
                 } else {
                     data.data.forEach(p => {
                         tbody.innerHTML += `
                             <tr>
-                                <td>${new Date(p.createdAt).toLocaleString()}</td>
+                                <td>${new Date(p.createdAt).toLocaleString('de-DE')}</td>
                                 <td>${p.fullName}</td>
-                                <td>${p.email}</td>
+                                <td><a href="mailto:${p.email}">${p.email}</a></td>
+                                <td><a href="tel:${p.phone}">${p.phone}</a></td>
+                                <td>${p.experience}</td>
                             </tr>
                         `;
                     });

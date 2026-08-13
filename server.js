@@ -317,7 +317,10 @@ const authenticateAdmin = (req, res, next) => {
 app.get('/api/admin/data', authenticateAdmin, async (req, res) => {
     try {
         const contacts = await prisma.contactRequest.findMany({ orderBy: { createdAt: 'desc' } });
-        const applications = await prisma.partnerApplication.findMany({ orderBy: { createdAt: 'desc' } });
+        const applications = await prisma.partnerApplication.findMany({ 
+            include: { affiliateLink: true }, 
+            orderBy: { createdAt: 'desc' } 
+        });
         const appointments = await prisma.appointment.findMany({ orderBy: { createdAt: 'desc' } });
         
         res.json({ success: true, data: { contacts, applications, appointments } });
