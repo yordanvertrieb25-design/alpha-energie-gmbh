@@ -978,20 +978,24 @@ if (document.querySelector('.dashboard-container')) {
                 }
                 json.data.forEach(a => {
                     const host = window.location.origin;
-                    // Standard port could be 3000 locally
-                    const fullLink = `${host}/vertriebspartner.html?ref=${a.code}`;
+                    const fullLink = `${host}/stammdaten.html?ref=${a.code}`;
                     const count = a._count ? a._count.applications : 0;
+                    const escapedLink = fullLink.replace(/'/g, "\\'");
                     const row = `
                         <tr>
-                            <td>${new Date(a.createdAt).toLocaleString()}</td>
-                            <td>${a.name}</td>
+                            <td>${new Date(a.createdAt).toLocaleString('de-DE')}</td>
+                            <td><strong>${a.name}</strong></td>
                             <td>
-                                <code>${a.code}</code><br>
-                                <a href="${fullLink}" target="_blank" style="font-size: 0.8rem; color: #3b82f6;">Link testen</a>
+                                <code style="background: #f1f5f9; padding: 2px 6px; border-radius: 4px; font-weight: 600;">${a.code}</code><br>
+                                <span style="font-size: 0.8rem; color: #475569; word-break: break-all;">${fullLink}</span><br>
+                                <div style="display: flex; gap: 10px; margin-top: 4px;">
+                                    <a href="${fullLink}" target="_blank" style="font-size: 0.8rem; color: #3b82f6; font-weight: 600; text-decoration: none;"><i class="fa-solid fa-arrow-up-right-from-square"></i> Link öffnen</a>
+                                    <button onclick="navigator.clipboard.writeText('${escapedLink}').then(() => alert('Link in Zwischenablage kopiert!'))" style="background: none; border: none; color: #10b981; font-size: 0.8rem; cursor: pointer; font-weight: 600; padding: 0;"><i class="fa-regular fa-copy"></i> Link kopieren</button>
+                                </div>
                             </td>
-                            <td>${count}</td>
+                            <td><strong>${count}</strong> Bewerbungen</td>
                             <td>
-                                <button class="btn btn-outline-light" onclick="showAffiliatePartners(${a.id})" style="padding: 4px 8px; font-size: 0.85rem;">Partner anzeigen</button>
+                                <button class="btn btn-outline-light" onclick="showAffiliatePartners(${a.id})" style="padding: 4px 8px; font-size: 0.85rem; color: #0f172a; border-color: #cbd5e1;">Partner anzeigen</button>
                             </td>
                         </tr>
                     `;
@@ -1208,7 +1212,7 @@ if (document.querySelector('.dashboard-container')) {
             if (data.success && data.data) {
                 input.value = '';
                 const code = data.data.code;
-                const fullUrl = `${window.location.origin}/stammdate?ref=${code}`;
+                const fullUrl = `${window.location.origin}/stammdaten.html?ref=${code}`;
                 
                 document.getElementById('werbelink-gen-url').innerText = fullUrl;
                 document.getElementById('werbelink-gen-output').style.display = 'flex';
