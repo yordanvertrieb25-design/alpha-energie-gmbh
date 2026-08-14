@@ -38,7 +38,7 @@ app.use(express.urlencoded({ extended: true }));
 
 // Canonical host redirect: redirect www.alpha-energie.de to https://alpha-energie.de
 app.use((req, res, next) => {
-    const host = req.headers.host || '';
+    const host = (req.headers.host || '').toLowerCase();
     if (host.startsWith('www.alpha-energie.de')) {
         return res.redirect(301, `https://alpha-energie.de${req.url}`);
     }
