@@ -36,6 +36,15 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Canonical host redirect: redirect www.alpha-energie.de to https://alpha-energie.de
+app.use((req, res, next) => {
+    const host = req.headers.host || '';
+    if (host.startsWith('www.alpha-energie.de')) {
+        return res.redirect(301, `https://alpha-energie.de${req.url}`);
+    }
+    next();
+});
+
 // Casing check and redirect middleware to prevent mixed-case duplicate content
 app.use((req, res, next) => {
     if (req.method === 'GET' && /[A-Z]/.test(req.path)) {
