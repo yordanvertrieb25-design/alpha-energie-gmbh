@@ -174,7 +174,7 @@ function escapeHtml(str) {
         }
     });
 }
-// Email Helpers & Templates
+
 function getMailTransporter() {
     const host = process.env.SMTP_HOST || 'smtp.ionos.de';
     const port = parseInt(process.env.SMTP_PORT, 10) || 465;
@@ -231,6 +231,11 @@ function formatGermanDate(dateStr) {
 }
 
 function getPartnerRegistrationConfirmationHtml(fullName, email, phone, experience) {
+    const safeName = escapeHtml(fullName) || 'Vertriebspartner';
+    const safeEmail = escapeHtml(email) || '–';
+    const safePhone = escapeHtml(phone) || 'Nicht angegeben';
+    const safeExperience = escapeHtml(experience) || 'Nicht angegeben';
+
     return `<!DOCTYPE html>
 <html lang="de">
 <head>
@@ -253,7 +258,7 @@ function getPartnerRegistrationConfirmationHtml(fullName, email, phone, experien
 
             <!-- Main Content -->
             <div style="padding: 32px 28px;">
-                <p style="font-size: 1.05rem; margin-top: 0; color: #0f172a;">Hallo <strong>${fullName || 'Vertriebspartner'}</strong>,</p>
+                <p style="font-size: 1.05rem; margin-top: 0; color: #0f172a;">Hallo <strong>${safeName}</strong>,</p>
                 <p style="color: #334155; font-size: 0.95rem; margin-bottom: 24px;">Vielen Dank für Dein Vertrauen und Deine Registrierung als Vertriebspartner bei der Alpha Energie GmbH. Wir freuen uns sehr, Dich in unserem Partnernetzwerk begrüßen zu dürfen!</p>
                 
                 <!-- Summary Box with Applicant Details -->
@@ -264,19 +269,19 @@ function getPartnerRegistrationConfirmationHtml(fullName, email, phone, experien
                     <table style="width: 100%; font-size: 0.9rem; border-collapse: collapse;">
                         <tr>
                             <td style="padding: 5px 0; color: #64748b; width: 110px;"><strong>Name:</strong></td>
-                            <td style="padding: 5px 0; color: #0f172a; font-weight: 500;">${fullName || '–'}</td>
+                            <td style="padding: 5px 0; color: #0f172a; font-weight: 500;">${safeName}</td>
                         </tr>
                         <tr>
                             <td style="padding: 5px 0; color: #64748b;"><strong>E-Mail:</strong></td>
-                            <td style="padding: 5px 0; color: #0f172a; font-weight: 500;">${email || '–'}</td>
+                            <td style="padding: 5px 0; color: #0f172a; font-weight: 500;">${safeEmail}</td>
                         </tr>
                         <tr>
                             <td style="padding: 5px 0; color: #64748b;"><strong>Telefon:</strong></td>
-                            <td style="padding: 5px 0; color: #0f172a; font-weight: 500;">${phone || 'Nicht angegeben'}</td>
+                            <td style="padding: 5px 0; color: #0f172a; font-weight: 500;">${safePhone}</td>
                         </tr>
                         <tr>
                             <td style="padding: 5px 0; color: #64748b;"><strong>Erfahrung:</strong></td>
-                            <td style="padding: 5px 0; color: #0f172a; font-weight: 500;">${experience || 'Nicht angegeben'}</td>
+                            <td style="padding: 5px 0; color: #0f172a; font-weight: 500;">${safeExperience}</td>
                         </tr>
                     </table>
                 </div>
@@ -347,6 +352,11 @@ function getPartnerRegistrationConfirmationHtml(fullName, email, phone, experien
 }
 
 function getAppointmentConfirmationHtml(name, email, phone, dateFormatted, time) {
+    const safeName = escapeHtml(name) || 'Vertriebspartner';
+    const safePhone = escapeHtml(phone) || 'Nicht angegeben';
+    const safeDate = escapeHtml(dateFormatted);
+    const safeTime = escapeHtml(time);
+
     return `<!DOCTYPE html>
 <html lang="de">
 <head>
@@ -369,7 +379,7 @@ function getAppointmentConfirmationHtml(name, email, phone, dateFormatted, time)
 
             <!-- Main Content -->
             <div style="padding: 32px 28px;">
-                <p style="font-size: 1.05rem; margin-top: 0; color: #0f172a;">Hallo <strong>${name || 'Vertriebspartner'}</strong>,</p>
+                <p style="font-size: 1.05rem; margin-top: 0; color: #0f172a;">Hallo <strong>${safeName}</strong>,</p>
                 <p style="color: #334155; font-size: 0.95rem; margin-bottom: 24px;">vielen Dank für Deine Buchung! Dein Termin für unser telefonisches Kennenlerngespräch ist erfolgreich eingetragen und verbindlich für Dich reserviert. Wir freuen uns auf den persönlichen Austausch mit Dir.</p>
                 
                 <!-- Highlighted Appointment Box -->
@@ -380,11 +390,11 @@ function getAppointmentConfirmationHtml(name, email, phone, dateFormatted, time)
                     <table style="width: 100%; font-size: 0.95rem; border-collapse: collapse;">
                         <tr>
                             <td style="padding: 6px 0; color: #475569; width: 130px;"><strong>Datum:</strong></td>
-                            <td style="padding: 6px 0; color: #0f172a; font-weight: 600;">${dateFormatted}</td>
+                            <td style="padding: 6px 0; color: #0f172a; font-weight: 600;">${safeDate}</td>
                         </tr>
                         <tr>
                             <td style="padding: 6px 0; color: #475569;"><strong>Uhrzeit:</strong></td>
-                            <td style="padding: 6px 0; color: #ef8a00; font-weight: 700; font-size: 1.05rem;">${time} Uhr</td>
+                            <td style="padding: 6px 0; color: #ef8a00; font-weight: 700; font-size: 1.05rem;">${safeTime} Uhr</td>
                         </tr>
                         <tr>
                             <td style="padding: 6px 0; color: #475569;"><strong>Gesprächspartner:</strong></td>
@@ -392,7 +402,7 @@ function getAppointmentConfirmationHtml(name, email, phone, dateFormatted, time)
                         </tr>
                         <tr>
                             <td style="padding: 6px 0; color: #475569;"><strong>Telefon:</strong></td>
-                            <td style="padding: 6px 0; color: #0f172a; font-weight: 500;">${phone || 'Nicht angegeben'}</td>
+                            <td style="padding: 6px 0; color: #0f172a; font-weight: 500;">${safePhone}</td>
                         </tr>
                     </table>
                 </div>
@@ -404,7 +414,7 @@ function getAppointmentConfirmationHtml(name, email, phone, dateFormatted, time)
                     <tr>
                         <td style="vertical-align: top; width: 24px; color: #10b981; font-size: 1.1rem; line-height: 1.4;">📞</td>
                         <td style="vertical-align: top; padding-left: 8px; color: #334155; font-size: 0.92rem;">
-                            <strong>Telefonischer Anruf:</strong> Wir rufen Dich pünktlich zur vereinbarten Uhrzeit unter Deiner angegebenen Rufnummer (<strong>${phone || 'angegebene Telefonnummer'}</strong>) an.
+                            <strong>Telefonischer Anruf:</strong> Wir rufen Dich pünktlich zur vereinbarten Uhrzeit unter Deiner angegebenen Rufnummer (<strong>${safePhone}</strong>) an.
                         </td>
                     </tr>
                     <tr>
