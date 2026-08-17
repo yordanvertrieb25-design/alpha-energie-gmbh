@@ -1297,7 +1297,7 @@ if (document.querySelector('.dashboard-container')) {
                     <p style="margin: 4px 0;"><strong>E-Mail:</strong> <a href="mailto:${app.email}">${app.email}</a></p>
                     <p style="margin: 4px 0;"><strong>Telefon:</strong> <a href="tel:${app.phone}">${app.phone}</a></p>
                     <p style="margin: 4px 0;"><strong>Webseite:</strong> ${app.website ? `<a href="${app.website}" target="_blank">${app.website}</a>` : '-'}</p>
-                    ${app.masterDataEmailSent ? `<p style="margin: 4px 0; color: #059669;"><strong><i class="fa-solid fa-circle-check"></i> Stammdaten-Mail:</strong> Versendet (${app.masterDataEmailSentAt ? new Date(app.masterDataEmailSentAt).toLocaleString('de-DE') : 'Ja'})</p>` : ''}
+                    ${(app.masterDataEmailSent || app.masterDataEmailSentAt) ? `<p style="margin: 4px 0; color: #059669; font-weight: 500;"><strong><i class="fa-solid fa-circle-check" style="color: #10b981;"></i> Stammdaten-Mail:</strong> Versendet${app.masterDataEmailSentAt ? ' (' + new Date(app.masterDataEmailSentAt).toLocaleString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }) + ' Uhr)' : ''}</p>` : ''}
                 </div>
 
                 <div style="background: #f8fafc; padding: 15px; border-radius: 8px; border: 1px solid #e2e8f0;">
