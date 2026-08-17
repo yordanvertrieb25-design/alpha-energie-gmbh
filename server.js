@@ -448,7 +448,16 @@ app.post('/api/admin/partner-applications/:id/send-master-data-email', authentic
             html: htmlBody
         });
 
-        res.json({ success: true, message: 'E-Mail gesendet.' });
+        // Mark on the application entry that master data email was sent
+        const updatedApp = await prisma.partnerApplication.update({
+            where: { id: appId },
+            data: {
+                masterDataEmailSent: true,
+                masterDataEmailSentAt: new Date()
+            }
+        });
+
+        res.json({ success: true, message: 'E-Mail gesendet.', application: updatedApp });
     } catch (e) {
         console.error("Error sending stammdaten email:", e);
         res.status(500).json({ success: false, error: e.message });

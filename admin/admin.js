@@ -202,6 +202,46 @@ if (document.querySelector('.dashboard-container')) {
                 ? `<span style="background: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; padding: 4px 8px; border-radius: 6px; font-weight: 600; font-size: 0.8rem; display: inline-flex; align-items: center; gap: 5px;" title="Werbelink-Partner: ${a.affiliateLink.name} (${a.affiliateLink.code})"><i class="fa-solid fa-link" style="font-size: 0.75rem;"></i> ${a.affiliateLink.name} <span style="opacity: 0.75; font-weight: 400; font-size: 0.75rem;">(${a.affiliateLink.code})</span></span>`
                 : `<span style="color: #94a3b8; font-size: 0.85rem; font-style: italic;">Keiner (Direkt)</span>`;
 
+            const isEmailSent = Boolean(a.masterDataEmailSent || a.masterDataEmailSentAt);
+            let emailSentDateFormatted = '';
+            if (a.masterDataEmailSentAt) {
+                try {
+                    const parsedDate = new Date(a.masterDataEmailSentAt);
+                    if (!isNaN(parsedDate.getTime())) {
+                        emailSentDateFormatted = parsedDate.toLocaleString('de-DE', {
+                            day: '2-digit',
+                            month: '2-digit',
+                            year: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit'
+                        }) + ' Uhr';
+                    }
+                } catch (e) {
+                    console.error('Date format error', e);
+                }
+            }
+
+            const emailSentBadge = isEmailSent
+                ? `<div style="padding: 5px 8px; background: #ecfdf5; border: 1px solid #a7f3d0; border-radius: 6px; display: flex; align-items: center; gap: 6px; font-size: 0.75rem; color: #065f46;" title="Stammdaten-Mail versendet${emailSentDateFormatted ? ' am ' + emailSentDateFormatted : ''}">
+                    <i class="fa-solid fa-circle-check" style="color: #10b981; font-size: 0.85rem; flex-shrink: 0;"></i>
+                    <div style="line-height: 1.25;">
+                        <span style="display: block; font-weight: 700; color: #065f46;">Stammdaten-Mail versendet</span>
+                        ${emailSentDateFormatted ? `<span style="font-weight: 500; font-size: 0.7rem; color: #047857;">${emailSentDateFormatted}</span>` : ''}
+                    </div>
+                   </div>`
+                : '';
+
+            const safeEmail = (a.email || '').replace(/'/g, "\\'");
+            const safeFullName = (a.fullName || '').replace(/'/g, "\\'");
+
+            const btnSendEmail = isEmailSent
+                ? `<button onclick="openEmailModal(${a.id}, '${safeEmail}', '${safeFullName}')" class="btn-send-stammdaten" style="background: #0284c7; color: white; border: none; border-radius: 4px; padding: 6px 10px; cursor: pointer; font-size: 0.75rem; font-weight: bold; width: 100%; text-align: center; display: inline-flex; align-items: center; justify-content: center; gap: 6px; transition: background 0.2s;" title="E-Mail zur Stammdatenerfassung erneut senden">
+                    <i class="fa-solid fa-paper-plane"></i> Stammdaten-Mail erneut senden
+                   </button>`
+                : `<button onclick="openEmailModal(${a.id}, '${safeEmail}', '${safeFullName}')" class="btn-send-stammdaten" style="background: #ef8a00; color: white; border: none; border-radius: 4px; padding: 6px 10px; cursor: pointer; font-size: 0.75rem; font-weight: bold; width: 100%; text-align: center; display: inline-flex; align-items: center; justify-content: center; gap: 6px; transition: background 0.2s;" title="E-Mail zur Stammdatenerfassung senden">
+                    <i class="fa-solid fa-envelope"></i> Stammdatenemail senden
+                   </button>`;
+
             return `
             <tr class="partner-row">
                 <td>${new Date(a.createdAt).toLocaleString('de-DE')}</td>
@@ -214,7 +254,7 @@ if (document.querySelector('.dashboard-container')) {
                 <td style="text-align: center;">
                     <input type="checkbox" class="zugangsdaten-cb" style="width: 18px; height: 18px; cursor: pointer; accent-color: #10b981;">
                 </td>
-                <td style="min-width: 200px;">
+                <td style="min-width: 220px;">
                     <div style="font-size: 0.85rem; margin-bottom: 5px; max-height: 80px; overflow-y: auto;">${displayNotes}</div>
                     <div style="display: flex; flex-direction: column; gap: 8px;">
                         <div>
@@ -225,9 +265,8 @@ if (document.querySelector('.dashboard-container')) {
                                 <i class="fa-solid fa-trash"></i> Löschen
                             </button>
                         </div>
-                        <button onclick="openEmailModal(${a.id}, '${a.email.replace(/'/g, "\\'")}', '${a.fullName.replace(/'/g, "\\'")}')" class="btn-send-stammdaten" style="background: #ef8a00; color: white; border: none; border-radius: 4px; padding: 6px; cursor: pointer; font-size: 0.75rem; font-weight: bold; width: 100%; text-align: center;" title="E-Mail zur Stammdatenerfassung senden">
-                            <i class="fa-solid fa-envelope"></i> Stammdatenemail senden
-                        </button>
+                        ${emailSentBadge}
+                        ${btnSendEmail}
                     </div>
                 </td>
             </tr>
@@ -956,6 +995,7 @@ if (document.querySelector('.dashboard-container')) {
             const data = await res.json();
             if (data.success) {
                 alert('E-Mail erfolgreich gesendet!');
+                loadData();
             } else {
                 alert('Fehler beim Senden: ' + (data.error || 'Unbekannt'));
             }
@@ -1257,6 +1297,7 @@ if (document.querySelector('.dashboard-container')) {
                     <p style="margin: 4px 0;"><strong>E-Mail:</strong> <a href="mailto:${app.email}">${app.email}</a></p>
                     <p style="margin: 4px 0;"><strong>Telefon:</strong> <a href="tel:${app.phone}">${app.phone}</a></p>
                     <p style="margin: 4px 0;"><strong>Webseite:</strong> ${app.website ? `<a href="${app.website}" target="_blank">${app.website}</a>` : '-'}</p>
+                    ${app.masterDataEmailSent ? `<p style="margin: 4px 0; color: #059669;"><strong><i class="fa-solid fa-circle-check"></i> Stammdaten-Mail:</strong> Versendet (${app.masterDataEmailSentAt ? new Date(app.masterDataEmailSentAt).toLocaleString('de-DE') : 'Ja'})</p>` : ''}
                 </div>
 
                 <div style="background: #f8fafc; padding: 15px; border-radius: 8px; border: 1px solid #e2e8f0;">

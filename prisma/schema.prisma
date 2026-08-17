@@ -58,7 +58,9 @@ model PartnerApplication {
   tradeLicenseUrl  String?
   idCardFrontUrl   String?
   idCardBackUrl    String?
-  masterDataStatus String? @default("PENDING") // PENDING, SUBMITTED
+  masterDataStatus      String?   @default("PENDING") // PENDING, SUBMITTED
+  masterDataEmailSent   Boolean?  @default(false)
+  masterDataEmailSentAt DateTime?
   
   createdAt        DateTime @default(now())
   
