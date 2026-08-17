@@ -161,138 +161,225 @@ app.post('/api/contact', async (req, res) => {
 });
 
 // Email Helpers & Templates
+function escapeHtml(str) {
+    if (str === null || str === undefined) return '';
+    return String(str).replace(/[&<>"']/g, (m) => {
+        switch (m) {
+            case '&': return '&amp;';
+            case '<': return '&lt;';
+            case '>': return '&gt;';
+            case '"': return '&quot;';
+            case "'": return '&#39;';
+            default: return m;
+        }
+    });
+}
+// Email Helpers & Templates
 function getMailTransporter() {
-    if (!process.env.SMTP_HOST || !process.env.SMTP_USER || !process.env.SMTP_PASS) {
+    const host = process.env.SMTP_HOST || 'smtp.ionos.de';
+    const port = parseInt(process.env.SMTP_PORT, 10) || 465;
+    const user = process.env.SMTP_USER;
+    const pass = process.env.SMTP_PASS;
+
+    if (!user || !pass) {
         return null;
     }
-    const port = parseInt(process.env.SMTP_PORT) || 465;
+
     return nodemailer.createTransport({
-        host: process.env.SMTP_HOST,
+        host: host,
         port: port,
         secure: port === 465,
         auth: {
-            user: process.env.SMTP_USER,
-            pass: process.env.SMTP_PASS
+            user: user,
+            pass: pass
         }
     });
+}
+
+function getSenderEmail() {
+    const rawFrom = process.env.SMTP_FROM || 'noreply@alpha-energie.de';
+    if (rawFrom.includes('<') && rawFrom.includes('>')) {
+        return rawFrom;
+    }
+    return `"Alpha Energie GmbH" <${rawFrom}>`;
 }
 
 function formatGermanDate(dateStr) {
     if (!dateStr) return '';
     try {
-        const parts = dateStr.split('-');
-        if (parts.length === 3) {
-            return `${parts[2]}.${parts[1]}.${parts[0]}`;
+        const str = String(dateStr).trim();
+        // If already DD.MM.YYYY
+        if (/^\d{2}\.\d{2}\.\d{4}$/.test(str)) {
+            return str;
         }
-        const d = new Date(dateStr);
+        // If YYYY-MM-DD
+        const parts = str.split('-');
+        if (parts.length === 3) {
+            const year = parts[0];
+            const month = parts[1];
+            const day = parts[2].substring(0, 2);
+            return `${day}.${month}.${year}`;
+        }
+        const d = new Date(str);
         if (!isNaN(d.getTime())) {
             return d.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' });
         }
     } catch (e) {
         // fallback
     }
-    return dateStr;
+    return String(dateStr);
 }
 
 function getPartnerRegistrationConfirmationHtml(fullName, email, phone, experience) {
-    return `
-    <div style="background-color: #f1f5f9; padding: 30px 15px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #1e293b; line-height: 1.6;">
-        <div style="max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.06); border: 1px solid #e2e8f0;">
+    return `<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Willkommen bei Alpha Energie</title>
+</head>
+<body style="margin: 0; padding: 0; background-color: #f1f5f9; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #1e293b; line-height: 1.6;">
+    <div style="background-color: #f1f5f9; padding: 35px 15px;">
+        <div style="max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 24px rgba(0,0,0,0.07); border: 1px solid #e2e8f0;">
             
-            <!-- Header -->
-            <div style="background: linear-gradient(135deg, #0b1120 0%, #1e3b6a 100%); padding: 35px 25px; text-align: center;">
-                <img src="https://alpha-energie.de/logo.png" alt="Alpha Energie GmbH" style="max-width: 190px; height: auto; margin-bottom: 15px;">
-                <h1 style="color: #ffffff; margin: 0; font-size: 1.35rem; font-weight: 700; letter-spacing: -0.5px;">Herzlich willkommen im Team!</h1>
-                <p style="color: #94a3b8; margin: 6px 0 0 0; font-size: 0.95rem;">Deine Registrierung bei der Alpha Energie GmbH</p>
+            <!-- Header with Logo & Brand Gradient -->
+            <div style="background: linear-gradient(135deg, #0b1120 0%, #1e3b6a 100%); padding: 36px 25px; text-align: center;">
+                <a href="https://alpha-energie.de" target="_blank" style="text-decoration: none; display: inline-block;">
+                    <img src="https://alpha-energie.de/logo.png" alt="Alpha Energie GmbH" style="max-width: 190px; height: auto; margin-bottom: 16px; display: block; margin-left: auto; margin-right: auto; border: 0;">
+                </a>
+                <h1 style="color: #ffffff; margin: 0; font-size: 1.35rem; font-weight: 700; letter-spacing: -0.3px; line-height: 1.3;">Herzlich willkommen im Alpha Energie Netzwerk!</h1>
+                <p style="color: #94a3b8; margin: 8px 0 0 0; font-size: 0.95rem;">Deine Registrierung war erfolgreich</p>
             </div>
 
-            <!-- Body -->
-            <div style="padding: 30px 25px;">
-                <p style="font-size: 1.05rem; margin-top: 0;">Hallo <strong>${fullName}</strong>,</p>
-                <p>vielen Dank für Dein Vertrauen und Deine Registrierung als Vertriebspartner bei der Alpha Energie GmbH! Wir freuen uns sehr auf eine erfolgreiche und partnerschaftliche Zusammenarbeit mit Dir.</p>
+            <!-- Main Content -->
+            <div style="padding: 32px 28px;">
+                <p style="font-size: 1.05rem; margin-top: 0; color: #0f172a;">Hallo <strong>${fullName || 'Vertriebspartner'}</strong>,</p>
+                <p style="color: #334155; font-size: 0.95rem; margin-bottom: 24px;">Vielen Dank für Dein Vertrauen und Deine Registrierung als Vertriebspartner bei der Alpha Energie GmbH. Wir freuen uns sehr, Dich in unserem Partnernetzwerk begrüßen zu dürfen!</p>
                 
-                <!-- Summary Card -->
-                <div style="background: #f8fafc; border-left: 4px solid #ef8a00; padding: 16px 18px; border-radius: 6px; margin: 24px 0; border-top: 1px solid #e2e8f0; border-right: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0;">
-                    <h3 style="margin: 0 0 10px 0; font-size: 0.9rem; color: #0f172a; text-transform: uppercase; letter-spacing: 0.5px;">Deine übermittelten Daten:</h3>
+                <!-- Summary Box with Applicant Details -->
+                <div style="background: #f8fafc; border-left: 4px solid #ef8a00; padding: 18px 20px; border-radius: 8px; margin: 24px 0; border-top: 1px solid #e2e8f0; border-right: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0;">
+                    <h3 style="margin: 0 0 12px 0; font-size: 0.85rem; color: #0f172a; text-transform: uppercase; letter-spacing: 0.6px; font-weight: 700;">
+                        📋 Deine Registrierungsdaten im Überblick:
+                    </h3>
                     <table style="width: 100%; font-size: 0.9rem; border-collapse: collapse;">
                         <tr>
-                            <td style="padding: 4px 0; color: #64748b; width: 110px;"><strong>Name:</strong></td>
-                            <td style="padding: 4px 0; color: #0f172a;">${fullName}</td>
+                            <td style="padding: 5px 0; color: #64748b; width: 110px;"><strong>Name:</strong></td>
+                            <td style="padding: 5px 0; color: #0f172a; font-weight: 500;">${fullName || '–'}</td>
                         </tr>
                         <tr>
-                            <td style="padding: 4px 0; color: #64748b;"><strong>E-Mail:</strong></td>
-                            <td style="padding: 4px 0; color: #0f172a;">${email}</td>
+                            <td style="padding: 5px 0; color: #64748b;"><strong>E-Mail:</strong></td>
+                            <td style="padding: 5px 0; color: #0f172a; font-weight: 500;">${email || '–'}</td>
                         </tr>
                         <tr>
-                            <td style="padding: 4px 0; color: #64748b;"><strong>Telefon:</strong></td>
-                            <td style="padding: 4px 0; color: #0f172a;">${phone || '–'}</td>
+                            <td style="padding: 5px 0; color: #64748b;"><strong>Telefon:</strong></td>
+                            <td style="padding: 5px 0; color: #0f172a; font-weight: 500;">${phone || 'Nicht angegeben'}</td>
                         </tr>
                         <tr>
-                            <td style="padding: 4px 0; color: #64748b;"><strong>Erfahrung:</strong></td>
-                            <td style="padding: 4px 0; color: #0f172a;">${experience || '–'}</td>
+                            <td style="padding: 5px 0; color: #64748b;"><strong>Erfahrung:</strong></td>
+                            <td style="padding: 5px 0; color: #0f172a; font-weight: 500;">${experience || 'Nicht angegeben'}</td>
                         </tr>
                     </table>
                 </div>
 
-                <h3 style="color: #0f172a; font-size: 1.05rem; margin: 25px 0 14px 0;">So geht es jetzt weiter:</h3>
-                <div style="margin-bottom: 25px;">
-                    <div style="margin-bottom: 12px; padding-left: 5px;">
-                        <strong style="color: #ef8a00;">1. Kennenlerngespräch buchen:</strong> Sichere Dir direkt Deinen Wunschtermin für unser telefonisches Erstgespräch.
-                    </div>
-                    <div style="margin-bottom: 12px; padding-left: 5px;">
-                        <strong style="color: #ef8a00;">2. Stammdatenerfassung:</strong> Im nächsten Schritt erhältst Du einen Link zur einfachen Eingabe Deiner Abrechnungs- und Stammdaten.
-                    </div>
-                    <div style="padding-left: 5px;">
-                        <strong style="color: #ef8a00;">3. Freischaltung & Start:</strong> Du erhältst Deine Zugangsdaten zum VP-Portal und kannst sofort loslegen!
-                    </div>
+                <!-- So geht es weiter Section -->
+                <h3 style="color: #0f172a; font-size: 1.05rem; margin: 28px 0 16px 0; font-weight: 700;">So geht es jetzt weiter:</h3>
+                
+                <table style="width: 100%; border-collapse: separate; border-spacing: 0 14px; margin-bottom: 10px;">
+                    <tr>
+                        <td style="vertical-align: top; width: 34px;">
+                            <div style="width: 26px; height: 26px; border-radius: 50%; background-color: #ef8a00; color: #ffffff; font-weight: 700; font-size: 0.85rem; text-align: center; line-height: 26px;">1</div>
+                        </td>
+                        <td style="vertical-align: top; padding-left: 10px;">
+                            <strong style="color: #0f172a; font-size: 0.95rem;">Prüfung Deiner Angaben</strong>
+                            <div style="color: #475569; font-size: 0.9rem; margin-top: 2px;">Unser Partnermanagement sichtet Deine übermittelten Angaben und bereitet Dein persönliches Onboarding vor.</div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="vertical-align: top; width: 34px;">
+                            <div style="width: 26px; height: 26px; border-radius: 50%; background-color: #ef8a00; color: #ffffff; font-weight: 700; font-size: 0.85rem; text-align: center; line-height: 26px;">2</div>
+                        </td>
+                        <td style="vertical-align: top; padding-left: 10px;">
+                            <strong style="color: #0f172a; font-size: 0.95rem;">Kennenlerngespräch buchen</strong>
+                            <div style="color: #475569; font-size: 0.9rem; margin-top: 2px;">Sichere Dir direkt Deinen Wunschtermin für ein kurzes, persönliches Kennenlerngespräch (ca. 15–20 Min.).</div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="vertical-align: top; width: 34px;">
+                            <div style="width: 26px; height: 26px; border-radius: 50%; background-color: #ef8a00; color: #ffffff; font-weight: 700; font-size: 0.85rem; text-align: center; line-height: 26px;">3</div>
+                        </td>
+                        <td style="vertical-align: top; padding-left: 10px;">
+                            <strong style="color: #0f172a; font-size: 0.95rem;">Freischaltung des VP-Portals</strong>
+                            <div style="color: #475569; font-size: 0.9rem; margin-top: 2px;">Du erhältst Deine Zugangsdaten zum VP-Portal, unsere exklusiven Tarifkonditionen und kannst sofort voll durchstarten.</div>
+                        </td>
+                    </tr>
+                </table>
+
+                <!-- Prominent CTA Button -->
+                <div style="text-align: center; margin: 32px 0 28px 0;">
+                    <a href="https://alpha-energie.de/onboarding.html" target="_blank" style="background: linear-gradient(135deg, #ef8a00 0%, #d97706 100%); background-color: #ef8a00; color: #ffffff; padding: 15px 32px; text-decoration: none; border-radius: 8px; font-weight: 700; font-size: 1rem; display: inline-block; box-shadow: 0 4px 14px rgba(239, 138, 0, 0.35); text-shadow: 0 1px 1px rgba(0,0,0,0.15);">
+                        Jetzt Kennenlerngespräch buchen &rarr;
+                    </a>
                 </div>
 
-                <!-- CTA Button -->
-                <div style="text-align: center; margin: 35px 0 25px 0;">
-                    <a href="https://alpha-energie.de/onboarding.html" style="background-color: #ef8a00; color: #ffffff; padding: 14px 28px; text-decoration: none; border-radius: 6px; font-weight: bold; font-size: 1rem; display: inline-block; box-shadow: 0 4px 12px rgba(239, 138, 0, 0.35);">Jetzt Erstgespräch vereinbaren</a>
-                </div>
+                <p style="font-size: 0.9rem; color: #64748b; margin: 24px 0 8px 0; border-top: 1px solid #f1f5f9; padding-top: 16px;">
+                    Du hast vorab Fragen oder Anmerkungen? Antworte einfach direkt auf diese E-Mail oder melde Dich telefonisch bei uns.
+                </p>
 
-                <p style="font-size: 0.9rem; color: #64748b; margin-bottom: 5px;">Solltest Du vorab Fragen haben, kannst Du einfach direkt auf diese E-Mail antworten.</p>
-                <p style="margin-top: 20px; font-size: 0.95rem;">Beste Grüße,<br><strong style="color: #0f172a;">Dein Team der Alpha Energie GmbH</strong></p>
+                <!-- Professional Signature -->
+                <p style="margin-top: 20px; font-size: 0.95rem; color: #334155;">
+                    Mit freundlichen Grüßen,<br>
+                    <strong style="color: #0f172a;">Dein Team der Alpha Energie GmbH</strong>
+                </p>
             </div>
 
-            <!-- Footer -->
-            <div style="background: #f8fafc; border-top: 1px solid #e2e8f0; padding: 22px 25px; font-size: 0.8rem; color: #64748b; text-align: center; line-height: 1.5;">
-                <strong>Alpha Energie GmbH</strong><br>
+            <!-- Legal Company Footer -->
+            <div style="background: #f8fafc; border-top: 1px solid #e2e8f0; padding: 24px 28px; font-size: 0.8rem; color: #64748b; text-align: center; line-height: 1.6;">
+                <strong style="color: #334155;">Alpha Energie GmbH</strong><br>
                 Alter Hellweg 50 | 44379 Dortmund<br>
-                Telefon: 0231 39989390 | E-Mail: info@alpha-energy.network<br>
-                Geschäftsführer: Tolga Canga | Amtsgericht Dortmund, HRB 38030
+                Telefon: <a href="tel:023139989390" style="color: #64748b; text-decoration: none;">0231 39989390</a> | E-Mail: <a href="mailto:info@alpha-energy.network" style="color: #64748b; text-decoration: none;">info@alpha-energy.network</a><br>
+                Geschäftsführer: Tolga Canga | Registergericht: Amtsgericht Dortmund, HRB 38030<br>
+                <a href="https://alpha-energie.de" target="_blank" style="color: #ef8a00; text-decoration: none; font-weight: 600; margin-top: 6px; display: inline-block;">www.alpha-energie.de</a>
             </div>
         </div>
     </div>
-    `;
+</body>
+</html>`;
 }
 
 function getAppointmentConfirmationHtml(name, email, phone, dateFormatted, time) {
-    return `
-    <div style="background-color: #f1f5f9; padding: 30px 15px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #1e293b; line-height: 1.6;">
-        <div style="max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.06); border: 1px solid #e2e8f0;">
+    return `<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Terminbestätigung</title>
+</head>
+<body style="margin: 0; padding: 0; background-color: #f1f5f9; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #1e293b; line-height: 1.6;">
+    <div style="background-color: #f1f5f9; padding: 35px 15px;">
+        <div style="max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 24px rgba(0,0,0,0.07); border: 1px solid #e2e8f0;">
             
-            <!-- Header -->
-            <div style="background: linear-gradient(135deg, #0b1120 0%, #1e3b6a 100%); padding: 35px 25px; text-align: center;">
-                <img src="https://alpha-energie.de/logo.png" alt="Alpha Energie GmbH" style="max-width: 190px; height: auto; margin-bottom: 15px;">
-                <h1 style="color: #ffffff; margin: 0; font-size: 1.35rem; font-weight: 700; letter-spacing: -0.5px;">Termin erfolgreich bestätigt! 📅</h1>
-                <p style="color: #94a3b8; margin: 6px 0 0 0; font-size: 0.95rem;">Dein Kennenlerngespräch mit der Alpha Energie GmbH</p>
+            <!-- Header with Logo & Brand Gradient -->
+            <div style="background: linear-gradient(135deg, #0b1120 0%, #1e3b6a 100%); padding: 36px 25px; text-align: center;">
+                <a href="https://alpha-energie.de" target="_blank" style="text-decoration: none; display: inline-block;">
+                    <img src="https://alpha-energie.de/logo.png" alt="Alpha Energie GmbH" style="max-width: 190px; height: auto; margin-bottom: 16px; display: block; margin-left: auto; margin-right: auto; border: 0;">
+                </a>
+                <h1 style="color: #ffffff; margin: 0; font-size: 1.35rem; font-weight: 700; letter-spacing: -0.3px; line-height: 1.3;">Dein Termin ist bestätigt! 📅</h1>
+                <p style="color: #94a3b8; margin: 8px 0 0 0; font-size: 0.95rem;">Kennenlerngespräch mit der Alpha Energie GmbH</p>
             </div>
 
-            <!-- Body -->
-            <div style="padding: 30px 25px;">
-                <p style="font-size: 1.05rem; margin-top: 0;">Hallo <strong>${name}</strong>,</p>
-                <p>vielen Dank für Deine Terminbuchung! Dein persönliches Kennenlerngespräch wurde erfolgreich in unserem System reserviert. Wir freuen uns sehr auf das Gespräch mit Dir.</p>
+            <!-- Main Content -->
+            <div style="padding: 32px 28px;">
+                <p style="font-size: 1.05rem; margin-top: 0; color: #0f172a;">Hallo <strong>${name || 'Vertriebspartner'}</strong>,</p>
+                <p style="color: #334155; font-size: 0.95rem; margin-bottom: 24px;">vielen Dank für Deine Buchung! Dein Termin für unser telefonisches Kennenlerngespräch ist erfolgreich eingetragen und verbindlich für Dich reserviert. Wir freuen uns auf den persönlichen Austausch mit Dir.</p>
                 
-                <!-- Appointment Card -->
-                <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-left: 5px solid #10b981; padding: 20px; border-radius: 8px; margin: 25px 0;">
-                    <h3 style="margin: 0 0 12px 0; font-size: 0.95rem; color: #166534; text-transform: uppercase; letter-spacing: 0.5px;">
-                        Verbindliche Termindetails:
+                <!-- Highlighted Appointment Box -->
+                <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-left: 5px solid #10b981; padding: 20px 22px; border-radius: 8px; margin: 24px 0;">
+                    <h3 style="margin: 0 0 14px 0; font-size: 0.85rem; color: #166534; text-transform: uppercase; letter-spacing: 0.6px; font-weight: 700;">
+                        📅 Deine Termindetails:
                     </h3>
                     <table style="width: 100%; font-size: 0.95rem; border-collapse: collapse;">
                         <tr>
-                            <td style="padding: 6px 0; color: #475569; width: 110px;"><strong>Datum:</strong></td>
+                            <td style="padding: 6px 0; color: #475569; width: 130px;"><strong>Datum:</strong></td>
                             <td style="padding: 6px 0; color: #0f172a; font-weight: 600;">${dateFormatted}</td>
                         </tr>
                         <tr>
@@ -300,40 +387,59 @@ function getAppointmentConfirmationHtml(name, email, phone, dateFormatted, time)
                             <td style="padding: 6px 0; color: #ef8a00; font-weight: 700; font-size: 1.05rem;">${time} Uhr</td>
                         </tr>
                         <tr>
-                            <td style="padding: 6px 0; color: #475569;"><strong>Teilnehmer:</strong></td>
-                            <td style="padding: 6px 0; color: #0f172a;">${name}</td>
+                            <td style="padding: 6px 0; color: #475569;"><strong>Gesprächspartner:</strong></td>
+                            <td style="padding: 6px 0; color: #0f172a; font-weight: 500;">Alpha Energie Onboarding-Team</td>
                         </tr>
                         <tr>
                             <td style="padding: 6px 0; color: #475569;"><strong>Telefon:</strong></td>
-                            <td style="padding: 6px 0; color: #0f172a;">${phone || '–'}</td>
+                            <td style="padding: 6px 0; color: #0f172a; font-weight: 500;">${phone || 'Nicht angegeben'}</td>
                         </tr>
                     </table>
                 </div>
 
-                <h3 style="color: #0f172a; font-size: 1.05rem; margin: 20px 0 10px 0;">Wichtige Hinweise zum Ablauf:</h3>
-                <ul style="padding-left: 20px; margin-top: 5px; font-size: 0.92rem; color: #334155; line-height: 1.7;">
-                    <li>Unser Partnermanagement ruft Dich pünktlich zur vereinbarten Uhrzeit unter Deiner angegebenen Rufnummer an.</li>
-                    <li>Plane bitte ca. <strong>15 bis 20 Minuten</strong> für den gemeinsamen Austausch ein.</li>
-                    <li>Wir stellen Dir unsere Produkte, Provisionsmodelle und die ersten Schritte im VP-Portal vor.</li>
-                </ul>
+                <!-- Friendly Instructions -->
+                <h3 style="color: #0f172a; font-size: 1.05rem; margin: 24px 0 12px 0; font-weight: 700;">Wichtige Hinweise zum Ablauf:</h3>
+                
+                <table style="width: 100%; border-collapse: separate; border-spacing: 0 10px; margin-bottom: 15px;">
+                    <tr>
+                        <td style="vertical-align: top; width: 24px; color: #10b981; font-size: 1.1rem; line-height: 1.4;">📞</td>
+                        <td style="vertical-align: top; padding-left: 8px; color: #334155; font-size: 0.92rem;">
+                            <strong>Telefonischer Anruf:</strong> Wir rufen Dich pünktlich zur vereinbarten Uhrzeit unter Deiner angegebenen Rufnummer (<strong>${phone || 'angegebene Telefonnummer'}</strong>) an.
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="vertical-align: top; width: 24px; color: #10b981; font-size: 1.1rem; line-height: 1.4;">⏱️</td>
+                        <td style="vertical-align: top; padding-left: 8px; color: #334155; font-size: 0.92rem;">
+                            <strong>Dauer:</strong> Das Gespräch dauert ca. <strong>15–20 Minuten</strong>. Wir besprechen Deine Vertriebspotenziale, unsere Tarife und wie Du sofort durchstarten kannst.
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="vertical-align: top; width: 24px; color: #10b981; font-size: 1.1rem; line-height: 1.4;">🔄</td>
+                        <td style="vertical-align: top; padding-left: 8px; color: #334155; font-size: 0.92rem;">
+                            <strong>Termin ändern oder absagen:</strong> Solltest Du den Termin verschieben müssen, antworte einfach kurz auf diese E-Mail oder rufe uns unter <a href="tel:023139989390" style="color: #0284c7; text-decoration: underline;">0231 39989390</a> an.
+                        </td>
+                    </tr>
+                </table>
 
-                <div style="background: #f8fafc; border-radius: 6px; padding: 14px 16px; margin: 20px 0; font-size: 0.85rem; color: #64748b; border: 1px solid #e2e8f0;">
-                    💡 <strong>Termin ändern oder absagen?</strong> Falls Dir etwas dazwischenkommt, antworte einfach kurz auf diese E-Mail oder rufe uns unter <a href="tel:023139989390" style="color: #0284c7; text-decoration: underline;">0231 39989390</a> an.
-                </div>
-
-                <p style="margin-top: 25px; font-size: 0.95rem;">Wir freuen uns auf das Kennenlernen!<br><br>Herzliche Grüße,<br><strong style="color: #0f172a;">Dein Team der Alpha Energie GmbH</strong></p>
+                <p style="margin-top: 25px; font-size: 0.95rem; color: #334155;">
+                    Wir freuen uns auf das Kennenlernen!<br><br>
+                    Mit freundlichen Grüßen,<br>
+                    <strong style="color: #0f172a;">Dein Team der Alpha Energie GmbH</strong>
+                </p>
             </div>
 
-            <!-- Footer -->
-            <div style="background: #f8fafc; border-top: 1px solid #e2e8f0; padding: 22px 25px; font-size: 0.8rem; color: #64748b; text-align: center; line-height: 1.5;">
-                <strong>Alpha Energie GmbH</strong><br>
+            <!-- Legal Company Footer -->
+            <div style="background: #f8fafc; border-top: 1px solid #e2e8f0; padding: 24px 28px; font-size: 0.8rem; color: #64748b; text-align: center; line-height: 1.6;">
+                <strong style="color: #334155;">Alpha Energie GmbH</strong><br>
                 Alter Hellweg 50 | 44379 Dortmund<br>
-                Telefon: 0231 39989390 | E-Mail: info@alpha-energy.network<br>
-                Geschäftsführer: Tolga Canga | Amtsgericht Dortmund, HRB 38030
+                Telefon: <a href="tel:023139989390" style="color: #64748b; text-decoration: none;">0231 39989390</a> | E-Mail: <a href="mailto:info@alpha-energy.network" style="color: #64748b; text-decoration: none;">info@alpha-energy.network</a><br>
+                Geschäftsführer: Tolga Canga | Registergericht: Amtsgericht Dortmund, HRB 38030<br>
+                <a href="https://alpha-energie.de" target="_blank" style="color: #ef8a00; text-decoration: none; font-weight: 600; margin-top: 6px; display: inline-block;">www.alpha-energie.de</a>
             </div>
         </div>
     </div>
-    `;
+</body>
+</html>`;
 }
 
 // 2. Submit Partner Application Form
@@ -355,36 +461,46 @@ app.post('/api/partner-application', async (req, res) => {
             data: { fullName, email, phone, experience, affiliateLinkId }
         });
 
-        // 1. Send confirmation email to applicant & 2. notification to backoffice
+        // 1. Send confirmation email to applicant & 2. notification to backoffice asynchronously (non-blocking)
         (async () => {
             try {
                 const transporter = getMailTransporter();
                 if (!transporter) {
-                    console.log("SMTP credentials missing. Emails not sent.");
+                    console.log("SMTP credentials missing. Partner registration emails not sent.");
                     return;
                 }
 
-                // A. Confirmation email to the applicant
+                const sender = getSenderEmail();
+
+                // A. Beautiful confirmation email to the applicant
                 if (email) {
-                    await transporter.sendMail({
-                        from: `"Alpha Energie GmbH" <${process.env.SMTP_FROM}>`,
-                        to: email,
-                        subject: 'Willkommen bei Alpha Energie – Deine Registrierung war erfolgreich!',
-                        html: getPartnerRegistrationConfirmationHtml(fullName, email, phone, experience)
-                    });
-                    console.log(`Confirmation email sent to applicant ${email}`);
+                    try {
+                        await transporter.sendMail({
+                            from: sender,
+                            to: email,
+                            subject: 'Willkommen bei Alpha Energie – Deine Registrierung war erfolgreich!',
+                            html: getPartnerRegistrationConfirmationHtml(fullName, email, phone, experience)
+                        });
+                        console.log(`Confirmation email successfully sent to applicant: ${email}`);
+                    } catch (applicantMailErr) {
+                        console.error(`Failed to send confirmation email to applicant (${email}):`, applicantMailErr);
+                    }
                 }
 
                 // B. Notification email to backoffice
-                await transporter.sendMail({
-                    from: process.env.SMTP_FROM || '"Alpha Energie System" <noreply@alpha-energie.de>',
-                    to: 'info@alpha-energy.network',
-                    subject: `Neue Registrierung (Agentur/VP): ${fullName}`,
-                    text: `Eine neue Partner-Registrierung ist eingegangen:\n\nName: ${fullName}\nE-Mail: ${email}\nTelefon: ${phone || 'Nicht angegeben'}\nErfahrung: ${experience || 'Nicht angegeben'}\n\nBitte im Admin-Panel prüfen.`
-                });
-                console.log(`Notification email sent to info@alpha-energy.network for ${fullName}`);
+                try {
+                    await transporter.sendMail({
+                        from: sender,
+                        to: 'info@alpha-energy.network',
+                        subject: `Neue Registrierung (Agentur/VP): ${fullName}`,
+                        text: `Eine neue Partner-Registrierung ist eingegangen:\n\nName: ${fullName}\nE-Mail: ${email}\nTelefon: ${phone || 'Nicht angegeben'}\nErfahrung: ${experience || 'Nicht angegeben'}\n\nBitte im Admin-Panel prüfen.`
+                    });
+                    console.log(`Notification email successfully sent to info@alpha-energy.network for ${fullName}`);
+                } catch (backofficeMailErr) {
+                    console.error("Failed to send partner registration notification to backoffice:", backofficeMailErr);
+                }
             } catch (mailError) {
-                console.error("Error sending registration emails:", mailError);
+                console.error("Error in partner registration email worker:", mailError);
             }
         })();
 
@@ -436,7 +552,7 @@ app.post('/api/appointments', async (req, res) => {
             data: { name, email, phone, date, time }
         });
 
-        // 1. Send confirmation email to applicant & 2. notification to backoffice
+        // 1. Send confirmation email to applicant & 2. notification to backoffice asynchronously (non-blocking)
         (async () => {
             try {
                 const transporter = getMailTransporter();
@@ -445,29 +561,38 @@ app.post('/api/appointments', async (req, res) => {
                     return;
                 }
 
+                const sender = getSenderEmail();
                 const dateFormatted = formatGermanDate(date);
 
-                // A. Confirmation email to the applicant
+                // A. Beautiful confirmation email to the applicant
                 if (email) {
-                    await transporter.sendMail({
-                        from: `"Alpha Energie GmbH" <${process.env.SMTP_FROM}>`,
-                        to: email,
-                        subject: `Terminbestätigung: Dein Kennenlerngespräch am ${dateFormatted} um ${time} Uhr`,
-                        html: getAppointmentConfirmationHtml(name, email, phone, dateFormatted, time)
-                    });
-                    console.log(`Appointment confirmation email sent to ${email}`);
+                    try {
+                        await transporter.sendMail({
+                            from: sender,
+                            to: email,
+                            subject: `Terminbestätigung: Dein Kennenlerngespräch am ${dateFormatted} um ${time} Uhr`,
+                            html: getAppointmentConfirmationHtml(name, email, phone, dateFormatted, time)
+                        });
+                        console.log(`Appointment confirmation email successfully sent to: ${email}`);
+                    } catch (applicantMailErr) {
+                        console.error(`Failed to send appointment confirmation email to (${email}):`, applicantMailErr);
+                    }
                 }
 
                 // B. Notification email to backoffice
-                await transporter.sendMail({
-                    from: process.env.SMTP_FROM || '"Alpha Energie System" <noreply@alpha-energie.de>',
-                    to: 'bewerbung@alpha-energy.network',
-                    subject: `Neuer Termin gebucht: ${dateFormatted} um ${time} Uhr`,
-                    text: `Ein neuer Termin wurde gebucht:\n\nName: ${name}\nE-Mail: ${email}\nTelefon: ${phone || 'Nicht angegeben'}\nDatum: ${dateFormatted} (${date})\nUhrzeit: ${time}\n\nBitte im Admin-Panel prüfen.`
-                });
-                console.log(`Notification email sent to bewerbung@alpha-energy.network for appointment on ${dateFormatted} at ${time}`);
+                try {
+                    await transporter.sendMail({
+                        from: sender,
+                        to: 'bewerbung@alpha-energy.network',
+                        subject: `Neuer Termin gebucht: ${dateFormatted} um ${time} Uhr`,
+                        text: `Ein neuer Termin wurde gebucht:\n\nName: ${name}\nE-Mail: ${email}\nTelefon: ${phone || 'Nicht angegeben'}\nDatum: ${dateFormatted} (${date})\nUhrzeit: ${time}\n\nBitte im Admin-Panel prüfen.`
+                    });
+                    console.log(`Notification email successfully sent to bewerbung@alpha-energy.network for appointment on ${dateFormatted} at ${time}`);
+                } catch (backofficeMailErr) {
+                    console.error("Failed to send appointment notification to backoffice:", backofficeMailErr);
+                }
             } catch (mailError) {
-                console.error("Error sending appointment emails:", mailError);
+                console.error("Error in appointment email worker:", mailError);
             }
         })();
 
@@ -583,15 +708,10 @@ app.post('/api/admin/partner-applications/:id/send-master-data-email', authentic
         const recipientEmail = customEmail || application.email;
         const emailSubject = customSubject || 'Wichtige Stammdaten für Deine Vertriebspartnerschaft';
 
-        const transporter = nodemailer.createTransport({
-            host: process.env.SMTP_HOST || 'smtp.ionos.de',
-            port: process.env.SMTP_PORT || 465,
-            secure: true,
-            auth: {
-                user: process.env.SMTP_USER,
-                pass: process.env.SMTP_PASS
-            }
-        });
+        const transporter = getMailTransporter();
+        if (!transporter) {
+            return res.status(500).json({ success: false, error: 'SMTP Zugangsdaten nicht konfiguriert.' });
+        }
 
         const stammdatenLink = `https://alpha-energie.de/stammdaten.html?id=${application.id}`;
 
@@ -631,7 +751,7 @@ app.post('/api/admin/partner-applications/:id/send-master-data-email', authentic
         }
 
         await transporter.sendMail({
-            from: `"Alpha Energie GmbH" <${process.env.SMTP_FROM}>`,
+            from: getSenderEmail(),
             to: recipientEmail,
             subject: emailSubject,
             html: htmlBody
