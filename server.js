@@ -160,6 +160,182 @@ app.post('/api/contact', async (req, res) => {
     }
 });
 
+// Email Helpers & Templates
+function getMailTransporter() {
+    if (!process.env.SMTP_HOST || !process.env.SMTP_USER || !process.env.SMTP_PASS) {
+        return null;
+    }
+    const port = parseInt(process.env.SMTP_PORT) || 465;
+    return nodemailer.createTransport({
+        host: process.env.SMTP_HOST,
+        port: port,
+        secure: port === 465,
+        auth: {
+            user: process.env.SMTP_USER,
+            pass: process.env.SMTP_PASS
+        }
+    });
+}
+
+function formatGermanDate(dateStr) {
+    if (!dateStr) return '';
+    try {
+        const parts = dateStr.split('-');
+        if (parts.length === 3) {
+            return `${parts[2]}.${parts[1]}.${parts[0]}`;
+        }
+        const d = new Date(dateStr);
+        if (!isNaN(d.getTime())) {
+            return d.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' });
+        }
+    } catch (e) {
+        // fallback
+    }
+    return dateStr;
+}
+
+function getPartnerRegistrationConfirmationHtml(fullName, email, phone, experience) {
+    return `
+    <div style="background-color: #f1f5f9; padding: 30px 15px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #1e293b; line-height: 1.6;">
+        <div style="max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.06); border: 1px solid #e2e8f0;">
+            
+            <!-- Header -->
+            <div style="background: linear-gradient(135deg, #0b1120 0%, #1e3b6a 100%); padding: 35px 25px; text-align: center;">
+                <img src="https://alpha-energie.de/logo.png" alt="Alpha Energie GmbH" style="max-width: 190px; height: auto; margin-bottom: 15px;">
+                <h1 style="color: #ffffff; margin: 0; font-size: 1.35rem; font-weight: 700; letter-spacing: -0.5px;">Herzlich willkommen im Team!</h1>
+                <p style="color: #94a3b8; margin: 6px 0 0 0; font-size: 0.95rem;">Deine Registrierung bei der Alpha Energie GmbH</p>
+            </div>
+
+            <!-- Body -->
+            <div style="padding: 30px 25px;">
+                <p style="font-size: 1.05rem; margin-top: 0;">Hallo <strong>${fullName}</strong>,</p>
+                <p>vielen Dank für Dein Vertrauen und Deine Registrierung als Vertriebspartner bei der Alpha Energie GmbH! Wir freuen uns sehr auf eine erfolgreiche und partnerschaftliche Zusammenarbeit mit Dir.</p>
+                
+                <!-- Summary Card -->
+                <div style="background: #f8fafc; border-left: 4px solid #ef8a00; padding: 16px 18px; border-radius: 6px; margin: 24px 0; border-top: 1px solid #e2e8f0; border-right: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0;">
+                    <h3 style="margin: 0 0 10px 0; font-size: 0.9rem; color: #0f172a; text-transform: uppercase; letter-spacing: 0.5px;">Deine übermittelten Daten:</h3>
+                    <table style="width: 100%; font-size: 0.9rem; border-collapse: collapse;">
+                        <tr>
+                            <td style="padding: 4px 0; color: #64748b; width: 110px;"><strong>Name:</strong></td>
+                            <td style="padding: 4px 0; color: #0f172a;">${fullName}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 4px 0; color: #64748b;"><strong>E-Mail:</strong></td>
+                            <td style="padding: 4px 0; color: #0f172a;">${email}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 4px 0; color: #64748b;"><strong>Telefon:</strong></td>
+                            <td style="padding: 4px 0; color: #0f172a;">${phone || '–'}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 4px 0; color: #64748b;"><strong>Erfahrung:</strong></td>
+                            <td style="padding: 4px 0; color: #0f172a;">${experience || '–'}</td>
+                        </tr>
+                    </table>
+                </div>
+
+                <h3 style="color: #0f172a; font-size: 1.05rem; margin: 25px 0 14px 0;">So geht es jetzt weiter:</h3>
+                <div style="margin-bottom: 25px;">
+                    <div style="margin-bottom: 12px; padding-left: 5px;">
+                        <strong style="color: #ef8a00;">1. Kennenlerngespräch buchen:</strong> Sichere Dir direkt Deinen Wunschtermin für unser telefonisches Erstgespräch.
+                    </div>
+                    <div style="margin-bottom: 12px; padding-left: 5px;">
+                        <strong style="color: #ef8a00;">2. Stammdatenerfassung:</strong> Im nächsten Schritt erhältst Du einen Link zur einfachen Eingabe Deiner Abrechnungs- und Stammdaten.
+                    </div>
+                    <div style="padding-left: 5px;">
+                        <strong style="color: #ef8a00;">3. Freischaltung & Start:</strong> Du erhältst Deine Zugangsdaten zum VP-Portal und kannst sofort loslegen!
+                    </div>
+                </div>
+
+                <!-- CTA Button -->
+                <div style="text-align: center; margin: 35px 0 25px 0;">
+                    <a href="https://alpha-energie.de/onboarding.html" style="background-color: #ef8a00; color: #ffffff; padding: 14px 28px; text-decoration: none; border-radius: 6px; font-weight: bold; font-size: 1rem; display: inline-block; box-shadow: 0 4px 12px rgba(239, 138, 0, 0.35);">Jetzt Erstgespräch vereinbaren</a>
+                </div>
+
+                <p style="font-size: 0.9rem; color: #64748b; margin-bottom: 5px;">Solltest Du vorab Fragen haben, kannst Du einfach direkt auf diese E-Mail antworten.</p>
+                <p style="margin-top: 20px; font-size: 0.95rem;">Beste Grüße,<br><strong style="color: #0f172a;">Dein Team der Alpha Energie GmbH</strong></p>
+            </div>
+
+            <!-- Footer -->
+            <div style="background: #f8fafc; border-top: 1px solid #e2e8f0; padding: 22px 25px; font-size: 0.8rem; color: #64748b; text-align: center; line-height: 1.5;">
+                <strong>Alpha Energie GmbH</strong><br>
+                Alter Hellweg 50 | 44379 Dortmund<br>
+                Telefon: 0231 39989390 | E-Mail: info@alpha-energy.network<br>
+                Geschäftsführer: Tolga Canga | Amtsgericht Dortmund, HRB 38030
+            </div>
+        </div>
+    </div>
+    `;
+}
+
+function getAppointmentConfirmationHtml(name, email, phone, dateFormatted, time) {
+    return `
+    <div style="background-color: #f1f5f9; padding: 30px 15px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #1e293b; line-height: 1.6;">
+        <div style="max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.06); border: 1px solid #e2e8f0;">
+            
+            <!-- Header -->
+            <div style="background: linear-gradient(135deg, #0b1120 0%, #1e3b6a 100%); padding: 35px 25px; text-align: center;">
+                <img src="https://alpha-energie.de/logo.png" alt="Alpha Energie GmbH" style="max-width: 190px; height: auto; margin-bottom: 15px;">
+                <h1 style="color: #ffffff; margin: 0; font-size: 1.35rem; font-weight: 700; letter-spacing: -0.5px;">Termin erfolgreich bestätigt! 📅</h1>
+                <p style="color: #94a3b8; margin: 6px 0 0 0; font-size: 0.95rem;">Dein Kennenlerngespräch mit der Alpha Energie GmbH</p>
+            </div>
+
+            <!-- Body -->
+            <div style="padding: 30px 25px;">
+                <p style="font-size: 1.05rem; margin-top: 0;">Hallo <strong>${name}</strong>,</p>
+                <p>vielen Dank für Deine Terminbuchung! Dein persönliches Kennenlerngespräch wurde erfolgreich in unserem System reserviert. Wir freuen uns sehr auf das Gespräch mit Dir.</p>
+                
+                <!-- Appointment Card -->
+                <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-left: 5px solid #10b981; padding: 20px; border-radius: 8px; margin: 25px 0;">
+                    <h3 style="margin: 0 0 12px 0; font-size: 0.95rem; color: #166534; text-transform: uppercase; letter-spacing: 0.5px;">
+                        Verbindliche Termindetails:
+                    </h3>
+                    <table style="width: 100%; font-size: 0.95rem; border-collapse: collapse;">
+                        <tr>
+                            <td style="padding: 6px 0; color: #475569; width: 110px;"><strong>Datum:</strong></td>
+                            <td style="padding: 6px 0; color: #0f172a; font-weight: 600;">${dateFormatted}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 6px 0; color: #475569;"><strong>Uhrzeit:</strong></td>
+                            <td style="padding: 6px 0; color: #ef8a00; font-weight: 700; font-size: 1.05rem;">${time} Uhr</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 6px 0; color: #475569;"><strong>Teilnehmer:</strong></td>
+                            <td style="padding: 6px 0; color: #0f172a;">${name}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 6px 0; color: #475569;"><strong>Telefon:</strong></td>
+                            <td style="padding: 6px 0; color: #0f172a;">${phone || '–'}</td>
+                        </tr>
+                    </table>
+                </div>
+
+                <h3 style="color: #0f172a; font-size: 1.05rem; margin: 20px 0 10px 0;">Wichtige Hinweise zum Ablauf:</h3>
+                <ul style="padding-left: 20px; margin-top: 5px; font-size: 0.92rem; color: #334155; line-height: 1.7;">
+                    <li>Unser Partnermanagement ruft Dich pünktlich zur vereinbarten Uhrzeit unter Deiner angegebenen Rufnummer an.</li>
+                    <li>Plane bitte ca. <strong>15 bis 20 Minuten</strong> für den gemeinsamen Austausch ein.</li>
+                    <li>Wir stellen Dir unsere Produkte, Provisionsmodelle und die ersten Schritte im VP-Portal vor.</li>
+                </ul>
+
+                <div style="background: #f8fafc; border-radius: 6px; padding: 14px 16px; margin: 20px 0; font-size: 0.85rem; color: #64748b; border: 1px solid #e2e8f0;">
+                    💡 <strong>Termin ändern oder absagen?</strong> Falls Dir etwas dazwischenkommt, antworte einfach kurz auf diese E-Mail oder rufe uns unter <a href="tel:023139989390" style="color: #0284c7; text-decoration: underline;">0231 39989390</a> an.
+                </div>
+
+                <p style="margin-top: 25px; font-size: 0.95rem;">Wir freuen uns auf das Kennenlernen!<br><br>Herzliche Grüße,<br><strong style="color: #0f172a;">Dein Team der Alpha Energie GmbH</strong></p>
+            </div>
+
+            <!-- Footer -->
+            <div style="background: #f8fafc; border-top: 1px solid #e2e8f0; padding: 22px 25px; font-size: 0.8rem; color: #64748b; text-align: center; line-height: 1.5;">
+                <strong>Alpha Energie GmbH</strong><br>
+                Alter Hellweg 50 | 44379 Dortmund<br>
+                Telefon: 0231 39989390 | E-Mail: info@alpha-energy.network<br>
+                Geschäftsführer: Tolga Canga | Amtsgericht Dortmund, HRB 38030
+            </div>
+        </div>
+    </div>
+    `;
+}
+
 // 2. Submit Partner Application Form
 app.post('/api/partner-application', async (req, res) => {
     try {
@@ -179,34 +355,38 @@ app.post('/api/partner-application', async (req, res) => {
             data: { fullName, email, phone, experience, affiliateLinkId }
         });
 
-        // Send email notification to backoffice
-        try {
-            if (process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS) {
-                const transporter = nodemailer.createTransport({
-                    host: process.env.SMTP_HOST,
-                    port: parseInt(process.env.SMTP_PORT) || 587,
-                    secure: parseInt(process.env.SMTP_PORT) === 465,
-                    auth: {
-                        user: process.env.SMTP_USER,
-                        pass: process.env.SMTP_PASS
-                    }
-                });
+        // 1. Send confirmation email to applicant & 2. notification to backoffice
+        (async () => {
+            try {
+                const transporter = getMailTransporter();
+                if (!transporter) {
+                    console.log("SMTP credentials missing. Emails not sent.");
+                    return;
+                }
 
-                const mailOptions = {
+                // A. Confirmation email to the applicant
+                if (email) {
+                    await transporter.sendMail({
+                        from: `"Alpha Energie GmbH" <${process.env.SMTP_FROM}>`,
+                        to: email,
+                        subject: 'Willkommen bei Alpha Energie – Deine Registrierung war erfolgreich!',
+                        html: getPartnerRegistrationConfirmationHtml(fullName, email, phone, experience)
+                    });
+                    console.log(`Confirmation email sent to applicant ${email}`);
+                }
+
+                // B. Notification email to backoffice
+                await transporter.sendMail({
                     from: process.env.SMTP_FROM || '"Alpha Energie System" <noreply@alpha-energie.de>',
                     to: 'info@alpha-energy.network',
                     subject: `Neue Registrierung (Agentur/VP): ${fullName}`,
                     text: `Eine neue Partner-Registrierung ist eingegangen:\n\nName: ${fullName}\nE-Mail: ${email}\nTelefon: ${phone || 'Nicht angegeben'}\nErfahrung: ${experience || 'Nicht angegeben'}\n\nBitte im Admin-Panel prüfen.`
-                };
-
-                await transporter.sendMail(mailOptions);
-                console.log(`Notification email sent to bewerbung@alpha-energy.network for ${fullName}`);
-            } else {
-                console.log("SMTP credentials missing. Notification email not sent.");
+                });
+                console.log(`Notification email sent to info@alpha-energy.network for ${fullName}`);
+            } catch (mailError) {
+                console.error("Error sending registration emails:", mailError);
             }
-        } catch (mailError) {
-            console.error("Error sending notification email:", mailError);
-        }
+        })();
 
         res.status(201).json({ success: true, data: newApp });
     } catch (error) {
@@ -256,34 +436,40 @@ app.post('/api/appointments', async (req, res) => {
             data: { name, email, phone, date, time }
         });
 
-        // Send email notification to backoffice
-        try {
-            if (process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS) {
-                const transporter = nodemailer.createTransport({
-                    host: process.env.SMTP_HOST,
-                    port: parseInt(process.env.SMTP_PORT) || 587,
-                    secure: parseInt(process.env.SMTP_PORT) === 465,
-                    auth: {
-                        user: process.env.SMTP_USER,
-                        pass: process.env.SMTP_PASS
-                    }
-                });
+        // 1. Send confirmation email to applicant & 2. notification to backoffice
+        (async () => {
+            try {
+                const transporter = getMailTransporter();
+                if (!transporter) {
+                    console.log("SMTP credentials missing. Appointment emails not sent.");
+                    return;
+                }
 
-                const mailOptions = {
+                const dateFormatted = formatGermanDate(date);
+
+                // A. Confirmation email to the applicant
+                if (email) {
+                    await transporter.sendMail({
+                        from: `"Alpha Energie GmbH" <${process.env.SMTP_FROM}>`,
+                        to: email,
+                        subject: `Terminbestätigung: Dein Kennenlerngespräch am ${dateFormatted} um ${time} Uhr`,
+                        html: getAppointmentConfirmationHtml(name, email, phone, dateFormatted, time)
+                    });
+                    console.log(`Appointment confirmation email sent to ${email}`);
+                }
+
+                // B. Notification email to backoffice
+                await transporter.sendMail({
                     from: process.env.SMTP_FROM || '"Alpha Energie System" <noreply@alpha-energie.de>',
                     to: 'bewerbung@alpha-energy.network',
-                    subject: `Neuer Termin gebucht: ${date} um ${time} Uhr`,
-                    text: `Ein neuer Termin wurde gebucht:\n\nName: ${name}\nE-Mail: ${email}\nTelefon: ${phone || 'Nicht angegeben'}\nDatum: ${date}\nUhrzeit: ${time}\n\nBitte im Admin-Panel prüfen.`
-                };
-
-                await transporter.sendMail(mailOptions);
-                console.log(`Notification email sent to bewerbung@alpha-energy.network for appointment on ${date} at ${time}`);
-            } else {
-                console.log("SMTP credentials missing. Notification email not sent.");
+                    subject: `Neuer Termin gebucht: ${dateFormatted} um ${time} Uhr`,
+                    text: `Ein neuer Termin wurde gebucht:\n\nName: ${name}\nE-Mail: ${email}\nTelefon: ${phone || 'Nicht angegeben'}\nDatum: ${dateFormatted} (${date})\nUhrzeit: ${time}\n\nBitte im Admin-Panel prüfen.`
+                });
+                console.log(`Notification email sent to bewerbung@alpha-energy.network for appointment on ${dateFormatted} at ${time}`);
+            } catch (mailError) {
+                console.error("Error sending appointment emails:", mailError);
             }
-        } catch (mailError) {
-            console.error("Error sending notification email for appointment:", mailError);
-        }
+        })();
 
         res.status(201).json({ success: true, data: newAppointment });
     } catch (error) {
