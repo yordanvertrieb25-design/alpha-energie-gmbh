@@ -387,6 +387,9 @@ app.delete('/api/admin/appointments/:id', authenticateAdmin, async (req, res) =>
 app.post('/api/admin/partner-applications/:id/send-master-data-email', authenticateAdmin, async (req, res) => {
     try {
         const appId = parseInt(req.params.id);
+        if (isNaN(appId) || appId <= 0) {
+            return res.status(400).json({ success: false, error: 'Ungültige Bewerbungs-ID.' });
+        }
         const application = await prisma.partnerApplication.findUnique({ where: { id: appId } });
         if (!application) return res.status(404).json({ success: false, error: 'Bewerbung nicht gefunden.' });
 

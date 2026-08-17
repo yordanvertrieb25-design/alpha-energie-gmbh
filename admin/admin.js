@@ -49,13 +49,23 @@ if (document.querySelector('.dashboard-container')) {
         window.location.href = '/admin/login';
     });
 
+    let cachedPartnerApplications = [];
+
     // Tab Switching
     window.switchTab = function(tabName) {
         document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
         document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
 
-        document.querySelector(`button[onclick="switchTab('${tabName}')"]`).classList.add('active');
-        document.getElementById(`${tabName}-tab`).classList.add('active');
+        const targetBtn = document.querySelector(`button[onclick="switchTab('${tabName}')"]`);
+        if (targetBtn) targetBtn.classList.add('active');
+        const targetContent = document.getElementById(`${tabName}-tab`);
+        if (targetContent) targetContent.classList.add('active');
+
+        if (tabName === 'werbelink' && typeof fetchWerbelinkApplications === 'function') {
+            fetchWerbelinkApplications();
+        } else if (tabName === 'affiliates' && typeof loadAffiliates === 'function') {
+            loadAffiliates();
+        }
     };
 
     window.downloadICS = function(name, dateStr, timeStr, email, phone) {
@@ -186,6 +196,7 @@ if (document.querySelector('.dashboard-container')) {
     }
 
     function renderApplications(apps, appointments = []) {
+        cachedPartnerApplications = apps || [];
         const tbody = document.getElementById('partners-tbody');
         if (!tbody) return;
         if (apps.length === 0) {
@@ -231,14 +242,11 @@ if (document.querySelector('.dashboard-container')) {
                    </div>`
                 : '';
 
-            const safeEmail = (a.email || '').replace(/'/g, "\\'");
-            const safeFullName = (a.fullName || '').replace(/'/g, "\\'");
-
             const btnSendEmail = isEmailSent
-                ? `<button onclick="openEmailModal(${a.id}, '${safeEmail}', '${safeFullName}')" class="btn-send-stammdaten" style="background: #0284c7; color: white; border: none; border-radius: 4px; padding: 6px 10px; cursor: pointer; font-size: 0.75rem; font-weight: bold; width: 100%; text-align: center; display: inline-flex; align-items: center; justify-content: center; gap: 6px; transition: background 0.2s;" title="E-Mail zur Stammdatenerfassung erneut senden">
+                ? `<button onclick="openEmailModal(${a.id})" class="btn-send-stammdaten" style="background: #0284c7; color: white; border: none; border-radius: 4px; padding: 6px 10px; cursor: pointer; font-size: 0.75rem; font-weight: bold; width: 100%; text-align: center; display: inline-flex; align-items: center; justify-content: center; gap: 6px; transition: background 0.2s;" title="E-Mail zur Stammdatenerfassung erneut senden">
                     <i class="fa-solid fa-paper-plane"></i> Stammdaten-Mail erneut senden
                    </button>`
-                : `<button onclick="openEmailModal(${a.id}, '${safeEmail}', '${safeFullName}')" class="btn-send-stammdaten" style="background: #ef8a00; color: white; border: none; border-radius: 4px; padding: 6px 10px; cursor: pointer; font-size: 0.75rem; font-weight: bold; width: 100%; text-align: center; display: inline-flex; align-items: center; justify-content: center; gap: 6px; transition: background 0.2s;" title="E-Mail zur Stammdatenerfassung senden">
+                : `<button onclick="openEmailModal(${a.id})" class="btn-send-stammdaten" style="background: #ef8a00; color: white; border: none; border-radius: 4px; padding: 6px 10px; cursor: pointer; font-size: 0.75rem; font-weight: bold; width: 100%; text-align: center; display: inline-flex; align-items: center; justify-content: center; gap: 6px; transition: background 0.2s;" title="E-Mail zur Stammdatenerfassung senden">
                     <i class="fa-solid fa-envelope"></i> Stammdatenemail senden
                    </button>`;
 
@@ -931,7 +939,18 @@ if (document.querySelector('.dashboard-container')) {
 
         if (!modal) return;
 
-        toInput.value = email;
+        let targetEmail = email;
+        let targetFullName = fullName;
+
+        if (!targetEmail || !targetFullName) {
+            const app = cachedPartnerApplications.find(a => a.id === id);
+            if (app) {
+                targetEmail = targetEmail || app.email || '';
+                targetFullName = targetFullName || app.fullName || '';
+            }
+        }
+
+        toInput.value = targetEmail || '';
         subjectInput.value = 'Wichtige Stammdaten für Deine Vertriebspartnerschaft';
         
         const stammdatenLink = `https://alpha-energie.de/stammdaten.html?id=${id}`;
@@ -940,7 +959,7 @@ if (document.querySelector('.dashboard-container')) {
     <div style="text-align: center; margin-bottom: 20px;">
         <img src="https://alpha-energie.de/logo.png" alt="Alpha Energie GmbH" style="max-width: 200px;">
     </div>
-    <p>Hallo ${fullName},</p>
+    <p>Hallo ${targetFullName || ''},</p>
     <p>herzlichen Dank für Deine Bewerbung und Dein Vertrauen in die Alpha Energie GmbH! Wir freuen uns sehr über Dein Interesse an einer Vertriebspartnerschaft.</p>
     <p>Um Deine Registrierung zügig abzuschließen und Deinen Account freizuschalten, benötigen wir im nächsten Schritt noch einige Stammdaten von Dir.</p>
     <p><strong>So geht es jetzt weiter:</strong></p>
@@ -972,9 +991,18 @@ if (document.querySelector('.dashboard-container')) {
             modal.style.display = 'none';
         };
 
-        sendBtn.onclick = () => {
-            sendStammdatenEmail(id, toInput.value, subjectInput.value, bodyInput.value);
-            modal.style.display = 'none';
+        sendBtn.onclick = async () => {
+            sendBtn.disabled = true;
+            sendBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Senden...';
+            try {
+                const success = await sendStammdatenEmail(id, toInput.value, subjectInput.value, bodyInput.value);
+                if (success) {
+                    modal.style.display = 'none';
+                }
+            } finally {
+                sendBtn.disabled = false;
+                sendBtn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Jetzt Senden';
+            }
         };
     };
 
@@ -996,11 +1024,17 @@ if (document.querySelector('.dashboard-container')) {
             if (data.success) {
                 alert('E-Mail erfolgreich gesendet!');
                 loadData();
+                if (typeof fetchWerbelinkApplications === 'function') {
+                    fetchWerbelinkApplications();
+                }
+                return true;
             } else {
                 alert('Fehler beim Senden: ' + (data.error || 'Unbekannt'));
+                return false;
             }
         } catch(e) {
             alert('Netzwerkfehler beim Senden.');
+            return false;
         }
     };
 
@@ -1447,11 +1481,11 @@ if (document.querySelector('.dashboard-container')) {
     });
 
     // Bind event for tab switch
-    const werbelinkTabBtn = document.querySelector('button[onclick="switchTab(\\\'werbelink\\\')"]');
+    const werbelinkTabBtn = document.querySelector('button[onclick="switchTab(\'werbelink\')"]');
     if (werbelinkTabBtn) {
         werbelinkTabBtn.addEventListener('click', loadWerbelinkTab);
     }
-    const affiliateTabBtn = document.querySelector('button[onclick="switchTab(\\\'affiliates\\\')"]');
+    const affiliateTabBtn = document.querySelector('button[onclick="switchTab(\'affiliates\')"]');
     if(affiliateTabBtn) {
         affiliateTabBtn.addEventListener('click', loadAffiliates);
     }
