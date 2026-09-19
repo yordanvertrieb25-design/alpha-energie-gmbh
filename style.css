@@ -606,8 +606,8 @@ h3 { font-size: 1.5rem; }
 
 .ai-video-badge {
     position: absolute;
-    bottom: 10px;
-    right: 12px;
+    top: 12px;
+    left: 12px;
     z-index: 2;
     padding: 3px 8px;
     font-size: 0.65rem;
