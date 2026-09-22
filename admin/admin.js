@@ -964,7 +964,7 @@ if (document.querySelector('.dashboard-container')) {
     <p>Um Deine Registrierung zügig abzuschließen und Deinen Account freizuschalten, benötigen wir im nächsten Schritt noch einige Stammdaten von Dir.</p>
     <p><strong>So geht es jetzt weiter:</strong></p>
     <ol style="line-height: 1.6; margin-bottom: 20px;">
-        <li>Klicke auf den Button unten und trage Deine restlichen Daten ein (inkl. Upload Deiner Gewerbeanmeldung oder Deines Handelsregisterauszugs).</li>
+        <li>Klicke auf den Button unten und trage Deine restlichen Daten ein (Dokumenten-Upload & Bankverbindung sind optional).</li>
         <li>Unser Backoffice-Team prüft Deine Unterlagen schnellstmöglich.</li>
         <li>Sobald alles verifiziert ist, senden wir Dir Deine persönlichen Zugangsdaten für das Vertriebsportal zu, und Du kannst direkt starten!</li>
     </ol>
@@ -1318,9 +1318,9 @@ if (document.querySelector('.dashboard-container')) {
         const body = document.getElementById('werbelink-detail-body');
         if (!body) return;
 
-        const dlTrade = app.tradeLicenseUrl ? `<div><a href="${app.tradeLicenseUrl}" target="_blank" style="color: #3b82f6; text-decoration: underline;"><i class="fa-solid fa-download"></i> Gewerbeschein herunterladen</a></div>` : '<span style="color: #94a3b8;">Nicht vorhanden</span>';
-        const dlFront = app.idCardFrontUrl ? `<div><a href="${app.idCardFrontUrl}" target="_blank" style="color: #3b82f6; text-decoration: underline;"><i class="fa-solid fa-download"></i> Ausweis Vorderseite</a></div>` : '';
-        const dlBack = app.idCardBackUrl ? `<div><a href="${app.idCardBackUrl}" target="_blank" style="color: #3b82f6; text-decoration: underline;"><i class="fa-solid fa-download"></i> Ausweis Rückseite</a></div>` : '';
+        const dlTrade = app.tradeLicenseUrl ? `<div><a href="${app.tradeLicenseUrl}" target="_blank" style="color: #3b82f6; text-decoration: underline;"><i class="fa-solid fa-download"></i> Gewerbeschein herunterladen</a></div>` : '<div><span style="color: #94a3b8;">Gewerbeschein: Nicht vorhanden</span></div>';
+        const dlFront = app.idCardFrontUrl ? `<div><a href="${app.idCardFrontUrl}" target="_blank" style="color: #3b82f6; text-decoration: underline;"><i class="fa-solid fa-download"></i> Ausweis Vorderseite</a></div>` : '<div><span style="color: #94a3b8;">Ausweis Vorderseite: Nicht vorhanden</span></div>';
+        const dlBack = app.idCardBackUrl ? `<div><a href="${app.idCardBackUrl}" target="_blank" style="color: #3b82f6; text-decoration: underline;"><i class="fa-solid fa-download"></i> Ausweis Rückseite</a></div>` : '<div><span style="color: #94a3b8;">Ausweis Rückseite: Nicht vorhanden</span></div>';
 
         body.innerHTML = `
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; font-size: 0.95rem;">

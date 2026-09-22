@@ -50,7 +50,7 @@ async function main() {
         <p>Um Deine Registrierung zügig abzuschließen und Deinen Account freizuschalten, benötigen wir im nächsten Schritt noch einige Stammdaten von Dir.</p>
         <p><strong>So geht es jetzt weiter:</strong></p>
         <ol style="line-height: 1.6; margin-bottom: 20px;">
-            <li>Klicke auf den Button unten und trage Deine restlichen Daten ein (inkl. Upload Deiner Gewerbeanmeldung oder Deines Handelsregisterauszugs).</li>
+            <li>Klicke auf den Button unten und trage Deine restlichen Daten ein (Dokumenten-Upload & Bankverbindung sind optional).</li>
             <li>Unser Backoffice-Team prüft Deine Unterlagen schnellstmöglich.</li>
             <li>Sobald alles verifiziert ist, senden wir Dir Deine persönlichen Zugangsdaten für das Vertriebsportal zu, und Du kannst direkt starten!</li>
         </ol>
