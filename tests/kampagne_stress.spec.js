@@ -119,8 +119,10 @@ test.describe('Kampagne Backend Stress Tests', () => {
     });
 
     // 3. Start Mock SMTP Hang Server
+    const openSmtpSockets = new Set();
     mockSmtpHangServer = net.createServer((socket) => {
-      // Just keep socket open, send no SMTP greeting (simulates SMTP port hang)
+      openSmtpSockets.add(socket);
+      socket.on('close', () => openSmtpSockets.delete(socket));
     });
 
     await new Promise((resolve) => {
@@ -137,6 +139,9 @@ test.describe('Kampagne Backend Stress Tests', () => {
       await new Promise(resolve => mockHttpServer.close(resolve));
     }
     if (mockSmtpHangServer) {
+      for (const s of (typeof openSmtpSockets !== 'undefined' ? openSmtpSockets : [])) {
+        try { s.destroy(); } catch (_) {}
+      }
       await new Promise(resolve => mockSmtpHangServer.close(resolve));
     }
     await prisma.$disconnect();

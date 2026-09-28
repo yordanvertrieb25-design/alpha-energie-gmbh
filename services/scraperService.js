@@ -66,8 +66,28 @@ function extractEmails(html) {
   const emailRegex = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g;
   const matches = html.match(emailRegex) || [];
   
+  const knownPrefixes = ['info', 'contact', 'kontakt', 'support', 'team', 'office', 'sales', 'mail', 'service', 'post', 'hello', 'hallo'];
+
+  const cleanedMatches = matches.map(email => {
+    const atIdx = email.indexOf('@');
+    if (atIdx === -1) return email;
+    let local = email.substring(0, atIdx);
+    const domain = email.substring(atIdx + 1);
+
+    // Only if local part exceeds RFC standard (64 chars), attempt to recover known prefix
+    if (local.length > 64) {
+      for (const prefix of knownPrefixes) {
+        if (local.toLowerCase().endsWith(prefix)) {
+          return prefix + '@' + domain;
+        }
+      }
+      local = local.slice(-64);
+    }
+    return local + '@' + domain;
+  });
+
   // Clean up and filter
-  const uniqueEmails = [...new Set(matches)].filter(email => {
+  const uniqueEmails = [...new Set(cleanedMatches)].filter(email => {
     const lower = email.toLowerCase();
     // Exclude common false positives
     return !lower.endsWith('.png') && 

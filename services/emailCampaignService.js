@@ -177,7 +177,10 @@ async function sendCampaign(campaignId, smtpSettings) {
           user: smtpUser,
           pass: smtpPass
         },
-        timeout: 10000 // 10s timeout
+        connectionTimeout: 10000,
+        greetingTimeout: 10000,
+        socketTimeout: 10000,
+        timeout: 10000
       });
     } catch (err) {
       console.error(`[Mailer] Failed to configure Nodemailer transporter: ${err.message}`);
@@ -353,7 +356,11 @@ async function sendSingleContact(contactId, smtpSettings) {
       host: smtpHost,
       port: parseInt(smtpPort) || 587,
       secure: parseInt(smtpPort) === 465,
-      auth: { user: smtpUser, pass: smtpPass }
+      auth: { user: smtpUser, pass: smtpPass },
+      connectionTimeout: 10000,
+      greetingTimeout: 10000,
+      socketTimeout: 10000,
+      timeout: 10000
     });
   }
 

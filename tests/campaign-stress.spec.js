@@ -91,7 +91,7 @@ test.describe('Kampagne Backend Stress Tests', () => {
   // --- STRESS TEST 1: Scraping crawler resilience ---
   test.describe('Scraping Crawler Resilience', () => {
     let mockHttpServer;
-    const MOCK_PORT = 4001;
+    let MOCK_PORT;
 
     test.beforeAll(async () => {
       // Create a mock server that returns malformed HTML, no email addresses, or massive text inputs
@@ -142,7 +142,12 @@ test.describe('Kampagne Backend Stress Tests', () => {
         }
       });
 
-      await new Promise(resolve => mockHttpServer.listen(MOCK_PORT, resolve));
+      await new Promise(resolve => {
+        mockHttpServer.listen(0, '127.0.0.1', () => {
+          MOCK_PORT = mockHttpServer.address().port;
+          resolve();
+        });
+      });
       console.log(`[Stress Test] Mock HTTP Server listening on port ${MOCK_PORT}`);
     });
 
@@ -272,14 +277,21 @@ test.describe('Kampagne Backend Stress Tests', () => {
     let testCampaignId;
     let contactId;
     let hangTcpServer;
-    const HANG_SMTP_PORT = 2526;
+    let HANG_SMTP_PORT;
+    const openHangSockets = new Set();
 
     test.beforeAll(async () => {
       // Start a TCP server that accepts SMTP connections but hangs completely
       hangTcpServer = net.createServer((socket) => {
-        // Just accept but do not send the SMTP 220 greeting. This causes the client to hang.
+        openHangSockets.add(socket);
+        socket.on('close', () => openHangSockets.delete(socket));
       });
-      await new Promise(resolve => hangTcpServer.listen(HANG_SMTP_PORT, resolve));
+      await new Promise(resolve => {
+        hangTcpServer.listen(0, '127.0.0.1', () => {
+          HANG_SMTP_PORT = hangTcpServer.address().port;
+          resolve();
+        });
+      });
       console.log(`[Stress Test] Hanging SMTP TCP Server listening on port ${HANG_SMTP_PORT}`);
 
       // Create a campaign and a pending contact for testing dispatcher failure
@@ -307,6 +319,9 @@ test.describe('Kampagne Backend Stress Tests', () => {
 
     test.afterAll(async () => {
       if (hangTcpServer) {
+        for (const sock of openHangSockets) {
+          try { sock.destroy(); } catch (_) {}
+        }
         await new Promise(resolve => hangTcpServer.close(resolve));
         console.log('[Stress Test] Hanging SMTP TCP Server stopped');
       }

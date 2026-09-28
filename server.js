@@ -1213,7 +1213,7 @@ app.post('/api/campaigns/scrape', authenticateAdmin, async (req, res) => {
             data: { name, industry, companySize, status: 'RUNNING' }
         });
 
-        const isSync = process.env.NODE_ENV === 'test' || req.body.sync === true;
+        const isSync = process.env.NODE_ENV === 'test' || req.body.sync === true || !req.body.pages || req.body.pages <= 2;
 
         if (isSync) {
             // Synchronously await the scraping process
@@ -1527,13 +1527,12 @@ app.get('/api/campaigns/:id/export', authenticateAdmin, async (req, res) => {
         }
 
         // Generate DACH style Excel-compatible semicolon separated CSV
-        const headers = ['Name', 'Adresse', 'Phone', 'Website', 'Email', 'Status', 'CreatedAt'];
+        const headers = ['Name', 'Phone', 'Website', 'Email', 'Status', 'CreatedAt'];
         const headerLine = headers.map(h => `"${h}"`).join(';');
         
         const rows = campaign.contacts.map(contact => {
             return [
                 contact.name || '',
-                contact.address || '',
                 contact.phone || '',
                 contact.website || '',
                 contact.email || '',

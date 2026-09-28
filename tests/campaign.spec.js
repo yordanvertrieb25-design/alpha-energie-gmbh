@@ -7,7 +7,7 @@ dotenv.config();
 const BASE_URL = 'http://localhost:3000';
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'alpha-admin-2026';
 
-test.describe('Kampagne Backend API Tests', () => {
+test.describe.serial('Kampagne Backend API Tests', () => {
   let token = '';
   let campaignId = null;
 
