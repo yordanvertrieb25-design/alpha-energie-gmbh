@@ -124,4 +124,16 @@ test.describe('Firstcon Guard & Error Interceptor Verification', () => {
 
         expect(storedToken).toBe(testToken);
     });
+
+    test('4. Strict White-Label Guarantee: Firstcon is NEVER visible in rendered UI', async ({ page }) => {
+        await page.goto('/index.html', { waitUntil: 'load' });
+        await page.waitForTimeout(1000);
+
+        const visibleBodyText = await page.evaluate(() => {
+            return document.body.innerText;
+        });
+
+        // The visible text of the website must NEVER contain "Firstcon" or "firstcon"
+        expect(visibleBodyText.toLowerCase().includes('firstcon')).toBe(false);
+    });
 });

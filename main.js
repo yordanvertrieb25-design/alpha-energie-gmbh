@@ -1370,3 +1370,87 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     setInterval(sweepSwalContainers, 200);
 })();
+
+
+// ========================================================
+// SPOTLIGHT CARD MICRO-INTERACTIONS (Dynamic Alpha-Orange Glow)
+// ========================================================
+(function initSpotlightEffects() {
+    const attachSpotlight = () => {
+        const cards = document.querySelectorAll('.spotlight-card, .versorger-tariff-card, .sektor-card, .vorteil-card, .ok-power-explainer-card, .comparison-matrix-wrapper');
+        cards.forEach((card) => {
+            card.classList.add('spotlight-card');
+            card.addEventListener('mousemove', (e) => {
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                card.style.setProperty('--mouse-x', `${x}px`);
+                card.style.setProperty('--mouse-y', `${y}px`);
+            });
+            card.addEventListener('mouseleave', () => {
+                card.style.setProperty('--mouse-x', '-500px');
+                card.style.setProperty('--mouse-y', '-500px');
+            });
+        });
+    };
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', attachSpotlight);
+    } else {
+        attachSpotlight();
+    }
+})();
+
+// ========================================================
+// ANIMATED COUNTER / LIVE-STATS (IntersectionObserver)
+// ========================================================
+(function initAnimatedCounters() {
+    const setupCounters = () => {
+        const counterElements = document.querySelectorAll('[data-counter-target]');
+        if (!counterElements.length) return;
+
+        const animateCounter = (el) => {
+            const target = parseFloat(el.getAttribute('data-counter-target'));
+            const suffix = el.getAttribute('data-counter-suffix') || '';
+            const prefix = el.getAttribute('data-counter-prefix') || '';
+            const decimals = parseInt(el.getAttribute('data-counter-decimals') || '0', 10);
+            const duration = 1600;
+            const startTime = performance.now();
+
+            const step = (now) => {
+                const elapsed = now - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                // Ease out quartic
+                const ease = 1 - Math.pow(1 - progress, 4);
+                const current = target * ease;
+                
+                el.textContent = `${prefix}${current.toFixed(decimals)}${suffix}`;
+                
+                if (progress < 1) {
+                    requestAnimationFrame(step);
+                } else {
+                    el.textContent = `${prefix}${target.toFixed(decimals)}${suffix}`;
+                }
+            };
+
+            requestAnimationFrame(step);
+        };
+
+        const observer = new IntersectionObserver((entries, obs) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    animateCounter(entry.target);
+                    obs.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.25 });
+
+        counterElements.forEach(el => observer.observe(el));
+    };
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', setupCounters);
+    } else {
+        setupCounters();
+    }
+})();
