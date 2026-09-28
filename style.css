@@ -10,13 +10,14 @@
 :root {
     /* Color Palette */
     --primary-color: #0a1f44; /* Navy */
-    --primary-dark: #6fa820; /* Slightly darker shade for hovers */
-    --bg-orange: #ef8a00; /* Hero background lime green */
+    --primary-dark: #ea580c; /* Deep Energy Orange hover */
+    --bg-orange: #ff7a00; /* Energy Orange */
     --bg-light: #ffffff;
     --bg-alt: #f8f9fa; /* Light Grey */
     --text-main: #0a1f44; /* Navy */
     --text-muted: #2e3d55; /* Slate Blue */
-    --accent-orange: #ef8a00; /* Lime Green */
+    --accent-orange: #ff7a00; /* Radiant Energy Orange */
+    --accent-orange-dark: #ea580c;
     
     /* Spacing Scale (4px/8px-based) */
     --space-xs: 0.25rem;  /* 4px */
@@ -35,12 +36,12 @@
     --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
     --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.04), 0 4px 6px -2px rgba(0, 0, 0, 0.02);
     --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 10px 10px -5px rgba(0, 0, 0, 0.03);
-    --shadow-glow: 0 10px 30px rgba(239, 138, 0, 0.15);
+    --shadow-glow: 0 10px 30px rgba(255, 122, 0, 0.25);
     
     /* Gradients */
-    --gradient-hero: linear-gradient(135deg, #ff9b1a 0%, #ef8a00 50%, #669a1b 100%);
-    --gradient-primary: linear-gradient(135deg, #ff9b1a 0%, #ef8a00 100%);
-    --gradient-glow: radial-gradient(circle, rgba(239, 138, 0, 0.08) 0%, transparent 70%);
+    --gradient-hero: linear-gradient(135deg, #ff7a00 0%, #ea580c 50%, #c2410c 100%);
+    --gradient-primary: linear-gradient(135deg, #ff7a00 0%, #ea580c 100%);
+    --gradient-glow: radial-gradient(circle, rgba(255, 122, 0, 0.15) 0%, transparent 70%);
 
     /* Glassmorphism */
     --glass-bg: rgba(255, 255, 255, 0.95);
@@ -322,13 +323,18 @@ h3 { font-size: 1.5rem; }
 }
 
 .btn-secondary {
-    background: var(--gradient-primary);
-    color: #fff;
-    box-shadow: 0 4px 14px rgba(239, 138, 0, 0.2);
+    background: #0a1f44;
+    color: #ffffff;
+    border: 1.5px solid rgba(255, 122, 0, 0.5);
+    box-shadow: 0 4px 14px rgba(10, 31, 68, 0.15);
+    font-weight: 600;
 }
 
 .btn-secondary:hover {
-    box-shadow: 0 8px 25px rgba(239, 138, 0, 0.35);
+    background: linear-gradient(135deg, #ff7a00 0%, #ea580c 100%);
+    border-color: #ff7a00;
+    color: #ffffff;
+    box-shadow: 0 8px 25px rgba(255, 122, 0, 0.35);
     transform: translateY(-2px) scale(1.02);
 }
 
@@ -470,17 +476,17 @@ h3 { font-size: 1.5rem; }
     position: absolute;
     top: 100%;
     left: 0;
-    background: var(--glass-bg);
-    backdrop-filter: var(--glass-blur);
-    border: 1px solid var(--glass-border);
-    border-radius: 8px;
-    padding: 1rem 0;
-    min-width: 220px;
+    background: #ffffff !important;
+    border: 1.5px solid rgba(255, 122, 0, 0.25);
+    border-radius: 12px;
+    padding: 0.75rem 0;
+    min-width: 250px;
     opacity: 0;
     visibility: hidden;
     transform: translateY(10px);
-    transition: all 0.3s ease;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 15px 35px -5px rgba(10, 31, 68, 0.18), 0 0 0 1px rgba(0, 0, 0, 0.04);
+    z-index: 1000;
 }
 
 .nav-item.has-dropdown:hover .dropdown {
@@ -491,14 +497,17 @@ h3 { font-size: 1.5rem; }
 
 .dropdown li a {
     display: block;
-    padding: 0.5rem 1.5rem;
-    font-size: 0.9rem;
-    color: var(--text-main);
+    padding: 0.65rem 1.5rem;
+    font-size: 0.92rem;
+    font-weight: 600;
+    color: #0f172a !important;
+    transition: all 0.2s ease;
 }
 
 .dropdown li a:hover {
-    background: var(--bg-alt);
-    color: var(--accent-orange);
+    background: #fff7ed !important;
+    color: #ea580c !important;
+    padding-left: 1.75rem;
 }
 
 .header-actions {
@@ -2435,12 +2444,14 @@ section {
 }
 
 .cookie-btn-accept {
-    background: var(--accent-orange);
-    color: #fff;
+    background: linear-gradient(135deg, #ff7a00 0%, #ea580c 100%);
+    color: #ffffff;
+    box-shadow: 0 4px 12px rgba(255, 122, 0, 0.3);
 }
 
 .cookie-btn-accept:hover {
-    background: var(--accent-orange-dark);
+    background: linear-gradient(135deg, #ff8c00 0%, #f97316 100%);
+    box-shadow: 0 6px 18px rgba(255, 122, 0, 0.45);
 }
 
 .cookie-btn-decline {
@@ -4066,7 +4077,7 @@ section {
 .btn-legal-cancel {
     padding: 0.5rem 1rem;
     background: transparent;
-    border: 1px solid rgba(255, 255, 255, 0.4);
+    border: 1px solid rgba(255, 122, 0, 0.6);
     color: #ffffff;
     border-radius: 6px;
     font-size: 0.85rem;
@@ -4076,8 +4087,10 @@ section {
 }
 
 .btn-legal-cancel:hover {
-    background: rgba(255, 255, 255, 0.15);
-    border-color: #ffffff;
+    background: linear-gradient(135deg, #ff7a00 0%, #ea580c 100%);
+    border-color: #ff7a00;
+    color: #ffffff;
+    box-shadow: 0 4px 12px rgba(255, 122, 0, 0.35);
 }
 
 /* --- Firstcon SweetAlert2 Interceptor & Modal Suppressor --- */
@@ -4315,14 +4328,15 @@ html.swal2-height-auto {
 
 .bestellstrasse-quick-btn {
     padding: 0.75rem 1.75rem;
-    background: #ff7a00;
+    background: linear-gradient(135deg, #ff7a00 0%, #ea580c 100%);
     color: #ffffff;
     border: none;
     border-radius: 8px;
     font-weight: 700;
     font-family: var(--font-main);
     cursor: pointer;
-    transition: background 0.2s, transform 0.2s;
+    box-shadow: 0 4px 16px rgba(255, 122, 0, 0.35);
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     text-decoration: none;
     display: inline-flex;
     align-items: center;
@@ -4330,7 +4344,8 @@ html.swal2-height-auto {
 }
 
 .bestellstrasse-quick-btn:hover {
-    background: #ea580c;
+    background: linear-gradient(135deg, #ff8c00 0%, #f97316 100%);
+    box-shadow: 0 8px 24px rgba(255, 122, 0, 0.5);
     transform: translateY(-2px);
 }
 
