@@ -83,6 +83,8 @@ test.describe('Firstcon Guard & Error Interceptor Verification', () => {
         const tabWaerme = page.locator('.calc-tab-btn[data-branch="waerme"]');
         await tabWaerme.click();
         await expect(tabWaerme).toHaveClass(/active/);
+        const noticeEl = page.locator('#calcBranchNoticeText');
+        await expect(noticeEl).toContainText('Wärmestrom nach § 14a EnWG');
 
         // Test tariff order modal opening
         const btnOrderTariff = page.locator('[data-select-tariff]').first();

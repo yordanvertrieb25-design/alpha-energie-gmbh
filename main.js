@@ -804,15 +804,19 @@ document.addEventListener("DOMContentLoaded", async () => {
                 tab.classList.add('active');
                 currentBranch = tab.getAttribute('data-branch') || 'strom';
                 
+                const noticeText = document.getElementById('calcBranchNoticeText');
                 if (currentBranch === 'waerme') {
                     if (calcKwh) calcKwh.value = '4000';
                     if (calcAbschlag) calcAbschlag.value = '145';
+                    if (noticeText) noticeText.textContent = 'Wärmestrom nach § 14a EnWG • Bis zu 25 % reduzierte Netzentgelte für Wärmepumpen';
                 } else if (currentBranch === 'gas') {
                     if (calcKwh) calcKwh.value = '15000';
                     if (calcAbschlag) calcAbschlag.value = '130';
+                    if (noticeText) noticeText.textContent = 'Erdgas mit freiwilligem Klimaschutzbeitrag • Zertifizierte CO2-Kompensation';
                 } else {
                     if (calcKwh) calcKwh.value = '2500';
                     if (calcAbschlag) calcAbschlag.value = '95';
+                    if (noticeText) noticeText.textContent = 'Ökostrom aus 100 % erneuerbaren Energien • Geprüft nach ok-power Kriterien';
                 }
                 recalculateTariffs();
             });
