@@ -307,13 +307,17 @@ h3 { font-size: 1.5rem; }
 }
 
 .btn-primary {
-    background: #ffffff;
-    color: var(--accent-orange);
-    box-shadow: var(--shadow-md);
+    background: linear-gradient(135deg, #ff7a00 0%, #ea580c 100%) !important;
+    color: #ffffff !important;
+    border: none !important;
+    box-shadow: 0 4px 16px rgba(255, 122, 0, 0.35);
+    font-weight: 700;
 }
 
 .btn-primary:hover {
-    box-shadow: var(--shadow-lg);
+    background: linear-gradient(135deg, #ff8c00 0%, #f97316 100%) !important;
+    color: #ffffff !important;
+    box-shadow: 0 8px 25px rgba(255, 122, 0, 0.5);
     transform: translateY(-2px) scale(1.02);
 }
 
@@ -3189,19 +3193,24 @@ section {
 :root {
     --versorger-navy: #07152d;
     --versorger-navy-light: #0d2348;
-    --versorger-green: #10b981;
-    --versorger-green-dark: #059669;
-    --versorger-green-light: #ecfdf5;
-    --versorger-lime: #65a30d;
+    --versorger-orange: #ff7a00;
+    --versorger-orange-dark: #ea580c;
+    --versorger-orange-light: #fff7ed;
+    --versorger-card-border: rgba(255, 122, 0, 0.25);
+
+    /* Backwards compatibility aliases */
+    --versorger-green: #ff7a00;
+    --versorger-green-dark: #ea580c;
+    --versorger-green-light: #fff7ed;
+    --versorger-lime: #f59e0b;
     --versorger-gold: #f59e0b;
-    --versorger-card-border: rgba(16, 185, 129, 0.2);
 }
 
 /* --- Hero Versorger Section --- */
 .hero-versorger {
     position: relative;
     padding: 3rem 1.5rem 5rem 1.5rem;
-    background: radial-gradient(circle at 10% 20%, rgba(16, 185, 129, 0.12) 0%, transparent 40%),
+    background: radial-gradient(circle at 10% 20%, rgba(255, 122, 0, 0.12) 0%, transparent 40%),
                 radial-gradient(circle at 90% 80%, rgba(239, 138, 0, 0.1) 0%, transparent 45%),
                 linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
     overflow: hidden;
@@ -3233,9 +3242,9 @@ section {
     display: inline-flex;
     align-items: center;
     gap: 0.5rem;
-    background: #ecfdf5;
-    color: #065f46;
-    border: 1px solid rgba(16, 185, 129, 0.3);
+    background: #fff7ed;
+    color: #9a3412;
+    border: 1px solid rgba(255, 122, 0, 0.3);
     padding: 0.4rem 1rem;
     border-radius: 9999px;
     font-size: 0.875rem;
@@ -3244,7 +3253,7 @@ section {
 }
 
 .versorger-tag svg {
-    color: #10b981;
+    color: #ff7a00;
 }
 
 .hero-versorger-title {
@@ -3256,8 +3265,9 @@ section {
     letter-spacing: -0.02em;
 }
 
-.hero-versorger-title .text-green-gradient {
-    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+.hero-versorger-title .text-green-gradient,
+.hero-versorger-title .text-orange-gradient {
+    background: linear-gradient(135deg, #ff7a00 0%, #ea580c 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
 }
@@ -3294,7 +3304,7 @@ section {
 .tarifrechner-card {
     background: #ffffff;
     border-radius: 20px;
-    border: 1px solid rgba(16, 185, 129, 0.25);
+    border: 1px solid rgba(255, 122, 0, 0.25);
     box-shadow: 0 20px 45px -12px rgba(10, 31, 68, 0.12), 0 0 0 1px rgba(0, 0, 0, 0.02);
     padding: 2rem;
     position: relative;
@@ -3353,7 +3363,7 @@ section {
 
 .calc-tab-btn.active {
     background: #ffffff;
-    color: #065f46;
+    color: #9a3412;
     font-weight: 700;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
@@ -3398,8 +3408,8 @@ section {
 
 .calc-input:focus {
     outline: none;
-    border-color: #10b981;
-    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15);
+    border-color: #ff7a00;
+    box-shadow: 0 0 0 3px rgba(255, 122, 0, 0.15);
 }
 
 .calc-plz-city {
@@ -3407,8 +3417,8 @@ section {
     right: 0.75rem;
     font-size: 0.8rem;
     font-weight: 600;
-    color: #059669;
-    background: #ecfdf5;
+    color: #ea580c;
+    background: #fff7ed;
     padding: 0.2rem 0.6rem;
     border-radius: 6px;
     pointer-events: none;
@@ -3448,9 +3458,9 @@ section {
 }
 
 .household-btn.active {
-    background: #ecfdf5;
-    border-color: #10b981;
-    color: #065f46;
+    background: #fff7ed;
+    border-color: #ff7a00;
+    color: #9a3412;
 }
 
 .household-btn-label {
@@ -3465,13 +3475,13 @@ section {
 }
 
 .household-btn.active .household-btn-sub {
-    color: #059669;
+    color: #ea580c;
     font-weight: 600;
 }
 
 /* Savings Box */
 .savings-banner-box {
-    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    background: linear-gradient(135deg, #ff7a00 0%, #ea580c 100%);
     color: #ffffff;
     border-radius: 12px;
     padding: 1rem 1.25rem;
@@ -3479,7 +3489,7 @@ section {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    box-shadow: 0 8px 20px -4px rgba(16, 185, 129, 0.35);
+    box-shadow: 0 8px 20px -4px rgba(255, 122, 0, 0.35);
 }
 
 .savings-label {
@@ -3497,12 +3507,12 @@ section {
 
 .calc-submit-btn {
     width: 100%;
-    padding: 0.9rem;
-    background: var(--primary-color);
-    color: #ffffff;
-    border: none;
+    padding: 0.95rem;
+    background: linear-gradient(135deg, #ff7a00 0%, #ea580c 100%) !important;
+    color: #ffffff !important;
+    border: none !important;
     border-radius: 10px;
-    font-size: 1.05rem;
+    font-size: 1.1rem;
     font-weight: 700;
     font-family: var(--font-main);
     cursor: pointer;
@@ -3510,13 +3520,14 @@ section {
     align-items: center;
     justify-content: center;
     gap: 0.5rem;
-    transition: background-color 0.2s, transform 0.2s, box-shadow 0.2s;
+    box-shadow: 0 6px 20px rgba(255, 122, 0, 0.4);
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .calc-submit-btn:hover {
-    background: #112d60;
+    background: linear-gradient(135deg, #ff8c00 0%, #f97316 100%) !important;
     transform: translateY(-2px);
-    box-shadow: 0 10px 20px -5px rgba(10, 31, 68, 0.25);
+    box-shadow: 0 10px 25px rgba(255, 122, 0, 0.55);
 }
 
 .calc-guarantee-note {
@@ -3575,8 +3586,8 @@ section {
 }
 
 .versorger-tariff-card.bestseller {
-    border: 2px solid #10b981;
-    box-shadow: 0 15px 35px -8px rgba(16, 185, 129, 0.18);
+    border: 2px solid #ff7a00;
+    box-shadow: 0 15px 35px -8px rgba(255, 122, 0, 0.18);
 }
 
 .tariff-ribbon {
@@ -3584,14 +3595,14 @@ section {
     top: -12px;
     left: 50%;
     transform: translateX(-50%);
-    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    background: linear-gradient(135deg, #ff7a00 0%, #ea580c 100%);
     color: #ffffff;
     font-size: 0.75rem;
     font-weight: 700;
     padding: 0.25rem 0.85rem;
     border-radius: 9999px;
     white-space: nowrap;
-    box-shadow: 0 4px 10px rgba(16, 185, 129, 0.3);
+    box-shadow: 0 4px 10px rgba(255, 122, 0, 0.3);
 }
 
 .tariff-card-header {
@@ -3643,13 +3654,13 @@ section {
 .tariff-bonus-pill {
     display: inline-block;
     margin-top: 0.5rem;
-    background: #ecfdf5;
-    color: #065f46;
+    background: #fff7ed;
+    color: #9a3412;
     font-size: 0.75rem;
     font-weight: 700;
     padding: 0.25rem 0.65rem;
     border-radius: 9999px;
-    border: 1px solid rgba(16, 185, 129, 0.25);
+    border: 1px solid rgba(255, 122, 0, 0.25);
 }
 
 .tariff-price-details {
@@ -3679,40 +3690,45 @@ section {
 }
 
 .tariff-feature-item svg {
-    color: #10b981;
+    color: #ff7a00;
     flex-shrink: 0;
     margin-top: 2px;
 }
 
 .tariff-action-btn {
     width: 100%;
-    padding: 0.8rem;
+    padding: 0.85rem;
     border-radius: 8px;
-    border: 1.5px solid var(--primary-color);
-    background: transparent;
-    color: var(--primary-color);
+    border: 2px solid #ff7a00;
+    background: #fff7ed;
+    color: #ea580c;
     font-weight: 700;
     font-size: 0.95rem;
     font-family: var(--font-main);
     cursor: pointer;
-    transition: all 0.2s;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     text-align: center;
 }
 
 .tariff-action-btn:hover {
-    background: var(--primary-color);
+    background: linear-gradient(135deg, #ff7a00 0%, #ea580c 100%);
+    border-color: #ff7a00;
     color: #ffffff;
+    box-shadow: 0 6px 20px rgba(255, 122, 0, 0.35);
+    transform: translateY(-2px);
 }
 
 .versorger-tariff-card.bestseller .tariff-action-btn {
-    background: #10b981;
-    border-color: #10b981;
+    background: linear-gradient(135deg, #ff7a00 0%, #ea580c 100%);
+    border-color: #ff7a00;
     color: #ffffff;
+    box-shadow: 0 4px 15px rgba(255, 122, 0, 0.35);
 }
 
 .versorger-tariff-card.bestseller .tariff-action-btn:hover {
-    background: #059669;
-    border-color: #059669;
+    background: linear-gradient(135deg, #ff8c00 0%, #f97316 100%);
+    box-shadow: 0 8px 25px rgba(255, 122, 0, 0.5);
+    transform: translateY(-2px);
 }
 
 /* --- Multi-Step Digital Order Modal --- */
@@ -3739,7 +3755,7 @@ section {
     max-width: 680px;
     width: 100%;
     box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.3);
-    border: 1px solid rgba(16, 185, 129, 0.2);
+    border: 1px solid rgba(255, 122, 0, 0.2);
     overflow: hidden;
     position: relative;
     max-height: 90vh;
@@ -3800,9 +3816,9 @@ section {
 }
 
 .progress-step.active {
-    color: #065f46;
-    border-color: #10b981;
-    background: #ecfdf5;
+    color: #9a3412;
+    border-color: #ff7a00;
+    background: #fff7ed;
 }
 
 .modal-body {
@@ -3865,13 +3881,13 @@ section {
 .fab-btn:hover {
     transform: translateY(-3px) scale(1.05);
     box-shadow: 0 12px 28px rgba(10, 31, 68, 0.25);
-    color: #10b981;
+    color: #ff7a00;
 }
 
 .fab-btn.fab-phone {
-    background: #10b981;
+    background: #ff7a00;
     color: #ffffff;
-    border-color: #10b981;
+    border-color: #ff7a00;
 }
 
 .fab-btn.fab-whatsapp {
@@ -3952,13 +3968,13 @@ section {
     padding: 0.75rem 1.5rem;
     text-align: center;
     font-size: 0.875rem;
-    border-bottom: 2px solid #10b981;
+    border-bottom: 2px solid #ff7a00;
     position: relative;
     z-index: 100;
 }
 
 .lang-toast-banner strong {
-    color: #34d399;
+    color: #ff8c00;
 }
 
 /* --- Sektorenkopplung & Trust Sections --- */
@@ -3996,8 +4012,8 @@ section {
     width: 60px;
     height: 60px;
     border-radius: 14px;
-    background: #ecfdf5;
-    color: #10b981;
+    background: #fff7ed;
+    color: #ff7a00;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -4085,9 +4101,9 @@ html.swal2-height-auto {
 /* --- Firstcon Bestellstrasse & Embed Section --- */
 .bestellstrasse-section {
     padding: 3.5rem 1.5rem;
-    background: linear-gradient(180deg, #f8fafc 0%, #ecfdf5 40%, #ffffff 100%);
-    border-top: 1px solid rgba(16, 185, 129, 0.2);
-    border-bottom: 1px solid rgba(16, 185, 129, 0.15);
+    background: linear-gradient(180deg, #f8fafc 0%, #fff7ed 40%, #ffffff 100%);
+    border-top: 1px solid rgba(255, 122, 0, 0.2);
+    border-bottom: 1px solid rgba(255, 122, 0, 0.15);
     position: relative;
     overflow: hidden;
 }
@@ -4108,10 +4124,10 @@ html.swal2-height-auto {
 }
 
 .bestellstrasse-status-notice.is-active {
-    background: #f0fdf4;
-    border-color: #bbf7d0;
-    border-left-color: #10b981;
-    box-shadow: 0 2px 8px rgba(16, 185, 129, 0.08);
+    background: #fff7ed;
+    border-color: #fed7aa;
+    border-left-color: #ff7a00;
+    box-shadow: 0 2px 8px rgba(255, 122, 0, 0.08);
 }
 
 .status-notice-left {
@@ -4133,8 +4149,8 @@ html.swal2-height-auto {
 }
 
 .bestellstrasse-status-notice.is-active .status-pulse-dot {
-    background: #10b981;
-    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+    background: #ff7a00;
+    box-shadow: 0 0 0 0 rgba(255, 122, 0, 0.7);
     animation: statusNoticePulseActive 2s infinite;
 }
 
@@ -4152,13 +4168,13 @@ html.swal2-height-auto {
 
 @keyframes statusNoticePulseActive {
     0% {
-        box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+        box-shadow: 0 0 0 0 rgba(255, 122, 0, 0.7);
     }
     70% {
-        box-shadow: 0 0 0 8px rgba(16, 185, 129, 0);
+        box-shadow: 0 0 0 8px rgba(255, 122, 0, 0);
     }
     100% {
-        box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+        box-shadow: 0 0 0 0 rgba(255, 122, 0, 0);
     }
 }
 
@@ -4184,7 +4200,7 @@ html.swal2-height-auto {
     display: inline-flex;
     align-items: center;
     gap: 0.35rem;
-    background: #10b981;
+    background: #ff7a00;
     color: #ffffff;
     font-size: 0.82rem;
     font-weight: 700;
@@ -4196,7 +4212,7 @@ html.swal2-height-auto {
 }
 
 .status-action-link:hover {
-    background: #059669;
+    background: #ea580c;
     transform: translateY(-1px);
 }
 
@@ -4238,7 +4254,7 @@ html.swal2-height-auto {
 .bestellstrasse-card-wrapper {
     background: #ffffff;
     border-radius: 20px;
-    box-shadow: 0 20px 45px -10px rgba(10, 31, 68, 0.1), 0 0 0 1px rgba(16, 185, 129, 0.2);
+    box-shadow: 0 20px 45px -10px rgba(10, 31, 68, 0.1), 0 0 0 1px rgba(255, 122, 0, 0.2);
     padding: 2.25rem;
     max-width: 1040px;
     margin: 0 auto;
@@ -4258,7 +4274,7 @@ html.swal2-height-auto {
     justify-content: center;
     text-align: center;
     padding: 2.5rem 1.5rem;
-    border: 2px dashed rgba(16, 185, 129, 0.35);
+    border: 2px dashed rgba(255, 122, 0, 0.35);
     border-radius: 16px;
     background: #fcfdfd;
 }
@@ -4299,7 +4315,7 @@ html.swal2-height-auto {
 
 .bestellstrasse-quick-btn {
     padding: 0.75rem 1.75rem;
-    background: #10b981;
+    background: #ff7a00;
     color: #ffffff;
     border: none;
     border-radius: 8px;
@@ -4314,14 +4330,14 @@ html.swal2-height-auto {
 }
 
 .bestellstrasse-quick-btn:hover {
-    background: #059669;
+    background: #ea580c;
     transform: translateY(-2px);
 }
 
 /* --- Subpages Architecture & Rich Elements --- */
 .subpage-hero {
     padding: 4.5rem 1.5rem 4rem 1.5rem;
-    background: radial-gradient(circle at 15% 20%, rgba(16, 185, 129, 0.15) 0%, transparent 45%),
+    background: radial-gradient(circle at 15% 20%, rgba(255, 122, 0, 0.15) 0%, transparent 45%),
                 radial-gradient(circle at 85% 75%, rgba(245, 158, 11, 0.12) 0%, transparent 50%),
                 linear-gradient(180deg, #07152d 0%, #0d2348 100%);
     color: #ffffff;
@@ -4373,15 +4389,15 @@ html.swal2-height-auto {
 .subpage-feature-card:hover {
     transform: translateY(-4px);
     box-shadow: 0 18px 35px -8px rgba(0, 0, 0, 0.09);
-    border-color: #10b981;
+    border-color: #ff7a00;
 }
 
 .subpage-card-icon {
     width: 54px;
     height: 54px;
     border-radius: 12px;
-    background: #ecfdf5;
-    color: #10b981;
+    background: #fff7ed;
+    color: #ff7a00;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -4449,8 +4465,8 @@ html.swal2-height-auto {
 }
 
 .faq-accordion-item.active {
-    border-color: #10b981;
-    box-shadow: 0 4px 15px rgba(16, 185, 129, 0.1);
+    border-color: #ff7a00;
+    box-shadow: 0 4px 15px rgba(255, 122, 0, 0.1);
 }
 
 .faq-question-btn {
@@ -4484,7 +4500,7 @@ html.swal2-height-auto {
 
 .faq-accordion-item.active .faq-icon-cross {
     transform: rotate(45deg);
-    color: #10b981;
+    color: #ff7a00;
 }
 
 .faq-answer-content {
@@ -4539,16 +4555,16 @@ html.swal2-height-auto {
 
 .service-tile:hover {
     transform: translateY(-4px);
-    box-shadow: 0 20px 40px -8px rgba(16, 185, 129, 0.2);
-    border-color: #10b981;
+    box-shadow: 0 20px 40px -8px rgba(255, 122, 0, 0.2);
+    border-color: #ff7a00;
 }
 
 .service-tile-icon {
     width: 48px;
     height: 48px;
     border-radius: 10px;
-    background: #ecfdf5;
-    color: #10b981;
+    background: #fff7ed;
+    color: #ff7a00;
     display: flex;
     align-items: center;
     justify-content: center;

@@ -7,103 +7,63 @@
     <meta name="description" content="Alpha Energie GmbH: 100% zertifizierter Ökostrom, günstiger Wärmestrom nach § 14a EnWG und klimaneutrales Ökogas. Jetzt Tarif berechnen und wechseln!">
     <link rel="canonical" href="https://alpha-energie.de/">
 
-    <!-- Firstcon Guard & Error Interceptor (Pre-emptive) -->
+    <!-- Firstcon Smart Conditional Loader & Token Manager -->
     <script>
     (function() {
-        // 1. Resolve Firstcon token dynamically from URL or localStorage
         try {
             var urlParams = new URLSearchParams(window.location.search);
             var tokenParam = urlParams.get('firstcon_token') || urlParams.get('token');
-            if (tokenParam) {
-                localStorage.setItem('firstcon_token', tokenParam.trim());
+            if (tokenParam && tokenParam.trim() !== '' && tokenParam !== 'alpha-energie-live' && tokenParam !== 'TOKEN') {
+                try { localStorage.setItem('firstcon_token', tokenParam.trim()); } catch(e){}
             }
-            window.__FIRSTCON_TOKEN__ = tokenParam ? tokenParam.trim() : (localStorage.getItem('firstcon_token') || 'alpha-energie-live');
+            var storedToken = null;
+            try { storedToken = localStorage.getItem('firstcon_token'); } catch(e){}
+            var validToken = (tokenParam && tokenParam.trim() !== '' && tokenParam !== 'alpha-energie-live' && tokenParam !== 'TOKEN') 
+                ? tokenParam.trim() 
+                : (storedToken && storedToken !== 'alpha-energie-live' && storedToken !== 'TOKEN' ? storedToken.trim() : null);
+
+            window.__FIRSTCON_TOKEN__ = validToken || 'alpha-energie-live';
+            window.__FIRSTCON_ACTIVE__ = !!validToken;
+
+            // ONLY load Firstcon external scripts if explicitly enabled by production live flag!
+            // This strictly isolates Firstcon scripts, eliminating external CSS overrides, 401 reload loops, and infinite spinners.
+            var isLiveActivated = urlParams.get('firstcon_live') === 'true' || 
+                                  urlParams.get('firstcon_live') === '1' || 
+                                  (localStorage.getItem('firstcon_external_active') === 'true');
+
+            if (isLiveActivated && validToken) {
+                console.log('[Firstcon Loader] Production live flag confirmed. Loading Firstcon orderflow scripts...');
+                var headScript = document.createElement('script');
+                headScript.src = 'https://cdn.firstcon.de/static/js/firstcon.bestellstrasse.head.js';
+                document.head.appendChild(headScript);
+
+                var injectBodyScript = function() {
+                    var bodyScript = document.createElement('script');
+                    bodyScript.src = 'https://cdn.firstcon.de/static/js/firstcon.bestellstrasse.body.js';
+                    document.body.appendChild(bodyScript);
+                };
+
+                if (document.readyState === 'loading') {
+                    document.addEventListener('DOMContentLoaded', injectBodyScript);
+                } else {
+                    injectBodyScript();
+                }
+            } else {
+                console.log('[Firstcon Loader] Pending activation from Firstcon GmbH. Native Alpha Energie Live-Tarifrechner running.');
+            }
         } catch (e) {
-            window.__FIRSTCON_TOKEN__ = 'alpha-energie-live';
+            console.warn('[Firstcon Loader] Init warning:', e);
         }
 
-        // 2. Intercept XMLHttpRequest to suppress 401 on AuthenticateOrderflow (prevents Firstcon AxiosError -> En().fire -> reload loop)
-        try {
-            var origOpen = XMLHttpRequest.prototype.open;
-            var origSend = XMLHttpRequest.prototype.send;
-
-            XMLHttpRequest.prototype.open = function(method, url) {
-                this._isFirstconAuth = (typeof url === 'string') && (url.indexOf('AuthenticateOrderflow') !== -1);
-                if (this._isFirstconAuth) {
-                    var xhr = this;
-                    var wrapCallback = function(origFn) {
-                        return function() {
-                            if (xhr.status === 401) {
-                                console.warn('[Firstcon Guard] AuthenticateOrderflow 401 intercepted. Suppressed error dispatch to prevent reload loop.');
-                                return;
-                            }
-                            if (origFn) return origFn.apply(this, arguments);
-                        };
-                    };
-
-                    var _onreadystatechange = null;
-                    Object.defineProperty(xhr, 'onreadystatechange', {
-                        configurable: true,
-                        get: function() { return _onreadystatechange; },
-                        set: function(fn) { _onreadystatechange = wrapCallback(fn); }
-                    });
-
-                    var _onload = null;
-                    Object.defineProperty(xhr, 'onload', {
-                        configurable: true,
-                        get: function() { return _onload; },
-                        set: function(fn) { _onload = wrapCallback(fn); }
-                    });
-
-                    var _onloadend = null;
-                    Object.defineProperty(xhr, 'onloadend', {
-                        configurable: true,
-                        get: function() { return _onloadend; },
-                        set: function(fn) { _onloadend = wrapCallback(fn); }
-                    });
-
-                    var _onerror = null;
-                    Object.defineProperty(xhr, 'onerror', {
-                        configurable: true,
-                        get: function() { return _onerror; },
-                        set: function(fn) { _onerror = wrapCallback(fn); }
-                    });
-                }
-                return origOpen.apply(this, arguments);
-            };
-
-            XMLHttpRequest.prototype.send = function() {
-                if (this._isFirstconAuth) {
-                    var isPending = (!window.__FIRSTCON_TOKEN__ || window.__FIRSTCON_TOKEN__ === 'alpha-energie-live');
-                    if (isPending) {
-                        console.warn('[Firstcon Guard] Suppressed AuthenticateOrderflow network request for unconfirmed placeholder token ("alpha-energie-live") to prevent 401 loop.');
-                        return;
-                    }
-                }
-                return origSend.apply(this, arguments);
-            };
-        } catch (xhrErr) {
-            console.warn('[Firstcon Guard] XHR interceptor error:', xhrErr);
-        }
-
-        // 2. Intercept SweetAlert2 container creation to suppress 401 error popups and reload loops
+        // Global Error & SweetAlert2 Shield (in case external scripts are ever activated)
         var dismissSweetAlertModal = function(elem) {
             if (!elem) return;
-            // CRITICAL: DO NOT CLICK ANY BUTTONS!
-            // Firstcon's callback is: .then(function(e) { e && window.location.reload(!0) })
-            // If any button is clicked, SweetAlert2 resolves with an object { isDismissed: true },
-            // which in JS is truthy and triggers window.location.reload(!0)!
-            // By NOT resolving the promise, Firstcon's reload callback is NEVER triggered.
             elem.style.cssText = 'display:none!important;visibility:hidden!important;pointer-events:none!important;opacity:0!important;z-index:-99999!important;';
             if (elem.parentNode) {
                 try { elem.parentNode.removeChild(elem); } catch (e) {}
             }
-            if (document.body) {
-                document.body.classList.remove('swal2-shown', 'swal2-height-auto');
-            }
-            if (document.documentElement) {
-                document.documentElement.classList.remove('swal2-shown', 'swal2-height-auto');
-            }
+            if (document.body) document.body.classList.remove('swal2-shown', 'swal2-height-auto');
+            if (document.documentElement) document.documentElement.classList.remove('swal2-shown', 'swal2-height-auto');
         };
 
         var swalObserver = new MutationObserver(function(mutations) {
@@ -132,8 +92,6 @@
         }
     })();
     </script>
-    <!-- Firstcon Bestellstraße Head Script -->
-    <script src="https://cdn.firstcon.de/static/js/firstcon.bestellstrasse.head.js"></script>
     
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
@@ -238,8 +196,8 @@
             <span>Montag – Freitag 08:00 – 18:00 Uhr | Kundenservice Dortmund</span>
         </div>
         <div class="topbar-right">
-            <a href="tel:023139989390" class="topbar-contact">📞 0231 39989390</a>
-            <a href="mailto:info@alpha-energy.network" class="topbar-contact">✉ info@alpha-energy.network</a>
+            <a href="tel:023139989390" class="topbar-contact"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="display:inline-block;vertical-align:-1px;margin-right:5px;"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>0231 39989390</a>
+            <a href="mailto:info@alpha-energy.network" class="topbar-contact"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="display:inline-block;vertical-align:-1px;margin-right:5px;"><rect x="2" y="4" width="20" height="16" rx="2"></rect><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path></svg>info@alpha-energy.network</a>
         </div>
     </div>
 
@@ -328,15 +286,15 @@
 
                     <div class="versorger-hero-badges">
                         <div class="versorger-hero-badge-item">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="#10b981" stroke="#10b981" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 14 14" stroke="#ffffff"></polyline></svg>
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="#ff7a00" stroke="#ff7a00" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 14 14" stroke="#ffffff"></polyline></svg>
                             24 Monate Preisschutz
                         </div>
                         <div class="versorger-hero-badge-item">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="#10b981" stroke="#10b981" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" stroke="#ffffff"></path></svg>
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="#ff7a00" stroke="#ff7a00" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" stroke="#ffffff"></path></svg>
                             100% Ökostrom (ok-power+)
                         </div>
                         <div class="versorger-hero-badge-item">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="#10b981" stroke="#10b981" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" stroke="#ffffff"></polygon></svg>
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="#ff7a00" stroke="#ff7a00" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" stroke="#ffffff"></polygon></svg>
                             Kostenloser Wechselservice
                         </div>
                     </div>
@@ -349,9 +307,9 @@
 
                     <!-- Tabs: Ökostrom | Wärmestrom | Ökogas -->
                     <div class="calc-tab-group">
-                        <button type="button" class="calc-tab-btn active" data-branch="strom">⚡ Ökostrom</button>
-                        <button type="button" class="calc-tab-btn" data-branch="waerme">♨️ Wärmestrom § 14a</button>
-                        <button type="button" class="calc-tab-btn" data-branch="gas">🔥 Ökogas</button>
+                        <button type="button" class="calc-tab-btn active" data-branch="strom"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="display:inline-block;vertical-align:-1px;margin-right:6px;"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>Ökostrom</button>
+                        <button type="button" class="calc-tab-btn" data-branch="waerme"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="display:inline-block;vertical-align:-1px;margin-right:6px;"><path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z"></path></svg>Wärmestrom § 14a</button>
+                        <button type="button" class="calc-tab-btn" data-branch="gas"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="display:inline-block;vertical-align:-1px;margin-right:6px;"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"></path></svg>Ökogas</button>
                     </div>
 
                     <form id="rechnerForm">
@@ -359,9 +317,9 @@
                         <div class="calc-field-group">
                             <label for="calcPlz" class="calc-label">Ihre Postleitzahl</label>
                             <div class="calc-input-wrapper">
-                                <span class="calc-input-icon">📍</span>
+                                <span class="calc-input-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg></span>
                                 <input type="text" id="calcPlz" class="calc-input" value="44379" maxlength="5" pattern="[0-9]{5}" required>
-                                <span id="calcCityBadge" class="calc-plz-city" style="display: inline-block;">📍 Dortmund</span>
+                                <span id="calcCityBadge" class="calc-plz-city" style="display: inline-block;">Dortmund</span>
                             </div>
                         </div>
 
@@ -387,7 +345,7 @@
                                 </button>
                             </div>
                             <div class="calc-input-wrapper" style="margin-top: 0.5rem;">
-                                <span class="calc-input-icon">⚡</span>
+                                <span class="calc-input-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg></span>
                                 <input type="number" id="calcKwh" class="calc-input" value="2500" min="500" max="100000" required>
                                 <span style="position: absolute; right: 1rem; color: #64748b; font-size: 0.85rem; pointer-events: none;">kWh / Jahr</span>
                             </div>
@@ -397,7 +355,7 @@
                         <div class="calc-field-group">
                             <label for="calcAbschlag" class="calc-label">Aktueller monatlicher Abschlag (€ / Monat)</label>
                             <div class="calc-input-wrapper">
-                                <span class="calc-input-icon">💶</span>
+                                <span class="calc-input-icon" style="font-weight:700;font-size:0.95rem;">€</span>
                                 <input type="number" id="calcAbschlag" class="calc-input" value="95" min="20" max="2000">
                             </div>
                         </div>
@@ -408,7 +366,9 @@
                                 <div class="savings-label">Ihre errechnete Sparchance:</div>
                                 <div id="calcSavingsValue" class="savings-value">Bis zu 320 € / Jahr!</div>
                             </div>
-                            <span style="font-size: 1.75rem;">🎉</span>
+                            <span style="display:flex;align-items:center;justify-content:center;width:40px;height:40px;border-radius:50%;background:rgba(255,122,0,0.15);color:#ff7a00;" aria-hidden="true">
+                                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m23 6-9.5 9.5-5-5L1 18"></path><path d="M17 6h6v6"></path></svg>
+                            </span>
                         </div>
 
                         <!-- Submit Button -->
@@ -417,7 +377,7 @@
                         </button>
 
                         <div class="calc-guarantee-note">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#ff7a00" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
                             Kostenlos, unverbindlich &amp; TÜV-geprüfter Wechsel
                         </div>
                     </form>
@@ -429,7 +389,10 @@
         <div id="bestellstrasse_container" class="bestellstrasse-section">
             <div class="container">
                 <div class="section-badge-wrapper text-center mb-md">
-                    <span class="versorger-tag">⚡ Offizielle Firstcon-Bestellstrecke</span>
+                    <span class="versorger-tag">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="display:inline-block;vertical-align:-1px;margin-right:5px;"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+                        Offizielle Firstcon-Bestellstrecke
+                    </span>
                 </div>
                 <div class="bestellstrasse-card-wrapper">
                     <!-- Status Notice for pending token / fallback -->
@@ -437,14 +400,14 @@
                         <div class="status-notice-left">
                             <span class="status-pulse-dot" aria-hidden="true"></span>
                             <div class="status-notice-text">
-                                <strong>⚡ Firstcon-Bestellstrecke:</strong> Freischaltung durch Firstcon GmbH ausstehend. Nutzen Sie in der Zwischenzeit unseren Live-Tarifrechner mit Sofortabschluss.
+                                <strong>Firstcon-Bestellstrecke:</strong> Freischaltung durch Firstcon GmbH ausstehend. Nutzen Sie in der Zwischenzeit unseren Live-Tarifrechner mit Sofortabschluss.
                             </div>
                         </div>
                         <div class="status-notice-actions">
                             <a href="#rechner" class="status-action-link">Live-Tarifrechner nutzen &darr;</a>
                             <button type="button" class="status-token-btn" id="btnConfigureFirstconToken" title="Token konfigurieren">
                                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
-                                <span>Token verwalten</span>
+                                <span>Firstcon-Token aktivieren (sobald von Firstcon per Mail erhalten)</span>
                             </button>
                         </div>
                     </div>
@@ -552,13 +515,13 @@
 
                     <!-- Tariff 2: Alpha Strom Garant 24 (Bestseller) -->
                     <div class="versorger-tariff-card bestseller" id="card-alpha-strom-garant-24">
-                        <div class="tariff-ribbon">⭐ Bestseller &amp; Preisschutz</div>
+                        <div class="tariff-ribbon">Bestseller &amp; Preisschutz</div>
                         <div class="tariff-card-header">
-                            <span class="tariff-badge" style="background: #ecfdf5; color: #065f46;">2 Jahre Preisschutz</span>
+                            <span class="tariff-badge" style="background: #fff7ed; color: #9a3412;">2 Jahre Preisschutz</span>
                             <h3 class="tariff-title">Alpha Strom Garant 24</h3>
-                            <div class="tariff-card-price-box" style="border-color: #a7f3d0; background: #f0fdf4;">
-                                <div class="tariff-price-monthly" id="price-alpha-strom-garant-24" style="color: #065f46;">71 €<span> / Monat</span></div>
-                                <div class="tariff-bonus-pill" style="background: #10b981; color: #ffffff;">Inkl. 150 € Treuebonus</div>
+                            <div class="tariff-card-price-box" style="border-color: #fed7aa; background: #fff7ed;">
+                                <div class="tariff-price-monthly" id="price-alpha-strom-garant-24" style="color: #c2410c;">71 €<span> / Monat</span></div>
+                                <div class="tariff-bonus-pill" style="background: #ff7a00; color: #ffffff;">Inkl. 150 € Treuebonus</div>
                                 <div class="tariff-price-details">
                                     <span id="savings-alpha-strom-garant-24">Bis zu 290 € / Jahr sparen</span>
                                 </div>
@@ -700,19 +663,25 @@
 
                 <div class="sektor-grid-3">
                     <div class="sektor-card">
-                        <div class="sektor-icon-wrapper">☀️</div>
+                        <div class="sektor-icon-wrapper">
+                            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+                        </div>
                         <h3 class="sektor-title">Photovoltaik &amp; Speicher</h3>
                         <p class="sektor-text">Eigener Ökostrom vom Dach, direkt gespeichert in modernen LFP-Batterien. Maximale Unabhängigkeit vor steigenden Strompreisen.</p>
                         <a href="photovoltaik.html" class="btn btn-secondary">Photovoltaik entdecken</a>
                     </div>
                     <div class="sektor-card">
-                        <div class="sektor-icon-wrapper">♨️</div>
+                        <div class="sektor-icon-wrapper">
+                            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z"></path></svg>
+                        </div>
                         <h3 class="sektor-title">Wärmepumpenstrom § 14a</h3>
                         <p class="sektor-text">Heizen mit staatlich reduzierten Netzentgelten. Intelligente SG-Ready-Steuerung wandelt Solarüberschüsse in Wärme um.</p>
                         <a href="waermestrom.html" class="btn btn-secondary">Wärmestrom ansehen</a>
                     </div>
                     <div class="sektor-card">
-                        <div class="sektor-icon-wrapper">🚗</div>
+                        <div class="sektor-icon-wrapper">
+                            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="9" rx="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                        </div>
                         <h3 class="sektor-title">Wallbox &amp; E-Mobilität</h3>
                         <p class="sektor-text">Intelligentes Überschussladen für Elektrofahrzeuge. Nutzen Sie günstigen Nachtstrom oder 100% eigene Sonnenenergie.</p>
                         <a href="sektorenkopplung.html" class="btn btn-secondary">Sektorenkopplung prüfen</a>
@@ -830,7 +799,7 @@
                             <div>Monatlicher Abschlag: <strong id="orderSummaryMonthly">71 € / Monat</strong></div>
                             <div>Jahresverbrauch: <strong id="orderSummaryKwh">2.500 kWh</strong></div>
                         </div>
-                        <div style="margin-top: 0.5rem; color: #059669; font-weight: 700; font-size: 0.85rem;" id="orderSummarySavings">
+                        <div style="margin-top: 0.5rem; color: #ea580c; font-weight: 700; font-size: 0.85rem;" id="orderSummarySavings">
                             Bis zu 290 € / Jahr sparen
                         </div>
                     </div>
@@ -941,25 +910,27 @@
                     <div style="margin-bottom: 1.5rem; display: flex; align-items: flex-start; gap: 0.6rem;">
                         <input type="checkbox" id="orderAgb" required style="margin-top: 4px;">
                         <label for="orderAgb" style="font-size: 0.85rem; color: #475569;">
-                            Ich stimme den <a href="datenschutz.html" target="_blank" style="text-decoration: underline; color: #10b981;">Datenschutzbestimmungen</a> und der Übermittlung des Auftrags verbindlich zu.
+                            Ich stimme den <a href="datenschutz.html" target="_blank" style="text-decoration: underline; color: #ff7a00;">Datenschutzbestimmungen</a> und der Übermittlung des Auftrags verbindlich zu.
                         </label>
                     </div>
 
                     <div style="display: flex; gap: 1rem;">
                         <button type="button" id="btnStep3Back" class="btn btn-secondary" style="flex: 1;">&larr; Zurück</button>
-                        <button type="button" id="btnStep3Submit" class="calc-submit-btn" style="flex: 2; background: #10b981;">Auftrag jetzt verbindlich abschließen</button>
+                        <button type="button" id="btnStep3Submit" class="calc-submit-btn" style="flex: 2; background: #ff7a00;">Auftrag jetzt verbindlich abschließen</button>
                     </div>
                 </div>
 
                 <!-- Step 4: Bestätigung -->
                 <div class="modal-step" id="modalStep4">
                     <div style="text-align: center; padding: 2rem 1rem;">
-                        <div style="font-size: 3.5rem; margin-bottom: 1rem;">🎉</div>
-                        <h3 style="font-size: 1.5rem; color: #065f46; margin-bottom: 0.75rem;">Vielen Dank für Ihren Auftrag!</h3>
+                        <div style="width: 72px; height: 72px; margin: 0 auto 1.25rem; border-radius: 50%; background: rgba(255, 122, 0, 0.15); color: #ff7a00; display: flex; align-items: center; justify-content: center;" aria-hidden="true">
+                            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                        </div>
+                        <h3 style="font-size: 1.5rem; color: #ea580c; margin-bottom: 0.75rem;">Vielen Dank für Ihren Auftrag!</h3>
                         <p style="color: #475569; font-size: 1rem; line-height: 1.6; max-width: 500px; margin: 0 auto 1.5rem auto;">
                             Ihr Wechselauftrag wurde erfolgreich erfasst. Wir haben eine Bestätigung an Ihre E-Mail-Adresse gesendet.
                         </p>
-                        <div style="background: #ecfdf5; border: 1px solid #10b981; border-radius: 8px; padding: 1rem; display: inline-block; font-weight: 700; color: #065f46; margin-bottom: 1.5rem;">
+                        <div style="background: #fff7ed; border: 1px solid #ff7a00; border-radius: 8px; padding: 1rem; display: inline-block; font-weight: 700; color: #9a3412; margin-bottom: 1.5rem;">
                             Auftragsnummer: <span id="confirmedOrderNumber">AE-2026-981245</span>
                         </div>
                         <div>
@@ -1132,8 +1103,5 @@
             </div>
         </div>
     </div>
-
-    <!-- Firstcon Bestellstraße Body Script -->
-    <script src="https://cdn.firstcon.de/static/js/firstcon.bestellstrasse.body.js"></script>
 </body>
 </html>

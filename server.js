@@ -194,7 +194,7 @@ app.post('/api/tarife/calculate', (req, res) => {
             {
                 id: 'alpha-strom-garant-24',
                 name: 'Alpha Strom Garant 24',
-                badge: '⭐ Bestseller & Preisschutz',
+                badge: 'Bestseller & Preisschutz',
                 isBestseller: true,
                 workingPriceCt: 28.40,
                 basePriceEurMonth: 12.50,
@@ -355,7 +355,7 @@ app.post('/api/order/submit', async (req, res) => {
                         <h2 style="color: #0a1f44;">Herzlich willkommen bei der Alpha Energie GmbH!</h2>
                         <p>Hallo ${escapeHtml(firstName)} ${escapeHtml(lastName)},</p>
                         <p>vielen Dank für Ihr Vertrauen in Alpha Energie. Ihr Wechselauftrag ist erfolgreich bei uns eingegangen.</p>
-                        <div style="background: #f8fafc; border-left: 4px solid #10b981; padding: 15px; margin: 20px 0;">
+                        <div style="background: #f8fafc; border-left: 4px solid #ff7a00; padding: 15px; margin: 20px 0;">
                             <p style="margin: 4px 0;"><strong>Auftragsnummer:</strong> ${orderNumber}</p>
                             <p style="margin: 4px 0;"><strong>Gewählter Tarif:</strong> ${escapeHtml(tariffName)}</p>
                             <p style="margin: 4px 0;"><strong>Zählernummer:</strong> ${escapeHtml(meterNumber)}</p>
@@ -568,7 +568,7 @@ function getPartnerRegistrationConfirmationHtml(fullName, email, phone, experien
                 <!-- Summary Box with Applicant Details -->
                 <div style="background: #f8fafc; border-left: 4px solid #ef8a00; padding: 18px 20px; border-radius: 8px; margin: 24px 0; border-top: 1px solid #e2e8f0; border-right: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0;">
                     <h3 style="margin: 0 0 12px 0; font-size: 0.85rem; color: #0f172a; text-transform: uppercase; letter-spacing: 0.6px; font-weight: 700;">
-                        📋 Deine Registrierungsdaten im Überblick:
+                        Deine Registrierungsdaten im Überblick:
                     </h3>
                     <table style="width: 100%; font-size: 0.9rem; border-collapse: collapse;">
                         <tr>
@@ -677,7 +677,7 @@ function getAppointmentConfirmationHtml(name, email, phone, dateFormatted, time)
                 <a href="https://alpha-energie.de" target="_blank" style="text-decoration: none; display: inline-block;">
                     <img src="https://alpha-energie.de/logo.png" alt="Alpha Energie GmbH" style="max-width: 190px; height: auto; margin-bottom: 16px; display: block; margin-left: auto; margin-right: auto; border: 0;">
                 </a>
-                <h1 style="color: #ffffff; margin: 0; font-size: 1.35rem; font-weight: 700; letter-spacing: -0.3px; line-height: 1.3;">Dein Termin ist bestätigt! 📅</h1>
+                <h1 style="color: #ffffff; margin: 0; font-size: 1.35rem; font-weight: 700; letter-spacing: -0.3px; line-height: 1.3;">Dein Termin ist bestätigt!</h1>
                 <p style="color: #94a3b8; margin: 8px 0 0 0; font-size: 0.95rem;">Kennenlerngespräch mit der Alpha Energie GmbH</p>
             </div>
 
@@ -687,9 +687,9 @@ function getAppointmentConfirmationHtml(name, email, phone, dateFormatted, time)
                 <p style="color: #334155; font-size: 0.95rem; margin-bottom: 24px;">vielen Dank für Deine Buchung! Dein Termin für unser telefonisches Kennenlerngespräch ist erfolgreich eingetragen und verbindlich für Dich reserviert. Wir freuen uns auf den persönlichen Austausch mit Dir.</p>
                 
                 <!-- Highlighted Appointment Box -->
-                <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-left: 5px solid #10b981; padding: 20px 22px; border-radius: 8px; margin: 24px 0;">
-                    <h3 style="margin: 0 0 14px 0; font-size: 0.85rem; color: #166534; text-transform: uppercase; letter-spacing: 0.6px; font-weight: 700;">
-                        📅 Deine Termindetails:
+                <div style="background: #fff7ed; border: 1px solid #fed7aa; border-left: 5px solid #ff7a00; padding: 20px 22px; border-radius: 8px; margin: 24px 0;">
+                    <h3 style="margin: 0 0 14px 0; font-size: 0.85rem; color: #9a3412; text-transform: uppercase; letter-spacing: 0.6px; font-weight: 700;">
+                        Deine Termindetails:
                     </h3>
                     <table style="width: 100%; font-size: 0.95rem; border-collapse: collapse;">
                         <tr>
@@ -698,7 +698,7 @@ function getAppointmentConfirmationHtml(name, email, phone, dateFormatted, time)
                         </tr>
                         <tr>
                             <td style="padding: 6px 0; color: #475569;"><strong>Uhrzeit:</strong></td>
-                            <td style="padding: 6px 0; color: #ef8a00; font-weight: 700; font-size: 1.05rem;">${safeTime} Uhr</td>
+                            <td style="padding: 6px 0; color: #ea580c; font-weight: 700; font-size: 1.05rem;">${safeTime} Uhr</td>
                         </tr>
                         <tr>
                             <td style="padding: 6px 0; color: #475569;"><strong>Gesprächspartner:</strong></td>
@@ -716,19 +716,19 @@ function getAppointmentConfirmationHtml(name, email, phone, dateFormatted, time)
                 
                 <table style="width: 100%; border-collapse: separate; border-spacing: 0 10px; margin-bottom: 15px;">
                     <tr>
-                        <td style="vertical-align: top; width: 24px; color: #10b981; font-size: 1.1rem; line-height: 1.4;">📞</td>
+                        <td style="vertical-align: top; width: 28px; color: #ff7a00; font-size: 1rem; font-weight: 700; line-height: 1.4;">1.</td>
                         <td style="vertical-align: top; padding-left: 8px; color: #334155; font-size: 0.92rem;">
                             <strong>Telefonischer Anruf:</strong> Wir rufen Dich pünktlich zur vereinbarten Uhrzeit unter Deiner angegebenen Rufnummer (<strong>${safePhone}</strong>) an.
                         </td>
                     </tr>
                     <tr>
-                        <td style="vertical-align: top; width: 24px; color: #10b981; font-size: 1.1rem; line-height: 1.4;">⏱️</td>
+                        <td style="vertical-align: top; width: 28px; color: #ff7a00; font-size: 1rem; font-weight: 700; line-height: 1.4;">2.</td>
                         <td style="vertical-align: top; padding-left: 8px; color: #334155; font-size: 0.92rem;">
                             <strong>Dauer:</strong> Das Gespräch dauert ca. <strong>15–20 Minuten</strong>. Wir besprechen Deine Vertriebspotenziale, unsere Tarife und wie Du sofort durchstarten kannst.
                         </td>
                     </tr>
                     <tr>
-                        <td style="vertical-align: top; width: 24px; color: #10b981; font-size: 1.1rem; line-height: 1.4;">🔄</td>
+                        <td style="vertical-align: top; width: 28px; color: #ff7a00; font-size: 1rem; font-weight: 700; line-height: 1.4;">3.</td>
                         <td style="vertical-align: top; padding-left: 8px; color: #334155; font-size: 0.92rem;">
                             <strong>Termin ändern oder absagen:</strong> Solltest Du den Termin verschieben müssen, antworte einfach kurz auf diese E-Mail oder rufe uns unter <a href="tel:023139989390" style="color: #0284c7; text-decoration: underline;">0231 39989390</a> an.
                         </td>

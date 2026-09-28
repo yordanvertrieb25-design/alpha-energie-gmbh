@@ -382,7 +382,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                     }
                     isValid = false;
                 } else {
-                    input.style.borderColor = "#10b981";
+                    input.style.borderColor = "#ff7a00";
                     if (errorDiv && errorDiv.classList.contains("error-msg")) {
                         errorDiv.style.display = "none";
                     }
@@ -466,7 +466,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                                 errorDiv.style.display = "block";
                             }
                         } else {
-                            input.style.borderColor = "#10b981";
+                            input.style.borderColor = "#ff7a00";
                             if (errorDiv && errorDiv.classList.contains("error-msg")) {
                                 errorDiv.style.display = "none";
                             }
@@ -488,7 +488,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                             errorDiv.style.display = "block";
                         }
                     } else {
-                        input.style.borderColor = "#10b981";
+                        input.style.borderColor = "#ff7a00";
                         if (errorDiv && errorDiv.classList.contains("error-msg")) {
                             errorDiv.style.display = "none";
                         }
@@ -772,7 +772,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                 if (val.length >= 2 && calcCityBadge) {
                     const prefix = val.slice(0, 2);
                     const city = cityMap[prefix] || (val.startsWith('4') || val.startsWith('5') ? 'NRW' : 'Deutschland');
-                    calcCityBadge.textContent = `📍 ${city}`;
+                    calcCityBadge.textContent = city;
                     calcCityBadge.style.display = 'inline-block';
                 }
             });
@@ -1189,10 +1189,10 @@ document.addEventListener("DOMContentLoaded", async () => {
 
                 if (langToast && langToastText) {
                     if (lang === 'tr') {
-                        langToastText.innerHTML = '🇹🇷 <strong>Hoş geldiniz!</strong> Dortmund merkezli Alpha Energie ile %100 temiz yeşil elektrik. Yılda <strong>320 €\'ya varan tasarruf</strong> edin! Türkçe destek & bilgi hattı: <a href="tel:023139989390" style="text-decoration: underline; color: #fff;">0231 39989390</a>.';
+                        langToastText.innerHTML = '<strong>Hoş geldiniz!</strong> Dortmund merkezli Alpha Energie ile %100 temiz yeşil elektrik. Yılda <strong>320 €\'ya varan tasarruf</strong> edin! Türkçe destek & bilgi hattı: <a href="tel:023139989390" style="text-decoration: underline; color: #fff;">0231 39989390</a>.';
                         langToast.style.display = 'block';
                     } else if (lang === 'en') {
-                        langToastText.innerHTML = '🇬🇧 <strong>Welcome!</strong> 100% clean green electricity from Dortmund. Save <strong>up to €320/year</strong> with certified price guarantee. Hotline: <a href="tel:023139989390" style="text-decoration: underline; color: #fff;">0231 39989390</a>.';
+                        langToastText.innerHTML = '<strong>Welcome!</strong> 100% clean green electricity from Dortmund. Save <strong>up to €320/year</strong> with certified price guarantee. Hotline: <a href="tel:023139989390" style="text-decoration: underline; color: #fff;">0231 39989390</a>.';
                         langToast.style.display = 'block';
                     } else {
                         langToast.style.display = 'none';
@@ -1353,7 +1353,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                 if (dot) dot.classList.add('is-active');
                 const textElem = statusNotice.querySelector('.status-notice-text');
                 if (textElem) {
-                    textElem.innerHTML = `<strong>⚡ Firstcon-Bestellstrecke:</strong> Token konfiguriert (<code>${safeEscape(activeToken)}</code>). Sollte die Firstcon-Freischaltung noch ausstehen, steht der Live-Tarifrechner jederzeit bereit.`;
+                    textElem.innerHTML = `<strong>Firstcon-Bestellstrecke:</strong> Token konfiguriert (<code>${safeEscape(activeToken)}</code>). Sollte die Firstcon-Freischaltung noch ausstehen, steht der Live-Tarifrechner jederzeit bereit.`;
                 }
             }
         }
@@ -1372,7 +1372,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             btnConfig.addEventListener('click', () => {
                 const current = localStorage.getItem('firstcon_token') || '';
                 const promptVal = window.prompt(
-                    'Offiziellen Firstcon Integrationstoken eingeben (oder leer lassen zum Zurücksetzen):',
+                    'Firstcon Integrationstoken eingeben (sobald von Firstcon per Mail erhalten, oder leer lassen zum Zurücksetzen):',
                     current
                 );
                 if (promptVal !== null) {
