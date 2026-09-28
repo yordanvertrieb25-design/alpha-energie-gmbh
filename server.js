@@ -72,6 +72,21 @@ app.use((req, res, next) => {
 app.use(express.static(path.join(__dirname, 'public'))); // For future public assets if needed
 app.use(express.static(__dirname, { extensions: ['html'] })); // Serving the HTML files from the root
 
+// Dedicated route for hero image to ensure 100% availability
+app.get('/clean_energy_home.jpg', (req, res) => {
+    const pubFile = path.join(__dirname, 'public', 'clean_energy_home.jpg');
+    if (fs.existsSync(pubFile)) {
+        res.setHeader('Content-Type', 'image/jpeg');
+        return res.sendFile(pubFile);
+    }
+    const rootFile = path.join(__dirname, 'clean_energy_home.jpg');
+    if (fs.existsSync(rootFile)) {
+        res.setHeader('Content-Type', 'image/jpeg');
+        return res.sendFile(rootFile);
+    }
+    res.status(404).send('Not Found');
+});
+
 // --- API ROUTES ---
 
 // DEBUG: Test Google Places API (temporary - remove after debugging)
