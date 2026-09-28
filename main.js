@@ -684,32 +684,25 @@ document.addEventListener("DOMContentLoaded", async () => {
         };
 
         const tariffSpecs = {
-            'alpha-strom-easy-12': {
-                name: 'Alpha Strom Easy 12',
+            'alpha-basic': {
+                name: 'ALPHA BASIC',
                 workingPriceCt: 27.85,
                 basePriceEur: 11.90,
                 bonus: 100,
                 guaranteeMonths: 12
             },
-            'alpha-strom-garant-24': {
-                name: 'Alpha Strom Garant 24',
-                workingPriceCt: 28.40,
-                basePriceEur: 12.50,
+            'alpha-time': {
+                name: 'ALPHA TIME',
+                workingPriceCt: 24.50,
+                basePriceEur: 12.00,
                 bonus: 150,
-                guaranteeMonths: 24
+                guaranteeMonths: 12
             },
-            'alpha-waermestrom-14a': {
-                name: 'Alpha Wärmestrom § 14a',
-                workingPriceCt: 21.90,
-                basePriceEur: 10.50,
-                bonus: 80,
-                guaranteeMonths: 24
-            },
-            'alpha-gewerbestrom': {
-                name: 'Alpha Gewerbestrom',
-                workingPriceCt: 22.50,
-                basePriceEur: 15.00,
-                bonus: 200,
+            'alpha-premium': {
+                name: 'ALPHA PREMIUM',
+                workingPriceCt: 28.20,
+                basePriceEur: 12.90,
+                bonus: 180,
                 guaranteeMonths: 24
             }
         };
@@ -862,7 +855,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         function openOrderModal(tariffId, btnElement) {
             if (!orderModal) return;
-            const spec = tariffSpecs[tariffId] || tariffSpecs['alpha-strom-easy-12'];
+            const spec = tariffSpecs[tariffId] || tariffSpecs['alpha-basic'];
             const kwh = btnElement ? btnElement.getAttribute('data-kwh') : (calcKwh ? calcKwh.value : '2500');
             const monthly = btnElement ? btnElement.getAttribute('data-monthly') : '68';
             const savings = btnElement ? btnElement.getAttribute('data-savings') : '320';
@@ -1343,20 +1336,6 @@ document.addEventListener("DOMContentLoaded", async () => {
             widget.setAttribute('data-token', activeToken);
             widget.dataset.token = activeToken;
         }
-
-        const statusNotice = document.getElementById('bestellstrasse_status_notice');
-        if (statusNotice) {
-            if (activeToken !== 'alpha-energie-live') {
-                statusNotice.classList.remove('is-pending');
-                statusNotice.classList.add('is-active');
-                const dot = statusNotice.querySelector('.status-pulse-dot');
-                if (dot) dot.classList.add('is-active');
-                const textElem = statusNotice.querySelector('.status-notice-text');
-                if (textElem) {
-                    textElem.innerHTML = `<strong>Firstcon-Bestellstrecke:</strong> Token konfiguriert (<code>${safeEscape(activeToken)}</code>). Sollte die Firstcon-Freischaltung noch ausstehen, steht der Live-Tarifrechner jederzeit bereit.`;
-                }
-            }
-        }
     };
 
     if (document.readyState === 'loading') {
@@ -1364,41 +1343,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     } else {
         applyTokenToWidget();
     }
-
-    // 2. Token Management Button Interaction
-    document.addEventListener('DOMContentLoaded', () => {
-        const btnConfig = document.getElementById('btnConfigureFirstconToken');
-        if (btnConfig) {
-            btnConfig.addEventListener('click', () => {
-                const current = localStorage.getItem('firstcon_token') || '';
-                const promptVal = window.prompt(
-                    'Firstcon Integrationstoken eingeben (sobald von Firstcon per Mail erhalten, oder leer lassen zum Zurücksetzen):',
-                    current
-                );
-                if (promptVal !== null) {
-                    const cleanToken = promptVal.trim();
-                    if (cleanToken) {
-                        try {
-                            localStorage.setItem('firstcon_token', cleanToken);
-                        } catch (e) {}
-                        alert(`Token '${cleanToken}' gespeichert. Die Seite wird jetzt neu geladen.`);
-                        const url = new URL(window.location.href);
-                        url.searchParams.set('firstcon_token', cleanToken);
-                        window.location.href = url.toString();
-                    } else {
-                        try {
-                            localStorage.removeItem('firstcon_token');
-                        } catch (e) {}
-                        alert('Token wurde auf den Standardwert zurückgesetzt.');
-                        const url = new URL(window.location.href);
-                        url.searchParams.delete('firstcon_token');
-                        url.searchParams.delete('token');
-                        window.location.href = url.toString();
-                    }
-                }
-            });
-        }
-    });
 
     // 3. Catch and suppress unhandled promise rejections / Axios 401 from Firstcon
     window.addEventListener('unhandledrejection', (event) => {

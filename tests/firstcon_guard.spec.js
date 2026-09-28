@@ -37,10 +37,14 @@ test.describe('Firstcon Guard & Error Interceptor Verification', () => {
         });
         expect(bodyScrollLocked).toBe(false);
 
-        // Assert Status Notice is visible and displays pending activation notice
+        // Assert Status Notice is completely removed
         const statusNotice = page.locator('#bestellstrasse_status_notice');
-        await expect(statusNotice).toBeVisible();
-        await expect(statusNotice).toContainText('Freischaltung durch Firstcon GmbH ausstehend');
+        await expect(statusNotice).toHaveCount(0);
+
+        // Assert 3 official tariffs exist
+        await expect(page.locator('#card-alpha-basic')).toBeVisible();
+        await expect(page.locator('#card-alpha-time')).toBeVisible();
+        await expect(page.locator('#card-alpha-premium')).toBeVisible();
     });
 
     test('2. Live-Tarifrechner operates independently and smoothly', async ({ page }) => {

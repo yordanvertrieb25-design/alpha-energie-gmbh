@@ -3558,6 +3558,21 @@ section {
     background: #f8fafc;
 }
 
+.tariff-grid-3 {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+    max-width: var(--container-max);
+    margin: 2.5rem auto 0 auto;
+}
+
+@media (max-width: 992px) {
+    .tariff-grid-3 {
+        grid-template-columns: 1fr;
+        max-width: 600px;
+    }
+}
+
 .tariff-grid-4 {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
@@ -4123,6 +4138,7 @@ html.swal2-height-auto {
 
 /* Bestellstrasse Status Notice Banner */
 .bestellstrasse-status-notice {
+    display: none !important; /* hidden by user request */
     display: flex;
     align-items: center;
     justify-content: space-between;

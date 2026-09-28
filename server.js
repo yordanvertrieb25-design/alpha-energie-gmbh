@@ -173,8 +173,8 @@ app.post('/api/tarife/calculate', (req, res) => {
         // Standardized green energy tariffs
         const tariffs = [
             {
-                id: 'alpha-strom-easy-12',
-                name: 'Alpha Strom Easy 12',
+                id: 'alpha-basic',
+                name: 'ALPHA BASIC',
                 badge: 'Flexibel & Günstig',
                 isBestseller: false,
                 workingPriceCt: 27.85,
@@ -192,60 +192,41 @@ app.post('/api/tarife/calculate', (req, res) => {
                 ]
             },
             {
-                id: 'alpha-strom-garant-24',
-                name: 'Alpha Strom Garant 24',
-                badge: 'Bestseller & Preisschutz',
+                id: 'alpha-time',
+                name: 'ALPHA TIME',
+                badge: 'Bestseller & Smart Energy',
                 isBestseller: true,
-                workingPriceCt: 28.40,
-                basePriceEurMonth: 12.50,
+                workingPriceCt: 24.50,
+                basePriceEurMonth: 12.00,
                 bonusEur: 150,
-                priceGuaranteeMonths: 24,
-                contractTermMonths: 24,
-                ecoCertificate: '100% Ökostrom mit Neuanlagenförderung',
+                priceGuaranteeMonths: 12,
+                contractTermMonths: 12,
+                ecoCertificate: '100% Dynamischer Ökostrom (§ 14a EnWG)',
                 features: [
-                    '24 Monate volle Preisgarantie bis 2028',
-                    '150 € Treue- & Neukundenbonus',
-                    '100% Ökostrom aus zertifizierten Neuanlagen',
-                    'Fester Preisschutz vor Marktschwankungen',
-                    'Persönlicher Kundenberater in Dortmund'
-                ]
-            },
-            {
-                id: 'alpha-waermestrom-14a',
-                name: 'Alpha Wärmestrom § 14a',
-                badge: 'Wärmepumpe & Nachtspeicher',
-                isBestseller: false,
-                workingPriceCt: 21.90,
-                basePriceEurMonth: 10.50,
-                bonusEur: 80,
-                priceGuaranteeMonths: 24,
-                contractTermMonths: 24,
-                ecoCertificate: '100% Grüner Heizstrom (§ 14a EnWG)',
-                features: [
+                    'Zeitvariabler Smart-Tarif für flexible Verbräuche',
+                    'Optimiert für Wärmepumpe, Wallbox & Heimspeicher',
                     'Bis zu 25% reduzierte Netzentgelte (§ 14a EnWG)',
-                    'Spezialtarif für Wärmepumpen & Speicherheizung',
-                    '24 Monate verlässliche Preisgarantie',
-                    'Getrennte oder gemeinsame Messung (HT/NT)',
-                    'Zukunftssicher mit PV-Sektorenkopplung'
+                    '150 € Smart-Energy-Bonus',
+                    'Transparente App-Einsicht & Steuerung'
                 ]
             },
             {
-                id: 'alpha-gewerbestrom',
-                name: 'Alpha Gewerbestrom',
-                badge: 'Gewerbe & KMU',
+                id: 'alpha-premium',
+                name: 'ALPHA PREMIUM',
+                badge: '24 Monate Preisschutz & VIP-Service',
                 isBestseller: false,
-                workingPriceCt: 22.50,
-                basePriceEurMonth: 15.00,
-                bonusEur: 200,
+                workingPriceCt: 28.20,
+                basePriceEurMonth: 12.90,
+                bonusEur: 180,
                 priceGuaranteeMonths: 24,
                 contractTermMonths: 24,
-                ecoCertificate: '100% Ökostrom für Unternehmen',
+                ecoCertificate: '100% Ökostrom mit ok-power+ Neuanlagenförderung',
                 features: [
-                    'Maßgeschneiderte Konditionen für KMU & Handel',
-                    'SLP- & RLM-Zählerabrechnung ab 10.000 kWh',
-                    'Kombinierbar mit PV-Dachanlagen & Ladeinfrastruktur',
-                    'Dortmunder Geschäftskundenbetreuung',
-                    'ESG-konforme Herkunftsnachweise (HKNR)'
+                    '24 Monate garantierte Preisstabilität bis 2028',
+                    '180 € Treue- & Neukundenbonus',
+                    '100% Ökostrom mit ok-power+ Neuanlagenförderung',
+                    'Prioritäts-Kundenservice aus Dortmund',
+                    'Voller Schutz vor steigenden Steuern & Netzentgelten'
                 ]
             }
         ];
