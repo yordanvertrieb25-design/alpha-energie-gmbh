@@ -87,6 +87,21 @@ app.get('/clean_energy_home.jpg', (req, res) => {
     res.status(404).send('Not Found');
 });
 
+// Dedicated route for ok-power Gütesiegel to ensure 100% availability and image/png content-type
+app.get('/ok-power-siegel.png', (req, res) => {
+    const pubFile = path.join(__dirname, 'public', 'ok-power-siegel.png');
+    if (fs.existsSync(pubFile)) {
+        res.setHeader('Content-Type', 'image/png');
+        return res.sendFile(pubFile);
+    }
+    const rootFile = path.join(__dirname, 'ok-power-siegel.png');
+    if (fs.existsSync(rootFile)) {
+        res.setHeader('Content-Type', 'image/png');
+        return res.sendFile(rootFile);
+    }
+    res.status(404).send('Not Found');
+});
+
 // --- API ROUTES ---
 
 // DEBUG: Test Google Places API (temporary - remove after debugging)

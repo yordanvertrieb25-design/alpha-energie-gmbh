@@ -5256,6 +5256,28 @@ html.swal2-height-auto {
     text-align: center;
 }
 
+.ok-power-seal-wrapper {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 0.65rem 0.85rem;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    margin-bottom: 1.25rem;
+    max-width: 100%;
+}
+
+.ok-power-seal-img {
+    display: block;
+    max-width: 220px;
+    width: 100%;
+    height: auto;
+    object-fit: contain;
+    border-radius: 4px;
+}
+
 .ok-power-logo-badge {
     width: 140px;
     height: 140px;
@@ -5520,3 +5542,77 @@ html.swal2-height-auto {
         padding: 1.25rem 0.75rem;
     }
 }
+
+/* ========================================================
+   FOOTER TRUST BADGES (BDEB & OK-POWER)
+   ======================================================== */
+.footer-trust-badges {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.85rem;
+    margin-top: 1.75rem;
+}
+
+.trust-badge-item {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: #ffffff;
+    border-radius: 8px;
+    padding: 6px 12px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
+    height: 56px;
+    box-sizing: border-box;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    overflow: hidden;
+}
+
+.trust-badge-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
+}
+
+.footer-badge-bdeb {
+    height: 44px;
+    max-height: 44px;
+    width: auto;
+    max-width: 125px;
+    object-fit: contain;
+    display: block;
+}
+
+.footer-badge-okpower {
+    height: 44px;
+    max-height: 44px;
+    width: auto;
+    max-width: 85px;
+    object-fit: contain;
+    display: block;
+}
+
+@media (max-width: 480px) {
+    .footer-trust-badges {
+        gap: 0.65rem;
+        margin-top: 1.25rem;
+    }
+
+    .trust-badge-item {
+        height: 50px;
+        padding: 4px 10px;
+    }
+
+    .footer-badge-bdeb {
+        height: 38px;
+        max-height: 38px;
+        max-width: 110px;
+    }
+
+    .footer-badge-okpower {
+        height: 38px;
+        max-height: 38px;
+        max-width: 75px;
+    }
+}
+

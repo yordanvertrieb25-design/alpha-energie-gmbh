@@ -201,6 +201,43 @@ test.describe('Redesign Verification Suite', () => {
         });
         expect(isUpperRibbonHitTestable).toBe(true);
     });
+
+    test('8. Official ok-power Gütesiegel integration verification', async ({ page }) => {
+        // Pre-seed consent so cookie banner does not obscure elements
+        await page.addInitScript(() => {
+            localStorage.setItem('alpha_consent_status', 'all');
+            localStorage.setItem('cookieConsent', 'all');
+        });
+
+        // 1. Direct route verification of /ok-power-siegel.png
+        const directResp = await page.request.get('/ok-power-siegel.png');
+        expect(directResp.status()).toBe(200);
+        expect(directResp.headers()['content-type']).toContain('image/png');
+
+        await page.goto('/index.html', { waitUntil: 'domcontentloaded' });
+
+        // 2. Explainer card seal image is visible and loaded
+        const explainerSeal = page.locator('.ok-power-explainer-card .ok-power-seal-img');
+        await explainerSeal.scrollIntoViewIfNeeded();
+        await expect(explainerSeal).toBeVisible();
+        await expect(explainerSeal).toHaveAttribute('src', '/ok-power-siegel.png');
+        await expect.poll(async () => {
+            return await explainerSeal.evaluate((img) => img.complete && img.naturalWidth > 0 && img.naturalHeight > 0);
+        }, { timeout: 10000 }).toBe(true);
+
+        // 3. Footer seal image is visible and loaded
+        const footerSeal = page.locator('footer .footer-badge-okpower');
+        await footerSeal.scrollIntoViewIfNeeded();
+        await expect(footerSeal).toBeVisible();
+        await expect(footerSeal).toHaveAttribute('src', '/ok-power-siegel.png');
+        await expect.poll(async () => {
+            return await footerSeal.evaluate((img) => img.complete && img.naturalWidth > 0 && img.naturalHeight > 0);
+        }, { timeout: 10000 }).toBe(true);
+
+        // 4. Footer BDEB badge is visible alongside
+        const footerBdeb = page.locator('footer .footer-badge-bdeb');
+        await expect(footerBdeb).toBeVisible();
+    });
 });
 
 

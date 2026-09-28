@@ -36,6 +36,10 @@ test.describe('Multi-Language Translation System Verification (DE | EN | TR)', (
         await expect(navTariffs).toHaveText('Electricity & Tariffs');
         const calcCta = page.locator('.header-actions a[href="#rechner"]');
         await expect(calcCta).toHaveText('Calculate Tariff');
+        const partnerBtn = page.locator('.header-actions a[href="partner-werden.html"]');
+        await expect(partnerBtn).toBeVisible();
+        await expect(partnerBtn).toHaveText('Become a Partner');
+        await expect(page.locator('.header-actions')).not.toContainText('VP-Portal');
 
         // 4. Hero Section
         const heroTag = page.locator('.hero-versorger-content .versorger-tag');
@@ -145,6 +149,10 @@ test.describe('Multi-Language Translation System Verification (DE | EN | TR)', (
         await expect(navTariffs).toHaveText('Elektrik & Tarifeler');
         const calcCta = page.locator('.header-actions a[href="#rechner"]');
         await expect(calcCta).toHaveText('Tarife Hesapla');
+        const partnerBtn = page.locator('.header-actions a[href="partner-werden.html"]');
+        await expect(partnerBtn).toBeVisible();
+        await expect(partnerBtn).toHaveText('İş Ortağı Olun');
+        await expect(page.locator('.header-actions')).not.toContainText('VP-Portal');
 
         // 4. Hero Section
         const heroTag = page.locator('.hero-versorger-content .versorger-tag');
@@ -257,6 +265,10 @@ test.describe('Multi-Language Translation System Verification (DE | EN | TR)', (
         await expect(navTariffs).toHaveText('Strom & Tarife');
         const calcCta = page.locator('.header-actions a[href="#rechner"]');
         await expect(calcCta).toHaveText('Tarif berechnen');
+        const partnerBtn = page.locator('.header-actions a[href="partner-werden.html"]');
+        await expect(partnerBtn).toBeVisible();
+        await expect(partnerBtn).toHaveText('Partner werden');
+        await expect(page.locator('.header-actions')).not.toContainText('VP-Portal');
 
         // 4. Hero Section
         const heroTag = page.locator('.hero-versorger-content .versorger-tag');

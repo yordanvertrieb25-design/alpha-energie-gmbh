@@ -38,7 +38,7 @@
             nav_careers: 'Careers',
             nav_contact: 'Contact',
             nav_btn_calc: 'Calculate Tariff',
-            nav_btn_vp: 'Partner Portal',
+            nav_btn_partner: 'Become a Partner',
 
             // Hero
             hero_tag: 'Your Local Energy Provider in Dortmund',
@@ -391,7 +391,7 @@
             nav_careers: 'Kariyer',
             nav_contact: 'İletişim',
             nav_btn_calc: 'Tarife Hesapla',
-            nav_btn_vp: 'Ortak Portalı',
+            nav_btn_partner: 'İş Ortağı Olun',
 
             // Hero
             hero_tag: 'Dortmund\'daki Yerel Enerji Sağlayıcınız',
@@ -744,7 +744,7 @@
         { selector: '#main-nav .dropdown a[href="karriere.html"]', key: 'nav_careers' },
         { selector: '#main-nav .dropdown a[href="kontakt.html"]', key: 'nav_contact' },
         { selector: '.header-actions a[href="#rechner"]', key: 'nav_btn_calc' },
-        { selector: '.header-actions a[href="https://vp.alpha-energie.de"]', key: 'nav_btn_vp' },
+        { selector: '.header-actions a[href="partner-werden.html"]', key: 'nav_btn_partner' },
 
         // Hero
         { selector: '.hero-versorger-content .versorger-tag', key: 'hero_tag', hasSvgPrefix: true },
