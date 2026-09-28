@@ -1306,3 +1306,123 @@ document.addEventListener("DOMContentLoaded", async () => {
         checkAndShowBanner();
     }
 })();
+
+// ========================================================
+// FIRSTCON BESTELLSTRASSE GUARD & ERROR INTERCEPTOR
+// ========================================================
+(function initFirstconGuard() {
+    const safeEscape = (str) => {
+        return String(str || '').replace(/[&<>"']/g, (m) => ({
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#39;'
+        }[m]));
+    };
+
+    // 1. Resolve active token dynamically
+    let activeToken = 'alpha-energie-live';
+    try {
+        const urlParams = new URLSearchParams(window.location.search);
+        const urlToken = urlParams.get('firstcon_token') || urlParams.get('token');
+        if (urlToken) {
+            localStorage.setItem('firstcon_token', urlToken.trim());
+            activeToken = urlToken.trim();
+        } else {
+            const stored = localStorage.getItem('firstcon_token');
+            if (stored) activeToken = stored.trim();
+        }
+    } catch (e) {
+        console.warn('Firstcon token storage access warning:', e);
+    }
+
+    const applyTokenToWidget = () => {
+        const widget = document.getElementById('bestellstrasse_widget');
+        if (widget) {
+            widget.setAttribute('data-token', activeToken);
+            widget.dataset.token = activeToken;
+        }
+
+        const statusNotice = document.getElementById('bestellstrasse_status_notice');
+        if (statusNotice) {
+            if (activeToken !== 'alpha-energie-live') {
+                statusNotice.classList.remove('is-pending');
+                statusNotice.classList.add('is-active');
+                const dot = statusNotice.querySelector('.status-pulse-dot');
+                if (dot) dot.classList.add('is-active');
+                const textElem = statusNotice.querySelector('.status-notice-text');
+                if (textElem) {
+                    textElem.innerHTML = `<strong>⚡ Firstcon-Bestellstrecke:</strong> Token konfiguriert (<code>${safeEscape(activeToken)}</code>). Sollte die Firstcon-Freischaltung noch ausstehen, steht der Live-Tarifrechner jederzeit bereit.`;
+                }
+            }
+        }
+    };
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', applyTokenToWidget);
+    } else {
+        applyTokenToWidget();
+    }
+
+    // 2. Token Management Button Interaction
+    document.addEventListener('DOMContentLoaded', () => {
+        const btnConfig = document.getElementById('btnConfigureFirstconToken');
+        if (btnConfig) {
+            btnConfig.addEventListener('click', () => {
+                const current = localStorage.getItem('firstcon_token') || '';
+                const promptVal = window.prompt(
+                    'Offiziellen Firstcon Integrationstoken eingeben (oder leer lassen zum Zurücksetzen):',
+                    current
+                );
+                if (promptVal !== null) {
+                    const cleanToken = promptVal.trim();
+                    if (cleanToken) {
+                        try {
+                            localStorage.setItem('firstcon_token', cleanToken);
+                        } catch (e) {}
+                        alert(`Token '${cleanToken}' gespeichert. Die Seite wird jetzt neu geladen.`);
+                        const url = new URL(window.location.href);
+                        url.searchParams.set('firstcon_token', cleanToken);
+                        window.location.href = url.toString();
+                    } else {
+                        try {
+                            localStorage.removeItem('firstcon_token');
+                        } catch (e) {}
+                        alert('Token wurde auf den Standardwert zurückgesetzt.');
+                        const url = new URL(window.location.href);
+                        url.searchParams.delete('firstcon_token');
+                        url.searchParams.delete('token');
+                        window.location.href = url.toString();
+                    }
+                }
+            });
+        }
+    });
+
+    // 3. Catch and suppress unhandled promise rejections / Axios 401 from Firstcon
+    window.addEventListener('unhandledrejection', (event) => {
+        const reason = event && event.reason ? String(event.reason) : '';
+        if (reason.includes('401') || reason.includes('AxiosError') || reason.includes('AuthenticateOrderflow')) {
+            console.warn('[Firstcon Guard] Suppressed unhandled 401 rejection from external Firstcon script:', reason);
+            event.preventDefault();
+        }
+    });
+
+    // 4. Intercept SweetAlert2 container additions & suppress reload loop
+    const sweepSwalContainers = () => {
+        const swals = document.querySelectorAll('.swal2-container, #swal2-container');
+        swals.forEach((swal) => {
+            const text = swal.textContent || swal.innerText || '';
+            if (text.includes('401') || text.includes('AxiosError') || text.includes('Integrationstoken') || text.includes('Fehler ist aufgetreten')) {
+                // DO NOT click cancel or confirm buttons - that resolves the promise and triggers reload!
+                swal.style.cssText = 'display:none!important;visibility:hidden!important;pointer-events:none!important;opacity:0!important;';
+                swal.remove();
+                document.body.classList.remove('swal2-shown', 'swal2-height-auto');
+                document.documentElement.classList.remove('swal2-shown', 'swal2-height-auto');
+            }
+        });
+    };
+
+    setInterval(sweepSwalContainers, 200);
+})();

@@ -7,6 +7,131 @@
     <meta name="description" content="Alpha Energie GmbH: 100% zertifizierter Ökostrom, günstiger Wärmestrom nach § 14a EnWG und klimaneutrales Ökogas. Jetzt Tarif berechnen und wechseln!">
     <link rel="canonical" href="https://alpha-energie.de/">
 
+    <!-- Firstcon Guard & Error Interceptor (Pre-emptive) -->
+    <script>
+    (function() {
+        // 1. Resolve Firstcon token dynamically from URL or localStorage
+        try {
+            var urlParams = new URLSearchParams(window.location.search);
+            var tokenParam = urlParams.get('firstcon_token') || urlParams.get('token');
+            if (tokenParam) {
+                localStorage.setItem('firstcon_token', tokenParam.trim());
+            }
+            window.__FIRSTCON_TOKEN__ = tokenParam ? tokenParam.trim() : (localStorage.getItem('firstcon_token') || 'alpha-energie-live');
+        } catch (e) {
+            window.__FIRSTCON_TOKEN__ = 'alpha-energie-live';
+        }
+
+        // 2. Intercept XMLHttpRequest to suppress 401 on AuthenticateOrderflow (prevents Firstcon AxiosError -> En().fire -> reload loop)
+        try {
+            var origOpen = XMLHttpRequest.prototype.open;
+            var origSend = XMLHttpRequest.prototype.send;
+
+            XMLHttpRequest.prototype.open = function(method, url) {
+                this._isFirstconAuth = (typeof url === 'string') && (url.indexOf('AuthenticateOrderflow') !== -1);
+                if (this._isFirstconAuth) {
+                    var xhr = this;
+                    var wrapCallback = function(origFn) {
+                        return function() {
+                            if (xhr.status === 401) {
+                                console.warn('[Firstcon Guard] AuthenticateOrderflow 401 intercepted. Suppressed error dispatch to prevent reload loop.');
+                                return;
+                            }
+                            if (origFn) return origFn.apply(this, arguments);
+                        };
+                    };
+
+                    var _onreadystatechange = null;
+                    Object.defineProperty(xhr, 'onreadystatechange', {
+                        configurable: true,
+                        get: function() { return _onreadystatechange; },
+                        set: function(fn) { _onreadystatechange = wrapCallback(fn); }
+                    });
+
+                    var _onload = null;
+                    Object.defineProperty(xhr, 'onload', {
+                        configurable: true,
+                        get: function() { return _onload; },
+                        set: function(fn) { _onload = wrapCallback(fn); }
+                    });
+
+                    var _onloadend = null;
+                    Object.defineProperty(xhr, 'onloadend', {
+                        configurable: true,
+                        get: function() { return _onloadend; },
+                        set: function(fn) { _onloadend = wrapCallback(fn); }
+                    });
+
+                    var _onerror = null;
+                    Object.defineProperty(xhr, 'onerror', {
+                        configurable: true,
+                        get: function() { return _onerror; },
+                        set: function(fn) { _onerror = wrapCallback(fn); }
+                    });
+                }
+                return origOpen.apply(this, arguments);
+            };
+
+            XMLHttpRequest.prototype.send = function() {
+                if (this._isFirstconAuth) {
+                    var isPending = (!window.__FIRSTCON_TOKEN__ || window.__FIRSTCON_TOKEN__ === 'alpha-energie-live');
+                    if (isPending) {
+                        console.warn('[Firstcon Guard] Suppressed AuthenticateOrderflow network request for unconfirmed placeholder token ("alpha-energie-live") to prevent 401 loop.');
+                        return;
+                    }
+                }
+                return origSend.apply(this, arguments);
+            };
+        } catch (xhrErr) {
+            console.warn('[Firstcon Guard] XHR interceptor error:', xhrErr);
+        }
+
+        // 2. Intercept SweetAlert2 container creation to suppress 401 error popups and reload loops
+        var dismissSweetAlertModal = function(elem) {
+            if (!elem) return;
+            // CRITICAL: DO NOT CLICK ANY BUTTONS!
+            // Firstcon's callback is: .then(function(e) { e && window.location.reload(!0) })
+            // If any button is clicked, SweetAlert2 resolves with an object { isDismissed: true },
+            // which in JS is truthy and triggers window.location.reload(!0)!
+            // By NOT resolving the promise, Firstcon's reload callback is NEVER triggered.
+            elem.style.cssText = 'display:none!important;visibility:hidden!important;pointer-events:none!important;opacity:0!important;z-index:-99999!important;';
+            if (elem.parentNode) {
+                try { elem.parentNode.removeChild(elem); } catch (e) {}
+            }
+            if (document.body) {
+                document.body.classList.remove('swal2-shown', 'swal2-height-auto');
+            }
+            if (document.documentElement) {
+                document.documentElement.classList.remove('swal2-shown', 'swal2-height-auto');
+            }
+        };
+
+        var swalObserver = new MutationObserver(function(mutations) {
+            for (var i = 0; i < mutations.length; i++) {
+                var added = mutations[i].addedNodes;
+                for (var j = 0; j < added.length; j++) {
+                    var node = added[j];
+                    if (node.nodeType === 1) {
+                        if (node.classList && (node.classList.contains('swal2-container') || node.id === 'swal2-container')) {
+                            dismissSweetAlertModal(node);
+                        } else if (node.querySelector) {
+                            var swal = node.querySelector('.swal2-container, #swal2-container');
+                            if (swal) dismissSweetAlertModal(swal);
+                        }
+                    }
+                }
+            }
+        });
+
+        if (document.documentElement) {
+            swalObserver.observe(document.documentElement, { childList: true, subtree: true });
+        } else {
+            document.addEventListener('DOMContentLoaded', function() {
+                swalObserver.observe(document.documentElement, { childList: true, subtree: true });
+            });
+        }
+    })();
+    </script>
     <!-- Firstcon Bestellstraße Head Script -->
     <script src="https://cdn.firstcon.de/static/js/firstcon.bestellstrasse.head.js"></script>
     
@@ -307,6 +432,23 @@
                     <span class="versorger-tag">⚡ Offizielle Firstcon-Bestellstrecke</span>
                 </div>
                 <div class="bestellstrasse-card-wrapper">
+                    <!-- Status Notice for pending token / fallback -->
+                    <div id="bestellstrasse_status_notice" class="bestellstrasse-status-notice is-pending">
+                        <div class="status-notice-left">
+                            <span class="status-pulse-dot" aria-hidden="true"></span>
+                            <div class="status-notice-text">
+                                <strong>⚡ Firstcon-Bestellstrecke:</strong> Freischaltung durch Firstcon GmbH ausstehend. Nutzen Sie in der Zwischenzeit unseren Live-Tarifrechner mit Sofortabschluss.
+                            </div>
+                        </div>
+                        <div class="status-notice-actions">
+                            <a href="#rechner" class="status-action-link">Live-Tarifrechner nutzen &darr;</a>
+                            <button type="button" class="status-token-btn" id="btnConfigureFirstconToken" title="Token konfigurieren">
+                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
+                                <span>Token verwalten</span>
+                            </button>
+                        </div>
+                    </div>
+
                     <div id="bestellstrasse_widget" data-token="alpha-energie-live">
                         <!-- High-converting fallback UI for instant regional rate lookup -->
                         <div class="bestellstrasse-fallback">
