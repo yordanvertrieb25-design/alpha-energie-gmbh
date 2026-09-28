@@ -160,6 +160,310 @@ app.post('/api/contact', async (req, res) => {
     }
 });
 
+// --- VERSORGER TARIFRECHNER & ORDER ROUTES ---
+
+// 1.1 Calculate Tariffs dynamically
+app.post('/api/tarife/calculate', (req, res) => {
+    try {
+        const { plz, consumption, currentAbschlag, branch = 'strom' } = req.body;
+        const kwh = Math.max(500, parseInt(consumption, 10) || 2500);
+        const abschlagOld = parseFloat(currentAbschlag) || 95;
+        const cleanPlz = String(plz || '44379').replace(/\D/g, '').slice(0, 5);
+
+        // Standardized green energy tariffs
+        const tariffs = [
+            {
+                id: 'alpha-strom-easy-12',
+                name: 'Alpha Strom Easy 12',
+                badge: 'Flexibel & Günstig',
+                isBestseller: false,
+                workingPriceCt: 27.85,
+                basePriceEurMonth: 11.90,
+                bonusEur: 100,
+                priceGuaranteeMonths: 12,
+                contractTermMonths: 12,
+                ecoCertificate: '100% Ökostrom (ok-power+ Kriterien)',
+                features: [
+                    '12 Monate volle Preisgarantie',
+                    '100 € Neukunden-Sofortbonus',
+                    '100% Ökostrom aus deutscher Wasserkraft',
+                    'Monatlich kündbar nach dem 1. Jahr',
+                    'Kostenloser Wechselservice & Abmeldung'
+                ]
+            },
+            {
+                id: 'alpha-strom-garant-24',
+                name: 'Alpha Strom Garant 24',
+                badge: '⭐ Bestseller & Preisschutz',
+                isBestseller: true,
+                workingPriceCt: 28.40,
+                basePriceEurMonth: 12.50,
+                bonusEur: 150,
+                priceGuaranteeMonths: 24,
+                contractTermMonths: 24,
+                ecoCertificate: '100% Ökostrom mit Neuanlagenförderung',
+                features: [
+                    '24 Monate volle Preisgarantie bis 2028',
+                    '150 € Treue- & Neukundenbonus',
+                    '100% Ökostrom aus zertifizierten Neuanlagen',
+                    'Fester Preisschutz vor Marktschwankungen',
+                    'Persönlicher Kundenberater in Dortmund'
+                ]
+            },
+            {
+                id: 'alpha-waermestrom-14a',
+                name: 'Alpha Wärmestrom § 14a',
+                badge: 'Wärmepumpe & Nachtspeicher',
+                isBestseller: false,
+                workingPriceCt: 21.90,
+                basePriceEurMonth: 10.50,
+                bonusEur: 80,
+                priceGuaranteeMonths: 24,
+                contractTermMonths: 24,
+                ecoCertificate: '100% Grüner Heizstrom (§ 14a EnWG)',
+                features: [
+                    'Bis zu 25% reduzierte Netzentgelte (§ 14a EnWG)',
+                    'Spezialtarif für Wärmepumpen & Speicherheizung',
+                    '24 Monate verlässliche Preisgarantie',
+                    'Getrennte oder gemeinsame Messung (HT/NT)',
+                    'Zukunftssicher mit PV-Sektorenkopplung'
+                ]
+            },
+            {
+                id: 'alpha-gewerbestrom',
+                name: 'Alpha Gewerbestrom',
+                badge: 'Gewerbe & KMU',
+                isBestseller: false,
+                workingPriceCt: 22.50,
+                basePriceEurMonth: 15.00,
+                bonusEur: 200,
+                priceGuaranteeMonths: 24,
+                contractTermMonths: 24,
+                ecoCertificate: '100% Ökostrom für Unternehmen',
+                features: [
+                    'Maßgeschneiderte Konditionen für KMU & Handel',
+                    'SLP- & RLM-Zählerabrechnung ab 10.000 kWh',
+                    'Kombinierbar mit PV-Dachanlagen & Ladeinfrastruktur',
+                    'Dortmunder Geschäftskundenbetreuung',
+                    'ESG-konforme Herkunftsnachweise (HKNR)'
+                ]
+            }
+        ];
+
+        const calculatedTariffs = tariffs.map(t => {
+            const rawYearly = (kwh * (t.workingPriceCt / 100)) + (t.basePriceEurMonth * 12);
+            const netYearlyFirstYear = Math.max(0, rawYearly - t.bonusEur);
+            const monthlyPayment = Math.round((netYearlyFirstYear / 12) * 100) / 100;
+            const yearlyOld = abschlagOld * 12;
+            const savings = Math.max(0, Math.round(yearlyOld - netYearlyFirstYear));
+
+            return {
+                ...t,
+                monthlyPayment,
+                grossYearlyEur: Math.round(netYearlyFirstYear * 100) / 100,
+                savingsEur: savings
+            };
+        });
+
+        // Determine max savings
+        const maxSavings = Math.max(...calculatedTariffs.map(t => t.savingsEur), 0);
+
+        res.json({
+            success: true,
+            plz: cleanPlz,
+            consumption: kwh,
+            currentAbschlag: abschlagOld,
+            branch,
+            maxSavings,
+            tariffs: calculatedTariffs
+        });
+    } catch (error) {
+        console.error("Tariff calculation error:", error);
+        res.status(500).json({ success: false, error: 'Fehler bei der Tarifberechnung' });
+    }
+});
+
+// 1.2 Submit Order / Switching Application
+app.post('/api/order/submit', async (req, res) => {
+    try {
+        const {
+            tariffId,
+            tariffName,
+            branch = 'strom',
+            consumption,
+            monthlyPayment,
+            savings,
+            street,
+            houseNr,
+            plz,
+            city,
+            meterNumber,
+            currentProvider,
+            cancelOldContract = true,
+            salutation,
+            firstName,
+            lastName,
+            birthDate,
+            email,
+            phone,
+            iban
+        } = req.body;
+
+        if (!tariffName || !email || !firstName || !lastName || !meterNumber || !iban) {
+            return res.status(400).json({
+                success: false,
+                error: 'Bitte füllen Sie alle erforderlichen Pflichtfelder (Name, E-Mail, Zählernummer, IBAN) aus.'
+            });
+        }
+
+        const orderNumber = 'AE-' + new Date().getFullYear() + '-' + Math.floor(100000 + Math.random() * 900000);
+
+        const newOrder = await prisma.energyOrder.create({
+            data: {
+                orderNumber,
+                tariffId: tariffId || 'alpha-easy-12',
+                tariffName,
+                branch: branch || 'strom',
+                consumption: parseInt(consumption, 10) || 2500,
+                monthlyPayment: parseFloat(monthlyPayment) || 0,
+                savings: savings ? parseFloat(savings) : null,
+                street: street || '',
+                houseNr: houseNr || '',
+                plz: plz || '',
+                city: city || '',
+                meterNumber,
+                currentProvider: currentProvider || null,
+                cancelOldContract: cancelOldContract !== false,
+                salutation: salutation || null,
+                firstName,
+                lastName,
+                birthDate: birthDate || null,
+                email,
+                phone: phone || '',
+                iban,
+                status: 'RECEIVED'
+            }
+        });
+
+        // Send confirmation email asynchronously if transporter is configured
+        try {
+            const transporter = getMailTransporter();
+            if (transporter && email) {
+                const subject = `Ihre Auftragsbestätigung bei Alpha Energie (Auftrags-Nr. ${orderNumber})`;
+                const mailHtml = `
+                    <div style="font-family: Arial, sans-serif; color: #1e293b; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 8px;">
+                        <h2 style="color: #0a1f44;">Herzlich willkommen bei der Alpha Energie GmbH!</h2>
+                        <p>Hallo ${escapeHtml(firstName)} ${escapeHtml(lastName)},</p>
+                        <p>vielen Dank für Ihr Vertrauen in Alpha Energie. Ihr Wechselauftrag ist erfolgreich bei uns eingegangen.</p>
+                        <div style="background: #f8fafc; border-left: 4px solid #10b981; padding: 15px; margin: 20px 0;">
+                            <p style="margin: 4px 0;"><strong>Auftragsnummer:</strong> ${orderNumber}</p>
+                            <p style="margin: 4px 0;"><strong>Gewählter Tarif:</strong> ${escapeHtml(tariffName)}</p>
+                            <p style="margin: 4px 0;"><strong>Zählernummer:</strong> ${escapeHtml(meterNumber)}</p>
+                            <p style="margin: 4px 0;"><strong>Monatlicher Abschlag:</strong> ${monthlyPayment} €</p>
+                            <p style="margin: 4px 0;"><strong>Lieferadresse:</strong> ${escapeHtml(street)} ${escapeHtml(houseNr)}, ${escapeHtml(plz)} ${escapeHtml(city)}</p>
+                        </div>
+                        <h3 style="color: #0a1f44;">Wie geht es weiter?</h3>
+                        <ol style="line-height: 1.6;">
+                            <li>Wir prüfen Ihre Angaben und melden den Wechsel bei Ihrem örtlichen Netzbetreiber an.</li>
+                            <li>Falls gewünscht, kündigen wir Ihren bisherigen Vertrag kostenlos und fristgerecht.</li>
+                            <li>Sie erhalten rechtzeitig vor Lieferbeginn Ihre Vertragsbestätigung per Post oder E-Mail.</li>
+                        </ol>
+                        <p style="color: #64748b; font-size: 0.9rem; margin-top: 30px;">
+                            Alpha Energie GmbH • Alter Hellweg 50, 44379 Dortmund<br>
+                            Kundenservice: 0231 39989390 • E-Mail: info@alpha-energy.network
+                        </p>
+                    </div>
+                `;
+                transporter.sendMail({
+                    from: getSenderEmail(),
+                    to: email,
+                    subject,
+                    html: mailHtml
+                }).catch(err => console.error("Error sending order confirmation email:", err));
+            }
+        } catch (mailErr) {
+            console.warn("Could not send confirmation email:", mailErr.message);
+        }
+
+        res.status(201).json({
+            success: true,
+            orderNumber,
+            message: 'Ihr Auftrag wurde erfolgreich erfasst! Wir kümmern uns um den reibungslosen Wechsel.'
+        });
+    } catch (error) {
+        console.error("Order submission error:", error);
+        res.status(500).json({ success: false, error: 'Fehler beim Übermitteln des Auftrags: ' + error.message });
+    }
+});
+
+// 1.3 Submit Meter Reading (Zählerstand melden)
+app.post('/api/zaehlerstand/submit', async (req, res) => {
+    try {
+        const { meterNumber, reading, readingDate, customerName, email, notes } = req.body;
+        if (!meterNumber || reading === undefined || !customerName || !email) {
+            return res.status(400).json({
+                success: false,
+                error: 'Bitte füllen Sie Zählernummer, Zählerstand, Name und E-Mail aus.'
+            });
+        }
+
+        const newReading = await prisma.meterReading.create({
+            data: {
+                meterNumber,
+                reading: parseFloat(reading),
+                readingDate: readingDate || new Date().toISOString().split('T')[0],
+                customerName,
+                email,
+                notes: notes || null
+            }
+        });
+
+        res.status(201).json({
+            success: true,
+            message: 'Zählerstand erfolgreich übermittelt. Vielen Dank!',
+            id: newReading.id
+        });
+    } catch (error) {
+        console.error("Meter reading error:", error);
+        res.status(500).json({ success: false, error: 'Fehler beim Erfassen des Zählerstands' });
+    }
+});
+
+// 1.4 Submit Legal Cancellation pursuant to § 312k BGB
+app.post('/api/kuendigung/submit', async (req, res) => {
+    try {
+        const { contractNumber, customerName, email, cancelDate, reason, type = 'KUENDIGUNG' } = req.body;
+        if (!contractNumber || !customerName || !email) {
+            return res.status(400).json({
+                success: false,
+                error: 'Bitte geben Sie Vertragsnummer, Vor- und Nachname sowie Ihre E-Mail-Adresse an.'
+            });
+        }
+
+        const confirmationNumber = 'KD-' + Date.now().toString().slice(-6);
+
+        await prisma.legalCancellation.create({
+            data: {
+                contractNumber,
+                customerName,
+                email,
+                cancelDate: cancelDate || 'Zum nächstmöglichen Zeitpunkt',
+                reason: reason || null,
+                type: type.toUpperCase() === 'WIDERRUF' ? 'WIDERRUF' : 'KUENDIGUNG'
+            }
+        });
+
+        res.status(201).json({
+            success: true,
+            confirmationNumber,
+            message: `Ihre Bestätigung für ${type.toUpperCase() === 'WIDERRUF' ? 'den Widerruf' : 'die Kündigung'} gem. § 312k BGB wurde erfasst. Bestätigungsnummer: ${confirmationNumber}`
+        });
+    } catch (error) {
+        console.error("Cancellation error:", error);
+        res.status(500).json({ success: false, error: 'Fehler beim Absenden des Kündigungsformulars' });
+    }
+});
+
 // Email Helpers & Templates
 function escapeHtml(str) {
     if (str === null || str === undefined) return '';

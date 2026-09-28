@@ -7,3 +7,5 @@ vc_redist.exe
 /generated/prisma
 .env
 *.db
+test-results/
+scratch/

@@ -122,3 +122,56 @@ model AffiliateLink {
   applications     PartnerApplication[]
 }
 
+model EnergyOrder {
+  id                Int      @id @default(autoincrement())
+  orderNumber       String   @unique
+  tariffId          String
+  tariffName        String
+  branch            String   @default("strom")
+  consumption       Int
+  monthlyPayment    Float
+  savings           Float?
+  
+  street            String
+  houseNr           String
+  plz               String
+  city              String
+  meterNumber       String
+  currentProvider   String?
+  cancelOldContract Boolean  @default(true)
+  
+  salutation        String?
+  firstName         String
+  lastName          String
+  birthDate         String?
+  email             String
+  phone             String
+  iban              String
+  
+  status            String   @default("RECEIVED")
+  createdAt         DateTime @default(now())
+}
+
+model MeterReading {
+  id           Int      @id @default(autoincrement())
+  meterNumber  String
+  reading      Float
+  readingDate  String
+  customerName String
+  email        String
+  notes        String?
+  createdAt    DateTime @default(now())
+}
+
+model LegalCancellation {
+  id             Int      @id @default(autoincrement())
+  contractNumber String
+  customerName   String
+  email          String
+  cancelDate     String?
+  reason         String?
+  type           String   @default("KUENDIGUNG")
+  createdAt      DateTime @default(now())
+}
+
+

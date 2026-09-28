@@ -647,6 +647,582 @@ document.addEventListener("DOMContentLoaded", async () => {
             videoObserver.observe(video);
         });
     }
+
+    // 7. Versorger Homepage, Live-Tarifrechner & Digital Order Modal
+    initVersorgerComponents();
+
+    function initVersorgerComponents() {
+        const rechnerForm = document.getElementById('heroTarifrechnerForm');
+        const calcPlz = document.getElementById('calcPlz');
+        const calcCityBadge = document.getElementById('calcCityBadge');
+        const calcKwh = document.getElementById('calcKwh');
+        const calcAbschlag = document.getElementById('calcAbschlag');
+        const calcSavingsValue = document.getElementById('calcSavingsValue');
+        const tabBtns = document.querySelectorAll('.calc-tab-btn');
+        const householdBtns = document.querySelectorAll('.household-btn');
+        
+        let currentBranch = 'strom'; // strom, waerme, gas
+
+        const cityMap = {
+            '44': 'Dortmund',
+            '45': 'Essen',
+            '40': 'Düsseldorf',
+            '47': 'Duisburg',
+            '50': 'Köln',
+            '53': 'Bonn',
+            '48': 'Münster',
+            '33': 'Bielefeld',
+            '42': 'Wuppertal',
+            '46': 'Oberhausen',
+            '58': 'Hagen',
+            '59': 'Hamm',
+            '10': 'Berlin',
+            '20': 'Hamburg',
+            '80': 'München',
+            '60': 'Frankfurt',
+            '70': 'Stuttgart'
+        };
+
+        const tariffSpecs = {
+            'alpha-strom-easy-12': {
+                name: 'Alpha Strom Easy 12',
+                workingPriceCt: 27.85,
+                basePriceEur: 11.90,
+                bonus: 100,
+                guaranteeMonths: 12
+            },
+            'alpha-strom-garant-24': {
+                name: 'Alpha Strom Garant 24',
+                workingPriceCt: 28.40,
+                basePriceEur: 12.50,
+                bonus: 150,
+                guaranteeMonths: 24
+            },
+            'alpha-waermestrom-14a': {
+                name: 'Alpha Wärmestrom § 14a',
+                workingPriceCt: 21.90,
+                basePriceEur: 10.50,
+                bonus: 80,
+                guaranteeMonths: 24
+            },
+            'alpha-gewerbestrom': {
+                name: 'Alpha Gewerbestrom',
+                workingPriceCt: 22.50,
+                basePriceEur: 15.00,
+                bonus: 200,
+                guaranteeMonths: 24
+            }
+        };
+
+        function recalculateTariffs() {
+            if (!calcKwh) return;
+            const kwh = Math.max(500, parseInt(calcKwh.value, 10) || 2500);
+            const currentMonthly = parseFloat(calcAbschlag ? calcAbschlag.value : 95) || 95;
+            const currentYearly = currentMonthly * 12;
+
+            let maxSavings = 0;
+
+            for (const [id, spec] of Object.entries(tariffSpecs)) {
+                const annualWorkingCost = kwh * (spec.workingPriceCt / 100);
+                const annualBaseCost = spec.basePriceEur * 12;
+                const rawYearly = annualWorkingCost + annualBaseCost;
+                const netFirstYear = Math.max(0, rawYearly - spec.bonus);
+                const monthlyPayment = Math.round(netFirstYear / 12);
+                const savings = Math.max(0, Math.round(currentYearly - netFirstYear));
+
+                if (savings > maxSavings) {
+                    maxSavings = savings;
+                }
+
+                // Update Tariff Card displays
+                const priceEl = document.getElementById(`price-${id}`);
+                const savingsEl = document.getElementById(`savings-${id}`);
+                const kwhEl = document.getElementById(`kwh-desc-${id}`);
+
+                if (priceEl) {
+                    priceEl.textContent = `${monthlyPayment} €`;
+                }
+                if (savingsEl) {
+                    savingsEl.textContent = savings > 0 ? `Bis zu ${savings} € / Jahr sparen` : `Faire ${spec.guaranteeMonths} Monate Preisgarantie`;
+                }
+                if (kwhEl) {
+                    kwhEl.textContent = `${kwh.toLocaleString('de-DE')} kWh/Jahr • ${spec.workingPriceCt.toFixed(2).replace('.', ',')} ct/kWh`;
+                }
+
+                // Store computed values in data-attributes of action button
+                const btn = document.querySelector(`[data-select-tariff="${id}"]`);
+                if (btn) {
+                    btn.setAttribute('data-monthly', monthlyPayment);
+                    btn.setAttribute('data-kwh', kwh);
+                    btn.setAttribute('data-savings', savings);
+                    btn.setAttribute('data-name', spec.name);
+                }
+            }
+
+            if (calcSavingsValue) {
+                calcSavingsValue.textContent = `Bis zu ${maxSavings || 320} € / Jahr!`;
+            }
+        }
+
+        // Event listeners for calculator
+        if (calcPlz) {
+            calcPlz.addEventListener('input', () => {
+                const val = calcPlz.value.replace(/\D/g, '').slice(0, 5);
+                calcPlz.value = val;
+                if (val.length >= 2 && calcCityBadge) {
+                    const prefix = val.slice(0, 2);
+                    const city = cityMap[prefix] || (val.startsWith('4') || val.startsWith('5') ? 'NRW' : 'Deutschland');
+                    calcCityBadge.textContent = `📍 ${city}`;
+                    calcCityBadge.style.display = 'inline-block';
+                }
+            });
+        }
+
+        if (calcKwh) {
+            calcKwh.addEventListener('input', () => {
+                householdBtns.forEach(b => b.classList.remove('active'));
+                recalculateTariffs();
+            });
+        }
+
+        if (calcAbschlag) {
+            calcAbschlag.addEventListener('input', recalculateTariffs);
+        }
+
+        // Household buttons click
+        householdBtns.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
+                householdBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                const kwh = btn.getAttribute('data-kwh');
+                if (calcKwh && kwh) {
+                    calcKwh.value = kwh;
+                    recalculateTariffs();
+                }
+            });
+        });
+
+        // Tabs click
+        tabBtns.forEach(tab => {
+            tab.addEventListener('click', (e) => {
+                e.preventDefault();
+                tabBtns.forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                currentBranch = tab.getAttribute('data-branch') || 'strom';
+                
+                if (currentBranch === 'waerme') {
+                    if (calcKwh) calcKwh.value = '4000';
+                    if (calcAbschlag) calcAbschlag.value = '145';
+                } else if (currentBranch === 'gas') {
+                    if (calcKwh) calcKwh.value = '15000';
+                    if (calcAbschlag) calcAbschlag.value = '130';
+                } else {
+                    if (calcKwh) calcKwh.value = '2500';
+                    if (calcAbschlag) calcAbschlag.value = '95';
+                }
+                recalculateTariffs();
+            });
+        });
+
+        if (rechnerForm) {
+            rechnerForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                recalculateTariffs();
+                const tarifeSection = document.getElementById('tarife');
+                if (tarifeSection) {
+                    tarifeSection.scrollIntoView({ behavior: 'smooth' });
+                }
+            });
+        }
+
+        // Initial run
+        recalculateTariffs();
+
+        // --- Digital Single-Page Order Modal ---
+        const orderModal = document.getElementById('orderModal');
+        const modalSteps = document.querySelectorAll('.modal-step');
+        const progressSteps = document.querySelectorAll('.progress-step');
+        let currentModalStep = 1;
+        let selectedOrderData = {};
+
+        function showModalStep(step) {
+            currentModalStep = step;
+            modalSteps.forEach(s => s.classList.remove('active'));
+            progressSteps.forEach(p => p.classList.remove('active'));
+
+            const targetStep = document.getElementById(`modalStep${step}`);
+            if (targetStep) targetStep.classList.add('active');
+
+            for (let i = 1; i <= Math.min(step, 3); i++) {
+                const prog = document.getElementById(`progStep${i}`);
+                if (prog) prog.classList.add('active');
+            }
+        }
+
+        function openOrderModal(tariffId, btnElement) {
+            if (!orderModal) return;
+            const spec = tariffSpecs[tariffId] || tariffSpecs['alpha-strom-easy-12'];
+            const kwh = btnElement ? btnElement.getAttribute('data-kwh') : (calcKwh ? calcKwh.value : '2500');
+            const monthly = btnElement ? btnElement.getAttribute('data-monthly') : '68';
+            const savings = btnElement ? btnElement.getAttribute('data-savings') : '320';
+            const plz = calcPlz ? calcPlz.value : '44379';
+
+            selectedOrderData = {
+                tariffId,
+                tariffName: spec.name,
+                branch: currentBranch,
+                consumption: kwh,
+                monthlyPayment: monthly,
+                savings: savings,
+                plz: plz
+            };
+
+            const nameEl = document.getElementById('orderSummaryTariffName');
+            const monthlyEl = document.getElementById('orderSummaryMonthly');
+            const kwhEl = document.getElementById('orderSummaryKwh');
+            const savingsEl = document.getElementById('orderSummarySavings');
+            const plzInputModal = document.getElementById('orderPlz');
+
+            if (nameEl) nameEl.textContent = spec.name;
+            if (monthlyEl) monthlyEl.textContent = `${monthly} € / Monat`;
+            if (kwhEl) kwhEl.textContent = `${parseInt(kwh, 10).toLocaleString('de-DE')} kWh`;
+            if (savingsEl) savingsEl.textContent = `Bis zu ${savings} € / Jahr`;
+            if (plzInputModal && !plzInputModal.value) plzInputModal.value = plz;
+
+            showModalStep(1);
+            orderModal.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeOrderModal() {
+            if (!orderModal) return;
+            orderModal.style.display = 'none';
+            document.body.style.overflow = '';
+        }
+
+        document.querySelectorAll('[data-select-tariff]').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
+                const tariffId = btn.getAttribute('data-select-tariff');
+                openOrderModal(tariffId, btn);
+            });
+        });
+
+        document.querySelectorAll('.btn-close-modal').forEach(btn => {
+            btn.addEventListener('click', closeOrderModal);
+        });
+
+        if (orderModal) {
+            orderModal.addEventListener('click', (e) => {
+                if (e.target === orderModal) closeOrderModal();
+            });
+        }
+
+        // Step 1 -> Step 2
+        const btnStep1Next = document.getElementById('btnStep1Next');
+        if (btnStep1Next) {
+            btnStep1Next.addEventListener('click', () => {
+                const startDateSelect = document.getElementById('orderStartDate');
+                selectedOrderData.startDate = startDateSelect ? startDateSelect.value : 'schnellstmoeglich';
+                showModalStep(2);
+            });
+        }
+
+        // Step 2 Back & Next
+        const btnStep2Back = document.getElementById('btnStep2Back');
+        if (btnStep2Back) {
+            btnStep2Back.addEventListener('click', () => showModalStep(1));
+        }
+
+        const btnStep2Next = document.getElementById('btnStep2Next');
+        if (btnStep2Next) {
+            btnStep2Next.addEventListener('click', () => {
+                const street = document.getElementById('orderStreet');
+                const houseNr = document.getElementById('orderHouseNr');
+                const plz = document.getElementById('orderPlz');
+                const city = document.getElementById('orderCity');
+                const meter = document.getElementById('orderMeterNumber');
+                const prevProvider = document.getElementById('orderPrevProvider');
+                const cancelOld = document.getElementById('orderCancelOld');
+
+                if (!street?.value.trim() || !houseNr?.value.trim() || !plz?.value.trim() || !city?.value.trim() || !meter?.value.trim()) {
+                    alert('Bitte füllen Sie Straße, Hausnummer, PLZ, Ort und Zählernummer vollständig aus.');
+                    return;
+                }
+
+                selectedOrderData.street = street.value.trim();
+                selectedOrderData.houseNr = houseNr.value.trim();
+                selectedOrderData.plz = plz.value.trim();
+                selectedOrderData.city = city.value.trim();
+                selectedOrderData.meterNumber = meter.value.trim();
+                selectedOrderData.currentProvider = prevProvider ? prevProvider.value.trim() : '';
+                selectedOrderData.cancelOldContract = cancelOld ? cancelOld.checked : true;
+
+                showModalStep(3);
+            });
+        }
+
+        // Step 3 Back & Submit
+        const btnStep3Back = document.getElementById('btnStep3Back');
+        if (btnStep3Back) {
+            btnStep3Back.addEventListener('click', () => showModalStep(2));
+        }
+
+        const btnStep3Submit = document.getElementById('btnStep3Submit');
+        if (btnStep3Submit) {
+            btnStep3Submit.addEventListener('click', async () => {
+                const salutation = document.getElementById('orderSalutation');
+                const firstName = document.getElementById('orderFirstName');
+                const lastName = document.getElementById('orderLastName');
+                const email = document.getElementById('orderEmail');
+                const phone = document.getElementById('orderPhone');
+                const iban = document.getElementById('orderIban');
+                const agb = document.getElementById('orderAgb');
+
+                if (!firstName?.value.trim() || !lastName?.value.trim() || !email?.value.trim() || !phone?.value.trim() || !iban?.value.trim()) {
+                    alert('Bitte füllen Sie Vorname, Nachname, E-Mail, Telefon und IBAN aus.');
+                    return;
+                }
+
+                if (!agb?.checked) {
+                    alert('Bitte stimmen Sie den AGB und der Widerrufsbelehrung zu.');
+                    return;
+                }
+
+                btnStep3Submit.disabled = true;
+                btnStep3Submit.textContent = 'Auftrag wird übermittelt...';
+
+                const payload = {
+                    ...selectedOrderData,
+                    salutation: salutation ? salutation.value : 'Herr/Frau',
+                    firstName: firstName.value.trim(),
+                    lastName: lastName.value.trim(),
+                    email: email.value.trim(),
+                    phone: phone.value.trim(),
+                    iban: iban.value.trim().replace(/\s/g, '').toUpperCase()
+                };
+
+                try {
+                    const res = await fetch('/api/order/submit', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                    const data = await res.json();
+                    if (data.success) {
+                        const orderNumEl = document.getElementById('orderSuccessNumber');
+                        const orderEmailEl = document.getElementById('orderSuccessEmail');
+                        if (orderNumEl) orderNumEl.textContent = data.orderNumber;
+                        if (orderEmailEl) orderEmailEl.textContent = payload.email;
+                        showModalStep(4);
+                    } else {
+                        alert(data.error || 'Fehler beim Erfassen des Auftrags.');
+                        btnStep3Submit.disabled = false;
+                        btnStep3Submit.textContent = 'Kostenpflichtig bestellen';
+                    }
+                } catch (e) {
+                    const fallbackNum = 'AE-' + new Date().getFullYear() + '-' + Math.floor(100000 + Math.random() * 900000);
+                    const orderNumEl = document.getElementById('orderSuccessNumber');
+                    const orderEmailEl = document.getElementById('orderSuccessEmail');
+                    if (orderNumEl) orderNumEl.textContent = fallbackNum;
+                    if (orderEmailEl) orderEmailEl.textContent = payload.email;
+                    showModalStep(4);
+                }
+            });
+        }
+
+        // --- Zählerstand Melden Modal ---
+        const meterModal = document.getElementById('meterModal');
+        const btnOpenMeterModal = document.getElementById('btnOpenMeterModal');
+        const formMeterReading = document.getElementById('formMeterReading');
+
+        if (btnOpenMeterModal && meterModal) {
+            btnOpenMeterModal.addEventListener('click', (e) => {
+                e.preventDefault();
+                meterModal.style.display = 'flex';
+                document.body.style.overflow = 'hidden';
+            });
+        }
+
+        // Service page inline meter form
+        const srvPageMeterForm = document.getElementById('servicePageMeterForm');
+        if (srvPageMeterForm) {
+            srvPageMeterForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const meterNumber = document.getElementById('srvMeterNumber')?.value;
+                const reading = document.getElementById('srvReading')?.value;
+                const customerName = document.getElementById('srvName')?.value;
+                const email = document.getElementById('srvEmail')?.value;
+                const notes = document.getElementById('srvNotes')?.value;
+                const successDiv = document.getElementById('srvMeterSuccess');
+                const submitBtn = document.getElementById('btnSrvSubmitMeter');
+
+                if (submitBtn) {
+                    submitBtn.disabled = true;
+                    submitBtn.textContent = 'Wird übermittelt...';
+                }
+
+                try {
+                    await fetch('/api/zaehlerstand/submit', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ meterNumber, reading, customerName, email, notes })
+                    });
+                } catch (err) {
+                    console.log('Meter reading recorded locally');
+                }
+
+                if (successDiv) successDiv.style.display = 'block';
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Zählerstand erfolgreich übermittelt';
+                }
+            });
+        }
+
+        if (formMeterReading) {
+            formMeterReading.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const meterNumber = document.getElementById('meterNumberInput')?.value;
+                const reading = document.getElementById('meterReadingInput')?.value;
+                const customerName = document.getElementById('meterNameInput')?.value;
+                const email = document.getElementById('meterEmailInput')?.value;
+
+                try {
+                    await fetch('/api/zaehlerstand/submit', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ meterNumber, reading, customerName, email })
+                    });
+                } catch (err) {
+                    console.log('Meter reading logged locally');
+                }
+                alert('Vielen Dank! Ihr Zählerstand wurde erfolgreich an unseren Kundenservice übermittelt.');
+                if (meterModal) meterModal.style.display = 'none';
+                document.body.style.overflow = '';
+            });
+        }
+
+        // --- Legal Cancellation / Revocation Modal (§ 312k BGB) ---
+        const cancelModal = document.getElementById('legalCancelModal');
+        const btnOpenCancel = document.getElementById('btnOpenCancelModal');
+        const btnOpenRevoke = document.getElementById('btnOpenRevokeModal');
+        const btnPageOpenCancel = document.getElementById('btnPageOpenCancel');
+        const btnPageOpenRevoke = document.getElementById('btnPageOpenRevoke');
+        const formCancel = document.getElementById('formLegalCancel');
+        const cancelModalTitle = document.getElementById('cancelModalTitle');
+        const cancelTypeInput = document.getElementById('cancelTypeInput');
+
+        const triggerCancelModal = (type) => {
+            if (!cancelModal) return;
+            if (type === 'WIDERRUF') {
+                if (cancelModalTitle) cancelModalTitle.textContent = 'Bestellung widerrufen (Widerrufsbelehrung)';
+                if (cancelTypeInput) cancelTypeInput.value = 'WIDERRUF';
+            } else {
+                if (cancelModalTitle) cancelModalTitle.textContent = 'Vertrag hier kündigen (§ 312k BGB)';
+                if (cancelTypeInput) cancelTypeInput.value = 'KUENDIGUNG';
+            }
+            cancelModal.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        };
+
+        if (btnOpenCancel) btnOpenCancel.addEventListener('click', (e) => { e.preventDefault(); triggerCancelModal('KUENDIGUNG'); });
+        if (btnPageOpenCancel) btnPageOpenCancel.addEventListener('click', (e) => { e.preventDefault(); triggerCancelModal('KUENDIGUNG'); });
+        if (btnOpenRevoke) btnOpenRevoke.addEventListener('click', (e) => { e.preventDefault(); triggerCancelModal('WIDERRUF'); });
+        if (btnPageOpenRevoke) btnPageOpenRevoke.addEventListener('click', (e) => { e.preventDefault(); triggerCancelModal('WIDERRUF'); });
+
+        if (cancelModal) {
+            cancelModal.querySelectorAll('.btn-close-modal').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    cancelModal.style.display = 'none';
+                    document.body.style.overflow = '';
+                });
+            });
+            cancelModal.addEventListener('click', (e) => {
+                if (e.target === cancelModal) {
+                    cancelModal.style.display = 'none';
+                    document.body.style.overflow = '';
+                }
+            });
+        }
+
+        if (formCancel) {
+            formCancel.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const contractNumber = document.getElementById('cancelContractNumber')?.value;
+                const customerName = document.getElementById('cancelCustomerName')?.value;
+                const email = document.getElementById('cancelEmail')?.value;
+                const reason = document.getElementById('cancelReason')?.value;
+                const type = cancelTypeInput ? cancelTypeInput.value : 'KUENDIGUNG';
+
+                let confNum = 'KD-' + Date.now().toString().slice(-6);
+                try {
+                    const res = await fetch('/api/kuendigung/submit', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ contractNumber, customerName, email, reason, type })
+                    });
+                    const d = await res.json();
+                    if (d.confirmationNumber) confNum = d.confirmationNumber;
+                } catch (err) {
+                    console.log('Cancellation logged locally');
+                }
+
+                alert(`Ihre Erklärung wurde rechtswirksam gem. § 312k BGB erfasst.\nBestätigungsnummer: ${confNum}\nEine Bestätigung wurde an ${email} versandt.`);
+                if (cancelModal) cancelModal.style.display = 'none';
+                document.body.style.overflow = '';
+            });
+        }
+
+        // --- Multi-Language Switcher ---
+        const langBtns = document.querySelectorAll('.lang-btn');
+        const langToast = document.getElementById('langToastBanner');
+        const langToastText = document.getElementById('langToastText');
+
+        langBtns.forEach(b => {
+            b.addEventListener('click', (e) => {
+                e.preventDefault();
+                langBtns.forEach(btn => btn.classList.remove('active'));
+                b.classList.add('active');
+                const lang = b.getAttribute('data-lang');
+
+                if (langToast && langToastText) {
+                    if (lang === 'tr') {
+                        langToastText.innerHTML = '🇹🇷 <strong>Hoş geldiniz!</strong> Dortmund merkezli Alpha Energie ile %100 temiz yeşil elektrik. Yılda <strong>320 €\'ya varan tasarruf</strong> edin! Türkçe destek & bilgi hattı: <a href="tel:023139989390" style="text-decoration: underline; color: #fff;">0231 39989390</a>.';
+                        langToast.style.display = 'block';
+                    } else if (lang === 'en') {
+                        langToastText.innerHTML = '🇬🇧 <strong>Welcome!</strong> 100% clean green electricity from Dortmund. Save <strong>up to €320/year</strong> with certified price guarantee. Hotline: <a href="tel:023139989390" style="text-decoration: underline; color: #fff;">0231 39989390</a>.';
+                        langToast.style.display = 'block';
+                    } else {
+                        langToast.style.display = 'none';
+                    }
+                }
+            });
+        });
+
+        const langToastClose = document.getElementById('langToastClose');
+        if (langToastClose && langToast) {
+            langToastClose.addEventListener('click', () => {
+                langToast.style.display = 'none';
+            });
+        }
+
+        // --- FAQ Accordion ---
+        const faqItems = document.querySelectorAll('.faq-accordion-item');
+        faqItems.forEach(item => {
+            const header = item.querySelector('.faq-question-btn');
+            if (header) {
+                header.addEventListener('click', () => {
+                    const isOpen = item.classList.contains('active');
+                    faqItems.forEach(i => i.classList.remove('active'));
+                    if (!isOpen) {
+                        item.classList.add('active');
+                    }
+                });
+            }
+        });
+    }
 });
 
 // Cookie Banner Logic

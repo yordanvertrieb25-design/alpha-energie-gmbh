@@ -240,7 +240,9 @@ test.describe('SEO E2E Test Suite', () => {
         url.includes('fonts.googleapis.com') ||
         url.includes('fonts.gstatic.com') ||
         url.includes('google-analytics.com') ||
-        url.includes('googletagmanager.com')
+        url.includes('googletagmanager.com') ||
+        url.includes('cdn.firstcon.de') ||
+        url.includes('docusign.net')
       ) {
         route.abort();
       } else {

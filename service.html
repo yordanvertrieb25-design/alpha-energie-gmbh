@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta name="robots" content="noindex, follow">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kundenservice &amp; Service-Portal | Alpha Energie GmbH</title>
+    <meta name="description" content="Alpha Energie Service-Portal: Zählerstand online melden, Umzugsservice, Tarifanpassung, Kündigungsbutton gem. § 312k BGB &amp; 24/7 Kundenunterstützung.">
+    <link rel="canonical" href="https://alpha-energie.de/service.html">
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://alpha-energie.de/service.html">
+    <meta property="og:title" content="Kundenservice &amp; Service-Portal | Alpha Energie GmbH">
+    <meta property="og:description" content="Ihr digitaler Service-Hub: Zählerstand online melden, Umzugsservice, FAQ und Kündigungsservice.">
+    <meta property="og:image" content="https://alpha-energie.de/logo.png">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- CSS & JS -->
+    <link rel="stylesheet" href="style.css">
+    <script src="main.js" defer></script>
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+</head>
+<body>
+    <!-- Topbar -->
+    <div id="topbar" class="topbar">
+        <div class="topbar-left">
+            <span>Montag – Freitag 08:00 – 18:00 Uhr | Kundenservice Dortmund</span>
+        </div>
+        <div class="topbar-right">
+            <a href="tel:023139989390" class="topbar-contact">📞 0231 39989390</a>
+            <a href="mailto:info@alpha-energy.network" class="topbar-contact">✉ info@alpha-energy.network</a>
+        </div>
+    </div>
+
+    <!-- Header Navigation -->
+    <header id="main-header" class="header">
+        <div class="container header-container">
+            <div class="logo">
+                <a href="/">
+                    <img src="logo.png" alt="Alpha Energie GmbH Logo" class="nav-logo">
+                </a>
+            </div>
+            <button class="hamburger" aria-label="Menü öffnen">
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+            </button>
+            <nav id="main-nav" class="nav">
+                <ul class="nav-list">
+                    <li class="nav-item has-dropdown">
+                        <a href="/#tarife">Strom &amp; Tarife</a>
+                        <ul class="dropdown">
+                            <li><a href="oekostrom.html">100% Ökostrom</a></li>
+                            <li><a href="waermestrom.html">Wärmestrom (§ 14a EnWG)</a></li>
+                            <li><a href="oekogas.html">Klimaneutrales Ökogas</a></li>
+                            <li><a href="gewerbekunden.html">Gewerbestrom &amp; KMU</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item has-dropdown">
+                        <a href="sektorenkopplung.html">Energielösungen</a>
+                        <ul class="dropdown">
+                            <li><a href="photovoltaik.html">Photovoltaik &amp; Speicher</a></li>
+                            <li><a href="sektorenkopplung.html">Sektorenkopplung</a></li>
+                            <li><a href="nachhaltigkeit-co2.html">Energieaudits &amp; CO2-Pfad</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item has-dropdown">
+                        <a href="service.html">Service &amp; Hilfe</a>
+                        <ul class="dropdown">
+                            <li><a href="/#rechner">Online-Tarifrechner</a></li>
+                            <li><a href="service.html">Kundenservice &amp; Portal</a></li>
+                            <li><a href="service.html#zaehler">Zählerstand online melden</a></li>
+                            <li><a href="service.html#umzug">Umzugsservice</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item has-dropdown">
+                        <a href="ueber-uns.html">Unternehmen &amp; Partner</a>
+                        <ul class="dropdown">
+                            <li><a href="ueber-uns.html">Über Alpha Energie</a></li>
+                            <li><a href="partner-werden.html">Partner werden (Vertrieb)</a></li>
+                            <li><a href="karriere.html">Karriere</a></li>
+                            <li><a href="kontakt.html">Kontakt</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </nav>
+            <div class="header-actions">
+                <a href="/#rechner" class="btn btn-primary">Tarif berechnen</a>
+                <a href="https://vp.alpha-energie.de" class="btn btn-secondary">VP-Portal</a>
+                <div class="lang-switcher-header">
+                    <button class="lang-btn active" data-lang="de">DE</button>
+                    <button class="lang-btn" data-lang="en">EN</button>
+                    <button class="lang-btn" data-lang="tr">TR</button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main id="main-content">
+        <!-- Subpage Hero -->
+        <section class="subpage-hero">
+            <div class="container">
+                <span class="versorger-tag">🛠️ Digitaler Kundenservice</span>
+                <h1 class="subpage-hero-title">Kundenservice &amp; Service-Portal</h1>
+                <p class="subpage-hero-lead">Wir sind persönlich für Sie da. Ob Zählerstand online melden, Umzugsservice, Abschläge anpassen oder gesetzlicher Kündigungsservice – hier erledigen Sie alles in wenigen Klicks.</p>
+                <div class="hero-buttons" style="justify-content: center; display: flex; gap: 1rem; flex-wrap: wrap;">
+                    <a href="#zaehler" class="btn btn-primary btn-large">Zählerstand jetzt erfassen</a>
+                    <a href="tel:023139989390" class="btn btn-secondary btn-large">Hotline: 0231 39989390</a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Quick Tiles Grid -->
+        <section class="container">
+            <div class="service-quick-tiles">
+                <a href="#zaehler" class="service-tile">
+                    <div class="service-tile-icon">🔢</div>
+                    <h3 class="service-tile-title">Zählerstand melden</h3>
+                    <p class="service-tile-desc">Zwischenstand oder Jahresablesung schnell und unbürokratisch übermitteln.</p>
+                </a>
+                <a href="#umzug" class="service-tile">
+                    <div class="service-tile-icon">📦</div>
+                    <h3 class="service-tile-title">Umzugsservice</h3>
+                    <p class="service-tile-desc">Strom und Gas einfach an Ihre neue Adresse mitnehmen – nahtlos versorgt.</p>
+                </a>
+                <a href="/#rechner" class="service-tile">
+                    <div class="service-tile-icon">💡</div>
+                    <h3 class="service-tile-title">Tarifrechner</h3>
+                    <p class="service-tile-desc">Monatliche Kosten prüfen und Ersparnis bei Strom und Gas berechnen.</p>
+                </a>
+                <a href="#kuendigung-service" class="service-tile">
+                    <div class="service-tile-icon">⚖️</div>
+                    <h3 class="service-tile-title">Kündigung &amp; Widerruf</h3>
+                    <p class="service-tile-desc">Gesetzlicher Button gem. § 312k BGB mit sofortiger Bestätigungsnummer.</p>
+                </a>
+            </div>
+        </section>
+
+        <!-- Meter Reading Form Section -->
+        <section id="zaehler" class="section-pad bg-light">
+            <div class="container">
+                <div class="section-header text-center mb-4xl">
+                    <span class="versorger-tag">Online-Formular</span>
+                    <h2 class="section-title">Zählerstand online melden</h2>
+                    <p class="section-subtitle">Geben Sie Ihren aktuellen Zählerstand für Strom, Wärmestrom oder Gas ein. Wir leiten die Daten direkt an Ihren Verteilnetzbetreiber weiter.</p>
+                </div>
+
+                <div class="service-form-card">
+                    <form id="servicePageMeterForm">
+                        <div class="form-grid" style="margin-bottom: 1.25rem;">
+                            <div class="form-group">
+                                <label for="srvMeterNumber" class="calc-label">Zählernummer *</label>
+                                <input type="text" id="srvMeterNumber" class="calc-input" placeholder="z. B. 1EMH0012345678" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="srvReading" class="calc-label">Aktueller Zählerstand (kWh) *</label>
+                                <input type="number" step="0.1" id="srvReading" class="calc-input" placeholder="z. B. 14250" required>
+                            </div>
+                        </div>
+
+                        <div class="form-grid" style="margin-bottom: 1.25rem;">
+                            <div class="form-group">
+                                <label for="srvName" class="calc-label">Ihr vollständiger Name *</label>
+                                <input type="text" id="srvName" class="calc-input" placeholder="Vor- und Nachname" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="srvEmail" class="calc-label">Ihre E-Mail-Adresse *</label>
+                                <input type="email" id="srvEmail" class="calc-input" placeholder="name@beispiel.de" required>
+                            </div>
+                        </div>
+
+                        <div class="form-group" style="margin-bottom: 1.5rem;">
+                            <label for="srvNotes" class="calc-label">Bemerkungen / Ableseart (optional)</label>
+                            <input type="text" id="srvNotes" class="calc-input" placeholder="z. B. Jahresablesung, Zwischenablesung oder Umzug">
+                        </div>
+
+                        <button type="submit" id="btnSrvSubmitMeter" class="calc-submit-btn">Zählerstand jetzt verbindlich übermitteln</button>
+                        <div id="srvMeterSuccess" style="display: none; margin-top: 1rem; padding: 1rem; background: #ecfdf5; color: #065f46; border-radius: 8px; font-weight: 600; text-align: center;">
+                            ✅ Vielen Dank! Ihr Zählerstand wurde erfolgreich an Alpha Energie übermittelt.
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </section>
+
+        <!-- Moving Service Section -->
+        <section id="umzug" class="section-pad">
+            <div class="container">
+                <div class="section-header text-center mb-4xl">
+                    <span class="versorger-tag">Reibungslos umziehen</span>
+                    <h2 class="section-title">Unser Umzugsservice für Ihr neues Zuhause</h2>
+                    <p class="section-subtitle">Ziehen Sie stressfrei um: Wir nehmen Ihren günstigen Alpha Energie Tarif einfach mit an die neue Adresse.</p>
+                </div>
+
+                <div class="subpage-feature-grid">
+                    <div class="subpage-feature-card">
+                        <div class="subpage-card-icon">1️⃣</div>
+                        <h3 class="tariff-title">Alte Adresse abmelden</h3>
+                        <p class="sektor-text">Teilen Sie uns Ihr Auszugsdatum und den Zählerstand bei Schlüsselübergabe der alten Wohnung mit.</p>
+                    </div>
+                    <div class="subpage-feature-card">
+                        <div class="subpage-card-icon">2️⃣</div>
+                        <h3 class="tariff-title">Neue Adresse mitteilen</h3>
+                        <p class="sektor-text">Nennen Sie uns Ihre neue Anschrift und die dortige Zählernummer. Wir melden die Belieferung lückenlos an.</p>
+                    </div>
+                    <div class="subpage-feature-card">
+                        <div class="subpage-card-icon">3️⃣</div>
+                        <h3 class="tariff-title">Sofort versorgt sein</h3>
+                        <p class="sektor-text">Keine teure Grundversorgung: Sie behalten Ihre gewohnten Alpha Energie Konditionen und Preisgarantien.</p>
+                    </div>
+                </div>
+
+                <div class="text-center" style="margin-top: 2rem;">
+                    <a href="kontakt.html" class="btn btn-primary btn-large">Umzug jetzt mitteilen</a>
+                </div>
+            </div>
+        </section>
+
+        <!-- § 312k BGB Cancellation Service Anchor -->
+        <section id="kuendigung-service" class="section-pad bg-light">
+            <div class="container text-center">
+                <span class="versorger-tag">Verbraucherschutz &amp; Recht</span>
+                <h2 class="section-title">Gesetzlicher Kündigungsservice (§ 312k BGB)</h2>
+                <p class="section-subtitle">Transparenz steht bei uns an erster Stelle. Sie können Ihren Vertrag oder Ihre Bestellung jederzeit unkompliziert beenden.</p>
+                <div style="margin-top: 2rem; display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap;">
+                    <button type="button" id="btnPageOpenCancel" class="btn btn-primary btn-large">Vertrag hier kündigen</button>
+                    <button type="button" id="btnPageOpenRevoke" class="btn btn-secondary btn-large">Bestellung hier widerrufen</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- FAQ Section -->
+        <section id="faq" class="subpage-faq-section">
+            <div class="container">
+                <div class="section-header text-center">
+                    <span class="versorger-tag">Hilfe-Center</span>
+                    <h2 class="section-title">Häufig gestellte Fragen (FAQ)</h2>
+                </div>
+                <div class="faq-list">
+                    <div class="faq-accordion-item">
+                        <button class="faq-question-btn" type="button">
+                            <span>Wie kann ich meinen monatlichen Abschlag anpassen?</span>
+                            <span class="faq-icon-cross">+</span>
+                        </button>
+                        <div class="faq-answer-content">
+                            Sie können Ihren monatlichen Abschlag jederzeit unkompliziert per E-Mail an info@alpha-energy.network oder telefonisch unter 0231 39989390 anpassen lassen – beispielsweise bei veränderten Haushaltsgrößen.
+                        </div>
+                    </div>
+                    <div class="faq-accordion-item">
+                        <button class="faq-question-btn" type="button">
+                            <span>Wann erhalte ich meine jährliche Strom- und Gasabrechnung?</span>
+                            <span class="faq-icon-cross">+</span>
+                        </button>
+                        <div class="faq-answer-content">
+                            Die Jahresrechnung wird in der Regel spätestens sechs Wochen nach Ende des vertraglichen Abrechnungsjahres bzw. nach Vorliegen der Zählerstände Ihres Netzbetreibers versandt.
+                        </div>
+                    </div>
+                    <div class="faq-accordion-item">
+                        <button class="faq-question-btn" type="button">
+                            <span>Wie kann ich meine Bankverbindung oder Adresse aktualisieren?</span>
+                            <span class="faq-icon-cross">+</span>
+                        </button>
+                        <div class="faq-answer-content">
+                            Senden Sie uns einfach eine kurze Mitteilung mit Ihrer Kundennummer und der neuen IBAN an info@alpha-energy.network. Wir bestätigen die Umstellung innerhalb von 24 Stunden.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Floating Action Bar (FAB) -->
+    <div class="floating-action-bar" aria-label="Schnellkontakt">
+        <a href="tel:023139989390" class="fab-btn fab-phone" aria-label="Telefonischer Kundenservice Dortmund">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+            <span class="fab-tooltip">0231 39989390</span>
+        </a>
+        <a href="https://wa.me/4923139989390" target="_blank" rel="noopener noreferrer" class="fab-btn fab-whatsapp" aria-label="WhatsApp Beratung">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
+            <span class="fab-tooltip">WhatsApp Beratung</span>
+        </a>
+        <a href="#zaehler" class="fab-btn" aria-label="Zählerstand online melden">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"></rect><line x1="7" y1="8" x2="17" y2="8"></line><line x1="7" y1="12" x2="17" y2="12"></line><line x1="7" y1="16" x2="12" y2="16"></line></svg>
+            <span class="fab-tooltip">Zählerstand melden</span>
+        </a>
+        <a href="#faq" class="fab-btn" aria-label="Häufig gestellte Fragen">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+            <span class="fab-tooltip">FAQ &amp; Hilfe</span>
+        </a>
+    </div>
+
+    <!-- Footer -->
+    <footer id="main-footer" class="footer">
+        <div class="container">
+            <div class="footer-top grid-4">
+                <div class="footer-widget brand-widget">
+                    <a href="/">
+                        <img src="logo.png" alt="Alpha Energie GmbH Logo" class="footer-logo">
+                    </a>
+                    <p class="footer-desc">Alpha Energie GmbH: Ihr zuverlässiger Strom- und Gasversorger mit Sitz in Dortmund. Persönlicher Service und faire Konditionen.</p>
+                    <p class="footer-address" style="color: rgba(255,255,255,0.7); font-size: 0.9rem; margin-top: 0.5rem; margin-bottom: 1.5rem;">Alter Hellweg 50, 44379 Dortmund</p>
+                    <div class="social-links">
+                        <a href="https://facebook.com/alphaenergie" class="social-icon" aria-label="Facebook Kanal">Facebook</a>
+                        <a href="https://linkedin.com/company/alphaenergie" class="social-icon" aria-label="LinkedIn Kanal">LinkedIn</a>
+                        <a href="https://instagram.com/alphaenergie" class="social-icon" aria-label="Instagram Kanal">Instagram</a>
+                    </div>
+                </div>
+
+                <div class="footer-widget links-widget">
+                    <h3 class="widget-title">Tarife &amp; Strom</h3>
+                    <ul class="footer-links">
+                        <li><a href="oekostrom.html">100% Ökostrom</a></li>
+                        <li><a href="waermestrom.html">Wärmestrom (§ 14a)</a></li>
+                        <li><a href="oekogas.html">Klimaneutrales Ökogas</a></li>
+                        <li><a href="gewerbekunden.html">Gewerbestrom</a></li>
+                        <li><a href="/#rechner">Tarifrechner</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-widget links-widget">
+                    <h3 class="widget-title">Service &amp; Lösungen</h3>
+                    <ul class="footer-links">
+                        <li><a href="service.html">Kundenservice</a></li>
+                        <li><a href="service.html#zaehler">Zählerstand online erfassen</a></li>
+                        <li><a href="sektorenkopplung.html">Sektorenkopplung PV+Wärme</a></li>
+                        <li><a href="photovoltaik.html">Photovoltaik</a></li>
+                        <li><a href="partner-werden.html">Partner werden</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-widget links-widget">
+                    <h3 class="widget-title">Rechtliches</h3>
+                    <ul class="footer-links">
+                        <li><a href="datenschutz.html">Datenschutz</a></li>
+                        <li><a href="impressum.html">Impressum</a></li>
+                        <li><a href="cookie-einstellungen.html">Cookie-Einstellungen</a></li>
+                        <li><a href="cookie-richtlinie.html">Cookie-Richtlinie</a></li>
+                        <li><a href="https://vp.alpha-energie.de">VP-Portal Login</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Legal Cancellation Box (§ 312k BGB) -->
+            <div class="legal-cancellation-box">
+                <div class="legal-cancel-text">
+                    <strong>Gesetzlicher Kündigungs- und Widerrufsservice (§ 312k BGB):</strong> Sie können Ihren bestehenden Vertrag oder Ihre Bestellung bei der Alpha Energie GmbH hier direkt online und ohne Registrierung kündigen oder widerrufen.
+                </div>
+                <div class="legal-cancel-buttons">
+                    <button type="button" id="btnOpenCancelModal" class="btn-legal-cancel">Vertrag online kündigen</button>
+                    <button type="button" id="btnOpenRevokeModal" class="btn-legal-cancel">Bestellung widerrufen</button>
+                </div>
+            </div>
+
+            <div class="footer-bottom flex-between">
+                <p class="copyright">&copy; Copyright 2026. Alle Rechte vorbehalten. Alpha Energie GmbH</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Legal Cancellation Modal -->
+    <div id="legalCancelModal" class="digital-modal-backdrop">
+        <div class="digital-modal">
+            <div class="modal-header-bar">
+                <h3 class="modal-header-title" id="cancelModalTitle">Vertrag kündigen (§ 312k BGB)</h3>
+                <button type="button" class="btn-close-modal modal-close-btn" aria-label="Schließen">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="formLegalCancel">
+                    <input type="hidden" id="cancelTypeInput" value="KUENDIGUNG">
+                    <div class="form-group" style="margin-bottom: 1rem;">
+                        <label for="cancelContractNumber" class="calc-label">Vertrags- oder Kundennummer *</label>
+                        <input type="text" id="cancelContractNumber" class="calc-input" placeholder="z. B. AE-102938" required>
+                    </div>
+                    <div class="form-group" style="margin-bottom: 1rem;">
+                        <label for="cancelCustomerName" class="calc-label">Vor- und Nachname des Vertragspartners *</label>
+                        <input type="text" id="cancelCustomerName" class="calc-input" placeholder="Max Mustermann" required>
+                    </div>
+                    <div class="form-group" style="margin-bottom: 1rem;">
+                        <label for="cancelEmail" class="calc-label">Ihre E-Mail-Adresse für die Bestätigung *</label>
+                        <input type="email" id="cancelEmail" class="calc-input" placeholder="name@beispiel.de" required>
+                    </div>
+                    <div class="form-group" style="margin-bottom: 1.5rem;">
+                        <label for="cancelReason" class="calc-label">Grund (optional)</label>
+                        <textarea id="cancelReason" class="calc-input" rows="3" placeholder="Grund für Kündigung oder Widerruf..." style="height: auto;"></textarea>
+                    </div>
+                    <button type="submit" class="calc-submit-btn">Erklärung rechtsverbindlich absenden</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
