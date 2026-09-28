@@ -95,4 +95,34 @@ test.describe('Redesign Verification Suite', () => {
         expect(updatedSofort.replace(/\./g, '')).toContain('12.500'.replace(/\./g, ''));
         expect(updatedGesamt.replace(/\./g, '')).toContain('12.500'.replace(/\./g, ''));
     });
+
+    test('6. Hero Showcase Image & Floating Glass Badges Verification', async ({ page }) => {
+        let imageStatus = null;
+        let imageContentType = null;
+        page.on('response', response => {
+            if (response.url().includes('clean_energy_home.jpg')) {
+                imageStatus = response.status();
+                imageContentType = response.headers()['content-type'];
+            }
+        });
+
+        await page.goto('/index.html', { waitUntil: 'networkidle' });
+
+        const heroImg = page.locator('.hero-visual-frame img');
+        await expect(heroImg).toBeVisible();
+        await expect(heroImg).toHaveAttribute('src', '/clean_energy_home.jpg');
+
+        // Check image is completely loaded with positive natural dimensions
+        const isLoaded = await heroImg.evaluate((img) => img.complete && img.naturalWidth > 0 && img.naturalHeight > 0);
+        expect(isLoaded).toBe(true);
+        expect(imageStatus).toBe(200);
+        expect(imageContentType).toContain('image/jpeg');
+
+        // Verify the 3 specific badges
+        const badgesContainer = page.locator('.hero-visual-frame');
+        await expect(badgesContainer).toContainText('100 % Strom aus erneuerbaren Quellen');
+        await expect(badgesContainer).toContainText('Bis zu 380 € / Jahr Ersparnis');
+        await expect(badgesContainer).toContainText('Vor-Ort-Kundenservice in Dortmund');
+    });
 });
+
