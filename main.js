@@ -51,29 +51,30 @@ document.addEventListener("DOMContentLoaded", async () => {
         });
     };
 
-    // Load GSAP & ScrollTrigger dynamically
-    try {
-        await loadScript("https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js");
-        await loadScript("https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js");
-        if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
-            gsap.registerPlugin(ScrollTrigger);
-            if (window.innerWidth > 768) {
-                initGSAPAnimations();
-            } else {
-                // Mobile fallback: ensure elements are visible
-                const animateElements = document.querySelectorAll(
-                    ".card, .feature-box, .news-card, .section-title, .section-text, .section-subtitle, .about-content, .hero-content"
-                );
-                animateElements.forEach((el) => {
-                    el.style.opacity = '1';
-                    el.style.transform = 'none';
-                });
+    // Load GSAP & ScrollTrigger dynamically without blocking synchronous UI setup
+    loadScript("https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js")
+        .then(() => loadScript("https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"))
+        .then(() => {
+            if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
+                gsap.registerPlugin(ScrollTrigger);
+                if (window.innerWidth > 768) {
+                    initGSAPAnimations();
+                } else {
+                    // Mobile fallback: ensure elements are visible
+                    const animateElements = document.querySelectorAll(
+                        ".card, .feature-box, .news-card, .section-title, .section-text, .section-subtitle, .about-content, .hero-content"
+                    );
+                    animateElements.forEach((el) => {
+                        el.style.opacity = '1';
+                        el.style.transform = 'none';
+                    });
+                }
             }
-        }
-    } catch (e) {
-        console.error("Failed to load GSAP, falling back to CSS reveals", e);
-        initFallbackAnimations();
-    }
+        })
+        .catch((e) => {
+            console.error("Failed to load GSAP, falling back to CSS reveals", e);
+            initFallbackAnimations();
+        });
 
     // 2. Mobile Menu Toggle
     const hamburger = document.querySelector('.hamburger');
@@ -607,6 +608,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         };
         
         calcSlider.addEventListener("input", updateCalculator);
+        calcSlider.addEventListener("change", updateCalculator);
         
         // Initial setup of data-current-val so the initial animation runs from 0 or baseline
         if (sofortProv) sofortProv.setAttribute('data-current-val', '0');
