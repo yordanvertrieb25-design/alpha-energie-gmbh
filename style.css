@@ -2600,11 +2600,13 @@ section {
     display: block;
 }
 
-/* Trust Bar */
+/* Trust- & Kennzahlenbereich (Bento Metric Cards) */
+.section-trust-metrics,
 .trust-bar {
-    background: #ffffff;
-    padding: 4rem 2rem;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    background: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%);
+    border-top: 1px solid rgba(226, 232, 240, 0.8);
+    border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+    padding: 3.5rem 0;
     position: relative;
 }
 
@@ -2624,7 +2626,7 @@ section {
 .trust-bar-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 2rem;
+    gap: 1.5rem;
     max-width: var(--container-max);
     margin: 0 auto;
 }
@@ -2634,18 +2636,170 @@ section {
     padding: 1rem;
 }
 
-.trust-stat-number {
-    font-size: clamp(2.2rem, 4vw, 3rem);
-    color: var(--accent-orange);
+.trust-stat-card,
+.section-trust-metrics .trust-stat {
+    background: #ffffff;
+    border: 1px solid rgba(226, 232, 240, 0.9);
+    border-radius: 18px;
+    padding: 1.75rem 1.5rem;
+    box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.04), 0 2px 6px -1px rgba(15, 23, 42, 0.02);
+    text-align: left;
+    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.25s ease;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+}
+
+.trust-stat-card:hover,
+.section-trust-metrics .trust-stat:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 16px 36px -6px rgba(255, 122, 0, 0.12), 0 4px 12px -2px rgba(15, 23, 42, 0.06);
+    border-color: rgba(255, 122, 0, 0.35);
+}
+
+.trust-stat-card > * {
+    position: relative;
+    z-index: 2;
+}
+
+.stat-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.25rem;
+    gap: 0.75rem;
+}
+
+.stat-icon-wrapper {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: transform 0.25s ease, background 0.25s ease;
+}
+
+.stat-icon-wrapper svg {
+    width: 22px;
+    height: 22px;
+    display: block;
+}
+
+.trust-stat-card:hover .stat-icon-wrapper {
+    transform: scale(1.08);
+}
+
+.stat-icon-wrapper.icon-eco {
+    background: rgba(16, 185, 129, 0.1);
+    color: #059669;
+    border: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+.stat-icon-wrapper.icon-savings {
+    background: rgba(255, 122, 0, 0.1);
+    color: #ff7a00;
+    border: 1px solid rgba(255, 122, 0, 0.2);
+}
+
+.stat-icon-wrapper.icon-guarantee {
+    background: rgba(37, 99, 235, 0.1);
+    color: #2563eb;
+    border: 1px solid rgba(37, 99, 235, 0.2);
+}
+
+.stat-icon-wrapper.icon-service {
+    background: rgba(217, 119, 6, 0.1);
+    color: #d97706;
+    border: 1px solid rgba(217, 119, 6, 0.2);
+}
+
+.stat-badge-pill {
+    display: inline-flex;
+    align-items: center;
+    font-size: 0.75rem;
     font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.28rem 0.65rem;
+    border-radius: 9999px;
     line-height: 1.2;
+    white-space: nowrap;
+}
+
+.stat-badge-pill.pill-eco {
+    background: #ecfdf5;
+    color: #065f46;
+    border: 1px solid #a7f3d0;
+}
+
+.stat-badge-pill.pill-savings {
+    background: #fff7ed;
+    color: #c2410c;
+    border: 1px solid #fed7aa;
+}
+
+.stat-badge-pill.pill-guarantee {
+    background: #eff6ff;
+    color: #1e40af;
+    border: 1px solid #bfdbfe;
+}
+
+.stat-badge-pill.pill-service {
+    background: #fefce8;
+    color: #854d0e;
+    border: 1px solid #fef08a;
+}
+
+.stat-number,
+.trust-stat-number {
+    font-family: 'Sora', sans-serif;
+    font-size: clamp(1.85rem, 2.5vw, 2.5rem);
+    font-weight: 800;
+    color: #ff7a00;
+    line-height: 1.15;
+    margin-bottom: 0.5rem;
+    letter-spacing: -0.02em;
+}
+
+.stat-label,
+.trust-stat-label {
+    font-size: 1.02rem;
+    font-weight: 700;
+    color: #0f172a;
+    line-height: 1.35;
     margin-bottom: 0.5rem;
 }
 
-.trust-stat-label {
-    color: var(--text-muted);
-    font-size: 0.95rem;
-    font-weight: 500;
+.stat-desc {
+    font-size: 0.85rem;
+    color: #64748b;
+    line-height: 1.5;
+    margin: 0;
+}
+
+/* Responsive Grid for Trust Bar & Bento Metrics */
+@media (max-width: 1024px) {
+    .trust-bar-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 1.25rem !important;
+    }
+}
+
+@media (max-width: 640px) {
+    .trust-bar-grid {
+        grid-template-columns: 1fr !important;
+        gap: 1rem !important;
+    }
+    .trust-stat-card,
+    .section-trust-metrics .trust-stat {
+        padding: 1.5rem 1.25rem;
+    }
+    .section-trust-metrics,
+    .trust-bar {
+        padding: 2.5rem 0;
+    }
 }
 
 /* B2B Service Cards */
