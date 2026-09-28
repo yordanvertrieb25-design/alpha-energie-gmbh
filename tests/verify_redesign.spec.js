@@ -124,5 +124,83 @@ test.describe('Redesign Verification Suite', () => {
         await expect(badgesContainer).toContainText('Bis zu 380 € / Jahr Ersparnis');
         await expect(badgesContainer).toContainText('Vor-Ort-Kundenservice in Dortmund');
     });
+
+    test('7. Tariff ribbon visibility, overflow, and viewport bounds check (#card-alpha-time)', async ({ page }) => {
+        // Pre-seed consent so cookie banner does not interfere
+        await page.addInitScript(() => {
+            localStorage.setItem('alpha_consent_status', 'all');
+            localStorage.setItem('cookieConsent', 'all');
+        });
+
+        await page.goto('/index.html', { waitUntil: 'networkidle' });
+
+        const card = page.locator('#card-alpha-time');
+        await expect(card).toBeVisible();
+
+        // 1. Verify that computed overflow on the card is 'visible' (not hidden by spotlight-card)
+        const computedOverflow = await card.evaluate((el) => {
+            const style = window.getComputedStyle(el);
+            return {
+                overflow: style.overflow,
+                overflowY: style.overflowY,
+                overflowX: style.overflowX
+            };
+        });
+        console.log('Card #card-alpha-time computed overflow:', computedOverflow);
+        expect(computedOverflow.overflowY).toBe('visible');
+
+        // 2. Locate ribbon and verify visibility and content
+        const ribbon = card.locator('.tariff-ribbon');
+        await expect(ribbon).toBeVisible();
+        await expect(ribbon).toContainText('Bestseller & Smart Energy');
+
+        // 3. Verify vector SVG star inside ribbon
+        const starSvg = ribbon.locator('svg');
+        await expect(starSvg).toBeVisible();
+
+        // 4. Scroll card into view with 120px top offset to remain clear of sticky header
+        await page.evaluate(() => {
+            const el = document.getElementById('card-alpha-time');
+            if (el) {
+                const y = el.getBoundingClientRect().top + window.scrollY - 120;
+                window.scrollTo({ top: Math.max(0, y), behavior: 'instant' });
+            }
+        });
+        await page.waitForTimeout(300);
+
+        // 5. Check bounding boxes - ribbon must be rendered and not clipped
+        const ribbonBox = await ribbon.boundingBox();
+        const cardBox = await card.boundingBox();
+        expect(ribbonBox).not.toBeNull();
+        expect(cardBox).not.toBeNull();
+
+        console.log('Ribbon box:', ribbonBox, 'Card box:', cardBox);
+
+        // Ribbon protrudes above card top (ribbon y < card y)
+        expect(ribbonBox.y).toBeLessThan(cardBox.y);
+        // Ribbon height is fully intact (expected ~31px, definitely > 20px)
+        expect(ribbonBox.height).toBeGreaterThanOrEqual(20);
+
+        // 6. Check that ribbon is rendered inside the visible viewport
+        const viewportSize = page.viewportSize();
+        expect(ribbonBox.y).toBeGreaterThanOrEqual(0);
+        if (viewportSize) {
+            expect(ribbonBox.x).toBeGreaterThanOrEqual(0);
+            expect(ribbonBox.x + ribbonBox.width).toBeLessThanOrEqual(viewportSize.width);
+            expect(ribbonBox.y + ribbonBox.height).toBeLessThanOrEqual(viewportSize.height);
+        }
+
+        // 7. Hit-test verification: The top portion of the ribbon is hit-testable and not occluded/clipped
+        const isUpperRibbonHitTestable = await page.evaluate(() => {
+            const el = document.querySelector('#card-alpha-time .tariff-ribbon');
+            if (!el) return false;
+            const rect = el.getBoundingClientRect();
+            // Test 4px inside the top edge of the ribbon
+            const hit = document.elementFromPoint(rect.left + rect.width / 2, rect.top + 4);
+            return el.contains(hit);
+        });
+        expect(isUpperRibbonHitTestable).toBe(true);
+    });
 });
+
 
