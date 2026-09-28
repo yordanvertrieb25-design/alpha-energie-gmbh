@@ -906,11 +906,10 @@ document.addEventListener("DOMContentLoaded", async () => {
             });
         });
 
-        document.querySelectorAll('.btn-close-modal').forEach(btn => {
-            btn.addEventListener('click', closeOrderModal);
-        });
-
         if (orderModal) {
+            orderModal.querySelectorAll('.btn-close-modal, .modal-close-btn').forEach(btn => {
+                btn.addEventListener('click', closeOrderModal);
+            });
             orderModal.addEventListener('click', (e) => {
                 if (e.target === orderModal) closeOrderModal();
             });
@@ -1034,11 +1033,26 @@ document.addEventListener("DOMContentLoaded", async () => {
         const btnOpenMeterModal = document.getElementById('btnOpenMeterModal');
         const formMeterReading = document.getElementById('formMeterReading');
 
+        function closeMeterModal() {
+            if (!meterModal) return;
+            meterModal.style.display = 'none';
+            document.body.style.overflow = '';
+        }
+
         if (btnOpenMeterModal && meterModal) {
             btnOpenMeterModal.addEventListener('click', (e) => {
                 e.preventDefault();
                 meterModal.style.display = 'flex';
                 document.body.style.overflow = 'hidden';
+            });
+        }
+
+        if (meterModal) {
+            meterModal.querySelectorAll('.btn-close-modal, .modal-close-btn').forEach(btn => {
+                btn.addEventListener('click', closeMeterModal);
+            });
+            meterModal.addEventListener('click', (e) => {
+                if (e.target === meterModal) closeMeterModal();
             });
         }
 
@@ -1096,8 +1110,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                     console.log('Meter reading logged locally');
                 }
                 alert('Vielen Dank! Ihr Zählerstand wurde erfolgreich an unseren Kundenservice übermittelt.');
-                if (meterModal) meterModal.style.display = 'none';
-                document.body.style.overflow = '';
+                closeMeterModal();
             });
         }
 
@@ -1110,6 +1123,12 @@ document.addEventListener("DOMContentLoaded", async () => {
         const formCancel = document.getElementById('formLegalCancel');
         const cancelModalTitle = document.getElementById('cancelModalTitle');
         const cancelTypeInput = document.getElementById('cancelTypeInput');
+
+        function closeCancelModal() {
+            if (!cancelModal) return;
+            cancelModal.style.display = 'none';
+            document.body.style.overflow = '';
+        }
 
         const triggerCancelModal = (type) => {
             if (!cancelModal) return;
@@ -1130,17 +1149,11 @@ document.addEventListener("DOMContentLoaded", async () => {
         if (btnPageOpenRevoke) btnPageOpenRevoke.addEventListener('click', (e) => { e.preventDefault(); triggerCancelModal('WIDERRUF'); });
 
         if (cancelModal) {
-            cancelModal.querySelectorAll('.btn-close-modal').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    cancelModal.style.display = 'none';
-                    document.body.style.overflow = '';
-                });
+            cancelModal.querySelectorAll('.btn-close-modal, .modal-close-btn').forEach(btn => {
+                btn.addEventListener('click', closeCancelModal);
             });
             cancelModal.addEventListener('click', (e) => {
-                if (e.target === cancelModal) {
-                    cancelModal.style.display = 'none';
-                    document.body.style.overflow = '';
-                }
+                if (e.target === cancelModal) closeCancelModal();
             });
         }
 
@@ -1167,10 +1180,48 @@ document.addEventListener("DOMContentLoaded", async () => {
                 }
 
                 alert(`Ihre Erklärung wurde rechtswirksam gem. § 312k BGB erfasst.\nBestätigungsnummer: ${confNum}\nEine Bestätigung wurde an ${email} versandt.`);
-                if (cancelModal) cancelModal.style.display = 'none';
-                document.body.style.overflow = '';
+                closeCancelModal();
             });
         }
+
+        // --- Universal Modal Event Delegation ---
+        document.addEventListener('click', (e) => {
+            const closeBtn = e.target.closest('.btn-close-modal, .modal-close-btn, [data-close-modal]');
+            if (closeBtn) {
+                const targetSelector = closeBtn.getAttribute('data-close-modal');
+                let targetModal = null;
+                if (targetSelector && targetSelector !== 'true' && targetSelector !== '') {
+                    targetModal = document.querySelector(targetSelector);
+                }
+                if (!targetModal) {
+                    targetModal = closeBtn.closest('.digital-modal-backdrop');
+                }
+                if (targetModal) {
+                    targetModal.style.display = 'none';
+                    document.body.style.overflow = '';
+                }
+            } else if (e.target.classList && e.target.classList.contains('digital-modal-backdrop')) {
+                e.target.style.display = 'none';
+                document.body.style.overflow = '';
+            }
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' || e.key === 'Esc') {
+                const visibleModals = document.querySelectorAll('.digital-modal-backdrop');
+                let anyClosed = false;
+                visibleModals.forEach(m => {
+                    const isVisible = m.style.display === 'flex' || m.style.display === 'block' || window.getComputedStyle(m).display !== 'none';
+                    if (isVisible) {
+                        m.style.display = 'none';
+                        anyClosed = true;
+                    }
+                });
+                if (anyClosed) {
+                    document.body.style.overflow = '';
+                }
+            }
+        });
 
         // --- Multi-Language Switcher ---
         const langBtns = document.querySelectorAll('.lang-btn');

@@ -138,4 +138,54 @@ test.describe('Firstcon Guard & Error Interceptor Verification', () => {
         // The visible text of the website must NEVER contain "Firstcon" or "firstcon"
         expect(visibleBodyText.toLowerCase().includes('firstcon')).toBe(false);
     });
+
+    test('5. Modal Close Mechanics: All modals close reliably via close button, backdrop click, and Escape key', async ({ page }) => {
+        // Pre-seed consent so cookie banner does not interfere
+        await page.addInitScript(() => {
+            try {
+                localStorage.setItem('alpha_consent_status', 'all');
+                localStorage.setItem('cookieConsent', 'all');
+                localStorage.removeItem('affiliate_ref');
+                sessionStorage.clear();
+            } catch (e) {}
+        });
+
+        await page.goto('/index.html', { waitUntil: 'load' });
+        await page.waitForTimeout(1000);
+
+        const meterModal = page.locator('#meterModal');
+        const orderModal = page.locator('#orderModal');
+        const cancelModal = page.locator('#legalCancelModal');
+
+        // Test #meterModal: Open, close via button
+        await page.locator('#btnOpenMeterModal').click();
+        await expect(meterModal).toBeVisible();
+        await page.locator('#meterModal .modal-close-btn').click();
+        await expect(meterModal).not.toBeVisible();
+
+        // Reopen #meterModal: close via backdrop click
+        await page.locator('#btnOpenMeterModal').click();
+        await expect(meterModal).toBeVisible();
+        await page.locator('#meterModal').click({ position: { x: 5, y: 5 } });
+        await expect(meterModal).not.toBeVisible();
+
+        // Reopen #meterModal: close via Escape key
+        await page.locator('#btnOpenMeterModal').click();
+        await expect(meterModal).toBeVisible();
+        await page.keyboard.press('Escape');
+        await expect(meterModal).not.toBeVisible();
+
+        // Test #orderModal: Open via [data-select-tariff], close via Escape key
+        await page.locator('[data-select-tariff]').first().click();
+        await expect(orderModal).toBeVisible();
+        await page.keyboard.press('Escape');
+        await expect(orderModal).not.toBeVisible();
+
+        // Test #legalCancelModal: Open via #btnOpenCancelModal, close via close button
+        await page.locator('#btnOpenCancelModal').click();
+        await expect(cancelModal).toBeVisible();
+        await page.locator('#legalCancelModal .modal-close-btn').click();
+        await expect(cancelModal).not.toBeVisible();
+    });
 });
+
