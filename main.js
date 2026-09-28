@@ -733,13 +733,27 @@ document.addEventListener("DOMContentLoaded", async () => {
                 const kwhEl = document.getElementById(`kwh-desc-${id}`);
 
                 if (priceEl) {
-                    priceEl.textContent = `${monthlyPayment} €`;
+                    if (window.i18n && typeof window.i18n.formatMonthlyPrice === 'function') {
+                        priceEl.innerHTML = window.i18n.formatMonthlyPrice(monthlyPayment);
+                    } else {
+                        priceEl.innerHTML = `${monthlyPayment} €<span> / Monat</span>`;
+                    }
                 }
                 if (savingsEl) {
-                    savingsEl.textContent = savings > 0 ? `Bis zu ${savings} € / Jahr sparen` : `Faire ${spec.guaranteeMonths} Monate Preisgarantie`;
+                    if (window.i18n && typeof window.i18n.formatSavings === 'function') {
+                        savingsEl.textContent = savings > 0 
+                            ? window.i18n.formatSavings(savings) 
+                            : window.i18n.formatGuarantee(spec.guaranteeMonths);
+                    } else {
+                        savingsEl.textContent = savings > 0 ? `Bis zu ${savings} € / Jahr sparen` : `Faire ${spec.guaranteeMonths} Monate Preisgarantie`;
+                    }
                 }
                 if (kwhEl) {
-                    kwhEl.textContent = `${kwh.toLocaleString('de-DE')} kWh/Jahr • ${spec.workingPriceCt.toFixed(2).replace('.', ',')} ct/kWh`;
+                    if (window.i18n && typeof window.i18n.formatKwhDesc === 'function') {
+                        kwhEl.textContent = window.i18n.formatKwhDesc(kwh, spec.workingPriceCt);
+                    } else {
+                        kwhEl.textContent = `${kwh.toLocaleString('de-DE')} kWh/Jahr • ${spec.workingPriceCt.toFixed(2).replace('.', ',')} ct/kWh`;
+                    }
                 }
 
                 // Store computed values in data-attributes of action button
@@ -753,9 +767,16 @@ document.addEventListener("DOMContentLoaded", async () => {
             }
 
             if (calcSavingsValue) {
-                calcSavingsValue.textContent = `Bis zu ${maxSavings || 320} € / Jahr!`;
+                if (window.i18n && typeof window.i18n.formatMaxSavings === 'function') {
+                    calcSavingsValue.textContent = window.i18n.formatMaxSavings(maxSavings || 320);
+                } else {
+                    calcSavingsValue.textContent = `Bis zu ${maxSavings || 320} € / Jahr!`;
+                }
             }
         }
+
+        // Export recalculateTariffs globally for i18n reactive updates
+        window.recalculateTariffs = recalculateTariffs;
 
         // Event listeners for calculator
         if (calcPlz) {
@@ -808,15 +829,27 @@ document.addEventListener("DOMContentLoaded", async () => {
                 if (currentBranch === 'waerme') {
                     if (calcKwh) calcKwh.value = '4000';
                     if (calcAbschlag) calcAbschlag.value = '145';
-                    if (noticeText) noticeText.textContent = 'Wärmestrom nach § 14a EnWG • Bis zu 25 % reduzierte Netzentgelte für Wärmepumpen';
+                    if (noticeText) {
+                        noticeText.textContent = (window.i18n && typeof window.i18n.getBranchNotice === 'function')
+                            ? window.i18n.getBranchNotice('waerme')
+                            : 'Wärmestrom nach § 14a EnWG • Bis zu 25 % reduzierte Netzentgelte für Wärmepumpen';
+                    }
                 } else if (currentBranch === 'gas') {
                     if (calcKwh) calcKwh.value = '15000';
                     if (calcAbschlag) calcAbschlag.value = '130';
-                    if (noticeText) noticeText.textContent = 'Erdgas mit freiwilligem Klimaschutzbeitrag • Zertifizierte CO2-Kompensation';
+                    if (noticeText) {
+                        noticeText.textContent = (window.i18n && typeof window.i18n.getBranchNotice === 'function')
+                            ? window.i18n.getBranchNotice('gas')
+                            : 'Erdgas mit freiwilligem Klimaschutzbeitrag • Zertifizierte CO2-Kompensation';
+                    }
                 } else {
                     if (calcKwh) calcKwh.value = '2500';
                     if (calcAbschlag) calcAbschlag.value = '95';
-                    if (noticeText) noticeText.textContent = 'Ökostrom aus 100 % erneuerbaren Energien • Geprüft nach ok-power Kriterien';
+                    if (noticeText) {
+                        noticeText.textContent = (window.i18n && typeof window.i18n.getBranchNotice === 'function')
+                            ? window.i18n.getBranchNotice('strom')
+                            : 'Ökostrom aus 100 % erneuerbaren Energien • Geprüft nach ok-power Kriterien';
+                    }
                 }
                 recalculateTariffs();
             });
@@ -882,9 +915,26 @@ document.addEventListener("DOMContentLoaded", async () => {
             const plzInputModal = document.getElementById('orderPlz');
 
             if (nameEl) nameEl.textContent = spec.name;
-            if (monthlyEl) monthlyEl.textContent = `${monthly} € / Monat`;
-            if (kwhEl) kwhEl.textContent = `${parseInt(kwh, 10).toLocaleString('de-DE')} kWh`;
-            if (savingsEl) savingsEl.textContent = `Bis zu ${savings} € / Jahr`;
+            const curLang = (window.i18n && typeof window.i18n.getLanguage === 'function') ? window.i18n.getLanguage() : 'de';
+            if (monthlyEl) {
+                const suffix = curLang === 'en' ? ' / month' : (curLang === 'tr' ? ' / ay' : ' / Monat');
+                const prefix = curLang === 'en' ? '€' : '';
+                const post = curLang === 'en' ? '' : ' €';
+                monthlyEl.textContent = `${prefix}${monthly}${post}${suffix}`;
+            }
+            if (kwhEl) {
+                const locale = curLang === 'en' ? 'en-US' : (curLang === 'tr' ? 'tr-TR' : 'de-DE');
+                kwhEl.textContent = `${parseInt(kwh, 10).toLocaleString(locale)} kWh`;
+            }
+            if (savingsEl) {
+                if (curLang === 'en') {
+                    savingsEl.textContent = `Save up to €${savings} / year`;
+                } else if (curLang === 'tr') {
+                    savingsEl.textContent = `Yılda ${savings} €'ya varan tasarruf`;
+                } else {
+                    savingsEl.textContent = `Bis zu ${savings} € / Jahr sparen`;
+                }
+            }
             if (plzInputModal && !plzInputModal.value) plzInputModal.value = plz;
 
             showModalStep(1);
@@ -1225,36 +1275,15 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         // --- Multi-Language Switcher ---
         const langBtns = document.querySelectorAll('.lang-btn');
-        const langToast = document.getElementById('langToastBanner');
-        const langToastText = document.getElementById('langToastText');
-
         langBtns.forEach(b => {
             b.addEventListener('click', (e) => {
                 e.preventDefault();
-                langBtns.forEach(btn => btn.classList.remove('active'));
-                b.classList.add('active');
                 const lang = b.getAttribute('data-lang');
-
-                if (langToast && langToastText) {
-                    if (lang === 'tr') {
-                        langToastText.innerHTML = '<strong>Hoş geldiniz!</strong> Dortmund merkezli Alpha Energie ile %100 temiz yeşil elektrik. Yılda <strong>320 €\'ya varan tasarruf</strong> edin! Türkçe destek & bilgi hattı: <a href="tel:023139989390" style="text-decoration: underline; color: #fff;">0231 39989390</a>.';
-                        langToast.style.display = 'block';
-                    } else if (lang === 'en') {
-                        langToastText.innerHTML = '<strong>Welcome!</strong> 100% clean green electricity from Dortmund. Save <strong>up to €320/year</strong> with certified price guarantee. Hotline: <a href="tel:023139989390" style="text-decoration: underline; color: #fff;">0231 39989390</a>.';
-                        langToast.style.display = 'block';
-                    } else {
-                        langToast.style.display = 'none';
-                    }
+                if (window.i18n && typeof window.i18n.setLanguage === 'function') {
+                    window.i18n.setLanguage(lang);
                 }
             });
         });
-
-        const langToastClose = document.getElementById('langToastClose');
-        if (langToastClose && langToast) {
-            langToastClose.addEventListener('click', () => {
-                langToast.style.display = 'none';
-            });
-        }
 
         // --- FAQ Accordion ---
         const faqItems = document.querySelectorAll('.faq-accordion-item');

@@ -7,6 +7,20 @@
     <meta name="description" content="Alpha Energie GmbH: Ökostrom aus 100 % erneuerbaren Energien, Wärmestrom nach § 14a EnWG und Erdgas mit freiwilligem Klimaschutzbeitrag. Jetzt berechnen!">
     <link rel="canonical" href="https://alpha-energie.de/">
 
+    <!-- Early Language Initialization -->
+    <script>
+    (function() {
+        try {
+            var urlParams = new URLSearchParams(window.location.search);
+            var qLang = urlParams.get('lang');
+            var savedLang = (qLang && (qLang === 'de' || qLang === 'en' || qLang === 'tr')) ? qLang : localStorage.getItem('alpha_lang');
+            if (savedLang && (savedLang === 'de' || savedLang === 'en' || savedLang === 'tr')) {
+                document.documentElement.lang = savedLang;
+            }
+        } catch(e) {}
+    })();
+    </script>
+
     <!-- Firstcon Smart Conditional Loader & Token Manager -->
     <script>
     (function() {
@@ -113,6 +127,7 @@
     
     <!-- CSS and JS -->
     <link rel="stylesheet" href="style.css">
+    <script src="i18n.js" defer></script>
     <script src="main.js" defer></script>
 
     <!-- Schema.org Structured Data -->
