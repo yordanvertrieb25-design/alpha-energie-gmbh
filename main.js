@@ -560,8 +560,8 @@ document.addEventListener("DOMContentLoaded", async () => {
             const gesamt = val * 250;
             
             // Update displays with animation
-            animateNumber(sofortProv, sofort);
-            animateNumber(gesamtProv, gesamt);
+            if (sofortProv) { sofortProv.setAttribute('data-current-val', String(sofort)); sofortProv.textContent = sofort.toLocaleString('de-DE'); }
+            if (gesamtProv) { gesamtProv.setAttribute('data-current-val', String(gesamt)); gesamtProv.textContent = gesamt.toLocaleString('de-DE'); }
             
             // Update slider background track
             updateSliderTrack(calcSlider);
