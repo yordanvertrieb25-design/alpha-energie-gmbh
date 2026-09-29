@@ -68,6 +68,36 @@ app.use((req, res, next) => {
 });
 
 
+// Dedicated routes for Google Search & Browser Favicons (High availability, exact Content-Type, Cache-Control)
+const faviconAssets = [
+    { route: '/favicon.ico', file: 'favicon.ico', type: 'image/x-icon' },
+    { route: '/favicon.svg', file: 'favicon.svg', type: 'image/svg+xml' },
+    { route: '/favicon-48x48.png', file: 'favicon-48x48.png', type: 'image/png' },
+    { route: '/favicon-96x96.png', file: 'favicon-96x96.png', type: 'image/png' },
+    { route: '/favicon-192x192.png', file: 'favicon-192x192.png', type: 'image/png' },
+    { route: '/favicon-512x512.png', file: 'favicon-512x512.png', type: 'image/png' },
+    { route: '/apple-touch-icon.png', file: 'apple-touch-icon.png', type: 'image/png' },
+    { route: '/site.webmanifest', file: 'site.webmanifest', type: 'application/manifest+json' }
+];
+
+faviconAssets.forEach(asset => {
+    app.get(asset.route, (req, res) => {
+        const pubFile = path.join(__dirname, 'public', asset.file);
+        if (fs.existsSync(pubFile)) {
+            res.setHeader('Content-Type', asset.type);
+            res.setHeader('Cache-Control', 'public, max-age=86400');
+            return res.sendFile(pubFile);
+        }
+        const rootFile = path.join(__dirname, asset.file);
+        if (fs.existsSync(rootFile)) {
+            res.setHeader('Content-Type', asset.type);
+            res.setHeader('Cache-Control', 'public, max-age=86400');
+            return res.sendFile(rootFile);
+        }
+        res.status(404).send('Not Found');
+    });
+});
+
 // Serve static files from the root directory
 app.use(express.static(path.join(__dirname, 'public'))); // For future public assets if needed
 app.use(express.static(__dirname, { extensions: ['html'] })); // Serving the HTML files from the root
@@ -100,6 +130,11 @@ app.get('/ok-power-siegel.png', (req, res) => {
         return res.sendFile(rootFile);
     }
     res.status(404).send('Not Found');
+});
+
+// Dedicated route for /versorger
+app.get('/versorger', (req, res) => {
+    res.sendFile(path.join(__dirname, 'versorger.html'));
 });
 
 // --- API ROUTES ---
@@ -1890,6 +1925,14 @@ app.get('/admin', (req, res) => {
 
 app.get('/admin/login', (req, res) => {
     res.sendFile(path.join(__dirname, 'admin', 'login.html'));
+});
+
+// Global crash protection
+process.on('uncaughtException', (err) => {
+    console.error('Server Uncaught Exception:', err.message);
+});
+process.on('unhandledRejection', (reason, promise) => {
+    console.error('Server Unhandled Rejection:', reason);
 });
 
 // Start Server

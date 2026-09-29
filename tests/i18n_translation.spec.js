@@ -13,7 +13,7 @@ test.describe('Multi-Language Translation System Verification (DE | EN | TR)', (
     });
 
     test('1. Switching to English (EN) translates Navigation, Hero, Rechner, Badges, Tariffs, and Footer', async ({ page }) => {
-        await page.goto('/index.html', { waitUntil: 'load' });
+        await page.goto('/versorger', { waitUntil: 'load' });
         await page.evaluate(() => localStorage.removeItem('alpha_lang'));
         await page.waitForTimeout(300);
 
@@ -21,29 +21,30 @@ test.describe('Multi-Language Translation System Verification (DE | EN | TR)', (
         const btnEn = page.locator('.lang-btn[data-lang="en"]').first();
         await btnEn.click();
 
-        // 1. Check HTML lang attribute and button state
+        // 1. Check HTML lang attribute, title and button state
         await expect(page.locator('html')).toHaveAttribute('lang', 'en');
+        await expect(page).toHaveTitle('Alpha Energie | 100% Green Electricity & Energy Nationwide');
         await expect(btnEn).toHaveClass(/active/);
 
         // 2. Check Welcome Toast banner
         const toastBanner = page.locator('#langToastBanner');
         await expect(toastBanner).toBeVisible();
         await expect(toastBanner).toContainText('Welcome!');
-        await expect(toastBanner).toContainText('100% clean green electricity from Dortmund');
+        await expect(toastBanner).toContainText('100% clean green electricity across Germany');
 
         // 3. Navigation
         const navTariffs = page.locator('#main-nav .nav-list > li:nth-child(1) > a');
         await expect(navTariffs).toHaveText('Electricity & Tariffs');
         const calcCta = page.locator('.header-actions a[href="#rechner"]');
         await expect(calcCta).toHaveText('Calculate Tariff');
-        const partnerBtn = page.locator('.header-actions a[href="partner-werden.html"]');
+        const partnerBtn = page.locator('.header-actions a[href="/"], .header-actions a[href="partner-werden.html"]');
         await expect(partnerBtn).toBeVisible();
         await expect(partnerBtn).toHaveText('Become a Partner');
         await expect(page.locator('.header-actions')).not.toContainText('VP-Portal');
 
         // 4. Hero Section
         const heroTag = page.locator('.hero-versorger-content .versorger-tag');
-        await expect(heroTag).toContainText('Your Local Energy Provider in Dortmund');
+        await expect(heroTag).toContainText('Nationwide Green Electricity & Energy Provider');
         const heroTitle = page.locator('.hero-versorger-title');
         await expect(heroTitle).toContainText('Simple. Transparent.');
         await expect(heroTitle).toContainText('Guaranteed Affordable.');
@@ -126,7 +127,7 @@ test.describe('Multi-Language Translation System Verification (DE | EN | TR)', (
     });
 
     test('2. Switching to Turkish (TR) translates Navigation, Hero, Rechner, Badges, Tariffs, and Footer', async ({ page }) => {
-        await page.goto('/index.html', { waitUntil: 'load' });
+        await page.goto('/versorger', { waitUntil: 'load' });
         await page.evaluate(() => localStorage.removeItem('alpha_lang'));
         await page.waitForTimeout(300);
 
@@ -134,29 +135,30 @@ test.describe('Multi-Language Translation System Verification (DE | EN | TR)', (
         const btnTr = page.locator('.lang-btn[data-lang="tr"]').first();
         await btnTr.click();
 
-        // 1. Check HTML lang attribute and button state
+        // 1. Check HTML lang attribute, title and button state
         await expect(page.locator('html')).toHaveAttribute('lang', 'tr');
+        await expect(page).toHaveTitle('Alpha Energie | Almanya Genelinde %100 Yeşil Elektrik & Enerji');
         await expect(btnTr).toHaveClass(/active/);
 
         // 2. Check Welcome Toast banner
         const toastBanner = page.locator('#langToastBanner');
         await expect(toastBanner).toBeVisible();
         await expect(toastBanner).toContainText('Hoş geldiniz!');
-        await expect(toastBanner).toContainText('Dortmund merkezli Alpha Energie ile %100 temiz yeşil elektrik');
+        await expect(toastBanner).toContainText('Almanya genelinde %100 temiz yeşil elektrik');
 
         // 3. Navigation
         const navTariffs = page.locator('#main-nav .nav-list > li:nth-child(1) > a');
         await expect(navTariffs).toHaveText('Elektrik & Tarifeler');
         const calcCta = page.locator('.header-actions a[href="#rechner"]');
         await expect(calcCta).toHaveText('Tarife Hesapla');
-        const partnerBtn = page.locator('.header-actions a[href="partner-werden.html"]');
+        const partnerBtn = page.locator('.header-actions a[href="/"], .header-actions a[href="partner-werden.html"]');
         await expect(partnerBtn).toBeVisible();
         await expect(partnerBtn).toHaveText('İş Ortağı Olun');
         await expect(page.locator('.header-actions')).not.toContainText('VP-Portal');
 
         // 4. Hero Section
         const heroTag = page.locator('.hero-versorger-content .versorger-tag');
-        await expect(heroTag).toContainText("Dortmund'daki Yerel Enerji Sağlayıcınız");
+        await expect(heroTag).toContainText('Almanya Genelinde %100 Yeşil Elektrik ve Enerji Sağlayıcısı');
         const heroTitle = page.locator('.hero-versorger-title');
         await expect(heroTitle).toContainText('Basit. Şeffaf.');
         await expect(heroTitle).toContainText('Garantili Uygun Fiyat.');
@@ -239,7 +241,7 @@ test.describe('Multi-Language Translation System Verification (DE | EN | TR)', (
     });
 
     test('3. Switching back to German (DE) completely restores original German texts', async ({ page }) => {
-        await page.goto('/index.html', { waitUntil: 'load' });
+        await page.goto('/versorger', { waitUntil: 'load' });
         await page.evaluate(() => localStorage.removeItem('alpha_lang'));
         await page.waitForTimeout(300);
 
@@ -252,8 +254,9 @@ test.describe('Multi-Language Translation System Verification (DE | EN | TR)', (
         const btnDe = page.locator('.lang-btn[data-lang="de"]').first();
         await btnDe.click();
 
-        // 1. Check HTML lang attribute and button state
+        // 1. Check HTML lang attribute, title and button state
         await expect(page.locator('html')).toHaveAttribute('lang', 'de');
+        await expect(page).toHaveTitle('Alpha Energie | 100% Ökostrom & Gastarife deutschlandweit');
         await expect(btnDe).toHaveClass(/active/);
 
         // 2. Toast banner should be hidden in German
@@ -265,14 +268,14 @@ test.describe('Multi-Language Translation System Verification (DE | EN | TR)', (
         await expect(navTariffs).toHaveText('Strom & Tarife');
         const calcCta = page.locator('.header-actions a[href="#rechner"]');
         await expect(calcCta).toHaveText('Tarif berechnen');
-        const partnerBtn = page.locator('.header-actions a[href="partner-werden.html"]');
+        const partnerBtn = page.locator('.header-actions a[href="/"], .header-actions a[href="partner-werden.html"]');
         await expect(partnerBtn).toBeVisible();
         await expect(partnerBtn).toHaveText('Partner werden');
         await expect(page.locator('.header-actions')).not.toContainText('VP-Portal');
 
         // 4. Hero Section
         const heroTag = page.locator('.hero-versorger-content .versorger-tag');
-        await expect(heroTag).toContainText('Ihr Energieversorger vor Ort in Dortmund');
+        await expect(heroTag).toContainText('Deutschlandweiter Ökostrom- & Energieversorger');
         const heroTitle = page.locator('.hero-versorger-title');
         await expect(heroTitle).toContainText('Einfach. Transparent.');
         await expect(heroTitle).toContainText('Garantiert günstig.');
@@ -343,7 +346,7 @@ test.describe('Multi-Language Translation System Verification (DE | EN | TR)', (
     });
 
     test('4. Persistence across page reload via localStorage and URL parameter', async ({ page }) => {
-        await page.goto('/index.html', { waitUntil: 'load' });
+        await page.goto('/versorger', { waitUntil: 'load' });
         await page.evaluate(() => localStorage.removeItem('alpha_lang'));
         await page.waitForTimeout(300);
 
@@ -366,7 +369,7 @@ test.describe('Multi-Language Translation System Verification (DE | EN | TR)', (
         await expect(page.locator('.hero-versorger-title')).toContainText('Basit. Şeffaf.');
 
         // Test URL parameter initialization ?lang=en
-        await page.goto('/index.html?lang=en', { waitUntil: 'load' });
+        await page.goto('/versorger?lang=en', { waitUntil: 'load' });
         await page.waitForTimeout(500);
 
         await expect(page.locator('html')).toHaveAttribute('lang', 'en');
@@ -375,7 +378,7 @@ test.describe('Multi-Language Translation System Verification (DE | EN | TR)', (
     });
 
     test('5. Translation of Modals: #meterModal and #orderModal in EN and TR', async ({ page }) => {
-        await page.goto('/index.html', { waitUntil: 'load' });
+        await page.goto('/versorger', { waitUntil: 'load' });
         await page.evaluate(() => localStorage.removeItem('alpha_lang'));
         await page.waitForTimeout(300);
 

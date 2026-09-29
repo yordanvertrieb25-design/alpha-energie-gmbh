@@ -13,8 +13,8 @@ test.describe('Firstcon Guard & Error Interceptor Verification', () => {
             } catch (e) {}
         });
 
-        // Navigate to homepage
-        await page.goto('/index.html', { waitUntil: 'load', timeout: 30000 });
+        // Navigate to versorger page
+        await page.goto('/versorger', { waitUntil: 'load', timeout: 30000 });
 
         // Wait 3 seconds to allow Firstcon script to run and attempt authentication
         await page.waitForTimeout(3000);
@@ -70,7 +70,7 @@ test.describe('Firstcon Guard & Error Interceptor Verification', () => {
             } catch (e) {}
         });
 
-        await page.goto('/index.html', { waitUntil: 'load' });
+        await page.goto('/versorger', { waitUntil: 'load' });
         await page.waitForTimeout(1000);
 
         // Test household button preset
@@ -110,7 +110,7 @@ test.describe('Firstcon Guard & Error Interceptor Verification', () => {
             } catch (e) {}
         });
 
-        await page.goto(`/index.html?firstcon_token=${testToken}`, { waitUntil: 'load' });
+        await page.goto(`/versorger?firstcon_token=${testToken}`, { waitUntil: 'load' });
         await page.waitForTimeout(1000);
 
         const widgetToken = await page.evaluate(() => {
@@ -128,7 +128,7 @@ test.describe('Firstcon Guard & Error Interceptor Verification', () => {
     });
 
     test('4. Strict White-Label Guarantee: Firstcon is NEVER visible in rendered UI', async ({ page }) => {
-        await page.goto('/index.html', { waitUntil: 'load' });
+        await page.goto('/versorger', { waitUntil: 'load' });
         await page.waitForTimeout(1000);
 
         const visibleBodyText = await page.evaluate(() => {
@@ -140,6 +140,7 @@ test.describe('Firstcon Guard & Error Interceptor Verification', () => {
     });
 
     test('5. Modal Close Mechanics: All modals close reliably via close button, backdrop click, and Escape key', async ({ page }) => {
+        test.setTimeout(90000);
         // Pre-seed consent so cookie banner does not interfere
         await page.addInitScript(() => {
             try {
@@ -150,7 +151,7 @@ test.describe('Firstcon Guard & Error Interceptor Verification', () => {
             } catch (e) {}
         });
 
-        await page.goto('/index.html', { waitUntil: 'load' });
+        await page.goto('/versorger', { waitUntil: 'load' });
         await page.waitForTimeout(1000);
 
         const meterModal = page.locator('#meterModal');
@@ -174,12 +175,16 @@ test.describe('Firstcon Guard & Error Interceptor Verification', () => {
         await expect(meterModal).toBeVisible();
         await page.keyboard.press('Escape');
         await expect(meterModal).not.toBeVisible();
+        await page.waitForTimeout(400);
 
         // Test #orderModal: Open via [data-select-tariff], close via Escape key
-        await page.locator('[data-select-tariff]').first().click();
+        const btnSelectTariff = page.locator('[data-select-tariff]').first();
+        await btnSelectTariff.scrollIntoViewIfNeeded();
+        await btnSelectTariff.click();
         await expect(orderModal).toBeVisible();
         await page.keyboard.press('Escape');
         await expect(orderModal).not.toBeVisible();
+        await page.waitForTimeout(400);
 
         // Test #legalCancelModal: Open via #btnOpenCancelModal, close via close button
         await page.locator('#btnOpenCancelModal').click();

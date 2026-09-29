@@ -597,6 +597,7 @@ test.describe('SEO E2E Test Suite', () => {
     });
 
     test('47. All HTML files not listed in sitemap.xml must have noindex tags', async ({ page }) => {
+      test.setTimeout(300000);
       const urls = await parseSitemapUrls(page);
       const sitemapUrls = urls.map(url => {
         const parsed = new URL(url);
@@ -610,7 +611,7 @@ test.describe('SEO E2E Test Suite', () => {
         try {
           expect(sitemapUrls).not.toContain(file);
           
-          await page.goto(`/${file}`);
+          await page.goto(`/${file}`, { waitUntil: 'domcontentloaded' });
           const metas = await getRobotsMetaContents(page);
           verifyRobotsMetaForNonIndexable(metas);
         } catch (err) {

@@ -3,121 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Alpha Energie GmbH | Energieversorger vor Ort in Dortmund</title>
-    <meta name="description" content="Alpha Energie GmbH: Ökostrom aus 100 % erneuerbaren Energien, Wärmestrom nach § 14a EnWG und Erdgas mit freiwilligem Klimaschutzbeitrag. Jetzt berechnen!">
+    <title>Alpha Energie | B2B Energielösungen &amp; Energievertrieb deutschlandweit</title>
+    <meta name="description" content="Alpha Energie GmbH: Ihr starker Partner für nachhaltige B2B-Energielösungen &amp; erstklassigen Energievertrieb mit dem VP-Portal. Deutschlandweit verfügbar!">
     <link rel="canonical" href="https://alpha-energie.de/">
 
-    <!-- Early Language Initialization -->
-    <script>
-    (function() {
-        try {
-            var urlParams = new URLSearchParams(window.location.search);
-            var qLang = urlParams.get('lang');
-            var savedLang = (qLang && (qLang === 'de' || qLang === 'en' || qLang === 'tr')) ? qLang : localStorage.getItem('alpha_lang');
-            if (savedLang && (savedLang === 'de' || savedLang === 'en' || savedLang === 'tr')) {
-                document.documentElement.lang = savedLang;
-            }
-        } catch(e) {}
-    })();
-    </script>
-
-    <!-- Firstcon Smart Conditional Loader & Token Manager -->
-    <script>
-    (function() {
-        try {
-            var urlParams = new URLSearchParams(window.location.search);
-            var tokenParam = urlParams.get('firstcon_token') || urlParams.get('token');
-            if (tokenParam && tokenParam.trim() !== '' && tokenParam !== 'alpha-energie-live' && tokenParam !== 'TOKEN') {
-                try { localStorage.setItem('firstcon_token', tokenParam.trim()); } catch(e){}
-            }
-            var storedToken = null;
-            try { storedToken = localStorage.getItem('firstcon_token'); } catch(e){}
-            var validToken = (tokenParam && tokenParam.trim() !== '' && tokenParam !== 'alpha-energie-live' && tokenParam !== 'TOKEN') 
-                ? tokenParam.trim() 
-                : (storedToken && storedToken !== 'alpha-energie-live' && storedToken !== 'TOKEN' ? storedToken.trim() : null);
-
-            window.__FIRSTCON_TOKEN__ = validToken || 'alpha-energie-live';
-            window.__FIRSTCON_ACTIVE__ = !!validToken;
-
-            // ONLY load Firstcon external scripts if explicitly enabled by production live flag!
-            // This strictly isolates Firstcon scripts, eliminating external CSS overrides, 401 reload loops, and infinite spinners.
-            var isLiveActivated = urlParams.get('firstcon_live') === 'true' || 
-                                  urlParams.get('firstcon_live') === '1' || 
-                                  (localStorage.getItem('firstcon_external_active') === 'true');
-
-            if (isLiveActivated && validToken) {
-                console.log('[Order Engine] Production live flag confirmed. Initializing orderflow...');
-                var headScript = document.createElement('script');
-                headScript.src = 'https://cdn.firstcon.de/static/js/firstcon.bestellstrasse.head.js';
-                document.head.appendChild(headScript);
-
-                var injectBodyScript = function() {
-                    var bodyScript = document.createElement('script');
-                    bodyScript.src = 'https://cdn.firstcon.de/static/js/firstcon.bestellstrasse.body.js';
-                    document.body.appendChild(bodyScript);
-                };
-
-                if (document.readyState === 'loading') {
-                    document.addEventListener('DOMContentLoaded', injectBodyScript);
-                } else {
-                    injectBodyScript();
-                }
-            } else {
-                console.log('[Order Engine] Native Alpha Energie Live-Tarifrechner active.');
-            }
-        } catch (e) {
-            console.warn('[Order Engine] Init warning:', e);
-        }
-
-        // Global Error & SweetAlert2 Shield (in case external scripts are ever activated)
-        var dismissSweetAlertModal = function(elem) {
-            if (!elem) return;
-            elem.style.cssText = 'display:none!important;visibility:hidden!important;pointer-events:none!important;opacity:0!important;z-index:-99999!important;';
-            if (elem.parentNode) {
-                try { elem.parentNode.removeChild(elem); } catch (e) {}
-            }
-            if (document.body) document.body.classList.remove('swal2-shown', 'swal2-height-auto');
-            if (document.documentElement) document.documentElement.classList.remove('swal2-shown', 'swal2-height-auto');
-        };
-
-        var swalObserver = new MutationObserver(function(mutations) {
-            for (var i = 0; i < mutations.length; i++) {
-                var added = mutations[i].addedNodes;
-                for (var j = 0; j < added.length; j++) {
-                    var node = added[j];
-                    if (node.nodeType === 1) {
-                        if (node.classList && (node.classList.contains('swal2-container') || node.id === 'swal2-container')) {
-                            dismissSweetAlertModal(node);
-                        } else if (node.querySelector) {
-                            var swal = node.querySelector('.swal2-container, #swal2-container');
-                            if (swal) dismissSweetAlertModal(swal);
-                        }
-                    }
-                }
-            }
-        });
-
-        if (document.documentElement) {
-            swalObserver.observe(document.documentElement, { childList: true, subtree: true });
-        } else {
-            document.addEventListener('DOMContentLoaded', function() {
-                swalObserver.observe(document.documentElement, { childList: true, subtree: true });
-            });
-        }
-    })();
-    </script>
+    <!-- Favicon for Google Search & Browsers (Glühbirne) -->
+    <link rel="icon" href="/favicon.ico" sizes="any">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="icon" type="image/png" sizes="48x48" href="/favicon-48x48.png">
+    <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192x192.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="manifest" href="/site.webmanifest">
     
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://alpha-energie.de/">
-    <meta property="og:title" content="Alpha Energie GmbH | Energieversorger vor Ort in Dortmund">
-    <meta property="og:description" content="Ökostrom aus 100 % erneuerbaren Energien, Wärmestrom nach § 14a EnWG und Erdgas mit freiwilligem Klimaschutzbeitrag. Jetzt berechnen!">
+    <meta property="og:title" content="Alpha Energie | B2B Energielösungen &amp; Energievertrieb deutschlandweit">
+    <meta property="og:description" content="Alpha Energie GmbH: Ihr starker Partner für nachhaltige B2B-Energielösungen &amp; erstklassigen Energievertrieb mit dem VP-Portal. Deutschlandweit verfügbar!">
     <meta property="og:image" content="https://alpha-energie.de/logo.png">
 
     <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="Alpha Energie GmbH | Energieversorger vor Ort in Dortmund">
-    <meta name="twitter:description" content="Ökostrom aus 100 % erneuerbaren Energien, Wärmestrom nach § 14a EnWG und Erdgas mit freiwilligem Klimaschutzbeitrag. Jetzt berechnen!">
+    <meta name="twitter:title" content="Alpha Energie | B2B Energielösungen &amp; Energievertrieb deutschlandweit">
+    <meta name="twitter:description" content="Alpha Energie GmbH: Ihr starker Partner für nachhaltige B2B-Energielösungen &amp; erstklassigen Energievertrieb mit dem VP-Portal. Deutschlandweit verfügbar!">
     <meta name="twitter:image" content="https://alpha-energie.de/logo.png">
     
     <!-- Google Fonts -->
@@ -127,7 +36,6 @@
     
     <!-- CSS and JS -->
     <link rel="stylesheet" href="style.css">
-    <script src="i18n.js" defer></script>
     <script src="main.js" defer></script>
 
     <!-- Schema.org Structured Data -->
@@ -141,7 +49,7 @@
       "logo": "https://alpha-energie.de/logo.png",
       "telephone": "0231 39989390",
       "email": "info@alpha-energy.network",
-      "description": "Alpha Energie GmbH ist ein unabhängiger Strom- und Gasversorger aus Dortmund, spezialisiert auf Ökostrom aus 100 % erneuerbaren Energien, Wärmestrom nach § 14a EnWG, Photovoltaik und Sektorenkopplung.",
+      "description": "Alpha Energie GmbH ist ein B2B-Energiedienstleister aus Dortmund, spezialisiert auf Energievertrieb, Energieaudits, Photovoltaik und ein digitales Vertriebspartner-Portal für Strom-, Gas- und Glasfasertarife.",
       "foundingDate": "2024",
       "numberOfEmployees": {
         "@type": "QuantitativeValue",
@@ -157,7 +65,7 @@
         "contactType": "customer service",
         "telephone": "0231 39989390",
         "email": "info@alpha-energy.network",
-        "availableLanguage": ["Deutsch", "Englisch", "Türkisch"]
+        "availableLanguage": ["Deutsch", "Englisch"]
       },
       "address": {
         "@type": "PostalAddress",
@@ -175,7 +83,7 @@
       "@type": "WebSite",
       "name": "Alpha Energie GmbH",
       "url": "https://alpha-energie.de/",
-      "description": "Offizielle Website der Alpha Energie GmbH – Ökostrom aus 100 % erneuerbaren Energien, § 14a EnWG Wärmestrom, Erdgas mit freiwilligem Klimaschutzbeitrag und Photovoltaik.",
+      "description": "Offizielle Website der Alpha Energie GmbH – B2B-Energielösungen, Vertriebspartner-Programm und Agentur-Partnerprogramm.",
       "publisher": {
         "@type": "Organization",
         "name": "Alpha Energie GmbH"
@@ -196,23 +104,16 @@
       ]
     }
     </script>
-    <link rel="icon" type="image/x-icon" href="/favicon.ico">
 </head>
 <body>
-    <!-- Language Toast Banner -->
-    <div id="langToastBanner" class="lang-toast-banner">
-        <span id="langToastText"></span>
-        <button type="button" id="langToastClose" style="background: transparent; border: none; color: #fff; margin-left: 1rem; cursor: pointer; font-weight: bold;" aria-label="Hinweis schließen">&times;</button>
-    </div>
-
     <!-- Topbar -->
     <div id="topbar" class="topbar">
         <div class="topbar-left">
-            <span>Montag – Freitag 08:00 – 18:00 Uhr | Kundenservice Dortmund</span>
+            <span>Montag – Freitag 09:00 Uhr bis 17:30 Uhr</span>
         </div>
         <div class="topbar-right">
-            <a href="tel:023139989390" class="topbar-contact"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="display:inline-block;vertical-align:-1px;margin-right:5px;"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>0231 39989390</a>
-            <a href="mailto:info@alpha-energy.network" class="topbar-contact"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="display:inline-block;vertical-align:-1px;margin-right:5px;"><rect x="2" y="4" width="20" height="16" rx="2"></rect><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path></svg>info@alpha-energy.network</a>
+            <a href="tel:023139989390" class="topbar-contact">T 0231 39989390</a>
+            <a href="mailto:info@alpha-energy.network" class="topbar-contact">E info@alpha-energy.network</a>
         </div>
     </div>
 
@@ -232,8 +133,9 @@
             <nav id="main-nav" class="nav">
                 <ul class="nav-list">
                     <li class="nav-item has-dropdown">
-                        <a href="#tarife">Strom &amp; Tarife</a>
+                        <a href="/versorger#tarife">Strom &amp; Tarife</a>
                         <ul class="dropdown">
+                            <li><a href="/versorger">Ökostrom- &amp; Gastarife (Versorger)</a></li>
                             <li><a href="oekostrom.html">100% Ökostrom</a></li>
                             <li><a href="waermestrom.html">Wärmestrom (§ 14a EnWG)</a></li>
                             <li><a href="oekogas.html">Erdgas mit Klimaschutzbeitrag</a></li>
@@ -251,7 +153,7 @@
                     <li class="nav-item has-dropdown">
                         <a href="service.html">Service &amp; Hilfe</a>
                         <ul class="dropdown">
-                            <li><a href="#rechner">Online-Tarifrechner</a></li>
+                            <li><a href="/versorger#rechner">Online-Tarifrechner</a></li>
                             <li><a href="service.html">Kundenservice &amp; Portal</a></li>
                             <li><a href="service.html#zaehler">Zählerstand online melden</a></li>
                             <li><a href="service.html#umzug">Umzugsservice</a></li>
@@ -269,8 +171,8 @@
                 </ul>
             </nav>
             <div class="header-actions">
-                <a href="#rechner" class="btn btn-primary">Tarif berechnen</a>
-                <a href="partner-werden.html" class="btn btn-secondary">Partner werden</a>
+                <a href="/versorger" class="btn btn-primary" style="background:#ff7a00;color:#fff;">Ökostrom- &amp; Gastarife &rarr;</a>
+                <a href="https://vp.alpha-energie.de" class="btn btn-secondary">VP-Portal</a>
                 <div class="lang-switcher-header">
                     <button class="lang-btn active" data-lang="de">DE</button>
                     <button class="lang-btn" data-lang="en">EN</button>
@@ -281,762 +183,105 @@
     </header>
 
     <!-- Main Content -->
-    <main id="main-content">
-        <!-- Hero Section with Integrated Live-Tarifrechner -->
-        <section id="hero" class="hero-section hero-versorger">
-            <div class="container hero-versorger-grid">
+    <main id="main-content">        <!-- Hero Section -->
+        <section id="hero" class="hero-section hero-split-layout">
+            <div class="container hero-grid-split">
                 <!-- Text Column (Left) -->
-                <div class="hero-versorger-content">
-                    <span class="versorger-tag">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
-                        Ihr Energieversorger vor Ort in Dortmund
-                    </span>
-                    <h1 class="hero-versorger-title">
-                        Einfach. Transparent.<br>
-                        <span class="text-orange-gradient">Garantiert günstig.</span>
-                    </h1>
-                    <p class="hero-versorger-desc">
-                        Wechseln Sie in nur 3 Minuten zu Ökostrom aus 100 % erneuerbaren Energien, verlässlichem § 14a Wärmestrom oder Erdgas mit freiwilligem Klimaschutzbeitrag. Mit bis zu 24 Monaten voller Preisgarantie, Neukundenbonus und persönlichem Ansprechpartner im Ruhrgebiet.
-                    </p>
-
-                    <div class="versorger-hero-badges">
-                        <div class="versorger-hero-badge-item">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="#ff7a00" stroke="#ff7a00" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 14 14" stroke="#ffffff"></polyline></svg>
-                            24 Monate Preisschutz
-                        </div>
-                        <div class="versorger-hero-badge-item">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="#ff7a00" stroke="#ff7a00" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" stroke="#ffffff"></path></svg>
-                            100 % erneuerbare Energien (ok-power)
-                        </div>
-                        <div class="versorger-hero-badge-item">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="#ff7a00" stroke="#ff7a00" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" stroke="#ffffff"></polygon></svg>
-                            Kostenloser Wechselservice
-                        </div>
-                    </div>
-
-                    <!-- Hero Visual Showcase with Interactive Glassmorphism Badges -->
-                    <div class="hero-visual-frame">
-                        <img src="/clean_energy_home.jpg" alt="Alpha Energie – Modernes Eigenheim und Gewerbe mit Photovoltaik, Speicher und Wallbox" loading="eager" fetchpriority="high" width="1376" height="774">
-                        
-                        <!-- Floating Glassmorphic Badge 1: 100% Strom aus erneuerbaren Quellen -->
-                        <div class="hero-floating-glass-badge badge-top-right">
-                            <div class="badge-bubble">
-                                <span class="status-pulse-dot" style="margin-right: 2px;"></span>
-                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
-                            </div>
-                            <div>
-                                <div class="badge-title">100 % Strom aus erneuerbaren Quellen</div>
-                                <div class="badge-sub">Geprüft nach ok-power Kriterien</div>
-                            </div>
-                        </div>
-
-                        <!-- Stacked Glassmorphic Badges (Bottom-Left) - Kein Kollidieren / Nicht zu eng -->
-                        <div class="hero-badges-stack-left">
-                            <div class="hero-floating-glass-badge">
-                                <div class="badge-bubble badge-bubble-green">
-                                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg>
-                                </div>
-                                <div>
-                                    <div class="badge-title">Bis zu 380 € / Jahr Ersparnis</div>
-                                    <div class="badge-sub">Gegenüber Grundversorgung</div>
-                                </div>
-                            </div>
-
-                            <div class="hero-floating-glass-badge">
-                                <div class="badge-bubble badge-bubble-loc">
-                                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
-                                </div>
-                                <div>
-                                    <div class="badge-title">Vor-Ort-Kundenservice in Dortmund</div>
-                                    <div class="badge-sub">Alter Hellweg 50 • 0231 39989390</div>
-                                </div>
-                            </div>
-                        </div>
+                <div class="hero-content text-left">
+                    <h1 class="hero-title-mega">Zukunftssichere<br>Energielösungen<br>für Mittelstand & Vertrieb</h1>
+                    <p class="hero-text-large">Wir senken Energiekosten für Gewerbekunden nachhaltig, bieten Vertriebspartnern eine erstklassige Infrastruktur und verhelfen Produktgebern zu starkem Absatz.</p>
+                    <div class="hero-buttons" style="justify-content: flex-start;">
+                        <a href="vertriebspartner.html" class="btn btn-primary btn-large">Vertriebspartner werden</a>
+                        <a href="/gewerbekunden" class="btn btn-outline btn-large">B2B-Lösungen entdecken</a>
                     </div>
                 </div>
 
-                <!-- Live-Tarifrechner Column (Right) -->
-                <div id="rechner" class="tarifrechner-card">
-                    <h2 class="rechner-header-title">Live-Tarifrechner</h2>
-                    <p class="rechner-header-subtitle">Vergleichen Sie unsere Tarife für Ihre Postleitzahl in Echtzeit:</p>
-
-                    <!-- Segmented Energy Branch Tabs: Ökostrom | Wärmestrom | Erdgas -->
-                    <div class="calc-tab-group">
-                        <button type="button" class="calc-tab-btn active" data-branch="strom">
-                            <span class="calc-tab-icon-wrap calc-tab-icon-strom">
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
-                            </span>
-                            <span class="calc-tab-title">Ökostrom</span>
-                            <span class="calc-tab-subtitle">100 % erneuerbar</span>
-                        </button>
-                        <button type="button" class="calc-tab-btn" data-branch="waerme">
-                            <span class="calc-tab-icon-wrap calc-tab-icon-waerme">
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z"></path></svg>
-                            </span>
-                            <span class="calc-tab-title">Wärmestrom</span>
-                            <span class="calc-tab-subtitle">§ 14a EnWG</span>
-                        </button>
-                        <button type="button" class="calc-tab-btn" data-branch="gas">
-                            <span class="calc-tab-icon-wrap calc-tab-icon-gas">
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"></path></svg>
-                            </span>
-                            <span class="calc-tab-title">Erdgas</span>
-                            <span class="calc-tab-subtitle">Klimabeitrag</span>
-                        </button>
+                <!-- Video Column (Right) -->
+                <div class="gap-xl" style="display: flex; flex-direction: column; width: 100%;">
+                    <div class="hero-video-wrapper">
+                        <video class="hero-video-inline autoplay-on-scroll" autoplay loop muted playsinline>
+                            <source src="hero_video.mp4" type="video/mp4">
+                        </video>
+                        <span class="ai-video-badge" aria-label="Mit KI generiert">KI-generiert</span>
                     </div>
-
-                    <!-- Dynamic Compliance Context Notice -->
-                    <div id="calcBranchNotice" class="calc-branch-info-bar">
-                        <span class="calc-notice-dot"></span>
-                        <span id="calcBranchNoticeText">Ökostrom aus 100 % erneuerbaren Energien • Geprüft nach ok-power Kriterien</span>
+                    
+                    <!-- Trustbadges under video -->
+                    <div class="hero-trustbadges" style="display: flex; justify-content: center; align-items: center; gap: 1.5rem; flex-wrap: wrap;">
+                        <div style="display: flex; align-items: center; gap: 0.5rem; color: #ffffff; font-size: 0.9rem; font-weight: 500;">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+                            100% Sicher & Seriös
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 0.5rem; color: #ffffff; font-size: 0.9rem; font-weight: 500;">
+                            <div style="display: flex; gap: 0.1rem;">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="#f59e0b" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="#f59e0b" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="#f59e0b" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="#f59e0b" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="#f59e0b" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                            </div>
+                            4.9/5 Experten-Rating
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 0.5rem; color: #ffffff; font-size: 0.9rem; font-weight: 500;">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                            Über 7.000 Partner
+                        </div>
                     </div>
-
-                    <form id="rechnerForm">
-                        <!-- PLZ Input with City badge -->
-                        <div class="calc-field-group">
-                            <label for="calcPlz" class="calc-label">Ihre Postleitzahl</label>
-                            <div class="calc-input-wrapper">
-                                <span class="calc-input-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg></span>
-                                <input type="text" id="calcPlz" class="calc-input" value="44379" maxlength="5" pattern="[0-9]{5}" required>
-                                <span id="calcCityBadge" class="calc-plz-city" style="display: inline-block;">Dortmund</span>
-                            </div>
-                        </div>
-
-                        <!-- Consumption with Presets -->
-                        <div class="calc-field-group">
-                            <label class="calc-label">Personen im Haushalt / Richtwert</label>
-                            <div class="household-btn-grid">
-                                <button type="button" class="household-btn" data-kwh="1500">
-                                    <span class="household-btn-label">1 Person</span>
-                                    <span class="household-btn-sub">1.500 kWh</span>
-                                </button>
-                                <button type="button" class="household-btn active" data-kwh="2500">
-                                    <span class="household-btn-label">2 Personen</span>
-                                    <span class="household-btn-sub">2.500 kWh</span>
-                                </button>
-                                <button type="button" class="household-btn" data-kwh="3500">
-                                    <span class="household-btn-label">3 Personen</span>
-                                    <span class="household-btn-sub">3.500 kWh</span>
-                                </button>
-                                <button type="button" class="household-btn" data-kwh="4500">
-                                    <span class="household-btn-label">4+ Personen</span>
-                                    <span class="household-btn-sub">4.500 kWh</span>
-                                </button>
-                            </div>
-                            <div class="calc-input-wrapper" style="margin-top: 0.5rem;">
-                                <span class="calc-input-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg></span>
-                                <input type="number" id="calcKwh" class="calc-input" value="2500" min="500" max="100000" required>
-                                <span style="position: absolute; right: 1rem; color: #64748b; font-size: 0.85rem; pointer-events: none;">kWh / Jahr</span>
-                            </div>
-                        </div>
-
-                        <!-- Current Abschlag (€) -->
-                        <div class="calc-field-group">
-                            <label for="calcAbschlag" class="calc-label">Aktueller monatlicher Abschlag (€ / Monat)</label>
-                            <div class="calc-input-wrapper">
-                                <span class="calc-input-icon" style="font-weight:700;font-size:0.95rem;">€</span>
-                                <input type="number" id="calcAbschlag" class="calc-input" value="95" min="20" max="2000">
-                            </div>
-                        </div>
-
-                        <!-- Savings Banner Ticker -->
-                        <div class="savings-banner-box">
-                            <div>
-                                <div class="savings-label">Ihre errechnete Sparchance:</div>
-                                <div id="calcSavingsValue" class="savings-value">Bis zu 320 € / Jahr!</div>
-                            </div>
-                            <span style="display:flex;align-items:center;justify-content:center;width:40px;height:40px;border-radius:50%;background:rgba(255,122,0,0.15);color:#ff7a00;" aria-hidden="true">
-                                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m23 6-9.5 9.5-5-5L1 18"></path><path d="M17 6h6v6"></path></svg>
-                            </span>
-                        </div>
-
-                        <!-- Submit Button -->
-                        <button type="submit" class="calc-submit-btn">
-                            Tarife berechnen &amp; vergleichen &darr;
-                        </button>
-
-                        <div class="calc-guarantee-note">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#ff7a00" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                            Kostenlos, unverbindlich &amp; TÜV-geprüfter Wechsel
-                        </div>
-                    </form>
                 </div>
             </div>
         </section>
 
-        <!-- Headless Integration Token Container (Zero User-Facing Text) -->
-        <div id="bestellstrasse_container" style="display:none;" aria-hidden="true">
-            <div id="bestellstrasse_widget" data-token="alpha-energie-live"></div>
-        </div>
-
-        <!-- Trust & Bento Metrics Section with Animated Counters -->
-        <section id="trust" class="trust-bar section-trust-metrics">
+        <!-- Stats Section -->
+        <section id="stats" class="stats-section">
             <div class="container">
-                <div class="trust-bar-grid">
-                    <!-- Metric Card 1: 100% Ökostrom -->
-                    <div class="trust-stat-card spotlight-card trust-stat">
-                        <div class="stat-card-header">
-                            <div class="stat-icon-wrapper icon-eco" aria-hidden="true">
-                                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <circle cx="12" cy="12" r="4"></circle>
-                                    <path d="M12 2v2"></path>
-                                    <path d="M12 20v2"></path>
-                                    <path d="m4.93 4.93 1.41 1.41"></path>
-                                    <path d="m17.66 17.66 1.41 1.41"></path>
-                                    <path d="M2 12h2"></path>
-                                    <path d="M20 12h2"></path>
-                                    <path d="m6.34 17.66-1.41 1.41"></path>
-                                    <path d="m19.07 4.93-1.41 1.41"></path>
-                                </svg>
-                            </div>
-                            <span class="stat-badge-pill pill-eco">ok-power</span>
-                        </div>
-                        <div class="stat-number" data-counter-target="100" data-counter-suffix="%">100%</div>
-                        <div class="stat-label">Ökostrom aus 100 % erneuerbaren Energien</div>
-                        <p class="stat-desc">Zertifizierte Wasserkraft &amp; Windkraft, geprüft nach strengen ok-power Kriterien ohne Atom- &amp; Kohlekraft.</p>
+                <div class="grid-4">
+                    <div class="stat-card">
+                        <div class="stat-number">15+</div>
+                        <div class="stat-label">Jahre Erfahrung auf Chefebene</div>
+                        <div class="stat-desc">Erfolgreich im Energie- und B2B-Vertrieb</div>
                     </div>
-
-                    <!-- Metric Card 2: Bis zu 380 € Ersparnis -->
-                    <div class="trust-stat-card spotlight-card trust-stat">
-                        <div class="stat-card-header">
-                            <div class="stat-icon-wrapper icon-savings" aria-hidden="true">
-                                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <path d="M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h14a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5"></path>
-                                    <path d="M16 12h4v4h-4a2 2 0 0 1 0-4z"></path>
-                                </svg>
-                            </div>
-                            <span class="stat-badge-pill pill-savings">Ersparnis</span>
-                        </div>
-                        <div class="stat-number" data-counter-target="380" data-counter-prefix="Bis zu " data-counter-suffix=" €">Bis zu 380 €</div>
-                        <div class="stat-label">Ersparnis pro Jahr</div>
-                        <p class="stat-desc">Durchschnittlicher jährlicher Sparvorteil gegenüber den Tarifen des örtlichen Grundversorgers.</p>
+                    <div class="stat-card">
+                        <div class="stat-number">7000+</div>
+                        <div class="stat-label">Aktive Vertriebspartner</div>
+                        <div class="stat-desc">Ein starkes bundesweites Netzwerk</div>
                     </div>
-
-                    <!-- Metric Card 3: 24 Monate Preisgarantie -->
-                    <div class="trust-stat-card spotlight-card trust-stat">
-                        <div class="stat-card-header">
-                            <div class="stat-icon-wrapper icon-guarantee" aria-hidden="true">
-                                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
-                                    <path d="m9 12 2 2 4-4"></path>
-                                </svg>
-                            </div>
-                            <span class="stat-badge-pill pill-guarantee">Garantie</span>
-                        </div>
-                        <div class="stat-number" data-counter-target="24" data-counter-suffix=" Monate">24 Monate</div>
-                        <div class="stat-label">Feste Preisgarantie</div>
-                        <p class="stat-desc">Volle Kostensicherheit und langfristiger Schutz vor steigenden Steuern, Abgaben und Netzentgelten.</p>
+                    <div class="stat-card">
+                        <div class="stat-number">150+</div>
+                        <div class="stat-label">Energieversorger</div>
+                        <div class="stat-desc">Exklusives Tarifportfolio im System</div>
                     </div>
-
-                    <!-- Metric Card 4: Digitaler Wechselservice -->
-                    <div class="trust-stat-card spotlight-card trust-stat">
-                        <div class="stat-card-header">
-                            <div class="stat-icon-wrapper icon-service" aria-hidden="true">
-                                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
-                                </svg>
-                            </div>
-                            <span class="stat-badge-pill pill-service">Kostenlos</span>
-                        </div>
-                        <div class="stat-number" data-counter-target="100" data-counter-suffix="%">100%</div>
-                        <div class="stat-label">Digitaler Wechselservice</div>
-                        <p class="stat-desc">Wir kündigen Ihren Altvertrag automatisch beim Vorversorger – garantiert nahtlos und ohne Stromunterbrechung.</p>
+                    <div class="stat-card">
+                        <div class="stat-number">84k+</div>
+                        <div class="stat-label">Aufträge pro Jahr</div>
+                        <div class="stat-desc">Erfolgreich verarbeitete Verträge für unsere Kunden</div>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- 3 Dynamic Tariff Cards Section -->
-        <section id="tarife" class="section-tarife">
-            <div class="container">
-                <div class="section-header text-center mb-4xl">
-                    <span class="versorger-tag">Unsere Tarife im Überblick</span>
-                    <h2 class="section-title">Transparente Stromtarife für Ihr Zuhause &amp; Gewerbe</h2>
-                    <p class="section-subtitle">Ökostrom aus 100 % erneuerbaren Energien, volle Preisgarantie und kostenloser Wechselservice ohne bürokratischen Aufwand.</p>
-                </div>
-
-                <div class="tariff-grid-3">
-                    <!-- Tariff 1: ALPHA BASIC -->
-                    <div class="versorger-tariff-card spotlight-card" id="card-alpha-basic">
-                        <div class="tariff-card-header">
-                            <span class="tariff-badge">Flexibel &amp; Günstig</span>
-                            <h3 class="tariff-title">ALPHA BASIC</h3>
-                            <div class="tariff-card-price-box">
-                                <div class="tariff-price-monthly" id="price-alpha-basic">68 €<span> / Monat</span></div>
-                                <div class="tariff-bonus-pill">Inkl. 100 € Sofortbonus</div>
-                                <div class="tariff-price-details">
-                                    <span id="savings-alpha-basic">Bis zu 320 € / Jahr sparen</span>
-                                </div>
-                            </div>
-                            <div class="tariff-feature-item" style="font-weight: 600; margin-bottom: 0.75rem;" id="kwh-desc-alpha-basic">
-                                2.500 kWh/Jahr • 27,85 ct/kWh
-                            </div>
-                        </div>
-
-                        <div class="tariff-feature-list">
-                            <div class="tariff-feature-item">
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                                <span>12 Monate volle Preisgarantie</span>
-                            </div>
-                            <div class="tariff-feature-item">
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                                <span>100 € Neukunden-Sofortbonus</span>
-                            </div>
-                            <div class="tariff-feature-item">
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                                <span>Ökostrom aus 100 % erneuerbaren Energien (Wasserkraft)</span>
-                            </div>
-                            <div class="tariff-feature-item">
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                                <span>Monatlich kündbar nach dem 1. Jahr</span>
-                            </div>
-                            <div class="tariff-feature-item">
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                                <span>Kostenloser Wechselservice &amp; Abmeldung</span>
-                            </div>
-                        </div>
-
-                        <button type="button" class="tariff-action-btn" data-select-tariff="alpha-basic">
-                            Tarif wählen &rarr;
-                        </button>
-                    </div>
-
-                    <!-- Tariff 2: ALPHA TIME (Bestseller) -->
-                    <div class="versorger-tariff-card bestseller spotlight-card" id="card-alpha-time">
-                        <div class="tariff-ribbon">
-                            <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" stroke="none" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
-                            <span>Bestseller &amp; Smart Energy</span>
-                        </div>
-                        <div class="tariff-card-header">
-                            <span class="tariff-badge" style="background: #fff7ed; color: #9a3412;">Smart Energy &amp; § 14a</span>
-                            <h3 class="tariff-title">ALPHA TIME</h3>
-                            <div class="tariff-card-price-box" style="border-color: #fed7aa; background: #fff7ed;">
-                                <div class="tariff-price-monthly" id="price-alpha-time" style="color: #c2410c;">59 €<span> / Monat</span></div>
-                                <div class="tariff-bonus-pill" style="background: #ff7a00; color: #ffffff;">Inkl. 150 € Smart-Bonus</div>
-                                <div class="tariff-price-details">
-                                    <span id="savings-alpha-time">Bis zu 380 € / Jahr sparen</span>
-                                </div>
-                            </div>
-                            <div class="tariff-feature-item" style="font-weight: 600; margin-bottom: 0.75rem;" id="kwh-desc-alpha-time">
-                                2.500 kWh/Jahr • 24,50 ct/kWh
-                            </div>
-                        </div>
-
-                        <div class="tariff-feature-list">
-                            <div class="tariff-feature-item">
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                                <span>Zeitvariabler dynamischer Smart-Tarif</span>
-                            </div>
-                            <div class="tariff-feature-item">
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                                <span>Optimiert für Wärmepumpe, Wallbox &amp; Speicher</span>
-                            </div>
-                            <div class="tariff-feature-item">
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                                <span>Bis zu 25% reduzierte Netzentgelte (§ 14a EnWG)</span>
-                            </div>
-                            <div class="tariff-feature-item">
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                                <span>150 € Smart-Energy-Sofortbonus</span>
-                            </div>
-                            <div class="tariff-feature-item">
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                                <span>Transparente App-Einsicht &amp; Live-Steuerung</span>
-                            </div>
-                        </div>
-
-                        <button type="button" class="tariff-action-btn" data-select-tariff="alpha-time">
-                            Bestseller wählen &rarr;
-                        </button>
-                    </div>
-
-                    <!-- Tariff 3: ALPHA PREMIUM -->
-                    <div class="versorger-tariff-card spotlight-card" id="card-alpha-premium">
-                        <div class="tariff-card-header">
-                            <span class="tariff-badge">24 Monate Preisschutz &amp; VIP</span>
-                            <h3 class="tariff-title">ALPHA PREMIUM</h3>
-                            <div class="tariff-card-price-box">
-                                <div class="tariff-price-monthly" id="price-alpha-premium">72 €<span> / Monat</span></div>
-                                <div class="tariff-bonus-pill">Inkl. 180 € Treuebonus</div>
-                                <div class="tariff-price-details">
-                                    <span id="savings-alpha-premium">Bis zu 290 € / Jahr sparen</span>
-                                </div>
-                            </div>
-                            <div class="tariff-feature-item" style="font-weight: 600; margin-bottom: 0.75rem;" id="kwh-desc-alpha-premium">
-                                2.500 kWh/Jahr • 28,20 ct/kWh
-                            </div>
-                        </div>
-
-                        <div class="tariff-feature-list">
-                            <div class="tariff-feature-item">
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                                <span>24 Monate volle Preisstabilität bis 2028</span>
-                            </div>
-                            <div class="tariff-feature-item">
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                                <span>180 € Treue- &amp; Neukundenprämie</span>
-                            </div>
-                            <div class="tariff-feature-item">
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                                <span>Ökostrom aus 100 % erneuerbaren Energien (ok-power)</span>
-                            </div>
-                            <div class="tariff-feature-item">
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                                <span>Prioritäts-Kundenservice aus Dortmund</span>
-                            </div>
-                            <div class="tariff-feature-item">
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                                <span>Schutz vor steigenden Steuern &amp; Netzentgelten</span>
-                            </div>
-                        </div>
-
-                        <button type="button" class="tariff-action-btn" data-select-tariff="alpha-premium">
-                            Tarif wählen &rarr;
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Section: Warum Alpha Energie? 5 entscheidende Vorteile -->
-        <section id="warum-wir" class="section-pad bg-light">
-            <div id="vorteile"></div>
-            <div class="container">
-                <div class="section-header text-center mb-4xl">
-                    <span class="versorger-tag">Ihre unschlagbaren Vorteile</span>
-                    <h2 class="section-title">Warum wir die Besten sind: 5 entscheidende Vorteile gegenüber der Grundversorgung</h2>
-                    <p class="section-subtitle">Sparen Sie bares Geld bei 100 % Versorgungssicherheit, transparenten Garantien und persönlichem Service in Dortmund.</p>
-                </div>
-
-                <div class="vorteile-grid-5">
-                    <!-- Vorteil 1: Arbeitspreis & Grundpreis -->
-                    <div class="vorteil-card spotlight-card">
-                        <div class="vorteil-top-row">
-                            <div class="vorteil-num">01</div>
-                            <div class="vorteil-icon-box">
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 14 14"></polyline></svg>
-                            </div>
-                        </div>
-                        <h3 class="vorteil-title">Arbeitspreis &amp; Grundpreis: Dauerhaft fair &amp; günstig</h3>
-                        <p class="vorteil-desc">
-                            Sparen Sie bis zu <strong>380 € pro Jahr</strong> gegenüber der oft 30–45 % überteuerten Grundversorgung. Keine versteckten Kosten, sondern transparente, faire Konditionen von Tag 1 an.
-                        </p>
-                    </div>
-
-                    <!-- Vorteil 2: Preisgarantie -->
-                    <div class="vorteil-card spotlight-card">
-                        <div class="vorteil-top-row">
-                            <div class="vorteil-num">02</div>
-                            <div class="vorteil-icon-box">
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
-                            </div>
-                        </div>
-                        <h3 class="vorteil-title">Preisgarantie: Bis zu 24 Monate volle Planbarkeit</h3>
-                        <p class="vorteil-desc">
-                            Während der Grundversorger Preise mit nur 6 Wochen Vorlauf willkürlich anheben kann, schützen unsere festen Preisgarantien von <strong>12 bis 24 Monaten</strong> zuverlässig vor Marktsprüngen.
-                        </p>
-                    </div>
-
-                    <!-- Vorteil 3: Energieherkunft & ok-power -->
-                    <div class="vorteil-card spotlight-card">
-                        <div class="vorteil-top-row">
-                            <div class="vorteil-num">03</div>
-                            <div class="vorteil-icon-box">
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
-                            </div>
-                        </div>
-                        <h3 class="vorteil-title">Energieherkunft: Ökostrom aus 100 % erneuerbaren Energien</h3>
-                        <p class="vorteil-desc">
-                            Streng zertifiziert nach <strong>ok-power Kriterien</strong> und entwertet im Herkunftsnachweisregister (HKNR) des Umweltbundesamts – statt intransparenter Graustrommixe mit Kohle- oder Gaskraft.
-                        </p>
-                    </div>
-
-                    <!-- Vorteil 4: Kundenservice vor Ort -->
-                    <div class="vorteil-card spotlight-card">
-                        <div class="vorteil-top-row">
-                            <div class="vorteil-num">04</div>
-                            <div class="vorteil-icon-box">
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
-                            </div>
-                        </div>
-                        <h3 class="vorteil-title">Kundenservice &amp; Betreuung: Persönlich in Dortmund</h3>
-                        <p class="vorteil-desc">
-                            Kein Callcenter-Pingpong und endlose Warteschleifen: Feste Ansprechpartner vor Ort unter <strong>0231 39989390</strong>, WhatsApp-Support und Vor-Ort-Beratung am <strong>Alter Hellweg 50, Dortmund</strong>.
-                        </p>
-                    </div>
-
-                    <!-- Vorteil 5: 100% digitaler Wechselservice -->
-                    <div class="vorteil-card spotlight-card">
-                        <div class="vorteil-top-row">
-                            <div class="vorteil-num">05</div>
-                            <div class="vorteil-icon-box">
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
-                            </div>
-                        </div>
-                        <h3 class="vorteil-title">100 % digitaler Wechselservice: Automatisch &amp; nahtlos</h3>
-                        <p class="vorteil-desc">
-                            Wir kündigen komplett papierlos und fristgerecht bei Ihrem bisherigen Versorger. Unterbrechungsfreie Versorgung ist nach § 20 EnWG gesetzlich garantiert – Wechsel in 3 Minuten erledigt.
-                        </p>
-                    </div>
-                </div>
-
-                <!-- Featured Explainer Box: ok-power Gütesiegel -->
-                <div class="ok-power-explainer-card spotlight-card">
-                    <div class="ok-power-explainer-grid">
-                        <div class="ok-power-badge-col">
-                            <div class="ok-power-seal-wrapper">
-                                <img src="/ok-power-siegel.png" alt="Offizielles ok-power Gütesiegel für 100 % Ökostrom aus erneuerbaren Energien" class="ok-power-seal-img" width="220" height="147" loading="lazy">
-                            </div>
-                            <div class="ok-power-partners">
-                                <span>EnergieVision e.V.</span>
-                                <span>Verbraucherzentrale NRW</span>
-                                <span>Öko-Institut e.V.</span>
-                            </div>
-                        </div>
-                        <div class="ok-power-text-col">
-                            <h3 class="ok-power-title">Echtes ok-power Gütesiegel: Die 4 Säulen für garantierte Energiewende</h3>
-                            <p class="ok-power-desc">
-                                Das führende unabhängige Gütesiegel ok-power wird getragen vom Verein <strong>EnergieVision e.V.</strong>, gemeinsam gegründet von der <strong>Verbraucherzentrale NRW</strong> und dem renommierten <strong>Öko-Institut e.V.</strong> Es garantiert, dass Ihr Tarif echten, nachprüfbaren Mehrwert für den Ausbau erneuerbarer Energien stiftet.
-                            </p>
-                            <div class="ok-power-pillars-grid">
-                                <div class="ok-pillar-item">
-                                    <div class="pillar-bullet"></div>
-                                    <div>
-                                        <strong>100 % HKNR im Umweltbundesamt:</strong> Entwertung aller Zertifikate im offiziellen deutschen Herkunftsnachweisregister.
-                                    </div>
-                                </div>
-                                <div class="ok-pillar-item">
-                                    <div class="pillar-bullet"></div>
-                                    <div>
-                                        <strong>Feste Neuanlagenförderung:</strong> Verbindliche Cent-Beträge je Kilowattstunde fließen direkt in den Zubau moderner Erzeugungsanlagen.
-                                    </div>
-                                </div>
-                                <div class="ok-pillar-item">
-                                    <div class="pillar-bullet"></div>
-                                    <div>
-                                        <strong>Keine Konzernverflechtung:</strong> Konsequenter Ausschluss von Anbietern mit Beteiligungen an Kohle- oder Atomkraftwerken.
-                                    </div>
-                                </div>
-                                <div class="ok-pillar-item">
-                                    <div class="pillar-bullet"></div>
-                                    <div>
-                                        <strong>Jährliche Auditierung:</strong> Regelmäßige Überprüfung aller Strommengen durch unabhängige Sachverständige.
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Section: Alpha Energie vs. Lokaler Grundversorger (Interaktive Vergleichsmatrix) -->
-        <section id="vergleich" class="section-pad">
-            <div class="container">
-                <div class="section-header text-center mb-4xl">
-                    <span class="versorger-tag">Transparenter Tarifvergleich</span>
-                    <h2 class="section-title">Alpha Energie vs. Lokaler Grundversorger</h2>
-                    <p class="section-subtitle">Sehen Sie auf einen Blick, wie sich ein Wechsel von der Grundversorgung zu Alpha Energie rentiert.</p>
-                </div>
-
-                <div class="comparison-matrix-wrapper spotlight-card">
-                    <div class="table-responsive-wrapper">
-                        <table class="comparison-matrix-table">
-                            <thead>
-                                <tr>
-                                    <th class="matrix-th-feature">Leistungsmerkmal &amp; Kriterium</th>
-                                    <th class="matrix-th-alpha">
-                                        <div class="th-alpha-badge">Empfohlen</div>
-                                        <div class="th-alpha-title">Alpha Energie GmbH</div>
-                                        <div class="th-alpha-sub">Zertifizierte Tarife</div>
-                                    </th>
-                                    <th class="matrix-th-standard">
-                                        <div class="th-standard-title">Lokaler Grundversorger</div>
-                                        <div class="th-standard-sub">Standard-Tarif</div>
-                                    </th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td class="matrix-td-feature">
-                                        <strong>Stromherkunft &amp; Zertifizierung</strong>
-                                        <span class="matrix-hint">Herkunftsnachweise &amp; Kriterien</span>
-                                    </td>
-                                    <td class="matrix-td-alpha">
-                                        <div class="matrix-status-item positive">
-                                            <svg class="status-svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                                            <span><strong>100 % erneuerbare Energien</strong> (ok-power Kriterien, HKNR UBA)</span>
-                                        </div>
-                                    </td>
-                                    <td class="matrix-td-standard">
-                                        <div class="matrix-status-item negative">
-                                            <svg class="status-svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-                                            <span>Konventioneller Graustrom-Mix (inkl. Kohle und Atomkraft)</span>
-                                        </div>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td class="matrix-td-feature">
-                                        <strong>Preisstabilität &amp; Preisschutz</strong>
-                                        <span class="matrix-hint">Vertragliche Planungssicherheit</span>
-                                    </td>
-                                    <td class="matrix-td-alpha">
-                                        <div class="matrix-status-item positive">
-                                            <svg class="status-svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                                            <span><strong>Bis zu 24 Monate Preisschutz</strong> auf Energie- &amp; Netzkosten</span>
-                                        </div>
-                                    </td>
-                                    <td class="matrix-td-standard">
-                                        <div class="matrix-status-item negative">
-                                            <svg class="status-svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-                                            <span>Variable Preise, Preisanpassung oft nach wenigen Monaten</span>
-                                        </div>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td class="matrix-td-feature">
-                                        <strong>Ersparnis &amp; Neukundenboni</strong>
-                                        <span class="matrix-hint">Monatlicher Abschlag &amp; Boni</span>
-                                    </td>
-                                    <td class="matrix-td-alpha">
-                                        <div class="matrix-status-item positive">
-                                            <svg class="status-svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                                            <span><strong>Bis zu 380 € Ersparnis / Jahr</strong> + bis zu 180 € Neukundenprämie</span>
-                                        </div>
-                                    </td>
-                                    <td class="matrix-td-standard">
-                                        <div class="matrix-status-item negative">
-                                            <svg class="status-svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-                                            <span>Deutlich höherer Grundversorgungstarif, keinerlei Boni</span>
-                                        </div>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td class="matrix-td-feature">
-                                        <strong>Netzentgelte § 14a EnWG</strong>
-                                        <span class="matrix-hint">Wärmepumpe &amp; Wallbox Rabatt</span>
-                                    </td>
-                                    <td class="matrix-td-alpha">
-                                        <div class="matrix-status-item positive">
-                                            <svg class="status-svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                                            <span><strong>Bis zu 25 % Netzentgelt-Rabatt</strong> via ALPHA TIME optimiert</span>
-                                        </div>
-                                    </td>
-                                    <td class="matrix-td-standard">
-                                        <div class="matrix-status-item negative">
-                                            <svg class="status-svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-                                            <span>Standard-Tarif ohne automatische § 14a Netzentgeltreduktion</span>
-                                        </div>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td class="matrix-td-feature">
-                                        <strong>Kundenservice &amp; Beratung</strong>
-                                        <span class="matrix-hint">Vor-Ort-Erreichbarkeit</span>
-                                    </td>
-                                    <td class="matrix-td-alpha">
-                                        <div class="matrix-status-item positive">
-                                            <svg class="status-svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                                            <span><strong>Persönlich in Dortmund</strong> (0231 39989390, WhatsApp &amp; Alter Hellweg 50)</span>
-                                        </div>
-                                    </td>
-                                    <td class="matrix-td-standard">
-                                        <div class="matrix-status-item neutral">
-                                            <svg class="status-svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="8" y1="12" x2="16" y2="12"></line></svg>
-                                            <span>Oft lange Warteschleifen in ausgelagerten Callcentern</span>
-                                        </div>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td class="matrix-td-feature">
-                                        <strong>Wechselservice &amp; Formalitäten</strong>
-                                        <span class="matrix-hint">Kündigung beim Vorversorger</span>
-                                    </td>
-                                    <td class="matrix-td-alpha">
-                                        <div class="matrix-status-item positive">
-                                            <svg class="status-svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                                            <span><strong>100 % kostenlos &amp; unterbrechungsfrei</strong> (inkl. Kündigung)</span>
-                                        </div>
-                                    </td>
-                                    <td class="matrix-td-standard">
-                                        <div class="matrix-status-item neutral">
-                                            <svg class="status-svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="8" y1="12" x2="16" y2="12"></line></svg>
-                                            <span>Keine Unterstützung beim Wechsel zu günstigeren Tarifen</span>
-                                        </div>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-
-                    <div class="text-center" style="margin-top: 2rem;">
-                        <a href="#rechner" class="btn btn-primary" style="padding: 0.9rem 2rem; font-size: 1rem;">Jetzt Ersparnis berechnen &amp; wechseln &rarr;</a>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Sektorenkopplung Showcase Section -->
-        <section id="sektorenkopplung" class="section-pad bg-light">
-            <div class="container">
-                <div class="section-header text-center mb-4xl">
-                    <span class="versorger-tag">Alpha Energie USP</span>
-                    <h2 class="section-title">Sektorenkopplung: PV + Wärmepumpe + Wallbox</h2>
-                    <p class="section-subtitle">Vernetzen Sie Strom, Wärme und Mobilität zu einem intelligenten Gesamtsystem. Senken Sie Ihre Energiekosten um bis zu 80%.</p>
-                </div>
-
-                <div class="sektor-grid-3">
-                    <div class="sektor-card">
-                        <div class="sektor-icon-wrapper">
-                            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
-                        </div>
-                        <h3 class="sektor-title">Photovoltaik &amp; Speicher</h3>
-                        <p class="sektor-text">Eigener Ökostrom vom Dach, direkt gespeichert in modernen LFP-Batterien. Maximale Unabhängigkeit vor steigenden Strompreisen.</p>
-                        <a href="photovoltaik.html" class="btn btn-secondary">Photovoltaik entdecken</a>
-                    </div>
-                    <div class="sektor-card">
-                        <div class="sektor-icon-wrapper">
-                            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z"></path></svg>
-                        </div>
-                        <h3 class="sektor-title">Wärmepumpenstrom § 14a</h3>
-                        <p class="sektor-text">Heizen mit staatlich reduzierten Netzentgelten. Intelligente SG-Ready-Steuerung wandelt Solarüberschüsse in Wärme um.</p>
-                        <a href="waermestrom.html" class="btn btn-secondary">Wärmestrom ansehen</a>
-                    </div>
-                    <div class="sektor-card">
-                        <div class="sektor-icon-wrapper">
-                            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="9" rx="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
-                        </div>
-                        <h3 class="sektor-title">Wallbox &amp; E-Mobilität</h3>
-                        <p class="sektor-text">Intelligentes Überschussladen für Elektrofahrzeuge. Nutzen Sie günstigen Nachtstrom oder 100% eigene Sonnenenergie.</p>
-                        <a href="sektorenkopplung.html" class="btn btn-secondary">Sektorenkopplung prüfen</a>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Solutions Overview for Partners & Businesses -->
-        <section id="solutions" class="section-pad">
+        <!-- Solutions Gateway Grid -->
+        <section id="solutions" class="solutions-section" style="background-color: var(--bg-alt);">
             <div class="container grid-2">
+                <!-- Left Column: B2B Gewerbekunden -->
                 <div class="card glass-card solution-card">
-                    <span class="versorger-tag">Gewerbe &amp; Industrie</span>
                     <h2 class="card-title">Für Gewerbekunden (B2B)</h2>
                     <p class="card-text">Schützen Sie Ihr Unternehmen vor Preissprüngen. Mit DIN EN 16247-1 Energie-Audits, Photovoltaik-Eigenversorgung und Peak Shaving senken wir Ihre Betriebskosten nachhaltig und sichern Ihre ESG-Compliance.</p>
-                    <a href="gewerbekunden.html" class="btn btn-primary">Zu unseren B2B-Lösungen</a>
+                    <a href="gewerbekunden.html" class="btn btn-secondary">Zu unseren B2B-Lösungen</a>
                 </div>
                 
+                <!-- Right Column: Vertriebspartner B2C -->
                 <div class="card glass-card solution-card">
-                    <span class="versorger-tag">Vertrieb &amp; Agenturen</span>
                     <h2 class="card-title">Für Vertriebspartner</h2>
                     <p class="card-text">Nutzen Sie unser digitales VP-Portal für Strom, Gas und Telekommunikation. Profitieren Sie von Spitzenprovisionen, wöchentlichen Auszahlungen, Echtzeit-Tracking und persönlichem Support.</p>
-                    <a href="partner-werden.html" class="btn btn-secondary">Vertriebspartner werden</a>
+                    <a href="vertriebspartner.html" class="btn btn-secondary">Jetzt Partner werden</a>
                 </div>
             </div>
         </section>
 
-        <!-- Company Video Intro -->
-        <section id="video-intro" class="section-pad bg-light">
+        <!-- Video Intro Section -->
+        <section id="video-intro" class="section-pad">
             <div class="container grid-2 gap-4xl" style="align-items: center;">
-                <div class="video-intro-wrapper" style="border-radius: 20px; overflow: hidden; box-shadow: var(--shadow-xl); transform: translateZ(0); position: relative; aspect-ratio: 16/9; width: 100%;">
+                <!-- Left Column: Video -->
+                <div class="video-intro-wrapper" style="border-radius: 20px; overflow: hidden; box-shadow: var(--shadow-xl); transform: translateZ(0); position: relative; aspect-ratio: 18/9; width: 100%;">
                     <video id="intro-video" class="autoplay-on-scroll" autoplay loop muted playsinline style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; display: block;">
                         <source src="public/b2c_tarifberatung.mp4" type="video/mp4">
                         Ihr Browser unterstützt keine HTML5-Videos.
@@ -1044,25 +289,118 @@
                     <span class="ai-video-badge" aria-label="Mit KI generiert">KI-generiert</span>
                 </div>
 
+                <!-- Right Column: Text -->
                 <div class="video-intro-text">
-                    <span class="versorger-tag">Unsere Mission</span>
-                    <h2 class="section-title" style="text-align: left; margin-bottom: 1.5rem;">Energieversorgung neu gedacht</h2>
+                    <span class="badge badge-accent" style="margin-bottom: 1rem; display: inline-block;">Unsere Vision</span>
+                    <h2 class="section-title" style="text-align: left; margin-bottom: 1.5rem;">Energievertrieb der Zukunft</h2>
                     <p style="font-size: 1.15rem; line-height: 1.7; color: var(--text-muted); margin-bottom: 2rem;">
-                        Bei der Alpha Energie GmbH in Dortmund verbinden wir langjährige Branchenerfahrung mit moderner digitaler Infrastruktur. Als fairer Energieversorger setzen wir auf Transparenz, echte Ökostromqualität und persönliche Betreuung auf Augenhöhe.
+                        Entdecken Sie, wie wir mit innovativen Lösungen und starken Partnerschaften die Energielandschaft von morgen prägen. Bei der Alpha Energie GmbH verbinden wir langjährige Erfahrung mit modernster digitaler Infrastruktur – für Ihren maximalen und nachhaltigen Erfolg.
                     </p>
-                    <a href="ueber-uns.html" class="btn btn-primary">Mehr über uns erfahren</a>
+                    <a href="ueber-uns.html" class="btn btn-primary">Lernen Sie uns kennen</a>
                 </div>
             </div>
         </section>
 
-        
-        <!-- Company Timeline Section: Unser Weg im Zeitraffer -->
-        <section id="about" class="about-section section-pad">
+        <!-- Portfolio Section -->
+        <section id="portfolio" class="portfolio-section">
             <div class="container">
                 <div class="section-header text-center mb-4xl">
-                    <span class="versorger-tag">Unsere Geschichte</span>
+                    <span class="badge">Produktportfolio</span>
+                    <h2 class="section-title">Vielfältige Energielösungen aus einer Hand</h2>
+                    <p class="section-subtitle">Wir decken alle relevanten Energie- und Infrastrukturprodukte ab – für maximale Cross-Selling-Potenziale unserer Partner.</p>
+                </div>
+                
+                <div class="grid-4">
+                    <div class="portfolio-card">
+                        <div class="portfolio-icon-wrapper">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+                        </div>
+                        <div class="portfolio-tag">Klassisch</div>
+                        <h3 class="portfolio-title">Strom & Gas</h3>
+                        <p class="portfolio-text">Erstklassige Tarife renommierter Versorger für B2C und B2B zu unschlagbaren Konditionen.</p>
+                    </div>
+                    
+                    <div class="portfolio-card">
+                        <div class="portfolio-icon-wrapper">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+                        </div>
+                        <div class="portfolio-tag">Zukunft</div>
+                        <h3 class="portfolio-title">Photovoltaik</h3>
+                        <p class="portfolio-text">Großprojekte und Eigenversorgungskonzepte inklusive Speicherlösungen für den Mittelstand.</p>
+                    </div>
+                    
+                    <div class="portfolio-card">
+                        <div class="portfolio-icon-wrapper">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"></path></svg>
+                        </div>
+                        <div class="portfolio-tag">Ökologisch</div>
+                        <h3 class="portfolio-title">Wärme & CO2</h3>
+                        <p class="portfolio-text">ESG-konforme Heizungs- und Wärmekonzepte sowie nachhaltige CO2-Reduktionsstrategien.</p>
+                    </div>
+                    
+                    <div class="portfolio-card">
+                        <div class="portfolio-icon-wrapper">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
+                        </div>
+                        <div class="portfolio-tag">Zusatzgeschäft</div>
+                        <h3 class="portfolio-title">Telekommunikation</h3>
+                        <p class="portfolio-text">Highspeed-Glasfaseranschlüsse und Mobilfunktarife für die perfekte Kundenrundumbetreuung.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Benefits Summary Section -->
+        <section id="benefits-summary" class="benefits-summary-section">
+            <div class="container">
+                <div class="section-header text-center mb-4xl">
+                    <span class="badge">Deine Vorteile</span>
+                    <h2 class="section-title">Warum Partner sich für Alpha Energie entscheiden</h2>
+                </div>
+                
+                <div class="grid-4">
+                    <div class="benefit-summary-card">
+                        <div class="benefit-summary-icon">
+                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                        </div>
+                        <h3 class="benefit-summary-title">Auszahlungssicherheit</h3>
+                        <p class="benefit-summary-text">Pünktliche und transparente Provisionsabrechnungen. Auf Wunsch wöchentliche Auszahlungen und garantierte Bestandspflege-Provisionen zur langfristigen Einkommenssicherung.</p>
+                    </div>
+                    
+                    <div class="benefit-summary-card">
+                        <div class="benefit-summary-icon">
+                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+                        </div>
+                        <h3 class="benefit-summary-title">Digitales VP-Portal</h3>
+                        <p class="benefit-summary-text">Abschlüsse in Minuten mit integriertem Tarifrechner, eSignature und Echtzeit-Statusverfolgung. Komplett papierlos, hocheffizient und mobil optimiert für die Direktberatung.</p>
+                    </div>
+
+                    <div class="benefit-summary-card">
+                        <div class="benefit-summary-icon">
+                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                        </div>
+                        <h3 class="benefit-summary-title">KI-gestützte Tools</h3>
+                        <p class="benefit-summary-text">Wir unterstützen Agenturen und Vertriebspartner mit intelligenten KI-Lösungen, um den administrativen Alltag spürbar zu erleichtern – für maximalen Fokus auf das Kerngeschäft.</p>
+                    </div>
+                    
+                    <div class="benefit-summary-card">
+                        <div class="benefit-summary-icon">
+                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                        </div>
+                        <h3 class="benefit-summary-title">Support auf Augenhöhe</h3>
+                        <p class="benefit-summary-text">Ein erfahrenes Backoffice-Team steht dir bei B2B-Sonderkalkulationen und Großkundenanfragen tatkräftig zur Seite. Plus exzellente Schulungen und kontinuierliche Coachings.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- About Section -->
+        <section id="about" class="about-section">
+            <div class="about-bg-glows"></div>
+            <div class="container">
+                <div class="about-header text-center mb-4xl">
+                    <span class="badge">Unsere Geschichte</span>
                     <h2 class="section-title">Unser Weg im Zeitraffer</h2>
-                    <p class="section-subtitle">Vom Dortmunder Energie-Pionier zum führenden Partner für 100 % erneuerbare Energielösungen.</p>
                 </div>
                 
                 <div class="timeline-scroll-wrapper">
@@ -1079,259 +417,64 @@
                     <!-- Right: Scrolling Milestones -->
                     <div class="timeline-milestones">
                         <div class="milestone-block" data-year="2021">
-                            <h3 class="milestone-title">2021 – Die Gründung in Dortmund</h3>
-                            <p class="milestone-text">Gründung der Alpha Energie GmbH am Standort Dortmund (Alter Hellweg 50). Mit über 15 Jahren Führungserfahrung im deutschen Energiemarkt gestartet, um echten Ökostrom und transparenten Kundenservice zu verbinden.</p>
+                            <h3 class="milestone-title">2021 – Die Gründung</h3>
+                            <p class="milestone-text">Gründung der Alpha Energie GmbH in Dortmund. Bündelung von über 15 Jahren Erfahrung auf Chefebene im Energiemarkt mit der Vision, Transparenz und Fairness in die Energieberatung zu bringen.</p>
+                        </div>
+                        
+                        <div class="milestone-block" data-year="2022">
+                            <h3 class="milestone-title">2022 – Skalierung & Technologie</h3>
+                            <p class="milestone-text">Etablierung eines bundesweiten Vertriebsnetzwerks. Einführung unserer ersten digitalen Erfassungstools, um Handelsvertretern und Agenturen die Arbeit vor Ort zu erleichtern.</p>
                         </div>
                         
                         <div class="milestone-block" data-year="2023">
-                            <h3 class="milestone-title">2023 – Skalierung &amp; Portaltechnologie</h3>
-                            <p class="milestone-text">Etablierung eines bundesweiten Netzwerks und Einführung volldigitaler Kunden- und Partnerportale für blitzschnellen, papierlosen Energieanbieterwechsel.</p>
+                            <h3 class="milestone-title">2023 – B2B & Nachhaltigkeit</h3>
+                            <p class="milestone-text">Erweiterung des Portfolios um ganzheitliche B2B-Konzepte, zertifizierte Energieaudits nach DIN EN 16247-1 und großvolumige Photovoltaik-Eigenversorgung für den Mittelstand.</p>
                         </div>
                         
-                        <div class="milestone-block" data-year="2024">
-                            <h3 class="milestone-title">2024 – Sektorenkopplung &amp; § 14a EnWG</h3>
-                            <p class="milestone-text">Erweiterung um steuerbare Verbrauchseinrichtungen: Wärmestrom nach § 14a EnWG mit bis zu 25 % reduzierten Netzentgelten, Photovoltaik-Speichersysteme und intelligente Wallbox-Ladelösungen.</p>
-                        </div>
-                        
-                        <div class="milestone-block" data-year="2026">
-                            <h3 class="milestone-title">2026 – Neue Ökostrom-Offensive</h3>
-                            <p class="milestone-text">Zertifizierung nach strengsten ok-power-Kriterien, 100 % Herkunftsnachweise im HKNR des Umweltbundesamts und die Einführung von ALPHA BASIC, ALPHA TIME und ALPHA PREMIUM.</p>
+                        <div class="milestone-block" data-year="Heute">
+                            <h3 class="milestone-title">Heute – Führende Plattform</h3>
+                            <p class="milestone-text">Mit über 150 aktiven Vertriebspartnern, modernster VP-Portaltechnologie und exklusiven Tarifzugängen der führende, unabhängige Partner für Handelsvertreter und Agenturen.</p>
                         </div>
                     </div>
+                </div>
+
+                <div class="text-center mt-5" style="margin-top: 4rem;">
+                    <a href="ueber-uns.html" class="btn btn-secondary">Mehr über uns</a>
                 </div>
             </div>
         </section>
 
-        <!-- FAQ Section -->
-        <section id="faq" class="section-pad">
+        <!-- News Section -->
+        <section id="news" class="news-section bg-light">
             <div class="container">
-                <div class="section-header text-center mb-4xl">
-                    <span class="versorger-tag">Fragen &amp; Antworten</span>
-                    <h2 class="section-title">Häufig gestellte Fragen</h2>
-                    <p class="section-subtitle">Alles Wissenswerte rund um Wechsel, Preisgarantie und Abrechnung.</p>
+                <div class="section-header flex-between">
+                    <h2 class="section-title">Aktuelle News</h2>
+                    <a href="news.html" class="btn btn-link">Alle News</a>
                 </div>
-
-                <div class="faq-list">
-                    <div class="faq-accordion-item">
-                        <button class="faq-question-btn" type="button">
-                            <span>Wie läuft der Stromwechsel zu Alpha Energie ab?</span>
-                            <span class="faq-icon-cross">+</span>
-                        </button>
-                        <div class="faq-answer-content">
-                            In 3 einfachen Schritten: 1. Tarif im Rechner wählen. 2. Zählernummer und Adresse angeben. 3. Zurücklehnen – wir kündigen Ihren alten Vertrag und stellen die lückenlose Belieferung sicher.
-                        </div>
-                    </div>
-
-                    <div class="faq-accordion-item">
-                        <button class="faq-question-btn" type="button">
-                            <span>Ist die Stromversorgung während des Wechsels garantiert?</span>
-                            <span class="faq-icon-cross">+</span>
-                        </button>
-                        <div class="faq-answer-content">
-                            Ja, zu 100%. Gesetzlich ist in Deutschland geregelt, dass der Strom niemals unterbrochen wird. Der Wechsel erfolgt rein administrativ im Hintergrund.
-                        </div>
-                    </div>
-
-                    <div class="faq-accordion-item">
-                        <button class="faq-question-btn" type="button">
-                            <span>Was bedeutet die 24 Monate Preisgarantie?</span>
-                            <span class="faq-icon-cross">+</span>
-                        </button>
-                        <div class="faq-answer-content">
-                            Mit unserer vollen Preisgarantie sichern Sie sich Ihren Energiepreis gegen jegliche Marktschwankungen und Preiserhöhungen für volle 24 Monate ab.
-                        </div>
-                    </div>
+                <div class="grid-3">
+                    <article class="news-card">
+                        <div class="news-date">22.06.2026</div>
+                        <h3 class="news-title">Energy Summer 2026: Wenn aus einem Branchenevent echte Gemeinschaft wird</h3>
+                        <p class="news-excerpt">Dortmund, 2026 – das Sommerfest des Jahres Energy Summer 2026: Wenn aus einem Branchenevent echte Gemeinschaft wird...</p>
+                        <a href="news-energy-summer-2026.html" class="read-more">Mehr dazu</a>
+                    </article>
+                    <article class="news-card">
+                        <div class="news-date">19.05.2026</div>
+                        <h3 class="news-title">Watt zählt – der Podcast, der der Energiebranche eine Stimme gibt</h3>
+                        <p class="news-excerpt">Dortmund, 2026 – der Podcast für echte Insights aus der Energiebranche Watt zählt – der Podcast, der der Energiebranche eine…</p>
+                        <a href="news-watt-zaehlt-podcast.html" class="read-more">Mehr dazu</a>
+                    </article>
+                    <article class="news-card">
+                        <div class="news-date">23.04.2026</div>
+                        <h3 class="news-title">Alpha Energie GmbH als Great Place To Work® zertifiziert</h3>
+                        <p class="news-excerpt">Dortmund, 2026 – Alpha Energie GmbH wurde erneut als Great Place To Work® zertifiziert. Ein Arbeitsplatz mit Vertrauen...</p>
+                        <a href="news-great-place-to-work.html" class="read-more">Mehr dazu</a>
+                    </article>
                 </div>
             </div>
         </section>
+
     </main>
-
-    <!-- Digital Single-Page Order Modal -->
-    <div id="orderModal" class="digital-modal-backdrop">
-        <div class="digital-modal">
-            <div class="modal-header-bar">
-                <h3 class="modal-header-title">Online-Auftrag &amp; Anbieterwechsel</h3>
-                <button type="button" class="btn-close-modal modal-close-btn" aria-label="Schließen">&times;</button>
-            </div>
-
-            <div class="modal-progress-bar">
-                <div class="progress-step active" id="progStep1">1. Tarif &amp; Termin</div>
-                <div class="progress-step" id="progStep2">2. Zähler &amp; Adresse</div>
-                <div class="progress-step" id="progStep3">3. Persönliche Daten</div>
-            </div>
-
-            <div class="modal-body">
-                <!-- Step 1: Tarif & Termin -->
-                <div class="modal-step active" id="modalStep1">
-                    <div style="background: #f8fafc; padding: 1.25rem; border-radius: 12px; margin-bottom: 1.5rem; border: 1px solid #e2e8f0;">
-                        <div style="font-size: 0.85rem; color: #64748b;">Ausgewählter Tarif:</div>
-                        <div id="orderSummaryTariffName" style="font-size: 1.25rem; font-weight: 800; color: #0a1f44;">Alpha Strom Garant 24</div>
-                        <div style="display: flex; gap: 1.5rem; margin-top: 0.5rem; font-size: 0.9rem;">
-                            <div>Monatlicher Abschlag: <strong id="orderSummaryMonthly">71 € / Monat</strong></div>
-                            <div>Jahresverbrauch: <strong id="orderSummaryKwh">2.500 kWh</strong></div>
-                        </div>
-                        <div style="margin-top: 0.5rem; color: #ea580c; font-weight: 700; font-size: 0.85rem;" id="orderSummarySavings">
-                            Bis zu 290 € / Jahr sparen
-                        </div>
-                    </div>
-
-                    <div class="form-group" style="margin-bottom: 1.25rem;">
-                        <label for="orderStartDate" class="calc-label">Gewünschter Lieferbeginn</label>
-                        <select id="orderStartDate" class="calc-input">
-                            <option value="schnellstmoeglich">Schnellstmöglich (zum nächstzulässigen Termin)</option>
-                            <option value="ablauf">Zum Ablauf des aktuellen Vertrags beim Vorversorger</option>
-                            <option value="wunschtermin">Zu einem festen Wunschtermin (z. B. Einzug)</option>
-                        </select>
-                    </div>
-
-                    <button type="button" id="btnStep1Next" class="calc-submit-btn">Weiter zu Schritt 2: Zählerdaten &rarr;</button>
-                </div>
-
-                <!-- Step 2: Zähler & Adresse -->
-                <div class="modal-step" id="modalStep2">
-                    <div class="form-grid" style="margin-bottom: 1rem;">
-                        <div class="form-group">
-                            <label for="orderStreet" class="calc-label">Straße *</label>
-                            <input type="text" id="orderStreet" class="calc-input" placeholder="z. B. Kampstraße" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="orderHouseNr" class="calc-label">Hausnummer *</label>
-                            <input type="text" id="orderHouseNr" class="calc-input" placeholder="z. B. 55" required>
-                        </div>
-                    </div>
-
-                    <div class="form-grid" style="margin-bottom: 1rem;">
-                        <div class="form-group">
-                            <label for="orderPlz" class="calc-label">Postleitzahl *</label>
-                            <input type="text" id="orderPlz" class="calc-input" value="44379" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="orderCity" class="calc-label">Ort *</label>
-                            <input type="text" id="orderCity" class="calc-input" value="Dortmund" required>
-                        </div>
-                    </div>
-
-                    <div class="form-group" style="margin-bottom: 1rem;">
-                        <label for="orderMeterNumber" class="calc-label">Zählernummer * (am Strom- oder Gaszähler)</label>
-                        <input type="text" id="orderMeterNumber" class="calc-input" placeholder="z. B. 1EMH0012345678" required>
-                    </div>
-
-                    <div class="form-group" style="margin-bottom: 1rem;">
-                        <label for="orderPrevProvider" class="calc-label">Bisheriger Energieversorger (optional)</label>
-                        <input type="text" id="orderPrevProvider" class="calc-input" placeholder="z. B. DEW21, E.ON, Vattenfall">
-                    </div>
-
-                    <div style="margin-bottom: 1.5rem; display: flex; align-items: flex-start; gap: 0.6rem;">
-                        <input type="checkbox" id="orderCancelOld" checked style="margin-top: 4px;">
-                        <label for="orderCancelOld" style="font-size: 0.85rem; color: #475569;">
-                            Alpha Energie soll meinen bisherigen Versorger kostenlos und fristgerecht kündigen.
-                        </label>
-                    </div>
-
-                    <div style="display: flex; gap: 1rem;">
-                        <button type="button" id="btnStep2Back" class="btn btn-secondary" style="flex: 1;">&larr; Zurück</button>
-                        <button type="button" id="btnStep2Next" class="calc-submit-btn" style="flex: 2;">Weiter zu Schritt 3 &rarr;</button>
-                    </div>
-                </div>
-
-                <!-- Step 3: Persönliche Daten & Bankverbindung -->
-                <div class="modal-step" id="modalStep3">
-                    <div class="form-grid" style="margin-bottom: 1rem;">
-                        <div class="form-group">
-                            <label for="orderSalutation" class="calc-label">Anrede</label>
-                            <select id="orderSalutation" class="calc-input">
-                                <option value="Herr">Herr</option>
-                                <option value="Frau">Frau</option>
-                                <option value="Firma">Firma</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="orderBirthDate" class="calc-label">Geburtsdatum (optional)</label>
-                            <input type="date" id="orderBirthDate" class="calc-input">
-                        </div>
-                    </div>
-
-                    <div class="form-grid" style="margin-bottom: 1rem;">
-                        <div class="form-group">
-                            <label for="orderFirstName" class="calc-label">Vorname *</label>
-                            <input type="text" id="orderFirstName" class="calc-input" placeholder="Max" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="orderLastName" class="calc-label">Nachname *</label>
-                            <input type="text" id="orderLastName" class="calc-input" placeholder="Mustermann" required>
-                        </div>
-                    </div>
-
-                    <div class="form-grid" style="margin-bottom: 1rem;">
-                        <div class="form-group">
-                            <label for="orderEmail" class="calc-label">E-Mail-Adresse *</label>
-                            <input type="email" id="orderEmail" class="calc-input" placeholder="max@beispiel.de" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="orderPhone" class="calc-label">Telefonnummer *</label>
-                            <input type="tel" id="orderPhone" class="calc-input" placeholder="0171 1234567" required>
-                        </div>
-                    </div>
-
-                    <div class="form-group" style="margin-bottom: 1.25rem;">
-                        <label for="orderIban" class="calc-label">IBAN für SEPA-Lastschrift *</label>
-                        <input type="text" id="orderIban" class="calc-input" placeholder="DE89 3704 0044 0532 0130 00" required>
-                    </div>
-
-                    <div style="margin-bottom: 1.5rem; display: flex; align-items: flex-start; gap: 0.6rem;">
-                        <input type="checkbox" id="orderAgb" required style="margin-top: 4px;">
-                        <label for="orderAgb" style="font-size: 0.85rem; color: #475569;">
-                            Ich stimme den <a href="datenschutz.html" target="_blank" style="text-decoration: underline; color: #ff7a00;">Datenschutzbestimmungen</a> und der Übermittlung des Auftrags verbindlich zu.
-                        </label>
-                    </div>
-
-                    <div style="display: flex; gap: 1rem;">
-                        <button type="button" id="btnStep3Back" class="btn btn-secondary" style="flex: 1;">&larr; Zurück</button>
-                        <button type="button" id="btnStep3Submit" class="calc-submit-btn" style="flex: 2; background: #ff7a00;">Auftrag jetzt verbindlich abschließen</button>
-                    </div>
-                </div>
-
-                <!-- Step 4: Bestätigung -->
-                <div class="modal-step" id="modalStep4">
-                    <div style="text-align: center; padding: 2rem 1rem;">
-                        <div style="width: 72px; height: 72px; margin: 0 auto 1.25rem; border-radius: 50%; background: rgba(255, 122, 0, 0.15); color: #ff7a00; display: flex; align-items: center; justify-content: center;" aria-hidden="true">
-                            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                        </div>
-                        <h3 style="font-size: 1.5rem; color: #ea580c; margin-bottom: 0.75rem;">Vielen Dank für Ihren Auftrag!</h3>
-                        <p style="color: #475569; font-size: 1rem; line-height: 1.6; max-width: 500px; margin: 0 auto 1.5rem auto;">
-                            Ihr Wechselauftrag wurde erfolgreich erfasst. Wir haben eine Bestätigung an Ihre E-Mail-Adresse gesendet.
-                        </p>
-                        <div style="background: #fff7ed; border: 1px solid #ff7a00; border-radius: 8px; padding: 1rem; display: inline-block; font-weight: 700; color: #9a3412; margin-bottom: 1.5rem;">
-                            Auftragsnummer: <span id="confirmedOrderNumber">AE-2026-981245</span>
-                        </div>
-                        <div>
-                            <button type="button" class="btn btn-primary btn-close-modal">Fenster schließen</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Floating Action Bar (FAB) -->
-    <div class="floating-action-bar" aria-label="Schnellkontakt">
-        <a href="tel:023139989390" class="fab-btn fab-phone" aria-label="Telefonischer Kundenservice Dortmund">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
-            <span class="fab-tooltip">0231 39989390</span>
-        </a>
-        <a href="https://wa.me/4923139989390" target="_blank" rel="noopener noreferrer" class="fab-btn fab-whatsapp" aria-label="WhatsApp Beratung">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
-            <span class="fab-tooltip">WhatsApp Beratung</span>
-        </a>
-        <a href="service.html#zaehler" class="fab-btn" id="btnOpenMeterModal" aria-label="Zählerstand online melden">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"></rect><line x1="7" y1="8" x2="17" y2="8"></line><line x1="7" y1="12" x2="17" y2="12"></line><line x1="7" y1="16" x2="12" y2="16"></line></svg>
-            <span class="fab-tooltip">Zählerstand melden</span>
-        </a>
-        <a href="service.html#faq" class="fab-btn" aria-label="Häufig gestellte Fragen">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
-            <span class="fab-tooltip">FAQ &amp; Hilfe</span>
-        </a>
-    </div>
 
     <!-- Footer -->
     <footer id="main-footer" class="footer">
@@ -1339,16 +482,17 @@
             <div class="footer-top grid-4">
                 <div class="footer-widget brand-widget">
                     <a href="/">
-                        <img src="logo.png" alt="Alpha Energie GmbH Logo" class="footer-logo">
+                        <img src="logo.png" alt="Alpha Energie GmbH" class="footer-logo">
                     </a>
-                    <p class="footer-desc">Alpha Energie GmbH bietet bundesweit transparente Energielösungen: Ökostrom aus 100 % erneuerbaren Energien, Wärmestrom nach § 14a EnWG und Erdgas mit freiwilligem Klimaschutzbeitrag.</p>
+                    <p class="footer-desc">Alpha Energie GmbH ist dein kompetenter Begleiter und Berater bei der Energiekostenoptimierung!</p>
+                    
                     <p class="footer-address" style="color: rgba(255,255,255,0.7); font-size: 0.9rem; margin-top: 0.5rem; margin-bottom: 1.5rem;">Alter Hellweg 50, 44379 Dortmund</p>
                     <div class="social-links">
                         <a href="https://facebook.com/alphaenergie" class="social-icon" aria-label="Facebook">Facebook</a>
                         <a href="https://linkedin.com/company/alphaenergie" class="social-icon" aria-label="LinkedIn">LinkedIn</a>
                         <a href="https://instagram.com/alphaenergie" class="social-icon" aria-label="Instagram">Instagram</a>
                     </div>
-                    <div class="footer-trust-badges">
+                                        <div class="footer-trust-badges">
                         <div class="trust-badge-item">
                             <img src="/bdeb-mitglied.png" alt="BDEB Verbandsmitgliedschaft Alpha Energie" class="footer-badge-bdeb">
                         </div>
@@ -1359,24 +503,21 @@
                 </div>
 
                 <div class="footer-widget links-widget">
-                    <h3 class="widget-title">Tarife &amp; Strom</h3>
+                    <h3 class="widget-title">Unternehmen</h3>
                     <ul class="footer-links">
-                        <li><a href="oekostrom.html">100% Ökostrom</a></li>
-                        <li><a href="waermestrom.html">Wärmestrom (§ 14a)</a></li>
-                        <li><a href="oekogas.html">Erdgas mit Klimaschutzbeitrag</a></li>
-                        <li><a href="gewerbekunden.html">Gewerbestrom</a></li>
-                        <li><a href="#rechner">Tarifrechner</a></li>
+                        <li><a href="ueber-uns.html">Über uns</a></li>
+                        <li><a href="karriere.html">Karriere</a></li>
+                        <li><a href="kontakt.html">Kontakt</a></li>
                     </ul>
                 </div>
 
                 <div class="footer-widget links-widget">
-                    <h3 class="widget-title">Service &amp; Lösungen</h3>
+                    <h3 class="widget-title">Lösungen</h3>
                     <ul class="footer-links">
-                        <li><a href="service.html">Kundenservice</a></li>
-                        <li><a href="service.html#zaehler">Zählerstand online erfassen</a></li>
-                        <li><a href="sektorenkopplung.html">Sektorenkopplung PV+Wärme</a></li>
-                        <li><a href="photovoltaik.html">Photovoltaik</a></li>
-                        <li><a href="partner-werden.html">Partner werden</a></li>
+                        <li><a href="vertriebspartner.html">Für Vertriebspartner</a></li>
+                        <li><a href="gewerbekunden.html">Für Gewerbekunden</a></li>
+                        <li><a href="produktgeber.html">Für Produktgeber</a></li>
+                        <li><a href="agenturen.html">Für Agenturen</a></li>
                     </ul>
                 </div>
 
@@ -1387,21 +528,12 @@
                         <li><a href="impressum.html">Impressum</a></li>
                         <li><a href="cookie-einstellungen.html">Cookie-Einstellungen</a></li>
                         <li><a href="cookie-richtlinie.html">Cookie-Richtlinie</a></li>
-                        <li><a href="https://vp.alpha-energie.de">VP-Portal Login</a></li>
+                        <li><a href="https://vp.alpha-energie.de">VP-Portal</a></li>
                     </ul>
                 </div>
             </div>
-
-            <!-- Legal Cancellation Box (§ 312k BGB) -->
-            <div class="legal-cancellation-box">
-                <div class="legal-cancel-text">
-                    <strong>Gesetzlicher Kündigungs- und Widerrufsservice (§ 312k BGB):</strong> Sie können Ihren bestehenden Vertrag oder Ihre Bestellung bei der Alpha Energie GmbH hier direkt online und ohne Registrierung kündigen oder widerrufen.
-                </div>
-                <div class="legal-cancel-buttons">
-                    <button type="button" id="btnOpenCancelModal" class="btn-legal-cancel">Vertrag online kündigen</button>
-                    <button type="button" id="btnOpenRevokeModal" class="btn-legal-cancel">Bestellung widerrufen</button>
-                </div>
-            </div>
+                        
+                
 
             <div class="footer-bottom flex-between">
                 <p class="copyright">&copy; Copyright 2026. Alle Rechte vorbehalten. Alpha Energie GmbH</p>
@@ -1413,11 +545,32 @@
         </div>
     </footer>
 
+
+    <!-- Floating Action Bar (FAB) -->
+    <div class="floating-action-bar" aria-label="Schnellkontakt">
+        <a href="tel:023139989390" class="fab-btn fab-phone" aria-label="Telefonischer Kundenservice Dortmund">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+            <span class="fab-tooltip">0231 39989390</span>
+        </a>
+        <a href="https://wa.me/4923139989390" target="_blank" rel="noopener noreferrer" class="fab-btn fab-whatsapp" aria-label="WhatsApp Beratung">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
+            <span class="fab-tooltip">WhatsApp Beratung</span>
+        </a>
+        <a href="service.html#zaehler" class="fab-btn" aria-label="Zählerstand online melden">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"></rect><line x1="7" y1="8" x2="17" y2="8"></line><line x1="7" y1="12" x2="17" y2="12"></line><line x1="7" y1="16" x2="12" y2="16"></line></svg>
+            <span class="fab-tooltip">Zählerstand melden</span>
+        </a>
+        <a href="service.html#faq" class="fab-btn" aria-label="Häufig gestellte Fragen">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+            <span class="fab-tooltip">FAQ &amp; Hilfe</span>
+        </a>
+    </div>
+
     <!-- Legal Cancellation Modal -->
     <div id="legalCancelModal" class="digital-modal-backdrop">
         <div class="digital-modal">
             <div class="modal-header-bar">
-                <h3 class="modal-header-title" id="cancelModalTitle">Vertrag kündigen (§ 312k BGB)</h3>
+                <h3 class="modal-header-title">Vertrag kündigen (§ 312k BGB)</h3>
                 <button type="button" class="btn-close-modal modal-close-btn" aria-label="Schließen">&times;</button>
             </div>
             <div class="modal-body">
@@ -1444,36 +597,6 @@
             </div>
         </div>
     </div>
-
-    <!-- Meter Reading Modal -->
-    <div id="meterModal" class="digital-modal-backdrop">
-        <div class="digital-modal">
-            <div class="modal-header-bar">
-                <h3 class="modal-header-title">Zählerstand online melden</h3>
-                <button type="button" class="btn-close-modal modal-close-btn" aria-label="Schließen">&times;</button>
-            </div>
-            <div class="modal-body">
-                <form id="formMeterReading">
-                    <div class="form-group" style="margin-bottom: 1rem;">
-                        <label for="meterNumberInput" class="calc-label">Zählernummer *</label>
-                        <input type="text" id="meterNumberInput" class="calc-input" placeholder="z. B. 1EMH0012345678" required>
-                    </div>
-                    <div class="form-group" style="margin-bottom: 1rem;">
-                        <label for="meterReadingInput" class="calc-label">Aktueller Zählerstand (kWh) *</label>
-                        <input type="number" step="0.1" id="meterReadingInput" class="calc-input" placeholder="z. B. 14250" required>
-                    </div>
-                    <div class="form-group" style="margin-bottom: 1rem;">
-                        <label for="meterNameInput" class="calc-label">Ihr Vor- und Nachname *</label>
-                        <input type="text" id="meterNameInput" class="calc-input" placeholder="Max Mustermann" required>
-                    </div>
-                    <div class="form-group" style="margin-bottom: 1.5rem;">
-                        <label for="meterEmailInput" class="calc-label">Ihre E-Mail-Adresse *</label>
-                        <input type="email" id="meterEmailInput" class="calc-input" placeholder="name@beispiel.de" required>
-                    </div>
-                    <button type="submit" class="calc-submit-btn">Zählerstand jetzt übermitteln</button>
-                </form>
-            </div>
-        </div>
-    </div>
 </body>
 </html>
+

@@ -10,12 +10,18 @@
     'use strict';
 
     const I18N_DATA = {
+        de: {
+            page_title: 'Alpha Energie | 100% Ökostrom & Gastarife deutschlandweit'
+        },
+
         en: {
+            page_title: 'Alpha Energie | 100% Green Electricity & Energy Nationwide',
+
             // Toast
-            toast_text: '<strong>Welcome!</strong> 100% clean green electricity from Dortmund. Save <strong>up to €380/year</strong> with certified price guarantee. Hotline: <a href="tel:023139989390" style="text-decoration: underline; color: #fff;">0231 39989390</a>.',
+            toast_text: '<strong>Welcome!</strong> 100% clean green electricity across Germany. Save <strong>up to €380/year</strong> with certified ok-power energy.',
 
             // Topbar
-            topbar_hours: 'Monday – Friday 8:00 AM – 6:00 PM | Customer Service Dortmund',
+            topbar_hours: 'Monday – Friday 8:00 AM – 6:00 PM | Nationwide Service & Customer Center Dortmund',
 
             // Navigation
             nav_tariffs: 'Electricity & Tariffs',
@@ -41,9 +47,9 @@
             nav_btn_partner: 'Become a Partner',
 
             // Hero
-            hero_tag: 'Your Local Energy Provider in Dortmund',
+            hero_tag: 'Nationwide Green Electricity & Energy Provider',
             hero_title: 'Simple. Transparent.<br><span class="text-orange-gradient">Guaranteed Affordable.</span>',
-            hero_desc: 'Switch in just 3 minutes to green electricity from 100% renewable energy, reliable § 14a heat pump power, or natural gas with voluntary climate contribution. Featuring up to 24 months full price guarantee, new customer bonus, and personal support in the Ruhr region.',
+            hero_desc: 'Switch in just 3 minutes to green electricity from 100% renewable energy, reliable § 14a heat pump power, or natural gas with voluntary climate contribution. Available nationwide with up to 24 months full price guarantee, new customer bonus, and personal customer service at the Dortmund headquarters.',
             hero_badge_price: '24-Month Price Protection',
             hero_badge_eco: '100% Renewable Energy (ok-power)',
             hero_badge_switch: 'Free Switching Service',
@@ -140,7 +146,7 @@
             // Advantages Section (Warum wir)
             vorteile_tag: 'Your Unbeatable Advantages',
             vorteile_title: 'Why We Are the Best: 5 Decisive Advantages Over Basic Supply',
-            vorteile_subtitle: 'Save real money with 100% supply security, transparent guarantees, and personal service in Dortmund.',
+            vorteile_subtitle: 'Save real money with 100% nationwide supply security, transparent price guarantee, and personal on-site service in Dortmund.',
 
             vorteil1_title: 'Energy & Base Price: Permanently Fair & Affordable',
             vorteil1_desc: 'Save up to <strong>€380 per year</strong> compared to basic supply, which is often 30–45% overpriced. No hidden costs, just transparent, fair conditions from day one.',
@@ -148,8 +154,8 @@
             vorteil2_desc: 'While the basic supplier can raise prices with just 6 weeks notice, our fixed price guarantees of <strong>12 to 24 months</strong> reliably protect you from market spikes.',
             vorteil3_title: 'Energy Origin: Green Electricity from 100% Renewable Energy',
             vorteil3_desc: 'Strictly certified under <strong>ok-power criteria</strong> and redeemed in the German Environment Agency\'s guarantee of origin register (HKNR) – rather than opaque coal or gas power mixes.',
-            vorteil4_title: 'Customer Service & Support: Personal in Dortmund',
-            vorteil4_desc: 'No call center ping-pong or endless queues: Dedicated local advisors at <strong>0231 39989390</strong>, WhatsApp support, and on-site consultations at <strong>Alter Hellweg 50, Dortmund</strong>.',
+            vorteil4_title: 'Nationwide Supply & Customer Service on Site',
+            vorteil4_desc: 'Nationwide energy supply with personal customer service: No call center ping-pong or endless queues. Dedicated local advisors at the Dortmund Customer Center (Alter Hellweg 50) are at your side by phone and in person.',
             vorteil5_title: '100% Digital Switching Service: Automatic & Seamless',
             vorteil5_desc: 'We cancel with your previous provider completely paperlessly and on time. Uninterrupted power supply is legally guaranteed under § 20 EnWG – switched in just 3 minutes.',
 
@@ -364,11 +370,13 @@
         },
 
         tr: {
+            page_title: 'Alpha Energie | Almanya Genelinde %100 Yeşil Elektrik & Enerji',
+
             // Toast
-            toast_text: '<strong>Hoş geldiniz!</strong> Dortmund merkezli Alpha Energie ile %100 temiz yeşil elektrik. Yılda <strong>380 €\'ya varan tasarruf</strong> edin! Türkçe destek & bilgi hattı: <a href="tel:023139989390" style="text-decoration: underline; color: #fff;">0231 39989390</a>.',
+            toast_text: '<strong>Hoş geldiniz!</strong> Almanya genelinde %100 temiz yeşil elektrik. ok-power güvencesiyle <strong>yılda 380 €\'ya varan</strong> tasarruf edin.',
 
             // Topbar
-            topbar_hours: 'Pazartesi – Cuma 08:00 – 18:00 | Dortmund Müşteri Hizmetleri',
+            topbar_hours: 'Pazartesi – Cuma 08:00 – 18:00 | Almanya Genelinde Hizmet & Dortmund Müşteri Merkezi',
 
             // Navigation
             nav_tariffs: 'Elektrik & Tarifeler',
@@ -394,9 +402,9 @@
             nav_btn_partner: 'İş Ortağı Olun',
 
             // Hero
-            hero_tag: 'Dortmund\'daki Yerel Enerji Sağlayıcınız',
+            hero_tag: 'Almanya Genelinde %100 Yeşil Elektrik ve Enerji Sağlayıcısı',
             hero_title: 'Basit. Şeffaf.<br><span class="text-orange-gradient">Garantili Uygun Fiyat.</span>',
-            hero_desc: 'Sadece 3 dakikada %100 yenilenebilir enerjiden üretilen yeşil elektriğe, güvenilir § 14a ısı pompası elektriğine veya iklim katkılı doğal gaza geçin. 24 aya varan tam sabit fiyat garantisi, yeni müşteri primi ve Ruhr bölgesinde kişisel müşteri temsilcisiyle.',
+            hero_desc: 'Sadece 3 dakikada %100 yenilenebilir enerjiden yeşil elektriğe, güvenilir § 14a ısı pompası elektriğine veya iklim katkılı doğal gaza geçin. 24 aya varan tam fiyat garantisi, yeni müşteri bonusu ve Dortmund merkezindeki kişisel müşteri hizmetleriyle tüm Almanya genelinde.',
             hero_badge_price: '24 Ay Fiyat Koruması',
             hero_badge_eco: '%100 Yenilenebilir Enerji (ok-power)',
             hero_badge_switch: 'Ücretsiz Geçiş Hizmeti',
@@ -493,7 +501,7 @@
             // Advantages Section (Warum wir)
             vorteile_tag: 'Yenilmez Avantajlarınız',
             vorteile_title: 'Neden En İyisiyiz: Temel Tedariğe Göre 5 Belirleyici Avantaj',
-            vorteile_subtitle: '%100 tedarik güvenliği, şeffaf garantiler ve Dortmund\'da kişisel hizmetle gerçek tasarruf sağlayın.',
+            vorteile_subtitle: '%100 ülke çapında tedarik güvenliği, şeffaf fiyat garantisi ve Dortmund\'da yerinde kişisel hizmetle tasarruf edin.',
 
             vorteil1_title: 'Birim & Temel Fiyat: Sürekli Adil & Uygun',
             vorteil1_desc: 'Genellikle %30-45 daha pahalı olan temel tedariğe göre <strong>yılda 380 €\'ya kadar</strong> tasarruf edin. Gizli maliyet yok, ilk günden itibaren şeffaf ve adil koşullar.',
@@ -501,8 +509,8 @@
             vorteil2_desc: 'Temel tedarikçi sadece 6 hafta önceden fiyatları keyfi olarak artırabilirken, <strong>12 ila 24 aylık</strong> sabit fiyat garantilerimiz piyasa dalgalanmalarına karşı güvenilir koruma sağlar.',
             vorteil3_title: 'Enerji Menşei: %100 Yenilenebilir Enerji Kaynaklı Yeşil Elektrik',
             vorteil3_desc: 'Kömür veya gaz santralleri içeren şeffaf olmayan gri elektrik karışımları yerine, <strong>ok-power kriterlerine</strong> göre sıkı bir şekilde onaylanmış ve Federal Çevre Ajansı (HKNR) menşe sicilinde tescil edilmiştir.',
-            vorteil4_title: 'Müşteri Hizmetleri & Destek: Dortmund\'da Kişisel',
-            vorteil4_desc: 'Çağrı merkezi karmaşası ve bitmeyen bekleme süreleri yok: <strong>0231 39989390</strong> numaralı telefondan yerel temsilciler, WhatsApp desteği ve <strong>Alter Hellweg 50, Dortmund</strong> adresinde yüz yüze danışmanlık.',
+            vorteil4_title: 'Almanya Genelinde Tedarik & Yerinde Müşteri Hizmetleri',
+            vorteil4_desc: 'Kişisel müşteri hizmetleriyle Almanya çapında enerji tedariği: Çağrı merkezi karmaşası ve bitmeyen bekleme süreleri yok. Dortmund Müşteri Merkezi\'ndeki (Alter Hellweg 50) yerel temsilciler telefonla ve yüz yüze yanınızda.',
             vorteil5_title: '%100 Dijital Geçiş Hizmeti: Otomatik & Kesintisiz',
             vorteil5_desc: 'Önceki tedarikçinizdeki sözleşmeyi tamamen kağıtsız ve zamanında feshediyoruz. § 20 EnWG uyarınca kesintisiz enerji arzı yasal güvence altındadır – 3 dakikada tamamlanan geçiş.',
 
@@ -744,7 +752,7 @@
         { selector: '#main-nav .dropdown a[href="karriere.html"]', key: 'nav_careers' },
         { selector: '#main-nav .dropdown a[href="kontakt.html"]', key: 'nav_contact' },
         { selector: '.header-actions a[href="#rechner"]', key: 'nav_btn_calc' },
-        { selector: '.header-actions a[href="partner-werden.html"]', key: 'nav_btn_partner' },
+        { selector: '.header-actions a[href="partner-werden.html"], .header-actions a[href="/"]', key: 'nav_btn_partner' },
 
         // Hero
         { selector: '.hero-versorger-content .versorger-tag', key: 'hero_tag', hasSvgPrefix: true },
@@ -1084,8 +1092,13 @@
         }
         currentLang = lang;
 
-        // 1. Update HTML lang attribute
+        // 1. Update HTML lang attribute & document title
         document.documentElement.lang = lang;
+        if (I18N_DATA[lang] && I18N_DATA[lang].page_title) {
+            document.title = I18N_DATA[lang].page_title;
+        } else if (lang === 'de') {
+            document.title = (I18N_DATA.de && I18N_DATA.de.page_title) || 'Alpha Energie | 100% Ökostrom & Gastarife deutschlandweit';
+        }
 
         // 2. Persist in localStorage
         try {

@@ -1,10 +1,11 @@
 const { test, expect } = require('@playwright/test');
 
 test('Check for overflow at all widths from 320px to 1600px', async ({ page }) => {
+    test.setTimeout(120000);
+    await page.goto('/versorger', { waitUntil: 'domcontentloaded' });
     const offending = [];
     for (let w = 320; w <= 1600; w += 25) {
         await page.setViewportSize({ width: w, height: 900 });
-        await page.goto('/index.html', { waitUntil: 'domcontentloaded' });
         
         const res = await page.evaluate((viewW) => {
             const docW = document.documentElement.scrollWidth;

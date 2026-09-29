@@ -17,7 +17,8 @@ const pages = [
     'oekogas.html',
     'sektorenkopplung.html',
     'service.html',
-    'partner-werden.html'
+    'partner-werden.html',
+    'versorger.html'
 ];
 
 test.describe('Layout & Responsiveness Stress Test', () => {

@@ -106,7 +106,7 @@ test.describe('Redesign Verification Suite', () => {
             }
         });
 
-        await page.goto('/index.html', { waitUntil: 'networkidle' });
+        await page.goto('/versorger', { waitUntil: 'networkidle' });
 
         const heroImg = page.locator('.hero-visual-frame img');
         await expect(heroImg).toBeVisible();
@@ -132,7 +132,7 @@ test.describe('Redesign Verification Suite', () => {
             localStorage.setItem('cookieConsent', 'all');
         });
 
-        await page.goto('/index.html', { waitUntil: 'networkidle' });
+        await page.goto('/versorger', { waitUntil: 'networkidle' });
 
         const card = page.locator('#card-alpha-time');
         await expect(card).toBeVisible();
@@ -214,7 +214,7 @@ test.describe('Redesign Verification Suite', () => {
         expect(directResp.status()).toBe(200);
         expect(directResp.headers()['content-type']).toContain('image/png');
 
-        await page.goto('/index.html', { waitUntil: 'domcontentloaded' });
+        await page.goto('/versorger', { waitUntil: 'domcontentloaded' });
 
         // 2. Explainer card seal image is visible and loaded
         const explainerSeal = page.locator('.ok-power-explainer-card .ok-power-seal-img');
@@ -238,6 +238,45 @@ test.describe('Redesign Verification Suite', () => {
         const footerBdeb = page.locator('footer .footer-badge-bdeb');
         await expect(footerBdeb).toBeVisible();
     });
+
+    test('9. Google Search & Browser Favicon Assets and Head Link Verification', async ({ page }) => {
+        // 1. Direct route verification of /favicon.ico
+        const icoResp = await page.request.get('/favicon.ico');
+        expect(icoResp.status()).toBe(200);
+        expect(icoResp.headers()['content-type']).toContain('image/x-icon');
+
+        // 2. Direct route verification of /favicon.svg
+        const svgResp = await page.request.get('/favicon.svg');
+        expect(svgResp.status()).toBe(200);
+        expect(svgResp.headers()['content-type']).toContain('image/svg+xml');
+
+        // 3. Direct route verification of /favicon-48x48.png
+        const fav48Resp = await page.request.get('/favicon-48x48.png');
+        expect(fav48Resp.status()).toBe(200);
+        expect(fav48Resp.headers()['content-type']).toContain('image/png');
+
+        // 4. Direct route verification of /favicon-192x192.png
+        const fav192Resp = await page.request.get('/favicon-192x192.png');
+        expect(fav192Resp.status()).toBe(200);
+        expect(fav192Resp.headers()['content-type']).toContain('image/png');
+
+        // 5. Direct route verification of /apple-touch-icon.png
+        const appleResp = await page.request.get('/apple-touch-icon.png');
+        expect(appleResp.status()).toBe(200);
+        expect(appleResp.headers()['content-type']).toContain('image/png');
+
+        // 6. Direct route verification of /site.webmanifest
+        const manifestResp = await page.request.get('/site.webmanifest');
+        expect(manifestResp.status()).toBe(200);
+        expect(manifestResp.headers()['content-type']).toContain('application/manifest+json');
+
+        // 7. Verify index.html head tags
+        await page.goto('/index.html', { waitUntil: 'domcontentloaded' });
+        const fav48Link = page.locator('head link[rel="icon"][sizes="48x48"]');
+        await expect(fav48Link).toHaveCount(1);
+        await expect(fav48Link).toHaveAttribute('href', '/favicon-48x48.png');
+    });
 });
+
 
 
