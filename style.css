@@ -1689,7 +1689,7 @@ section {
     color: var(--accent-orange);
     margin-bottom: var(--space-sm);
     line-height: 1;
-    white-space: nowrap;
+    white-space: normal;
 }
 
 .stat-label {
@@ -2777,14 +2777,26 @@ section {
 .stat-number,
 .trust-stat-number {
     font-family: 'Sora', sans-serif;
-    font-size: clamp(1.65rem, 2.2vw, 2.35rem);
+    font-size: clamp(1.35rem, 1.8vw, 2.05rem);
     font-weight: 800;
     color: #ff7a00;
-    line-height: 1.15;
+    line-height: 1.2;
     margin-bottom: 0.5rem;
     letter-spacing: -0.02em;
     min-width: 0;
     word-break: normal;
+    white-space: normal;
+    overflow-wrap: break-word;
+}
+
+.trust-stat-card .stat-number,
+.section-trust-metrics .stat-number {
+    white-space: normal !important;
+    font-size: clamp(1.3rem, 1.75vw, 2rem) !important;
+    word-break: normal;
+    overflow-wrap: break-word;
+    line-height: 1.2;
+    max-width: 100%;
 }
 
 .stat-label,

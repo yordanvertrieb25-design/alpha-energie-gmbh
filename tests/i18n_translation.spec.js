@@ -432,4 +432,56 @@ test.describe('Multi-Language Translation System Verification (DE | EN | TR)', (
         await expect(orderModal).not.toBeVisible();
     });
 
+    test('6. Turkish Language (TR) Bento Metric Card 2 bounds and overflow check across all viewports (375px, 768px, 1024px, 1280px, 1440px)', async ({ page }) => {
+        const viewports = [375, 768, 1024, 1280, 1440];
+
+        for (const width of viewports) {
+            await page.setViewportSize({ width, height: 900 });
+            await page.goto('/versorger?lang=tr', { waitUntil: 'domcontentloaded' });
+            await page.waitForTimeout(150);
+
+            await expect(page.locator('html')).toHaveAttribute('lang', 'tr');
+
+            const card = page.locator('.section-trust-metrics .trust-stat-card:nth-child(2)');
+            const numEl = card.locator('.stat-number');
+
+            await expect(numEl).toBeVisible();
+            await expect(numEl).toHaveText("380 €'ya varan");
+
+            const cardBox = await card.boundingBox();
+            const numBox = await numEl.boundingBox();
+
+            expect(cardBox).not.toBeNull();
+            expect(numBox).not.toBeNull();
+
+            // Check bounding box containment: numBox must be completely within cardBox
+            expect(numBox.x + numBox.width).toBeLessThanOrEqual(cardBox.x + cardBox.width + 0.5);
+            expect(numBox.x).toBeGreaterThanOrEqual(cardBox.x - 0.5);
+
+            // Check element horizontal overflow (scrollWidth vs clientWidth)
+            const numOverflow = await numEl.evaluate((el) => el.scrollWidth > el.clientWidth);
+            expect(numOverflow).toBe(false);
+
+            // Check card horizontal overflow
+            const cardOverflow = await card.evaluate((el) => el.scrollWidth > el.clientWidth);
+            expect(cardOverflow).toBe(false);
+
+            // Check document-level horizontal overflow (0px horizontal overflow)
+            const docOverflow = await page.evaluate((w) => {
+                return document.documentElement.scrollWidth > w;
+            }, width);
+            expect(docOverflow).toBe(false);
+
+            // Switch back to German to ensure lossless roundtrip and no layout shifts
+            await page.evaluate(() => window.i18n.setLanguage('de'));
+            await expect(page.locator('html')).toHaveAttribute('lang', 'de');
+            await expect(numEl).toHaveText("Bis zu 380 €");
+
+            const deCardBox = await card.boundingBox();
+            const deNumBox = await numEl.boundingBox();
+            expect(deNumBox.x + deNumBox.width).toBeLessThanOrEqual(deCardBox.x + deCardBox.width + 0.5);
+            expect(deNumBox.x).toBeGreaterThanOrEqual(deCardBox.x - 0.5);
+        }
+    });
+
 });

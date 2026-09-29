@@ -11,7 +11,9 @@
 
     const I18N_DATA = {
         de: {
-            page_title: 'Alpha Energie | 100% Ökostrom & Gastarife deutschlandweit'
+            page_title: 'Alpha Energie | 100% Ökostrom & Gastarife deutschlandweit',
+            bento_card2_number: 'Bis zu 380 €',
+            bento_card3_number: '24 Monate'
         },
 
         en: {
@@ -1186,13 +1188,13 @@
     function updateBentoMetrics(lang) {
         const card2Number = document.querySelector('.section-trust-metrics .trust-stat-card:nth-child(2) .stat-number');
         if (card2Number) {
-            if (card2Number.dataset.i18nOriginal === undefined) {
-                card2Number.dataset.i18nOriginal = card2Number.textContent;
+            if (!card2Number.dataset.i18nOriginal) {
+                card2Number.dataset.i18nOriginal = card2Number.textContent.trim() || 'Bis zu 380 €';
             }
             if (lang === 'de') {
                 card2Number.setAttribute('data-counter-prefix', 'Bis zu ');
                 card2Number.setAttribute('data-counter-suffix', ' €');
-                card2Number.textContent = card2Number.dataset.i18nOriginal;
+                card2Number.textContent = card2Number.dataset.i18nOriginal || 'Bis zu 380 €';
             } else if (lang === 'en') {
                 card2Number.setAttribute('data-counter-prefix', 'Up to €');
                 card2Number.setAttribute('data-counter-suffix', '');
@@ -1206,12 +1208,12 @@
 
         const card3Number = document.querySelector('.section-trust-metrics .trust-stat-card:nth-child(3) .stat-number');
         if (card3Number) {
-            if (card3Number.dataset.i18nOriginal === undefined) {
-                card3Number.dataset.i18nOriginal = card3Number.textContent;
+            if (!card3Number.dataset.i18nOriginal) {
+                card3Number.dataset.i18nOriginal = card3Number.textContent.trim() || '24 Monate';
             }
             if (lang === 'de') {
                 card3Number.setAttribute('data-counter-suffix', ' Monate');
-                card3Number.textContent = card3Number.dataset.i18nOriginal;
+                card3Number.textContent = card3Number.dataset.i18nOriginal || '24 Monate';
             } else if (lang === 'en') {
                 card3Number.setAttribute('data-counter-suffix', ' Months');
                 card3Number.textContent = '24 Months';
