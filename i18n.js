@@ -1115,19 +1115,7 @@
             }
         });
 
-        // 4. Update Welcome Toast Banner
-        const langToast = document.getElementById('langToastBanner');
-        const langToastText = document.getElementById('langToastText');
-        if (langToast && langToastText) {
-            if (lang === 'de') {
-                langToast.style.display = 'none';
-            } else if (I18N_DATA[lang] && I18N_DATA[lang].toast_text) {
-                langToastText.innerHTML = I18N_DATA[lang].toast_text;
-                langToast.style.display = 'block';
-            }
-        }
-
-        // 5. Apply translations to all mapped selectors
+        // 4. Apply translations to all mapped selectors
         SELECTOR_MAPPINGS.forEach(mapping => {
             const el = document.querySelector(mapping.selector);
             if (!el) return;
@@ -1371,15 +1359,6 @@
                 }
             });
         });
-
-        // Close toast button
-        const langToastClose = document.getElementById('langToastClose');
-        const langToast = document.getElementById('langToastBanner');
-        if (langToastClose && langToast) {
-            langToastClose.addEventListener('click', () => {
-                langToast.style.display = 'none';
-            });
-        }
 
         // Pre-cache German original values immediately
         SELECTOR_MAPPINGS.forEach(mapping => {

@@ -26,11 +26,8 @@ test.describe('Multi-Language Translation System Verification (DE | EN | TR)', (
         await expect(page).toHaveTitle('Alpha Energie | 100% Green Electricity & Energy Nationwide');
         await expect(btnEn).toHaveClass(/active/);
 
-        // 2. Check Welcome Toast banner
-        const toastBanner = page.locator('#langToastBanner');
-        await expect(toastBanner).toBeVisible();
-        await expect(toastBanner).toContainText('Welcome!');
-        await expect(toastBanner).toContainText('100% clean green electricity across Germany');
+        // 2. Check Welcome Toast banner is removed
+        await expect(page.locator('#langToastBanner')).toHaveCount(0);
 
         // 3. Navigation
         const navTariffs = page.locator('#main-nav .nav-list > li:nth-child(1) > a');
@@ -140,11 +137,8 @@ test.describe('Multi-Language Translation System Verification (DE | EN | TR)', (
         await expect(page).toHaveTitle('Alpha Energie | Almanya Genelinde %100 Yeşil Elektrik & Enerji');
         await expect(btnTr).toHaveClass(/active/);
 
-        // 2. Check Welcome Toast banner
-        const toastBanner = page.locator('#langToastBanner');
-        await expect(toastBanner).toBeVisible();
-        await expect(toastBanner).toContainText('Hoş geldiniz!');
-        await expect(toastBanner).toContainText('Almanya genelinde %100 temiz yeşil elektrik');
+        // 2. Check Welcome Toast banner is removed
+        await expect(page.locator('#langToastBanner')).toHaveCount(0);
 
         // 3. Navigation
         const navTariffs = page.locator('#main-nav .nav-list > li:nth-child(1) > a');
@@ -259,9 +253,8 @@ test.describe('Multi-Language Translation System Verification (DE | EN | TR)', (
         await expect(page).toHaveTitle('Alpha Energie | 100% Ökostrom & Gastarife deutschlandweit');
         await expect(btnDe).toHaveClass(/active/);
 
-        // 2. Toast banner should be hidden in German
-        const toastBanner = page.locator('#langToastBanner');
-        await expect(toastBanner).not.toBeVisible();
+        // 2. Confirm Welcome Toast banner is removed
+        await expect(page.locator('#langToastBanner')).toHaveCount(0);
 
         // 3. Navigation
         const navTariffs = page.locator('#main-nav .nav-list > li:nth-child(1) > a');

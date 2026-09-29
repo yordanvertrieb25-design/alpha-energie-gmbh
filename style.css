@@ -4302,22 +4302,6 @@ section {
     box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
 }
 
-.lang-toast-banner {
-    display: none;
-    background: linear-gradient(135deg, #0a1f44 0%, #173369 100%);
-    color: #ffffff;
-    padding: 0.75rem 1.5rem;
-    text-align: center;
-    font-size: 0.875rem;
-    border-bottom: 2px solid #ff7a00;
-    position: relative;
-    z-index: 100;
-}
-
-.lang-toast-banner strong {
-    color: #ff8c00;
-}
-
 /* --- Sektorenkopplung & Trust Sections --- */
 .sektor-grid-3 {
     display: grid;
