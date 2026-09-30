@@ -342,7 +342,7 @@ test.describe('Alpha Energie 3D Versorger Three.js Quality & Functional Suite', 
             return Boolean(window.AlphaThree && window.AlphaThree.getScene('#alpha-versorger-canvas'));
         }, { timeout: 15000 });
 
-        const solarFocusBtn = page.locator('#alpha-versorger-canvas [data-focus="solar"]');
+        const solarFocusBtn = page.locator('#alpha-versorger-canvas .hud-tab[data-focus="solar"]');
         await expect(solarFocusBtn).toBeVisible();
         await solarFocusBtn.click();
 
@@ -351,7 +351,7 @@ test.describe('Alpha Energie 3D Versorger Three.js Quality & Functional Suite', 
             return scene && scene.currentFocus === 'solar';
         });
 
-        const waermeFocusBtn = page.locator('#alpha-versorger-canvas [data-focus="waerme"]');
+        const waermeFocusBtn = page.locator('#alpha-versorger-canvas .hud-tab[data-focus="waerme"]');
         await waermeFocusBtn.click();
 
         await page.waitForFunction(() => {
@@ -359,7 +359,7 @@ test.describe('Alpha Energie 3D Versorger Three.js Quality & Functional Suite', 
             return scene && scene.currentFocus === 'waerme';
         });
 
-        const wallboxFocusBtn = page.locator('#alpha-versorger-canvas [data-focus="wallbox"]');
+        const wallboxFocusBtn = page.locator('#alpha-versorger-canvas .hud-tab[data-focus="wallbox"]');
         await wallboxFocusBtn.click();
 
         await page.waitForFunction(() => {
@@ -367,13 +367,53 @@ test.describe('Alpha Energie 3D Versorger Three.js Quality & Functional Suite', 
             return scene && scene.currentFocus === 'wallbox';
         });
 
-        const overviewFocusBtn = page.locator('#alpha-versorger-canvas [data-focus="overview"]');
+        const overviewFocusBtn = page.locator('#alpha-versorger-canvas .hud-tab[data-focus="overview"]');
         await overviewFocusBtn.click();
 
         await page.waitForFunction(() => {
             const scene = window.AlphaThree.getScene('#alpha-versorger-canvas');
             return scene && scene.currentFocus === 'overview';
         });
+    });
+
+    test('10. Floating 3D Callout Banners render with required tariff copy and direct calculator links', async ({ page }) => {
+        await page.goto('/versorger.html', { waitUntil: 'load' });
+
+        await page.waitForFunction(() => {
+            return Boolean(window.AlphaThree && window.AlphaThree.getScene('#alpha-versorger-canvas'));
+        }, { timeout: 15000 });
+
+        // Wait for anchor layer
+        const anchorLayer = page.locator('#alpha-versorger-canvas .alpha-3d-anchors-layer');
+        await expect(anchorLayer).toBeAttached();
+
+        // 1. Heat Pump Banner & Text
+        const waermeCard = page.locator('#alpha-versorger-canvas .alpha-anchor-waerme');
+        await expect(waermeCard).toBeAttached();
+        await expect(waermeCard).toContainText('Wir bieten günstige Stromtarife für Wärmepumpen an');
+
+        // 2. Wallbox Banner & Text
+        const wallboxCard = page.locator('#alpha-versorger-canvas .alpha-anchor-wallbox');
+        await expect(wallboxCard).toBeAttached();
+        await expect(wallboxCard).toContainText('Wir bieten spezielle Stromtarife für Wallboxen an');
+
+        // 3. Hausstrom Banner & Text
+        const stromCard = page.locator('#alpha-versorger-canvas .alpha-anchor-strom');
+        await expect(stromCard).toBeAttached();
+        await expect(stromCard).toContainText('Wir bieten 100 % Ökostromtarife für Ihren Hausstrom an');
+
+        // 4. Solar Banner & Text
+        const solarCard = page.locator('#alpha-versorger-canvas .alpha-anchor-solar');
+        await expect(solarCard).toBeAttached();
+        await expect(solarCard).toContainText('Wir bieten flexible Stromtarife für Solaranlagen & Speicher an');
+
+        // 5. Test Banner CTA Click scrolls to calculator
+        const waermeCta = waermeCard.locator('.alpha-anchor-btn');
+        await waermeCta.click();
+
+        // Should switch calculator to waerme tab
+        const activeTab = page.locator('.calc-tab-btn.active');
+        await expect(activeTab).toHaveAttribute('data-branch', 'waerme');
     });
 
 });

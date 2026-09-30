@@ -170,6 +170,14 @@
             // Procedural Canvas Textures cache
             this.glowTextures = {};
 
+            // 3D Callout Anchors & Floating Banners
+            this.anchorDefinitions = [];
+            this.anchorElements = new Map();
+            this.anchorsLayer = null;
+            this.activeAnchorId = null;
+            this._tempAnchorWorldVec = null;
+            this._lastAnchorsBroadcastTime = 0;
+
             // Initial calculation
             this.updateConsumptionScaling();
         }
@@ -232,6 +240,10 @@
             // 8. Interactive Shockwave Rings & CO2 Tokens
             this.buildBurstRings();
             this.buildCO2Tokens();
+
+            // 9. 3D-to-2D Anchor Tracking & Floating Callout Banners
+            this.initAnchors();
+            this.createAnchorBannersDOM();
 
             // Initial mode styling
             this.applyModeStyles();
@@ -1350,6 +1362,247 @@
                     token.mesh.rotation.x = Math.sin(elapsed * token.speed * 0.5) * 0.2;
                 });
             }
+
+                        // 9. 3D-to-2D Anchor Tracking & DOM Callout Banner Updates
+            this.updateAnchors();
+        }
+
+        /**
+         * 9. 3D-to-2D Anchor Tracking & Floating Callout Banners
+         * Direct 3D positioning over Smart Home objects with photorealistic callout banners
+         */
+        initAnchors() {
+            const THREE = this.THREE;
+            this.activeAnchorId = null;
+            this.anchorElements = new Map();
+            this.anchorsLayer = null;
+            this._tempAnchorWorldVec = new THREE.Vector3();
+            this._lastAnchorsBroadcastTime = 0;
+
+            this.anchorDefinitions = [
+                {
+                    id: 'waerme',
+                    name: 'Wärmepumpe',
+                    branch: 'waerme',
+                    focus: 'waerme',
+                    localPosition: new THREE.Vector3(5.0, 1.45, 1.0),
+                    badge: '♨️ Wärmestrom § 14a EnWG',
+                    headline: 'Wir bieten günstige Stromtarife für Wärmepumpen an',
+                    benefit: 'Bis zu 25 % reduzierte Netzentgelte nach § 14a EnWG – sparen Sie hunderte Euro bei Ihren Heizkosten!',
+                    ctaText: 'Wärmetarif berechnen →',
+                    colorClass: 'alpha-anchor-waerme anchor-waerme',
+                    accentColor: '#FF7A00'
+                },
+                {
+                    id: 'wallbox',
+                    name: 'Wallbox & E-Mobilität',
+                    branch: 'strom',
+                    focus: 'wallbox',
+                    localPosition: new THREE.Vector3(-3.4, 1.65, 1.8),
+                    badge: '🔌 Wallbox- & Autostrom',
+                    headline: 'Wir bieten spezielle Stromtarife für Wallboxen an',
+                    benefit: 'Laden Sie Ihr E-Auto zuhause günstig mit 100 % zertifiziertem Ökostrom zu besten Konditionen!',
+                    ctaText: 'Autostrom berechnen →',
+                    colorClass: 'alpha-anchor-wallbox anchor-wallbox',
+                    accentColor: '#00D2FF'
+                },
+                {
+                    id: 'strom',
+                    name: 'Haushaltsstrom',
+                    branch: 'strom',
+                    focus: 'strom',
+                    localPosition: new THREE.Vector3(-1.2, 1.35, 2.4),
+                    badge: '💡 Haushaltsstrom & Zähler',
+                    headline: 'Wir bieten 100 % Ökostromtarife für Ihren Hausstrom an',
+                    benefit: 'Bis zu 380 € pro Jahr gegenüber der Grundversorgung sparen mit voller Preisgarantie und ok-power Siegel!',
+                    ctaText: 'Hausstrom berechnen →',
+                    colorClass: 'alpha-anchor-strom anchor-strom',
+                    accentColor: '#00E676'
+                },
+                {
+                    id: 'solar',
+                    name: 'Solar & Heimspeicher',
+                    branch: 'strom',
+                    focus: 'solar',
+                    localPosition: new THREE.Vector3(-0.2, 5.85, 1.4),
+                    badge: '☀️ Solar & Heimspeicher',
+                    headline: 'Wir bieten flexible Stromtarife für Solaranlagen & Speicher an',
+                    benefit: 'Smarte Reststrombelieferung und maximale Unabhängigkeit für Ihr Solar-Zuhause!',
+                    ctaText: 'PV-Tarif ansehen →',
+                    colorClass: 'alpha-anchor-solar anchor-solar',
+                    accentColor: '#FFD700'
+                }
+            ];
+        }
+
+        createAnchorBannersDOM() {
+            if (typeof document === 'undefined' || !this.container) return;
+
+            // Remove existing layer if any
+            const existingLayer = this.container.querySelector('.alpha-3d-anchors-layer');
+            if (existingLayer) {
+                existingLayer.remove();
+            }
+
+            if (window.getComputedStyle(this.container).position === 'static') {
+                this.container.style.position = 'relative';
+            }
+
+            const layer = document.createElement('div');
+            layer.className = 'alpha-3d-anchors-layer';
+            layer.setAttribute('aria-label', '3D Tarif-Highlights über Smart Home Komponenten');
+
+            this.anchorDefinitions.forEach(def => {
+                const item = document.createElement('div');
+                item.className = `alpha-anchor-item ${def.colorClass}`;
+                item.id = `alpha-anchor-${def.id}`;
+                item.setAttribute('data-anchor-id', def.id);
+                item.style.transform = 'translate3d(-9999px, -9999px, 0)';
+
+                item.innerHTML = `
+                    <div class="alpha-anchor-pin" title="${def.name}">
+                        <span class="alpha-anchor-pulse" aria-hidden="true"></span>
+                        <span class="alpha-anchor-dot" aria-hidden="true"></span>
+                        <span class="alpha-anchor-line" aria-hidden="true"></span>
+                    </div>
+                    <div class="alpha-anchor-card" role="region" aria-label="${def.headline}">
+                        <div class="alpha-anchor-badge-pill" data-action="toggle-card">
+                            <span class="alpha-pill-badge">${def.badge}</span>
+                            <span class="alpha-pill-arrow" aria-hidden="true">▾</span>
+                        </div>
+                        <div class="alpha-anchor-card-body">
+                            <div class="alpha-anchor-header">
+                                <span class="alpha-anchor-badge">${def.badge}</span>
+                                <button type="button" class="alpha-anchor-close-btn" aria-label="Details schließen">✕</button>
+                            </div>
+                            <h4 class="alpha-anchor-headline">${def.headline}</h4>
+                            <p class="alpha-anchor-benefit">${def.benefit}</p>
+                            <div class="alpha-anchor-action">
+                                <a href="#rechner" class="alpha-anchor-btn btn-rechner-sync" data-branch="${def.branch}" data-anchor-focus="${def.focus}">
+                                    <span>${def.ctaText}</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                // Handle click on card or pin to focus camera & highlight
+                item.addEventListener('click', (e) => {
+                    const isCta = e.target.closest('.btn-rechner-sync');
+                    const isClose = e.target.closest('.alpha-anchor-close-btn');
+
+                    if (isClose) {
+                        e.stopPropagation();
+                        item.classList.remove('is-active');
+                        this.activeAnchorId = null;
+                        return;
+                    }
+
+                    if (!isCta) {
+                        this.setFocus(def.focus);
+                        this.highlightAnchor(def.id);
+                        this.pulse();
+                    }
+                });
+
+                layer.appendChild(item);
+                this.anchorElements.set(def.id, item);
+            });
+
+            this.container.appendChild(layer);
+            this.anchorsLayer = layer;
+        }
+
+        highlightAnchor(anchorId) {
+            this.activeAnchorId = anchorId;
+            if (!this.anchorElements) return;
+            this.anchorElements.forEach((el, id) => {
+                if (id === anchorId) {
+                    el.classList.add('is-active');
+                } else {
+                    el.classList.remove('is-active');
+                }
+            });
+        }
+
+        updateAnchors() {
+            if (!this.container || !this.camera || !this.anchorElements || this.anchorElements.size === 0) return;
+
+            const width = this.container.clientWidth;
+            const height = this.container.clientHeight;
+            if (width <= 0 || height <= 0) return;
+
+            const THREE = this.THREE;
+            const worldVec = this._tempAnchorWorldVec || new THREE.Vector3();
+            const isMobile = width <= 640;
+
+            const activeAnchorsData = [];
+
+            this.anchorDefinitions.forEach(def => {
+                const el = this.anchorElements.get(def.id);
+                if (!el) return;
+
+                // 1. Calculate world position: def.localPosition transformed by rootGroup
+                worldVec.copy(def.localPosition);
+                if (this.rootGroup) {
+                    worldVec.applyMatrix4(this.rootGroup.matrixWorld);
+                }
+
+                // 2. Project to normalized device coordinates [-1, 1]
+                worldVec.project(this.camera);
+
+                // 3. Frustum clipping: behind camera
+                const isBehind = worldVec.z > 1.0;
+                if (isBehind) {
+                    el.style.opacity = '0';
+                    el.style.pointerEvents = 'none';
+                    return;
+                }
+
+                // 4. Convert NDC [-1, 1] to container screen coordinates [0, width], [0, height]
+                const screenX = (worldVec.x * 0.5 + 0.5) * width;
+                const screenY = (-(worldVec.y * 0.5) + 0.5) * height;
+
+                // 5. Inversion logic: if anchor is near top of viewport, flip card downward
+                const isInverted = screenY < 135;
+                el.classList.toggle('is-inverted', isInverted);
+                el.classList.toggle('is-mobile', isMobile);
+
+                // 6. Safe edge clamping
+                const safeMarginX = isMobile ? 12 : 24;
+                const safeMarginY = 16;
+                const clampedX = Math.max(safeMarginX, Math.min(width - safeMarginX, screenX));
+                const clampedY = Math.max(safeMarginY, Math.min(height - safeMarginY, screenY));
+
+                // 7. Apply 3D translate
+                el.style.transform = `translate3d(${clampedX.toFixed(1)}px, ${clampedY.toFixed(1)}px, 0)`;
+                el.style.opacity = '1';
+                el.style.pointerEvents = 'auto';
+
+                activeAnchorsData.push({
+                    id: def.id,
+                    branch: def.branch,
+                    focus: def.focus,
+                    x: clampedX,
+                    y: clampedY,
+                    isInverted: isInverted
+                });
+            });
+
+            // Throttle custom event broadcast to ~15fps (every 66ms)
+            const now = (typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now();
+            if (now - this._lastAnchorsBroadcastTime > 66) {
+                this._lastAnchorsBroadcastTime = now;
+                if (typeof window !== 'undefined') {
+                    window.dispatchEvent(new CustomEvent('alphathree:anchors-update', {
+                        detail: { anchors: activeAnchorsData }
+                    }));
+                }
+            }
+        }
+
+        getAnchors() {
+            return this.anchorDefinitions ? [...this.anchorDefinitions] : [];
         }
 
         /**
@@ -1358,8 +1611,17 @@
         dispose() {
             super.dispose();
 
+            // Clear anchors DOM layer
+            if (this.anchorsLayer && this.anchorsLayer.parentNode) {
+                this.anchorsLayer.parentNode.removeChild(this.anchorsLayer);
+            }
+            if (this.anchorElements) {
+                this.anchorElements.clear();
+            }
+            this.anchorsLayer = null;
+
             // Clear textures
-            for (const key of Object.keys(this.glowTextures)) {
+            for (const key of Object.keys(this.glowTextures || {})) {
                 if (this.glowTextures[key] && typeof this.glowTextures[key].dispose === 'function') {
                     this.glowTextures[key].dispose();
                 }

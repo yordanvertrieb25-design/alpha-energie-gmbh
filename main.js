@@ -676,6 +676,9 @@ document.addEventListener("DOMContentLoaded", async () => {
             if (scene && typeof scene.setMode === 'function') {
                 scene.setMode(branch);
             }
+            if (scene && typeof scene.highlightAnchor === 'function') {
+                scene.highlightAnchor(branch === 'waerme' ? 'waerme' : null);
+            }
 
             // Sync 3D HUD tabs active state
             const hudButtons = document.querySelectorAll('#alpha-versorger-canvas .hud-tab, #versorger-flow-canvas .hud-tab, .versorger-flow-card .hud-tab');
@@ -919,6 +922,45 @@ document.addEventListener("DOMContentLoaded", async () => {
                     if (matchingTab) {
                         matchingTab.click();
                     }
+                }
+            }
+
+            // Two-Way Sync: Clicking callout banner CTAs or footer tariff cards (.btn-rechner-sync)
+            const syncBtn = e.target.closest('.btn-rechner-sync');
+            if (syncBtn) {
+                const targetBranch = syncBtn.getAttribute('data-branch') || 'strom';
+                const targetFocus = syncBtn.getAttribute('data-anchor-focus') || syncBtn.getAttribute('data-focus') || targetBranch;
+
+                // 1. Orient 3D camera and highlight anchor in scene
+                const scene = getVersorgerScene();
+                if (scene) {
+                    if (typeof scene.setFocus === 'function') {
+                        scene.setFocus(targetFocus);
+                    }
+                    if (typeof scene.highlightAnchor === 'function') {
+                        scene.highlightAnchor(targetFocus);
+                    }
+                    if (typeof scene.pulse === 'function') {
+                        scene.pulse();
+                    }
+                }
+
+                // 2. Switch calculator tab if different
+                const matchingTab = document.querySelector(`.calc-tab-btn[data-branch="${targetBranch}"]`);
+                if (matchingTab && !matchingTab.classList.contains('active')) {
+                    matchingTab.click();
+                }
+
+                // 3. Smooth scroll to calculator (#rechner) and pulse highlight
+                const rechnerTarget = document.getElementById('rechner') || document.getElementById('tarifrechner');
+                if (rechnerTarget) {
+                    rechnerTarget.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    rechnerTarget.classList.remove('calc-highlight-pulse');
+                    void rechnerTarget.offsetWidth;
+                    rechnerTarget.classList.add('calc-highlight-pulse');
+                    setTimeout(() => {
+                        rechnerTarget.classList.remove('calc-highlight-pulse');
+                    }, 3200);
                 }
             }
 

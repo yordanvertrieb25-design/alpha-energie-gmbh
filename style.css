@@ -6505,3 +6505,651 @@ html.swal2-height-auto {
     }
 }
 
+
+
+/* ==========================================================================
+   Alpha Energie - Floating 3D Callout Banners & Interactive Smart Home Anchors
+   Photorealistic Glassmorphism, Radar Pulses, Glowing Leader Lines
+   ========================================================================== */
+
+.alpha-3d-anchors-layer {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 25;
+    overflow: hidden;
+}
+
+.alpha-anchor-item {
+    position: absolute;
+    top: 0;
+    left: 0;
+    pointer-events: auto;
+    will-change: transform, opacity;
+    transition: opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    z-index: 20;
+    font-family: 'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    scroll-margin-top: 140px;
+}
+
+.alpha-anchor-item:hover {
+    z-index: 85 !important;
+}
+
+.alpha-anchor-item.is-active {
+    z-index: 50 !important;
+}
+
+.alpha-anchor-item.is-active {
+    z-index: 60 !important;
+}
+
+/* Pulsing Anchor Pin & Leader Line */
+.alpha-anchor-pin {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 0;
+    height: 0;
+    cursor: pointer;
+}
+
+.alpha-anchor-dot {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    background: #00E676;
+    box-shadow: 0 0 12px #00E676, 0 0 24px rgba(0, 230, 118, 0.5);
+    border: 2px solid #FFFFFF;
+    z-index: 6;
+    transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease;
+}
+
+.alpha-anchor-item:hover .alpha-anchor-dot,
+.alpha-anchor-item.is-active .alpha-anchor-dot {
+    transform: translate(-50%, -50%) scale(1.3);
+    box-shadow: 0 0 18px #00E676, 0 0 32px rgba(0, 230, 118, 0.85);
+}
+
+.alpha-anchor-pulse {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(0, 230, 118, 0.25);
+    border: 1px solid rgba(0, 230, 118, 0.6);
+    z-index: 5;
+    animation: alphaAnchorRadar 2.2s cubic-bezier(0.2, 0.8, 0.2, 1) infinite;
+    pointer-events: none;
+}
+
+@keyframes alphaAnchorRadar {
+    0% {
+        transform: translate(-50%, -50%) scale(0.4);
+        opacity: 0.9;
+    }
+    60% {
+        transform: translate(-50%, -50%) scale(1.9);
+        opacity: 0.3;
+    }
+    100% {
+        transform: translate(-50%, -50%) scale(2.6);
+        opacity: 0;
+    }
+}
+
+/* Vertical glowing leader line connecting anchor dot to callout card */
+.alpha-anchor-line {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 2px;
+    height: 38px;
+    transform: translateX(-50%);
+    background: linear-gradient(to top, #00E676 0%, rgba(0, 230, 118, 0.4) 60%, rgba(0, 230, 118, 0) 100%);
+    z-index: 4;
+    pointer-events: none;
+    box-shadow: 0 0 8px rgba(0, 230, 118, 0.5);
+    transition: height 0.25s ease, background 0.25s ease;
+}
+
+.alpha-anchor-item.is-inverted .alpha-anchor-line {
+    bottom: auto;
+    top: 0;
+    background: linear-gradient(to bottom, #00E676 0%, rgba(0, 230, 118, 0.4) 60%, rgba(0, 230, 118, 0) 100%);
+}
+
+/* Glassmorphic Callout Card */
+.alpha-anchor-card {
+    position: absolute;
+    left: 0;
+    bottom: 38px;
+    transform: translateX(-50%);
+    width: 238px;
+    scroll-margin-top: 140px;
+    background: rgba(15, 23, 42, 0.90);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 14px;
+    box-shadow: 0 16px 36px -6px rgba(0, 0, 0, 0.65), 0 0 20px rgba(0, 230, 118, 0.15);
+    overflow: hidden;
+    cursor: default;
+    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s ease, border-color 0.25s ease;
+}
+
+.alpha-anchor-item.is-inverted .alpha-anchor-card {
+    bottom: auto;
+    top: 38px;
+}
+
+.alpha-anchor-item:hover .alpha-anchor-card,
+.alpha-anchor-item.is-active .alpha-anchor-card {
+    border-color: rgba(255, 255, 255, 0.28);
+    box-shadow: 0 20px 42px -6px rgba(0, 0, 0, 0.75), 0 0 28px rgba(0, 230, 118, 0.3);
+}
+
+/* Card Body Content */
+.alpha-anchor-card-body {
+    padding: 0.85rem 0.95rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
+}
+
+.alpha-anchor-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+}
+
+.alpha-anchor-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.22rem 0.6rem;
+    border-radius: 9999px;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+}
+
+.alpha-anchor-close-btn {
+    display: none;
+    background: transparent;
+    border: none;
+    color: #94A3B8;
+    font-size: 0.95rem;
+    line-height: 1;
+    padding: 0.2rem;
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+.alpha-anchor-close-btn:hover {
+    color: #FFFFFF;
+}
+
+.alpha-anchor-headline {
+    font-family: 'Sora', sans-serif;
+    font-size: 0.86rem;
+    font-weight: 700;
+    line-height: 1.35;
+    color: #F8FAFC;
+    margin: 0;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+}
+
+.alpha-anchor-benefit {
+    font-size: 0.74rem;
+    font-weight: 500;
+    line-height: 1.42;
+    color: #CBD5E1;
+    margin: 0;
+}
+
+.alpha-anchor-action {
+    margin-top: 0.35rem;
+}
+
+
+.anchor-waerme .alpha-anchor-card,
+.alpha-anchor-waerme .alpha-anchor-card {
+    transform: translateX(-35%);
+}
+
+.anchor-strom .alpha-anchor-card,
+.alpha-anchor-strom .alpha-anchor-card {
+    transform: translateX(-65%);
+}
+
+.anchor-wallbox .alpha-anchor-card,
+.alpha-anchor-wallbox .alpha-anchor-card {
+    transform: translateX(-40%);
+}
+
+.alpha-anchor-btn {
+    scroll-margin-top: 140px;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    padding: 0.48rem 0.85rem;
+    border-radius: 10px;
+    font-family: 'Sora', sans-serif;
+    font-size: 0.76rem;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+    text-decoration: none;
+    color: #0F172A;
+    background: #00E676;
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    box-shadow: 0 4px 14px rgba(0, 230, 118, 0.35);
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    cursor: pointer;
+}
+
+.alpha-anchor-btn:hover {
+    background: #00FF85;
+    color: #050B14;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 18px rgba(0, 230, 118, 0.55);
+}
+
+/* Compact Badge Pill for Mobile / Inactive Mode */
+.alpha-anchor-badge-pill {
+    display: none;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.35rem 0.7rem;
+    border-radius: 9999px;
+    background: rgba(15, 23, 42, 0.92);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.45);
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.alpha-pill-badge {
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: #F8FAFC;
+}
+
+.alpha-pill-arrow {
+    font-size: 0.7rem;
+    color: #94A3B8;
+    transition: transform 0.2s ease;
+}
+
+/* Specific Component Color Palettes */
+/* 1. Wärmepumpe: Warm Amber */
+.anchor-waerme .alpha-anchor-dot {
+    background: #FF7A00;
+    box-shadow: 0 0 12px #FF7A00, 0 0 24px rgba(255, 122, 0, 0.5);
+}
+.anchor-waerme:hover .alpha-anchor-dot,
+.anchor-waerme.is-active .alpha-anchor-dot {
+    box-shadow: 0 0 18px #FF7A00, 0 0 32px rgba(255, 122, 0, 0.85);
+}
+.anchor-waerme .alpha-anchor-pulse {
+    background: rgba(255, 122, 0, 0.25);
+    border-color: rgba(255, 122, 0, 0.6);
+}
+.anchor-waerme .alpha-anchor-line {
+    background: linear-gradient(to top, #FF7A00 0%, rgba(255, 122, 0, 0.4) 60%, rgba(255, 122, 0, 0) 100%);
+    box-shadow: 0 0 8px rgba(255, 122, 0, 0.5);
+}
+.anchor-waerme.is-inverted .alpha-anchor-line {
+    background: linear-gradient(to bottom, #FF7A00 0%, rgba(255, 122, 0, 0.4) 60%, rgba(255, 122, 0, 0) 100%);
+}
+.anchor-waerme .alpha-anchor-card {
+    border-left: 3px solid #FF7A00;
+    box-shadow: 0 16px 36px -6px rgba(0, 0, 0, 0.65), 0 0 22px rgba(255, 122, 0, 0.16);
+}
+.anchor-waerme .alpha-anchor-badge {
+    color: #FF9E40;
+    background: rgba(255, 122, 0, 0.14);
+    border: 1px solid rgba(255, 122, 0, 0.35);
+}
+.anchor-waerme .alpha-anchor-btn {
+    background: linear-gradient(135deg, #FF7A00 0%, #FF9E40 100%);
+    color: #0F172A;
+    box-shadow: 0 4px 14px rgba(255, 122, 0, 0.35);
+}
+.anchor-waerme .alpha-anchor-btn:hover {
+    background: linear-gradient(135deg, #FF8C1A 0%, #FFAF5C 100%);
+    box-shadow: 0 6px 18px rgba(255, 122, 0, 0.55);
+}
+
+/* 2. Wallbox: Electric Cyan */
+.anchor-wallbox .alpha-anchor-dot {
+    background: #00D2FF;
+    box-shadow: 0 0 12px #00D2FF, 0 0 24px rgba(0, 210, 255, 0.5);
+}
+.anchor-wallbox:hover .alpha-anchor-dot,
+.anchor-wallbox.is-active .alpha-anchor-dot {
+    box-shadow: 0 0 18px #00D2FF, 0 0 32px rgba(0, 210, 255, 0.85);
+}
+.anchor-wallbox .alpha-anchor-pulse {
+    background: rgba(0, 210, 255, 0.25);
+    border-color: rgba(0, 210, 255, 0.6);
+}
+.anchor-wallbox .alpha-anchor-line {
+    background: linear-gradient(to top, #00D2FF 0%, rgba(0, 210, 255, 0.4) 60%, rgba(0, 210, 255, 0) 100%);
+    box-shadow: 0 0 8px rgba(0, 210, 255, 0.5);
+}
+.anchor-wallbox.is-inverted .alpha-anchor-line {
+    background: linear-gradient(to bottom, #00D2FF 0%, rgba(0, 210, 255, 0.4) 60%, rgba(0, 210, 255, 0) 100%);
+}
+.anchor-wallbox .alpha-anchor-card {
+    border-left: 3px solid #00D2FF;
+    box-shadow: 0 16px 36px -6px rgba(0, 0, 0, 0.65), 0 0 22px rgba(0, 210, 255, 0.16);
+}
+.anchor-wallbox .alpha-anchor-badge {
+    color: #38BDF8;
+    background: rgba(0, 210, 255, 0.14);
+    border: 1px solid rgba(0, 210, 255, 0.35);
+}
+.anchor-wallbox .alpha-anchor-btn {
+    background: linear-gradient(135deg, #00D2FF 0%, #38BDF8 100%);
+    color: #0F172A;
+    box-shadow: 0 4px 14px rgba(0, 210, 255, 0.35);
+}
+.anchor-wallbox .alpha-anchor-btn:hover {
+    background: linear-gradient(135deg, #22DAFF 0%, #60A5FA 100%);
+    box-shadow: 0 6px 18px rgba(0, 210, 255, 0.55);
+}
+
+/* 3. Haushaltsstrom: Eco Emerald Green */
+.anchor-strom .alpha-anchor-dot {
+    background: #00E676;
+    box-shadow: 0 0 12px #00E676, 0 0 24px rgba(0, 230, 118, 0.5);
+}
+.anchor-strom .alpha-anchor-card {
+    border-left: 3px solid #00E676;
+}
+.anchor-strom .alpha-anchor-badge {
+    color: #4ADE80;
+    background: rgba(0, 230, 118, 0.14);
+    border: 1px solid rgba(0, 230, 118, 0.35);
+}
+.anchor-strom .alpha-anchor-btn {
+    background: linear-gradient(135deg, #00E676 0%, #34D399 100%);
+    color: #0F172A;
+    box-shadow: 0 4px 14px rgba(0, 230, 118, 0.35);
+}
+.anchor-strom .alpha-anchor-btn:hover {
+    background: linear-gradient(135deg, #00FF85 0%, #4ADE80 100%);
+    box-shadow: 0 6px 18px rgba(0, 230, 118, 0.55);
+}
+
+/* 4. Solar & Speicher: Solar Gold Amber */
+.anchor-solar .alpha-anchor-dot {
+    background: #FFD700;
+    box-shadow: 0 0 12px #FFD700, 0 0 24px rgba(255, 215, 0, 0.5);
+}
+.anchor-solar:hover .alpha-anchor-dot,
+.anchor-solar.is-active .alpha-anchor-dot {
+    box-shadow: 0 0 18px #FFD700, 0 0 32px rgba(255, 215, 0, 0.85);
+}
+.anchor-solar .alpha-anchor-pulse {
+    background: rgba(255, 215, 0, 0.25);
+    border-color: rgba(255, 215, 0, 0.6);
+}
+.anchor-solar .alpha-anchor-line {
+    background: linear-gradient(to top, #FFD700 0%, rgba(255, 215, 0, 0.4) 60%, rgba(255, 215, 0, 0) 100%);
+    box-shadow: 0 0 8px rgba(255, 215, 0, 0.5);
+}
+.anchor-solar.is-inverted .alpha-anchor-line {
+    background: linear-gradient(to bottom, #FFD700 0%, rgba(255, 215, 0, 0.4) 60%, rgba(255, 215, 0, 0) 100%);
+}
+.anchor-solar .alpha-anchor-card {
+    border-left: 3px solid #FFD700;
+    box-shadow: 0 16px 36px -6px rgba(0, 0, 0, 0.65), 0 0 22px rgba(255, 215, 0, 0.16);
+}
+.anchor-solar .alpha-anchor-badge {
+    color: #FCD34D;
+    background: rgba(255, 215, 0, 0.14);
+    border: 1px solid rgba(255, 215, 0, 0.35);
+}
+.anchor-solar .alpha-anchor-btn {
+    background: linear-gradient(135deg, #FFD700 0%, #F59E0B 100%);
+    color: #0F172A;
+    box-shadow: 0 4px 14px rgba(255, 215, 0, 0.35);
+}
+.anchor-solar .alpha-anchor-btn:hover {
+    background: linear-gradient(135deg, #FFE135 0%, #FBBF24 100%);
+    box-shadow: 0 6px 18px rgba(255, 215, 0, 0.55);
+}
+
+/* Mobile Adaptive Styles */
+@media (max-width: 640px) {
+    .alpha-anchor-item:not(.is-active) .alpha-anchor-card-body {
+        display: none;
+    }
+    .alpha-anchor-item:not(.is-active) .alpha-anchor-badge-pill {
+        display: inline-flex;
+    }
+    .alpha-anchor-item:not(.is-active) .alpha-anchor-card {
+        width: auto;
+        bottom: 26px;
+        background: transparent;
+        border: none;
+        box-shadow: none;
+    }
+    .alpha-anchor-item.is-inverted:not(.is-active) .alpha-anchor-card {
+        top: 26px;
+        bottom: auto;
+    }
+    .alpha-anchor-item:not(.is-active) .alpha-anchor-line {
+        height: 26px;
+    }
+    .alpha-anchor-item.is-active .alpha-anchor-card {
+        width: min(290px, 86vw);
+        z-index: 70;
+    }
+    .alpha-anchor-item.is-active .alpha-anchor-close-btn {
+        display: inline-flex;
+    }
+}
+
+/* 4-Card Tariff Offerings Grid Below 3D Canvas in versorger.html */
+.energy-footer-tariff-grid {
+    display: grid !important;
+    grid-template-columns: repeat(4, 1fr) !important;
+    gap: 1rem !important;
+    width: 100%;
+    margin-top: 1rem;
+}
+
+.energy-tariff-card {
+    background: rgba(15, 23, 42, 0.75);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 14px;
+    padding: 1.15rem 1rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.25s ease, box-shadow 0.25s ease;
+    text-align: left;
+}
+
+.energy-tariff-card:hover {
+    transform: translateY(-3px);
+    border-color: rgba(255, 255, 255, 0.24);
+    box-shadow: 0 12px 28px -6px rgba(0, 0, 0, 0.5);
+}
+
+.tariff-card-strom {
+    border-top: 3px solid #00E676;
+}
+.tariff-card-waerme {
+    border-top: 3px solid #FF7A00;
+}
+.tariff-card-wallbox {
+    border-top: 3px solid #00D2FF;
+}
+.tariff-card-solar {
+    border-top: 3px solid #FFD700;
+}
+
+.tariff-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.4rem;
+    margin-bottom: 0.6rem;
+}
+
+.tariff-card-badge {
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: #94A3B8;
+}
+
+.tariff-card-tag {
+    font-size: 0.65rem;
+    font-weight: 700;
+    padding: 0.15rem 0.5rem;
+    border-radius: 9999px;
+    text-transform: uppercase;
+}
+.tag-strom {
+    background: rgba(0, 230, 118, 0.15);
+    color: #4ADE80;
+    border: 1px solid rgba(0, 230, 118, 0.3);
+}
+.tag-waerme {
+    background: rgba(255, 122, 0, 0.15);
+    color: #FF9E40;
+    border: 1px solid rgba(255, 122, 0, 0.3);
+}
+.tag-wallbox {
+    background: rgba(0, 210, 255, 0.15);
+    color: #38BDF8;
+    border: 1px solid rgba(0, 210, 255, 0.3);
+}
+.tag-solar {
+    background: rgba(255, 215, 0, 0.15);
+    color: #FCD34D;
+    border: 1px solid rgba(255, 215, 0, 0.3);
+}
+
+.energy-tariff-card .stat-highlight {
+    font-family: 'Sora', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #F8FAFC;
+    line-height: 1.35;
+    margin: 0 0 0.45rem 0;
+}
+
+.energy-tariff-card .stat-detail {
+    font-size: 0.78rem;
+    color: #94A3B8;
+    line-height: 1.45;
+    margin: 0 0 0.85rem 0;
+    flex-grow: 1;
+}
+
+.tariff-card-action {
+    margin-top: auto;
+}
+
+.tariff-card-cta {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    padding: 0.5rem 0.85rem;
+    border-radius: 10px;
+    font-family: 'Sora', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.tariff-card-strom .tariff-card-cta {
+    background: rgba(0, 230, 118, 0.15);
+    color: #00E676;
+    border: 1px solid rgba(0, 230, 118, 0.35);
+}
+.tariff-card-strom .tariff-card-cta:hover {
+    background: #00E676;
+    color: #0F172A;
+}
+
+.tariff-card-waerme .tariff-card-cta {
+    background: rgba(255, 122, 0, 0.15);
+    color: #FF9E40;
+    border: 1px solid rgba(255, 122, 0, 0.35);
+}
+.tariff-card-waerme .tariff-card-cta:hover {
+    background: #FF7A00;
+    color: #0F172A;
+}
+
+.tariff-card-wallbox .tariff-card-cta {
+    background: rgba(0, 210, 255, 0.15);
+    color: #38BDF8;
+    border: 1px solid rgba(0, 210, 255, 0.35);
+}
+.tariff-card-wallbox .tariff-card-cta:hover {
+    background: #00D2FF;
+    color: #0F172A;
+}
+
+.tariff-card-solar .tariff-card-cta {
+    background: rgba(255, 215, 0, 0.15);
+    color: #FCD34D;
+    border: 1px solid rgba(255, 215, 0, 0.35);
+}
+.tariff-card-solar .tariff-card-cta:hover {
+    background: #FFD700;
+    color: #0F172A;
+}
+
+@media (max-width: 1024px) {
+    .energy-footer-tariff-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+    }
+}
+
+@media (max-width: 640px) {
+    .energy-footer-tariff-grid {
+        grid-template-columns: 1fr !important;
+    }
+}
+
+/* Two-Way Calculator Highlight Pulse */
+@keyframes calcPulseHighlight {
+    0% {
+        box-shadow: 0 0 0 0 rgba(0, 230, 118, 0.7);
+    }
+    50% {
+        box-shadow: 0 0 0 16px rgba(0, 230, 118, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(0, 230, 118, 0);
+    }
+}
+
+.calc-highlight-pulse {
+    animation: calcPulseHighlight 1.5s ease-out 2 !important;
+    border-color: #00E676 !important;
+}
