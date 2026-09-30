@@ -476,39 +476,53 @@
                 <div class="energy-section-header">
                     <div class="energy-3d-badge">
                         <span class="pulse-dot"></span>
-                        <span>Echtzeit-Netzfluss</span>
+                        <span>Interaktiver 3D-Sparsimulator</span>
                     </div>
-                    <h2 class="energy-section-title">3D-Energiefluss: Von der nachhaltigen Erzeugung direkt zu Ihrem Zähler</h2>
-                    <p class="energy-section-subtitle">Erleben Sie in Echtzeit, wie 100 % Ökostrom aus Wasser- und Windkraft, § 14a Wärmestrom und klimaneutrales Gas durch unser digitales Netz fließen.</p>
+                    <h2 class="energy-section-title">Interaktiver 3D-Sparsimulator: Ihr Zuhause im Effizienz- &amp; Kostenvergleich</h2>
+                    <p class="energy-section-subtitle">Sehen Sie auf einen Cent genau, wie viel Sie mit Alpha Energie sparen: Vergleichen Sie Haushaltsstrom, § 14a Wärmepumpe und Wallbox direkt an unserem interaktiven 3D-Zuhause.</p>
                 </div>
 
                 <!-- 3D Card Shell with Glassmorphic Telemetry Bar -->
                 <div class="energy-3d-card versorger-flow-card">
-                    <!-- Header Telemetry Bar -->
-                    <div class="energy-3d-header">
+                    <!-- Header Telemetry Bar & Savings Cockpit -->
+                    <div class="energy-3d-header sim-cockpit-header">
                         <div class="energy-3d-title-group">
+                            <!-- Live Mode Status Indicator -->
                             <span class="energy-live-indicator">
                                 <span class="pulse-dot"></span>
-                                <span class="alpha-mode-label" data-mode-label>100% Ökostrom (ok-power)</span>
+                                <span class="alpha-mode-label" data-mode-label>100 % Ökostrom (ok-power)</span>
                             </span>
-                            <span class="energy-telemetry-item">
-                                <span>⚡</span>
-                                <span>Netzfrequenz:</span>
-                                <strong>50.00 Hz</strong>
-                            </span>
-                            <span class="energy-telemetry-item hide-mobile">
-                                <span>🛡️</span>
-                                <span>Netzstabilität:</span>
-                                <strong>99.98% Übertragungsstabilität</strong>
-                            </span>
-                            <span class="energy-telemetry-item hide-mobile">
-                                <span>🌱</span>
-                                <span>CO₂-Reduktion:</span>
-                                <strong class="text-green">100% fossilfrei</strong>
-                            </span>
+
+                            <!-- Prominent Savings Cockpit Badge -->
+                            <div class="sim-savings-badge">
+                                <span class="sim-savings-coin-icon">💰</span>
+                                <span class="sim-savings-label">Ihre Ersparnis: <strong id="sim-savings-display">bis zu 380 € / Jahr</strong></span>
+                            </div>
+
+                            <!-- Direct Real-World Comparison Tag -->
+                            <span class="sim-compare-tag" id="sim-compare-tag">Grundversorger: 1.140 € &rarr; Alpha Energie: <strong>760 €</strong></span>
+
+                            <!-- Customer Trust Tags -->
+                            <div class="sim-trust-tags-group hide-mobile">
+                                <span class="sim-trust-tag">
+                                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 14 14"></polyline></svg>
+                                    24 Monate Preisgarantie
+                                </span>
+                                <span class="sim-trust-tag">
+                                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                                    0 € Wechselgebühr
+                                </span>
+                            </div>
                         </div>
-                        <div class="energy-interaction-hint">
-                            <span>🖱️ Ziehen zum Drehen &bull; Klick für Impuls</span>
+
+                        <!-- CTA & Interaction Hint -->
+                        <div class="sim-header-actions">
+                            <span class="energy-interaction-hint hide-tablet">
+                                <span>🖱️ 3D-Drehen &bull; Bauteile fokussieren &bull; Impuls testen</span>
+                            </span>
+                            <a href="#rechner" class="btn btn-primary sim-cta-button">
+                                <span>Jetzt Tarif sichern &rarr;</span>
+                            </a>
                         </div>
                     </div>
 
@@ -520,11 +534,11 @@
                          data-three-consumption="2500"
                          data-three-speed="1.0"
                          data-three-interactive="true"
-                         aria-label="Interaktive 3D-Simulation des Alpha Energie Versorgungsflusses von Erzeugung bis Zähler">
+                         aria-label="Interaktive 3D-Simulation des Alpha Energie Smart Home Spar- und Versorgungsflusses">
                         
-                        <!-- Floating Glassmorphic HUD Overlay -->
-                        <div class="energy-3d-hud" role="toolbar" aria-label="Energiefluss-Steuerung">
-                            <!-- Mode Switcher Tabs -->
+                        <!-- Floating Glassmorphic HUD Toolbar -->
+                        <div class="energy-3d-hud sim-hud-cockpit" role="toolbar" aria-label="3D-Sparsimulator Steuerung">
+                            <!-- Mode Switcher Tabs (Ökostrom, Wärmestrom, Erdgas) -->
                             <div class="hud-mode-selector" role="group" aria-label="Energiemodus auswählen">
                                 <button type="button" class="hud-tab active" data-mode="strom" data-scene-target="#alpha-versorger-canvas" aria-pressed="true">
                                     <span class="hud-icon">🌱</span>
@@ -540,7 +554,35 @@
                                 </button>
                             </div>
 
-                            <!-- Pulse Burst Action Button -->
+                            <!-- Camera Hotspot Focus Selectors: Solar & Speicher, Wärmepumpe, Wallbox, Haushaltsstrom, Gesamtansicht -->
+                            <div class="hud-focus-selector" role="group" aria-label="Kamera-Perspektive wählen">
+                                <button type="button" class="hud-tab active" data-focus="overview" data-scene-target="#alpha-versorger-canvas" title="Gesamtansicht Smart Home">
+                                    <span>🏠 Gesamtansicht</span>
+                                </button>
+                                <button type="button" class="hud-tab" data-focus="solar" data-scene-target="#alpha-versorger-canvas" title="Solar &amp; Speicher (Photovoltaik Dach)">
+                                    <span>☀️ Solar &amp; Speicher</span>
+                                </button>
+                                <button type="button" class="hud-tab" data-focus="waerme" data-scene-target="#alpha-versorger-canvas" title="Wärmepumpe (§ 14a Außenmodul)">
+                                    <span>♨️ Wärmepumpe (§ 14a)</span>
+                                </button>
+                                <button type="button" class="hud-tab" data-focus="wallbox" data-scene-target="#alpha-versorger-canvas" title="Wallbox (E-Auto)">
+                                    <span>🔌 Wallbox (E-Auto)</span>
+                                </button>
+                                <button type="button" class="hud-tab" data-focus="strom" data-scene-target="#alpha-versorger-canvas" title="Haushaltsstrom &amp; Zähler">
+                                    <span>💡 Haushaltsstrom</span>
+                                </button>
+                            </div>
+
+                            <!-- Quick Consumption Selector Buttons: 1.500 kWh | 2.500 kWh | 3.500 kWh | 5.000 kWh -->
+                            <div class="hud-consumption-selector" role="group" aria-label="Jahresverbrauch Richtwert wählen">
+                                <span class="hud-kwh-label">Verbrauch:</span>
+                                <button type="button" class="hud-kwh-btn" data-sim-kwh="1500" title="1 Person (1.500 kWh)">1.500 kWh</button>
+                                <button type="button" class="hud-kwh-btn active" data-sim-kwh="2500" title="2 Personen (2.500 kWh)">2.500 kWh</button>
+                                <button type="button" class="hud-kwh-btn" data-sim-kwh="3500" title="3 Personen (3.500 kWh)">3.500 kWh</button>
+                                <button type="button" class="hud-kwh-btn" data-sim-kwh="5000" title="4+ Personen (5.000 kWh)">5.000 kWh</button>
+                            </div>
+
+                            <!-- Actions: Shockwave Pulse & Direct CTA -->
                             <div class="hud-actions">
                                 <button type="button" class="hud-action-btn" id="btn-versorger-burst" data-action="burst" data-scene-target="#alpha-versorger-canvas" title="Energie-Impuls auslösen" aria-label="Energie-Impuls auslösen">
                                     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -548,6 +590,9 @@
                                     </svg>
                                     <span>Energie-Impuls auslösen</span>
                                 </button>
+                                <a href="#rechner" class="hud-cta-link hide-desktop-inline" title="Tarif berechnen">
+                                    <span>Jetzt Tarif sichern &rarr;</span>
+                                </a>
                             </div>
                         </div>
                     </div>
@@ -556,16 +601,16 @@
                     <div class="energy-3d-footer">
                         <div class="energy-footer-stats">
                             <div class="energy-footer-stat">
-                                <span class="stat-highlight">Erzeugung &amp; Einspeisung</span>
-                                <span class="stat-detail">100 % Ökostrom aus europäischen Wasser- und Windkraftwerken mit ok-power Gütesiegel und Herkunftsnachweisen.</span>
+                                <span class="stat-highlight">100 % Ökostrom &amp; ok-power</span>
+                                <span class="stat-detail">Reiner Grünstrom aus europäischen Wasser- und Windkraftanlagen. Garantiert atom- und kohlefrei, zertifiziert nach ok-power Standards.</span>
                             </div>
                             <div class="energy-footer-stat">
-                                <span class="stat-highlight">Smarte Sektorenkopplung (§ 14a)</span>
-                                <span class="stat-detail">Steuerbare Verbrauchseinrichtungen (Wärmepumpen &amp; Wallboxen) mit gesetzlich garantierten Netzentgelt-Rabatten.</span>
+                                <span class="stat-highlight">§ 14a Wärmestrom &amp; Wallbox-Rabatt</span>
+                                <span class="stat-detail">Reduzierte Netzentgelte für steuerbare Verbrauchseinrichtungen sparen bares Geld bei Wärmepumpen und Wallboxen im Eigenheim.</span>
                             </div>
                             <div class="energy-footer-stat">
-                                <span class="stat-highlight">Klimaneutrale Übergangslösungen</span>
-                                <span class="stat-detail">Erdgas mit 100 % freiwilligem Klimaschutzbeitrag zur Förderung zertifizierter Aufforstungs- und Biogasprojekte.</span>
+                                <span class="stat-highlight">Garantiert 0 € Wechselgebühr</span>
+                                <span class="stat-detail">Voller Wechselservice mit automatischer Kündigung beim Altversorger und 24 Monaten verbindlicher Preisgarantie.</span>
                             </div>
                         </div>
                     </div>

@@ -402,16 +402,22 @@
                 </div>
                 <div class="scene-card-body">
                     <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <h3 style="margin: 0; font-size: 1.3rem;">3D Öko-Versorgungsfluss</h3>
+                        <h3 style="margin: 0; font-size: 1.3rem;">3D Smart Home &amp; Spar-Simulator</h3>
                         <span class="tag-pill tag-neon">Versorger-Architektur</span>
                     </div>
                     <p style="margin: 0; color: #94A3B8; font-size: 0.9rem; line-height: 1.5;">
-                        Erzeugung (Wasserkraft, Windkraft, Solar) &rarr; Alpha Grid Nexus &rarr; Smart Consumer (W&auml;rmepumpe &sect;14a, Smart Meter, Wallbox, Speicher).
+                        Photovoltaik, &sect;14a W&auml;rmepumpe mit Drehrotor, Wallbox &amp; EV, Smart Meter Gateway, Hausakku und Kostenersparnis-Echtzeitberechnung.
                     </p>
                     <div class="hud-row hud-mode-selector" style="margin-top: 0.25rem;">
                         <button class="hud-btn active" data-mode="strom" data-scene-target="#card-flow-canvas">Ökostrom</button>
                         <button class="hud-btn" data-mode="waerme" data-scene-target="#card-flow-canvas">Wärmestrom</button>
                         <button class="hud-btn" data-mode="gas" data-scene-target="#card-flow-canvas">Ökogas</button>
+                    </div>
+                    <div class="hud-row hud-focus-selector" style="margin-top: 0.25rem;">
+                        <button class="hud-btn active" data-focus="overview" data-scene-target="#card-flow-canvas">🏠 Gesamt</button>
+                        <button class="hud-btn" data-focus="solar" data-scene-target="#card-flow-canvas">☀️ Solar</button>
+                        <button class="hud-btn" data-focus="waerme" data-scene-target="#card-flow-canvas">♨️ Wärme</button>
+                        <button class="hud-btn" data-focus="wallbox" data-scene-target="#card-flow-canvas">🔌 Wallbox</button>
                     </div>
                     <div class="hud-row">
                         <button class="hud-btn" data-action="burst" data-scene-target="#card-flow-canvas" style="color: var(--alpha-3d-neon); border-color: var(--alpha-3d-neon);">

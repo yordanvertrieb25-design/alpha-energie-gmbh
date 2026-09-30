@@ -31,31 +31,35 @@ test.describe('Alpha Energie 3D Versorger Flow Integration & Two-Way Sync Suite'
         // 2. Ensure section title & subtitle are visible
         const sectionTitle = page.locator('#flow-visualizer .energy-section-title');
         await expect(sectionTitle).toBeVisible();
-        await expect(sectionTitle).toContainText('3D-Energiefluss: Von der nachhaltigen Erzeugung direkt zu Ihrem Zähler');
+        await expect(sectionTitle).toContainText('3D-Sparsimulator');
 
         const sectionSubtitle = page.locator('#flow-visualizer .energy-section-subtitle');
         await expect(sectionSubtitle).toBeVisible();
-        await expect(sectionSubtitle).toContainText('100 % Ökostrom aus Wasser- und Windkraft');
+        await expect(sectionSubtitle).toContainText('Alpha Energie sparen');
 
         // 3. Ensure Canvas is rendered in #alpha-versorger-canvas
         const canvas = page.locator('#alpha-versorger-canvas canvas');
         await expect(canvas).toBeVisible({ timeout: 12000 });
 
-        // 4. Ensure Telemetry Bar items are present
+        // 4. Ensure Telemetry Bar & Savings Cockpit items are present
         const modeBadge = page.locator('#flow-visualizer .alpha-mode-label');
         await expect(modeBadge).toBeVisible();
         await expect(modeBadge).toContainText('Ökostrom');
 
-        const stabilityItem = page.locator('#flow-visualizer .energy-telemetry-item', { hasText: '99.98%' });
-        await expect(stabilityItem).toBeVisible();
-        await expect(stabilityItem).toContainText('Übertragungsstabilität');
+        const savingsDisplay = page.locator('#sim-savings-display');
+        await expect(savingsDisplay).toBeVisible();
+        await expect(savingsDisplay).toContainText('380 € / Jahr');
 
-        const co2Item = page.locator('#flow-visualizer .energy-telemetry-item', { hasText: '100% fossilfrei' });
-        await expect(co2Item).toBeVisible();
+        const compareTag = page.locator('#sim-compare-tag');
+        await expect(compareTag).toBeVisible();
+        await expect(compareTag).toContainText('Grundversorger');
 
         // 5. Ensure HUD controls are present
-        const modeTabs = page.locator('#alpha-versorger-canvas .hud-tab');
+        const modeTabs = page.locator('#alpha-versorger-canvas .hud-tab[data-mode]');
         await expect(modeTabs).toHaveCount(3);
+
+        const focusTabs = page.locator('#alpha-versorger-canvas .hud-tab[data-focus]');
+        await expect(focusTabs).toHaveCount(5);
 
         const burstBtn = page.locator('#alpha-versorger-canvas [data-action="burst"]');
         await expect(burstBtn).toBeVisible();

@@ -301,4 +301,79 @@ test.describe('Alpha Energie 3D Versorger Three.js Quality & Functional Suite', 
         expect(resumedStatus).toBe(true);
     });
 
+    test('8. Smart Home Spar-Simulator: Savings badge, comparison tag, and quick consumption buttons sync', async ({ page }) => {
+        await page.goto('/versorger.html', { waitUntil: 'load' });
+
+        await page.waitForFunction(() => {
+            return Boolean(window.AlphaThree && window.AlphaThree.getScene('#alpha-versorger-canvas'));
+        }, { timeout: 15000 });
+
+        const savingsBadge = page.locator('#sim-savings-display');
+        const compareTag = page.locator('#sim-compare-tag');
+
+        await expect(savingsBadge).toBeVisible();
+        await expect(compareTag).toBeVisible();
+        await expect(savingsBadge).toContainText('380');
+        await expect(compareTag).toContainText('1.140');
+        await expect(compareTag).toContainText('760');
+
+        // Click quick consumption pill: 5.000 kWh
+        const kwh5000Btn = page.locator('.hud-kwh-btn[data-sim-kwh="5000"]');
+        await expect(kwh5000Btn).toBeVisible();
+        await kwh5000Btn.click();
+
+        await page.waitForFunction(() => {
+            const scene = window.AlphaThree.getScene('#alpha-versorger-canvas');
+            return scene && scene.consumption === 5000;
+        });
+
+        // Calculator input should also sync to 5000
+        const calcKwh = page.locator('#calcKwh');
+        await expect(calcKwh).toHaveValue('5000');
+
+        // Savings display should update dynamically to 760 € / Jahr
+        await expect(savingsBadge).toContainText('760');
+    });
+
+    test('9. Hotspot camera focus buttons (solar, waerme, wallbox, strom, overview) update 3D scene camera target', async ({ page }) => {
+        await page.goto('/versorger.html', { waitUntil: 'load' });
+
+        await page.waitForFunction(() => {
+            return Boolean(window.AlphaThree && window.AlphaThree.getScene('#alpha-versorger-canvas'));
+        }, { timeout: 15000 });
+
+        const solarFocusBtn = page.locator('#alpha-versorger-canvas [data-focus="solar"]');
+        await expect(solarFocusBtn).toBeVisible();
+        await solarFocusBtn.click();
+
+        await page.waitForFunction(() => {
+            const scene = window.AlphaThree.getScene('#alpha-versorger-canvas');
+            return scene && scene.currentFocus === 'solar';
+        });
+
+        const waermeFocusBtn = page.locator('#alpha-versorger-canvas [data-focus="waerme"]');
+        await waermeFocusBtn.click();
+
+        await page.waitForFunction(() => {
+            const scene = window.AlphaThree.getScene('#alpha-versorger-canvas');
+            return scene && scene.currentFocus === 'waerme';
+        });
+
+        const wallboxFocusBtn = page.locator('#alpha-versorger-canvas [data-focus="wallbox"]');
+        await wallboxFocusBtn.click();
+
+        await page.waitForFunction(() => {
+            const scene = window.AlphaThree.getScene('#alpha-versorger-canvas');
+            return scene && scene.currentFocus === 'wallbox';
+        });
+
+        const overviewFocusBtn = page.locator('#alpha-versorger-canvas [data-focus="overview"]');
+        await overviewFocusBtn.click();
+
+        await page.waitForFunction(() => {
+            const scene = window.AlphaThree.getScene('#alpha-versorger-canvas');
+            return scene && scene.currentFocus === 'overview';
+        });
+    });
+
 });

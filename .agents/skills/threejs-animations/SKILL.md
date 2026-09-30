@@ -41,7 +41,7 @@ public/js/three/
 └── scenes/
     ├── energy-network.js # Smart Grid: solar/wind nodes, moving photons, central nexus
     ├── energy-globe.js   # Eco-Globe: 3D wireframe sphere, beacons, orbital rings, drag inertia
-    └── versorger-flow.js # Eco-Flow: Generation (Hydro/Wind/Solar) -> Nexus -> Consumers (§14a EnWG)
+    └── versorger-flow.js # 3D Smart Home & Cost Savings Simulator (Solar PV, Heat Pump §14a, Wallbox, EV, Real Savings)
 ```
 
 ---
@@ -100,7 +100,7 @@ Add any 3D scene to an HTML page with zero JavaScript boilerplate:
      style="width: 100%; height: 400px;">
 </div>
 
-<!-- Scene 3: 3D Öko-Versorgungsfluss (Generation -> Nexus -> Smart Consumers) -->
+<!-- Scene 3: 3D Smart Home & Spar-Simulator (Architectural Home, Solar PV, Heat Pump §14a, Wallbox, EV) -->
 <div data-three-scene="versorger-flow"
      data-three-mode="strom"
      data-three-consumption="3500"
@@ -114,7 +114,7 @@ Add any 3D scene to an HTML page with zero JavaScript boilerplate:
 - `data-three-mode`: Initial operational mode:
   - For `energy-network`: `"solar"`, `"wind"`, `"grid"`, `"balanced"`.
   - For `versorger-flow`: `"strom"` / `"oekostrom"` (ok-power), `"waerme"` (§14a EnWG heat pump flexibility), `"gas"` (clean flame + CO2-offset ring tokens).
-- `data-three-consumption`: Annual electricity consumption in kWh (e.g. `3500`; scales photon flow velocity and particle density in `versorger-flow`).
+- `data-three-consumption`: Annual electricity consumption in kWh (e.g. `3500`; scales photon flow velocity and particle density in `versorger-flow`, recalculating annual savings vs Grundversorger).
 - `data-three-speed`: Float multiplier for animation velocity (default: `1.0`).
 - `data-three-interactive`: `"true"` or `"false"` (enables pointer parallax & click/drag).
 - `data-three-pixel-ratio`: Custom max pixel ratio (default: `2`).
@@ -138,8 +138,9 @@ const controller = await window.AlphaThree.init('#my-container', 'versorger-flow
 // 2. Access the active scene instance to trigger interactive features
 const scene = window.AlphaThree.getScene('#my-container');
 scene.setMode('waerme');          // Switch to 'strom', 'waerme' (§14a EnWG), or 'gas'
-scene.setConsumption(6500);       // Dynamically adjust flow velocity & photon density based on annual kWh
-scene.pulseBurst();               // Trigger radial energy shockwave from Alpha Grid Nexus
+scene.setConsumption(6500);       // Dynamically adjust flow velocity, photon density, and emit 'alphathree:savings-update'
+scene.setFocus('solar');          // Smoothly pan camera to: 'overview', 'solar', 'waerme', 'wallbox', 'strom'
+scene.pulseBurst();               // Trigger radial energy shockwave with exponential decay
 scene.setSpeed(1.5);              // Speed up animation
 
 // 3. Pause & Resume rendering

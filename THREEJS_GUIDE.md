@@ -103,36 +103,35 @@ A 3D wireframe eco-grid globe representing decentralized energy networks.
   - Orbital rings with orbiting energy photon sprites.
   - Natural drag-to-rotate interaction with physics momentum and inertia damping.
 
-### Scene C: Versorger Flow (`versorger-flow`)
-A dedicated 3D visualization crafted specifically for public utility providers, energy suppliers, and customer portals, modeling the complete supply chain: **Generation Hubs &rarr; Alpha Grid Nexus &rarr; Smart Consumer Ecosystem**.
+### Scene C: Versorger Flow (`versorger-flow` / "Alpha Spar- & Energie-Simulator")
+A photorealistic, detailed 3D Smart Home & Cost Savings Visualization engineered specifically for energy suppliers and utilities (comparable to E.ON and Grünwelt Energie). Instead of abstract wireframes, customers experience an inviting architectural diorama of a modern home, demonstrating how 100% green energy tariffs, heat pumps, solar arrays, and EV charging reduce their utility bill.
 
-- **Visual Features**:
-  - **Left (Erzeugung / Generation)**: 3 iconic glowing wireframe nodes:
-    - *Wasserkraft*: Undulating water wave ripple rings with cyan luminescence.
-    - *Windkraft*: Continuously spinning aerodynamic 3-blade rotor assembly.
-    - *Solar (Photovoltaik)*: Hexagonal PV wafer disk with coronal energy rings and radiating solar rays.
-  - **Center (Alpha Grid Nexus & Transformer Substation)**:
-    - Double rotating gyroscope rings and horizontal base grounding ring.
-    - Central pulsing icosahedron energy core with dynamic breathing halo.
-    - High-output central point light illuminating the entire network.
-  - **Right (Verbraucher / Consumer Ecosystem)**:
-    - Modern architectural pavilion wireframe structure with pitched roof.
-    - *Wärmepumpe Loop*: Highlighting §14a EnWG flexibility with pulsing thermal waves.
-    - *Digitaler Stromzähler*: Smart Meter Gateway beacon pulsing periodic data blinks.
-    - *Wallbox Halo*: Dynamic EV charging ring with rotating phase.
-    - *Solar-Batterie*: 3-cell battery accumulator with glowing state-of-charge rings.
-  - **Flow Dynamics & Traveling Photons**:
-    - 7 Curved Bezier trajectories connecting Generation &rarr; Nexus &rarr; Consumer.
-    - 120+ high-velocity traveling photons rendered in a single high-efficiency buffer geometry (`THREE.Points`).
-    - Perpetual closed-loop routing logic from generators into substation into smart consumers.
+- **Visual Features & Architectural Diorama**:
+  - **Modern Architectural Home**: Clean facade stucco walls (`#F8FAFC` / `#F1F5F9`) with warm wood slat accents (`#B45309` / `#D97706`).
+  - **Pitched Dark-Slate Roof**: Real angled pitched roof slabs (`#1E293B`) with ridge cap, gable walls, eaves, and chimney/vent.
+  - **High-Tech Solar Panel Array (Photovoltaik)**: 8 monocrystalline PV modules on the south roof slope in deep navy-blue (`#1E3A8A` / `#0284C7`), silver aluminum mounting rails, cell divisions, and glossy specular reflections.
+  - **Glowing Cozy Windows**: Large ground floor panoramic sliding doors and upper ribbon windows emitting warm interior light (`#FEF08A` / `#F59E0B`).
+  - **Realistic Outdoor Heat Pump Unit (Wärmepumpe)**: Modern white/slate cabinet on garden terrace with front acoustic grille slats and an active spinning 3-blade rotor fan.
+  - **Wallbox EV Charging Station & Connected EV**: Mounted wallbox with illuminated LED status halo, coiled cable, and modern metallic electric vehicle parked on the driveway.
+  - **Digital Smart Meter Gateway & Home Storage**: Utility nook with blinking status LED and 4-tier lithium battery accumulator (Hausakku).
+  - **Manicured Garden Lawn & Terrace**: Lush lawn base (`#15803D`), paved stone walkway (`#CBD5E1`), and soft circular ambient occlusion ground contact shadow plane.
 - **Dynamic Multi-Energy Modes (`.setMode(mode)`)**:
-  - `strom` / `oekostrom`: Emerald Green (`#00E676`) + Electric Cyan (`#00D2FF`) with bright ok-power certified glowing aura.
-  - `waerme` / `waermestrom`: Warm Amber (`#FF7A00`) + Emerald (`#10B981`) thermal pulse waves for §14a EnWG heat pump flexibility and grid buffering.
-  - `gas` / `oekogas`: Clean Azure Gas Flame (`#00B0FF`) + Warm Gold (`#F59E0B`) with floating green CO2-offset ring tokens symbolizing 100% climate compensation.
-- **Dynamic Consumption Scaling (`.setConsumption(kwh)`)**:
-  - Dynamically adjusts photon flow velocity (from gentle 0.7x at 1,500 kWh to high-flux 2.8x at 10,000+ kWh) and active particle density.
+  - `strom` / `oekostrom`: Emerald Green (`#00E676`) + Electric Cyan (`#00D2FF`) highlighting 100% ok-power renewable electricity, solar PV generation, and smart meter flow.
+  - `waerme` / `waermestrom`: Warm Amber (`#FF7A00`) + Emerald (`#10B981`) thermal pulse waves for §14a EnWG heat pump optimization, increased fan speed, and grid flexibility.
+  - `gas` / `oekogas`: Clean Azure Gas Flame (`#00B0FF`) + Warm Gold (`#F59E0B`) with floating green CO2-offset ring tokens symbolizing 100% carbon-neutral compensation.
+- **Interactive Hotspot Focus (`.setFocus(focusName)`)**:
+  - Smoothly lerps camera position and lookAt target:
+    - `'overview'`: Isometric view framing the entire smart home estate.
+    - `'solar'`: Zooms in to inspect the rooftop photovoltaic array.
+    - `'waerme'`: Zooms towards the outdoor heat pump unit with spinning rotor.
+    - `'wallbox'`: Focuses on the wallbox and EV charging on the driveway.
+    - `'strom'`: Focuses on the smart meter gateway and grid connection.
+- **Live Cost Savings Calculation (`.setConsumption(kwh, branch)`)**:
+  - Benchmarks against average German Grundversorger (~41.5 ct/kWh + 13.50 €/mo base price) vs Alpha Energie (~24.5 - 27.85 ct/kWh + 11.90 €/mo base price).
+  - Emits global `alphathree:savings-update` event with `{ kwh, monthlyAlpha, monthlyBase, savingsYear, branch }` to update UI savings badges.
+  - Dynamically scales photon velocity and particle flux based on annual consumption.
 - **Interactive Radial Shockwave (`.pulseBurst()` / `.pulse()`)**:
-  - Emits expanding shockwave rings from the Alpha Grid Nexus, temporarily accelerating photon flow by 2.4x with smooth physics decay.
+  - Emits expanding shockwave rings, boosting photon velocity with smooth exponential decay.
 
 ---
 

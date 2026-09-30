@@ -399,6 +399,44 @@
             input.addEventListener('input', onInput);
             input.addEventListener('change', onInput);
         });
+
+        // 4. Hotspot Focus Controls (Solar, Wärmepumpe, Wallbox, Overview)
+        const focusButtons = root.querySelectorAll('[data-focus]');
+        focusButtons.forEach(btn => {
+            if (btn.dataset.threeBound === 'true') return;
+            btn.dataset.threeBound = 'true';
+
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
+                const focusTarget = btn.getAttribute('data-focus');
+                const targetSelector = btn.getAttribute('data-scene-target');
+
+                let container = targetSelector ? document.querySelector(targetSelector) : null;
+                if (!container) {
+                    const parentCard = btn.closest('.energy-3d-card, .scene-card, .showcase-card, section');
+                    container = parentCard ? parentCard.querySelector('[data-three-scene]') : null;
+                }
+                if (!container) {
+                    container = document.querySelector('[data-three-scene]');
+                }
+
+                if (container) {
+                    const scene = AlphaThree.getScene(container);
+                    if (scene && typeof scene.setFocus === 'function') {
+                        scene.setFocus(focusTarget);
+                    }
+                    const group = btn.closest('.hud-focus-selector, [role="group"]') || btn.parentElement;
+                    if (group) {
+                        group.querySelectorAll('[data-focus]').forEach(b => {
+                            b.classList.remove('active');
+                            b.setAttribute('aria-pressed', 'false');
+                        });
+                        btn.classList.add('active');
+                        btn.setAttribute('aria-pressed', 'true');
+                    }
+                }
+            });
+        });
     }
 
     // Expose globally

@@ -6098,7 +6098,7 @@ html.swal2-height-auto {
 }
 
 /* ==========================================================================
-   Versorger Flow 3D WebGL Showcase (versorger-flow)
+   Versorger Flow 3D WebGL Showcase (versorger-flow) & Smart Home Spar-Cockpit
    ========================================================================== */
 .versorger-flow-section {
     position: relative;
@@ -6126,21 +6126,177 @@ html.swal2-height-auto {
     z-index: 2;
     max-width: 1240px;
     margin: 0 auto;
-    background: linear-gradient(145deg, rgba(11, 21, 54, 0.9) 0%, rgba(7, 14, 34, 0.95) 100%);
-    border: 1px solid rgba(0, 230, 118, 0.28);
+    background: linear-gradient(145deg, rgba(11, 21, 54, 0.92) 0%, rgba(7, 14, 34, 0.96) 100%);
+    border: 1px solid rgba(0, 230, 118, 0.32);
     border-radius: 20px;
     overflow: hidden;
     backdrop-filter: blur(18px);
     -webkit-backdrop-filter: blur(18px);
-    box-shadow: 0 30px 75px -15px rgba(0, 0, 0, 0.85), 0 0 45px rgba(0, 230, 118, 0.16), 0 0 25px rgba(255, 122, 0, 0.08);
+    box-shadow: 0 30px 75px -15px rgba(0, 0, 0, 0.85), 0 0 45px rgba(0, 230, 118, 0.16), 0 0 25px rgba(255, 122, 0, 0.1);
     transition: border-color 0.35s ease, box-shadow 0.35s ease;
 }
 
 .versorger-flow-card:hover {
-    border-color: rgba(0, 230, 118, 0.45);
-    box-shadow: 0 35px 85px -15px rgba(0, 0, 0, 0.9), 0 0 55px rgba(0, 230, 118, 0.25), 0 0 35px rgba(255, 122, 0, 0.15);
+    border-color: rgba(0, 230, 118, 0.5);
+    box-shadow: 0 35px 85px -15px rgba(0, 0, 0, 0.9), 0 0 55px rgba(0, 230, 118, 0.28), 0 0 35px rgba(255, 122, 0, 0.18);
 }
 
+/* Spar-Cockpit Header Bar */
+.sim-cockpit-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 1.5rem;
+    background: rgba(11, 21, 54, 0.94);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.09);
+    flex-wrap: wrap;
+    gap: 0.85rem;
+}
+
+.sim-cockpit-header .energy-3d-title-group {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+    flex-wrap: wrap;
+}
+
+/* Prominent Savings Badge (E.ON / Grünwelt Benchmark) */
+.sim-savings-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    padding: 0.42rem 1rem;
+    background: linear-gradient(135deg, rgba(255, 122, 0, 0.18) 0%, rgba(234, 88, 12, 0.08) 100%);
+    border: 1.5px solid rgba(255, 122, 0, 0.55);
+    border-radius: 9999px;
+    box-shadow: 0 0 20px rgba(255, 122, 0, 0.22);
+    transition: all 0.3s ease;
+}
+
+.sim-savings-badge:hover {
+    border-color: #FF7A00;
+    box-shadow: 0 0 28px rgba(255, 122, 0, 0.42);
+    transform: translateY(-1px);
+}
+
+.sim-savings-coin-icon {
+    font-size: 1.1rem;
+    line-height: 1;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.35));
+}
+
+.sim-savings-label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #E2E8F0;
+    letter-spacing: 0.01em;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+}
+
+#sim-savings-display {
+    font-family: var(--font-display, 'Sora', sans-serif);
+    font-size: 1.12rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, #FF9E40 0%, #FF7A00 50%, #EA580C 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    letter-spacing: -0.01em;
+}
+
+/* Direct Comparison Tag */
+.sim-compare-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.38rem 0.85rem;
+    background: rgba(15, 23, 42, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 9999px;
+    font-size: 0.8rem;
+    color: #94A3B8;
+    font-weight: 500;
+    letter-spacing: 0.01em;
+}
+
+.sim-compare-tag strong {
+    color: #00E676;
+    font-weight: 700;
+    background: linear-gradient(135deg, #00E676 0%, #38BDF8 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-size: 0.88rem;
+}
+
+/* Customer Trust Tags */
+.sim-trust-tags-group {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+}
+
+.sim-trust-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: 0.775rem;
+    font-weight: 600;
+    color: #94A3B8;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.09);
+    border-radius: 9999px;
+    padding: 0.3rem 0.65rem;
+    transition: all 0.2s ease;
+}
+
+.sim-trust-tag svg {
+    color: #00E676;
+    flex-shrink: 0;
+}
+
+.sim-trust-tag:hover {
+    color: #F8FAFC;
+    border-color: rgba(0, 230, 118, 0.4);
+    background: rgba(0, 230, 118, 0.08);
+}
+
+/* Header Action CTA */
+.sim-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+}
+
+.sim-cta-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.52rem 1.15rem;
+    background: linear-gradient(135deg, #FF7A00 0%, #EA580C 100%);
+    color: #FFFFFF !important;
+    font-family: var(--font-display, 'Sora', sans-serif);
+    font-size: 0.825rem;
+    font-weight: 700;
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    text-decoration: none;
+    box-shadow: 0 4px 18px rgba(255, 122, 0, 0.42);
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    white-space: nowrap;
+}
+
+.sim-cta-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 26px rgba(255, 122, 0, 0.65);
+    background: linear-gradient(135deg, #FF8E26 0%, #FF6000 100%);
+}
+
+.sim-cta-button:active {
+    transform: translateY(0);
+}
+
+/* 3D Canvas Stage */
 .versorger-3d-viewport {
     position: relative;
     width: 100%;
@@ -6166,6 +6322,129 @@ html.swal2-height-auto {
     display: block;
 }
 
+/* Floating HUD Cockpit Toolbar */
+.sim-hud-cockpit {
+    position: absolute;
+    bottom: 1.25rem;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    background: rgba(11, 21, 54, 0.92);
+    border: 1px solid rgba(0, 230, 118, 0.32);
+    border-radius: 16px;
+    padding: 0.55rem 0.85rem;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    box-shadow: 0 20px 45px rgba(0, 0, 0, 0.75), 0 0 30px rgba(0, 230, 118, 0.16), 0 0 15px rgba(255, 122, 0, 0.1);
+    max-width: calc(100% - 2rem);
+    pointer-events: auto;
+}
+
+/* Focus Hotspots Buttons */
+.hud-focus-selector {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    border-left: 1px solid rgba(255, 255, 255, 0.1);
+    padding-left: 0.5rem;
+}
+
+.hud-focus-selector .hud-tab {
+    padding: 0.42rem 0.7rem;
+    font-size: 0.78rem;
+}
+
+/* Quick Consumption Selector Buttons */
+.hud-consumption-selector {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    border-left: 1px solid rgba(255, 255, 255, 0.1);
+    padding-left: 0.5rem;
+}
+
+.hud-kwh-label {
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #64748B;
+    margin-right: 0.15rem;
+    white-space: nowrap;
+}
+
+.hud-kwh-btn {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: #CBD5E1;
+    padding: 0.42rem 0.65rem;
+    border-radius: 7px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    white-space: nowrap;
+    font-family: inherit;
+    min-height: 36px;
+    display: inline-flex;
+    align-items: center;
+}
+
+.hud-kwh-btn:hover {
+    background: rgba(255, 122, 0, 0.15);
+    border-color: rgba(255, 122, 0, 0.55);
+    color: #FFFFFF;
+    transform: translateY(-1px);
+}
+
+.hud-kwh-btn.active {
+    background: linear-gradient(135deg, #FF7A00 0%, #EA580C 100%);
+    border-color: #FF7A00;
+    color: #FFFFFF;
+    font-weight: 700;
+    box-shadow: 0 0 14px rgba(255, 122, 0, 0.55);
+}
+
+.hud-cta-link {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.42rem 0.75rem;
+    background: linear-gradient(135deg, #FF7A00 0%, #EA580C 100%);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #FFFFFF !important;
+    border-radius: 7px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-decoration: none;
+    white-space: nowrap;
+    min-height: 36px;
+    transition: all 0.2s ease;
+}
+
+.hud-cta-link:hover {
+    box-shadow: 0 0 14px rgba(255, 122, 0, 0.6);
+}
+
+.hide-desktop-inline {
+    display: none !important;
+}
+
+/* Responsive Scaling */
+@media (max-width: 1200px) {
+    .sim-hud-cockpit {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+        max-width: calc(100% - 1.5rem);
+    }
+    .sim-hud-cockpit::-webkit-scrollbar {
+        display: none;
+    }
+}
+
 @media (max-width: 992px) {
     .versorger-3d-viewport {
         height: 420px;
@@ -6173,14 +6452,56 @@ html.swal2-height-auto {
     .versorger-flow-section {
         padding: 4rem 1.25rem;
     }
+    .hide-tablet {
+        display: none !important;
+    }
 }
 
 @media (max-width: 768px) {
     .versorger-3d-viewport {
-        height: 360px;
+        height: 380px;
     }
     .versorger-flow-section {
         padding: 3rem 1rem;
+    }
+    .sim-cockpit-header {
+        padding: 0.75rem 1rem;
+        gap: 0.65rem;
+    }
+    .sim-cockpit-header .energy-3d-title-group {
+        width: 100%;
+        gap: 0.5rem;
+    }
+    .sim-savings-badge {
+        padding: 0.35rem 0.75rem;
+        font-size: 0.78rem;
+    }
+    #sim-savings-display {
+        font-size: 0.95rem;
+    }
+    .sim-compare-tag {
+        font-size: 0.74rem;
+        padding: 0.3rem 0.65rem;
+    }
+    .sim-header-actions {
+        width: 100%;
+        justify-content: space-between;
+    }
+    .sim-hud-cockpit {
+        width: calc(100% - 1.25rem);
+        padding: 0.45rem 0.6rem;
+        bottom: 0.75rem;
+        border-radius: 12px;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+        justify-content: flex-start;
+    }
+    .sim-hud-cockpit::-webkit-scrollbar {
+        display: none;
+    }
+    .hide-desktop-inline {
+        display: inline-flex !important;
     }
 }
 

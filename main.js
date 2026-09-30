@@ -921,6 +921,23 @@ document.addEventListener("DOMContentLoaded", async () => {
                     }
                 }
             }
+
+            // Quick consumption buttons in the 3D Sparsimulator HUD
+            const kwhBtn = e.target.closest('[data-sim-kwh]');
+            if (kwhBtn) {
+                e.preventDefault();
+                const kwhVal = parseInt(kwhBtn.getAttribute('data-sim-kwh'), 10);
+                if (kwhVal) {
+                    if (calcKwh) {
+                        calcKwh.value = kwhVal;
+                    }
+                    householdBtns.forEach(b => {
+                        b.classList.toggle('active', parseInt(b.getAttribute('data-kwh'), 10) === kwhVal);
+                    });
+                    recalculateTariffs();
+                    sync3DSceneConsumption(kwhVal);
+                }
+            }
         });
 
         // Initialize 3D scene when ready
@@ -934,6 +951,35 @@ document.addEventListener("DOMContentLoaded", async () => {
         window.addEventListener('alphathree:scene-created', (e) => {
             if (e.detail && (e.detail.name === 'versorger-flow' || (e.detail.container && e.detail.container.id && e.detail.container.id.includes('versorger')))) {
                 handleSceneReady();
+            }
+        });
+        window.addEventListener('alphathree:savings-update', (e) => {
+            if (e.detail && e.detail.savingsYear !== undefined) {
+                // 1. Calculator card savings banner
+                const savingsEl = document.getElementById('calcSavingsValue');
+                if (savingsEl && e.detail.savingsYear > 0) {
+                    savingsEl.textContent = `Bis zu ${e.detail.savingsYear.toLocaleString('de-DE')} € / Jahr!`;
+                }
+
+                // 2. 3D Simulator prominent savings display badge
+                const simSavingsEl = document.getElementById('sim-savings-display');
+                if (simSavingsEl) {
+                    simSavingsEl.textContent = `bis zu ${e.detail.savingsYear.toLocaleString('de-DE')} € / Jahr`;
+                }
+
+                // 3. 3D Simulator direct comparison tag
+                const simCompareTag = document.getElementById('sim-compare-tag') || document.querySelector('.sim-compare-tag');
+                if (simCompareTag && e.detail.annualBaseCost && e.detail.annualAlphaCost) {
+                    simCompareTag.innerHTML = `Grundversorger: ${e.detail.annualBaseCost.toLocaleString('de-DE')} € &rarr; Alpha Energie: <strong>${e.detail.annualAlphaCost.toLocaleString('de-DE')} €</strong>`;
+                }
+
+                // 4. Synchronize active state of quick consumption selector buttons
+                const currentKwh = e.detail.kwh;
+                const quickKwhBtns = document.querySelectorAll('[data-sim-kwh]');
+                quickKwhBtns.forEach(btn => {
+                    const btnKwh = parseInt(btn.getAttribute('data-sim-kwh'), 10);
+                    btn.classList.toggle('active', btnKwh === currentKwh);
+                });
             }
         });
         setTimeout(handleSceneReady, 250);
