@@ -32,6 +32,7 @@
     <!-- CSS & JS -->
     <link rel="stylesheet" href="style.css">
     <script src="main.js" defer></script>
+    <script src="/js/three/three-loader.js" defer></script>
 </head>
 <body>
     <!-- Topbar -->
@@ -318,6 +319,85 @@
                         </form>
                         <div id="pvLeadSuccess" style="display: none; background: #ecfdf5; border: 1px solid #10b981; color: #065f46; padding: 1rem; border-radius: 8px; margin-top: 1rem; text-align: center; font-weight: 600;">
                             Vielen Dank! Ihre Solar-Anfrage wurde erfolgreich erfasst. Wir melden uns innerhalb von 24 Stunden mit Ihrer individuellen Dachanalyse.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 3D Solar Grid Showcase -->
+        <section class="energy-network-section" style="padding: 4.5rem 1.5rem;" aria-label="3D Solarstromnetzwerk">
+            <div class="container">
+                <div class="energy-section-header">
+                    <span class="energy-3d-badge">
+                        <span class="pulse-dot"></span>
+                        Interaktive 3D-Simulation
+                    </span>
+                    <h2 class="energy-section-title">Solarenergie im 3D-Netzwerkfluss</h2>
+                    <p class="energy-section-subtitle">
+                        Beobachten Sie, wie Sonnenenergie in Echtzeit vom Dach in den Batteriespeicher und weiter zu Gewerbebetrieben oder ins Netz transferiert wird.
+                    </p>
+                </div>
+
+                <div class="energy-3d-card solar-theme">
+                    <div class="energy-3d-header">
+                        <div class="energy-3d-title-group">
+                            <div class="energy-live-indicator">
+                                <span class="pulse-dot"></span>
+                                <span>SOLAR FLOW: AKTIV</span>
+                            </div>
+                            <span class="energy-telemetry-item hide-mobile">
+                                <span>☀️</span>
+                                <span>PV-Erzeugung:</span>
+                                <strong class="text-green">Direktverbrauch</strong>
+                            </span>
+                            <span class="energy-telemetry-item hide-mobile">
+                                <span>🔋</span>
+                                <span>Batteriespeicher:</span>
+                                <strong>LFP-Pufferung</strong>
+                            </span>
+                            <span class="energy-telemetry-item hide-mobile">
+                                <span>📉</span>
+                                <span>Netzbezug:</span>
+                                <strong class="text-green">Bis zu -80%</strong>
+                            </span>
+                        </div>
+                        <div class="energy-interaction-hint">
+                            <span>🖱️ Ziehen zum Rotieren &bull; Klick für Energieimpuls</span>
+                        </div>
+                    </div>
+
+                    <div id="pv-solar-network-canvas"
+                         class="energy-3d-viewport"
+                         data-three-scene="energy-network"
+                         data-three-mode="solar"
+                         data-three-speed="1.2"
+                         data-three-interactive="true"
+                         aria-label="3D-Visualisierung Solarstromfluss und Speicherung">
+                         
+                        <div class="energy-3d-hud" role="toolbar" aria-label="Solarfluss-Steuerung">
+                            <div class="hud-mode-selector" role="group" aria-label="Modus wählen">
+                                <button type="button" class="hud-tab active" data-mode="solar" aria-pressed="true">
+                                    <span class="hud-icon">☀️</span>
+                                    <span>Solar-Fokus</span>
+                                </button>
+                                <button type="button" class="hud-tab" data-mode="grid" aria-pressed="false">
+                                    <span class="hud-icon">🔋</span>
+                                    <span>Speicher &amp; Puffer</span>
+                                </button>
+                                <button type="button" class="hud-tab" data-mode="balanced" aria-pressed="false">
+                                    <span class="hud-icon">🌐</span>
+                                    <span>Gesamtsystem</span>
+                                </button>
+                            </div>
+                            <div class="hud-actions">
+                                <button type="button" class="hud-action-btn" data-action="burst" title="Sonnenenergie-Impuls senden" aria-label="Solarimpuls auslösen">
+                                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                        <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+                                    </svg>
+                                    <span>Solarimpuls</span>
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>

@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alpha Energie 3D WebGL Engine | Showcase &amp; Architecture</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+
+    <style>
+        :root {
+            --alpha-3d-bg: #0B132B;
+            --alpha-3d-card: #0F172A;
+            --alpha-3d-neon: #00E676;
+            --alpha-3d-cyan: #00D2FF;
+            --alpha-3d-emerald: #10B981;
+            --alpha-3d-border: rgba(0, 230, 118, 0.2);
+        }
+
+        body {
+            background-color: var(--alpha-3d-bg);
+            color: #F8FAFC;
+            font-family: 'Manrope', sans-serif;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+        }
+
+        h1, h2, h3, h4 {
+            font-family: 'Sora', sans-serif;
+        }
+
+        .showcase-header {
+            background: linear-gradient(180deg, rgba(15, 23, 42, 0.95) 0%, rgba(11, 19, 43, 0.8) 100%);
+            border-bottom: 1px solid var(--alpha-3d-border);
+            padding: 1.25rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(12px);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .brand-badge {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-weight: 800;
+            font-size: 1.25rem;
+            color: #FFFFFF;
+        }
+
+        .brand-pill {
+            background: rgba(0, 230, 118, 0.15);
+            border: 1px solid var(--alpha-3d-neon);
+            color: var(--alpha-3d-neon);
+            font-size: 0.7rem;
+            padding: 0.2rem 0.6rem;
+            border-radius: 9999px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .hero-3d-container {
+            position: relative;
+            width: 100%;
+            height: 600px;
+            background: radial-gradient(circle at 50% 50%, rgba(0, 210, 255, 0.07) 0%, rgba(11, 19, 43, 1) 75%);
+            overflow: hidden;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .hero-overlay-content {
+            position: absolute;
+            top: 50%;
+            left: 5%;
+            transform: translateY(-50%);
+            z-index: 10;
+            max-width: 540px;
+            pointer-events: none;
+        }
+
+        .hero-overlay-content * {
+            pointer-events: auto;
+        }
+
+        .hero-title {
+            font-size: 3rem;
+            line-height: 1.15;
+            margin-bottom: 1rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #FFFFFF 0%, #E2E8F0 50%, #00E676 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero-desc {
+            font-size: 1.1rem;
+            color: #94A3B8;
+            line-height: 1.6;
+            margin-bottom: 1.75rem;
+        }
+
+        .hud-panel {
+            background: rgba(15, 23, 42, 0.85);
+            border: 1px solid var(--alpha-3d-border);
+            border-radius: 0.75rem;
+            padding: 1rem 1.25rem;
+            backdrop-filter: blur(16px);
+            display: inline-flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .hud-row {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .hud-btn {
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: #FFFFFF;
+            padding: 0.45rem 0.9rem;
+            border-radius: 0.4rem;
+            font-size: 0.825rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: inherit;
+        }
+
+        .hud-btn:hover {
+            background: rgba(0, 230, 118, 0.2);
+            border-color: var(--alpha-3d-neon);
+            color: var(--alpha-3d-neon);
+            transform: translateY(-1px);
+        }
+
+        .hud-btn.active {
+            background: var(--alpha-3d-neon);
+            border-color: var(--alpha-3d-neon);
+            color: #0B132B;
+            font-weight: 700;
+        }
+
+        .grid-section {
+            padding: 4rem 2rem;
+            max-width: 1280px;
+            margin: 0 auto;
+        }
+
+        .section-header {
+            margin-bottom: 2.5rem;
+            text-align: center;
+        }
+
+        .section-header h2 {
+            font-size: 2.25rem;
+            margin-bottom: 0.5rem;
+            color: #FFFFFF;
+        }
+
+        .section-header p {
+            color: #94A3B8;
+            font-size: 1.05rem;
+            max-width: 650px;
+            margin: 0 auto;
+        }
+
+        .scene-card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(480px, 1fr));
+            gap: 2rem;
+        }
+
+        .scene-card {
+            background: var(--alpha-3d-card);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 1rem;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+            transition: border-color 0.3s ease;
+        }
+
+        .scene-card:hover {
+            border-color: var(--alpha-3d-border);
+        }
+
+        .scene-card-canvas-wrap {
+            position: relative;
+            width: 100%;
+            height: 380px;
+            background: radial-gradient(circle at center, rgba(16, 185, 129, 0.05) 0%, rgba(11, 19, 43, 0.98) 75%);
+        }
+
+        .scene-card-body {
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .tag-pill {
+            font-size: 0.75rem;
+            padding: 0.2rem 0.5rem;
+            border-radius: 0.25rem;
+            font-weight: 700;
+            display: inline-block;
+        }
+
+        .tag-neon { background: rgba(0, 230, 118, 0.15); color: #00E676; }
+        .tag-cyan { background: rgba(0, 210, 255, 0.15); color: #00D2FF; }
+
+        .slider-group {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 0.85rem;
+            color: #94A3B8;
+        }
+
+        .slider-group input[type="range"] {
+            accent-color: var(--alpha-3d-neon);
+            flex: 1;
+        }
+
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            font-size: 0.8rem;
+            color: #00E676;
+            margin-top: 0.5rem;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #00E676;
+            animation: pulse-dot 1.8s infinite;
+        }
+
+        @keyframes pulse-dot {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.4; transform: scale(0.85); }
+        }
+
+        @media (max-width: 768px) {
+            .scene-card-grid {
+                grid-template-columns: 1fr;
+            }
+            .hero-title {
+                font-size: 2.1rem;
+            }
+            .hero-3d-container {
+                height: 520px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header Navigation -->
+    <header class="showcase-header">
+        <div class="brand-badge">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#00E676" stroke-width="2.2">
+                <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+            </svg>
+            <span>ALPHA ENERGIE</span>
+            <span class="brand-pill">Three.js Engine</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 1rem;">
+            <a href="index.html" class="hud-btn" style="text-decoration: none;">&larr; Zurück zur Hauptseite</a>
+        </div>
+    </header>
+
+    <!-- Master Hero 3D Section with Energy Network -->
+    <section class="hero-3d-container" id="hero-section">
+        <!-- Declarative 3D Scene Container -->
+        <div id="hero-network-canvas"
+             data-three-scene="energy-network"
+             data-three-mode="balanced"
+             data-three-speed="1.0"
+             data-three-interactive="true"
+             style="width: 100%; height: 100%;">
+        </div>
+
+        <div class="hero-overlay-content">
+            <span class="tag-pill tag-neon" style="margin-bottom: 0.75rem;">Next-Gen Energy Architecture</span>
+            <h1 class="hero-title">Intelligente 3D-Energienetze</h1>
+            <p class="hero-desc">
+                Echtzeit-Visualisierung von Photovoltaik, Windkraft, intelligenten Batteriespeichern und B2B-Netzknotenpunkten.
+            </p>
+
+            <div class="hud-panel">
+                <div style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: #94A3B8; font-weight: 700;">
+                    Netzwerk-Steuerung (Live API)
+                </div>
+                <div class="hud-row" id="network-modes">
+                    <button class="hud-btn active" data-mode="balanced">Balanced</button>
+                    <button class="hud-btn" data-mode="solar">Solar Fokus</button>
+                    <button class="hud-btn" data-mode="wind">Wind Park</button>
+                    <button class="hud-btn" data-mode="grid">Grid Storage</button>
+                </div>
+                <div class="hud-row">
+                    <button class="hud-btn" id="btn-burst" style="background: rgba(0, 230, 118, 0.15); border-color: var(--alpha-3d-neon); color: var(--alpha-3d-neon);">
+                        &Lightning; Energie-Stoßwelle auslösen
+                    </button>
+                </div>
+                <div class="slider-group">
+                    <span>Geschwindigkeit:</span>
+                    <input type="range" id="speed-slider" min="0.2" max="3.0" step="0.1" value="1.0">
+                    <span id="speed-val" style="min-width: 32px; font-weight: 700; color: #FFFFFF;">1.0x</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Side-by-Side Visualizations & Features -->
+    <main class="grid-section">
+        <div class="section-header">
+            <h2>Modulare 3D-Visualisierungen</h2>
+            <p>
+                Automatische Initialisierung via <code>data-three-scene</code>, IntersectionObserver GPU-Schonung,
+                und nahtlose Touch-/Maus-Interaktion.
+            </p>
+        </div>
+
+        <div class="scene-card-grid">
+            <!-- Scene 1: Energy Network Card -->
+            <div class="scene-card">
+                <div class="scene-card-canvas-wrap">
+                    <div id="card-network-canvas"
+                         data-three-scene="energy-network"
+                         data-three-mode="solar"
+                         data-three-speed="1.2"
+                         style="width: 100%; height: 100%;">
+                    </div>
+                </div>
+                <div class="scene-card-body">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <h3 style="margin: 0; font-size: 1.3rem;">3D Smart Energy Grid</h3>
+                        <span class="tag-pill tag-neon">Solar-Fokus</span>
+                    </div>
+                    <p style="margin: 0; color: #94A3B8; font-size: 0.9rem; line-height: 1.5;">
+                        Fluide Photonenbahnen zwischen Erzeugern und Speichern mit automatischem Render-Stopp beim Verlassen des sichtbaren Bereichs.
+                    </p>
+                    <div class="status-indicator">
+                        <span class="status-dot"></span>
+                        <span>IntersectionObserver aktiv (0% GPU bei Scroll out)</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Scene 2: Energy Globe Card -->
+            <div class="scene-card">
+                <div class="scene-card-canvas-wrap">
+                    <div id="card-globe-canvas"
+                         data-three-scene="energy-globe"
+                         data-three-speed="1.0"
+                         style="width: 100%; height: 100%;">
+                    </div>
+                </div>
+                <div class="scene-card-body">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <h3 style="margin: 0; font-size: 1.3rem;">3D Eco-Globe &amp; Radar Grid</h3>
+                        <span class="tag-pill tag-cyan">Interaktiver Globus</span>
+                    </div>
+                    <p style="margin: 0; color: #94A3B8; font-size: 0.9rem; line-height: 1.5;">
+                        Drahtgitter-Globus mit Energie-Lichtstelen für zentrale Erzeugerstandorte, Ring-Orbiten und flüssiger Touch-Drehung mit Trägheit.
+                    </p>
+                    <div class="hud-row" style="margin-top: 0.5rem;">
+                        <button class="hud-btn" id="btn-globe-pulse">&Lightning; Hubs pulsieren</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 3: Architecture & Teardown Verification -->
+        <div style="margin-top: 4rem; background: var(--alpha-3d-card); border: 1px solid rgba(255,255,255,0.08); border-radius: 1rem; padding: 2rem;">
+            <h3 style="margin-top: 0; font-size: 1.4rem;">Architektur- &amp; Lebenszyklus-Tests</h3>
+            <p style="color: #94A3B8; font-size: 0.95rem; line-height: 1.6;">
+                Verifizieren Sie die saubere Speicherfreigabe (GPU Geometrie/Texturen/Materialien Dispose), dynamische Erstellung und Fallback-Darstellung bei fehlendem WebGL.
+            </p>
+            <div class="hud-row" style="gap: 1rem; margin-top: 1rem;">
+                <button class="hud-btn" id="btn-destroy-hero">Hero-Szene zerstören (Dispose)</button>
+                <button class="hud-btn" id="btn-recreate-hero">Hero-Szene neu initialisieren</button>
+                <button class="hud-btn" id="btn-pause-all">Alle pausieren</button>
+                <button class="hud-btn" id="btn-resume-all">Alle fortsetzen</button>
+            </div>
+            <div id="lifecycle-status" style="margin-top: 1rem; font-family: monospace; font-size: 0.85rem; color: #00D2FF;">
+                Status: Alle Systeme aktiv und synchronisiert.
+            </div>
+        </div>
+    </main>
+
+    <!-- Load Three.js Architecture Scripts -->
+    <script src="public/js/three/vendor/three.min.js"></script>
+    <script src="public/js/three/three-manager.js"></script>
+    <script src="public/js/three/scenes/energy-network.js"></script>
+    <script src="public/js/three/scenes/energy-globe.js"></script>
+    <script src="public/js/three/three-loader.js"></script>
+
+    <!-- Interactive Showcase Controller -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const statusEl = document.getElementById('lifecycle-status');
+
+            // 1. Network Modes Controller
+            const modeBtns = document.querySelectorAll('#network-modes .hud-btn');
+            modeBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    modeBtns.forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+
+                    const mode = btn.getAttribute('data-mode');
+                    const scene = window.AlphaThree.getScene('#hero-network-canvas');
+                    if (scene && typeof scene.setMode === 'function') {
+                        scene.setMode(mode);
+                        if (statusEl) statusEl.textContent = `Hero Modus geändert zu: ${mode.toUpperCase()}`;
+                    }
+                });
+            });
+
+            // 2. Pulse Burst
+            const burstBtn = document.getElementById('btn-burst');
+            if (burstBtn) {
+                burstBtn.addEventListener('click', () => {
+                    const scene = window.AlphaThree.getScene('#hero-network-canvas');
+                    if (scene && typeof scene.pulseBurst === 'function') {
+                        scene.pulseBurst();
+                        if (statusEl) statusEl.textContent = 'Energie-Stoßwelle durch das Netzwerk propagiert!';
+                    }
+                });
+            }
+
+            // 3. Speed Slider
+            const speedSlider = document.getElementById('speed-slider');
+            const speedVal = document.getElementById('speed-val');
+            if (speedSlider) {
+                speedSlider.addEventListener('input', (e) => {
+                    const val = parseFloat(e.target.value);
+                    if (speedVal) speedVal.textContent = `${val.toFixed(1)}x`;
+
+                    const scene = window.AlphaThree.getScene('#hero-network-canvas');
+                    if (scene && typeof scene.setSpeed === 'function') {
+                        scene.setSpeed(val);
+                    }
+                });
+            }
+
+            // 4. Globe Pulse
+            const globePulseBtn = document.getElementById('btn-globe-pulse');
+            if (globePulseBtn) {
+                globePulseBtn.addEventListener('click', () => {
+                    const globeScene = window.AlphaThree.getScene('#card-globe-canvas');
+                    if (globeScene && typeof globeScene.pulse === 'function') {
+                        globeScene.pulse();
+                        if (statusEl) statusEl.textContent = 'Globus-Beacons synchron gepulst.';
+                    }
+                });
+            }
+
+            // 5. Lifecycle Teardown & Re-init
+            const destroyHeroBtn = document.getElementById('btn-destroy-hero');
+            if (destroyHeroBtn) {
+                destroyHeroBtn.addEventListener('click', () => {
+                    const success = window.AlphaThree.destroy('#hero-network-canvas');
+                    if (statusEl) statusEl.textContent = success ? 'Hero-Szene erfolgreich disposed (GPU-Speicher freigegeben).' : 'Keine aktive Hero-Szene gefunden.';
+                });
+            }
+
+            const recreateHeroBtn = document.getElementById('btn-recreate-hero');
+            if (recreateHeroBtn) {
+                recreateHeroBtn.addEventListener('click', async () => {
+                    await window.AlphaThree.init('#hero-network-canvas', 'energy-network', {
+                        mode: 'balanced',
+                        speed: 1.0,
+                        interactive: true
+                    });
+                    if (statusEl) statusEl.textContent = 'Hero-Szene neu initialisiert.';
+                });
+            }
+
+            // 6. Pause / Resume All
+            const pauseAllBtn = document.getElementById('btn-pause-all');
+            if (pauseAllBtn) {
+                pauseAllBtn.addEventListener('click', () => {
+                    window.AlphaThree.pauseAll();
+                    if (statusEl) statusEl.textContent = 'Alle Render-Loops pausiert (0% GPU).';
+                });
+            }
+
+            const resumeAllBtn = document.getElementById('btn-resume-all');
+            if (resumeAllBtn) {
+                resumeAllBtn.addEventListener('click', () => {
+                    window.AlphaThree.resumeAll();
+                    if (statusEl) statusEl.textContent = 'Alle Render-Loops wieder aktiv.';
+                });
+            }
+        });
+    </script>
+</body>
+</html>

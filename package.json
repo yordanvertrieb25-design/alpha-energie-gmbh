@@ -24,6 +24,7 @@
     "playwright": "^1.61.1",
     "postleitzahlen": "^1.0.0",
     "prisma": "^5.22.0",
-    "serve": "^14.2.0"
+    "serve": "^14.2.0",
+    "three": "^0.186.1"
   }
 }

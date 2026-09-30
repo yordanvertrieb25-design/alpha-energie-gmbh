@@ -5638,3 +5638,454 @@ html.swal2-height-auto {
     }
 }
 
+/* ==========================================================================
+   ALPHA ENERGIE - 3D WEBGL ENGINE & INTERACTIVE HUD STYLES
+   ========================================================================== */
+
+:root {
+    --alpha-3d-bg: #060d1f;
+    --alpha-3d-card-bg: rgba(11, 19, 43, 0.85);
+    --alpha-3d-header-bg: rgba(15, 23, 42, 0.9);
+    --alpha-3d-neon: #00E676;
+    --alpha-3d-cyan: #00D2FF;
+    --alpha-3d-emerald: #10B981;
+    --alpha-3d-border: rgba(0, 230, 118, 0.22);
+    --alpha-3d-glow: rgba(0, 230, 118, 0.15);
+}
+
+.energy-network-section {
+    position: relative;
+    background: radial-gradient(circle at 50% 25%, #0d1e3d 0%, #060d1f 70%, #040814 100%);
+    color: #F8FAFC;
+    padding: var(--section-pad, 5rem 1.5rem);
+    overflow: hidden;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.energy-network-section::before {
+    content: '';
+    position: absolute;
+    top: -150px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 800px;
+    height: 400px;
+    background: radial-gradient(ellipse, rgba(0, 230, 118, 0.12) 0%, rgba(0, 210, 255, 0.05) 50%, transparent 70%);
+    pointer-events: none;
+    z-index: 1;
+}
+
+.energy-section-header {
+    text-align: center;
+    max-width: 850px;
+    margin: 0 auto 3rem auto;
+    position: relative;
+    z-index: 2;
+}
+
+.energy-3d-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    background: rgba(0, 230, 118, 0.12);
+    border: 1px solid rgba(0, 230, 118, 0.35);
+    color: #00E676;
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    padding: 0.35rem 0.85rem;
+    border-radius: 9999px;
+    margin-bottom: 1.25rem;
+    box-shadow: 0 0 15px rgba(0, 230, 118, 0.2);
+}
+
+.pulse-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #00E676;
+    box-shadow: 0 0 8px #00E676;
+    animation: energyDotPulse 2s infinite ease-in-out;
+    display: inline-block;
+}
+
+@keyframes energyDotPulse {
+    0%, 100% {
+        transform: scale(0.9);
+        opacity: 0.8;
+        box-shadow: 0 0 6px #00E676;
+    }
+    50% {
+        transform: scale(1.3);
+        opacity: 1;
+        box-shadow: 0 0 14px #00E676, 0 0 20px rgba(0, 230, 118, 0.5);
+    }
+}
+
+.energy-section-title {
+    font-family: var(--font-display, 'Sora', sans-serif);
+    font-size: clamp(2rem, 3.5vw, 2.85rem);
+    font-weight: 800;
+    line-height: 1.2;
+    margin-bottom: 1.2rem;
+    background: linear-gradient(135deg, #FFFFFF 20%, #E2E8F0 60%, #00E676 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    letter-spacing: -0.02em;
+}
+
+.energy-section-subtitle {
+    font-size: 1.1rem;
+    line-height: 1.65;
+    color: #94A3B8;
+    margin: 0 auto;
+}
+
+/* 3D Card Shell */
+.energy-3d-card {
+    position: relative;
+    z-index: 2;
+    max-width: 1200px;
+    margin: 0 auto;
+    background: var(--alpha-3d-card-bg);
+    border: 1px solid var(--alpha-3d-border);
+    border-radius: 20px;
+    overflow: hidden;
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.75), 0 0 35px var(--alpha-3d-glow);
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.energy-3d-card:hover {
+    border-color: rgba(0, 230, 118, 0.4);
+    box-shadow: 0 30px 70px -15px rgba(0, 0, 0, 0.85), 0 0 45px rgba(0, 230, 118, 0.25);
+}
+
+/* Header Telemetry Bar */
+.energy-3d-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.9rem 1.5rem;
+    background: var(--alpha-3d-header-bg);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    flex-wrap: wrap;
+    gap: 0.85rem;
+}
+
+.energy-3d-title-group {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    flex-wrap: wrap;
+}
+
+.energy-live-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    color: #00E676;
+    background: rgba(0, 230, 118, 0.1);
+    border: 1px solid rgba(0, 230, 118, 0.3);
+    padding: 0.3rem 0.75rem;
+    border-radius: 9999px;
+}
+
+.energy-telemetry-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.825rem;
+    color: #94A3B8;
+}
+
+.energy-telemetry-item strong {
+    color: #F8FAFC;
+    font-weight: 600;
+}
+
+.energy-telemetry-item .text-green {
+    color: #00E676;
+}
+
+.energy-interaction-hint {
+    font-size: 0.8rem;
+    color: #64748B;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+/* 3D Canvas Stage */
+.energy-3d-viewport {
+    position: relative;
+    width: 100%;
+    height: 520px;
+    background: radial-gradient(circle at 50% 50%, rgba(0, 210, 255, 0.06) 0%, rgba(6, 13, 31, 0.98) 85%);
+    overflow: hidden;
+    cursor: grab;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: none;
+}
+
+.energy-3d-viewport:active {
+    cursor: grabbing;
+}
+
+.energy-3d-viewport canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100% !important;
+    height: 100% !important;
+    display: block;
+}
+
+/* Floating Glassmorphic HUD Overlay */
+.energy-3d-hud {
+    position: absolute;
+    bottom: 1.5rem;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    background: rgba(11, 19, 43, 0.88);
+    border: 1px solid rgba(0, 230, 118, 0.28);
+    border-radius: 14px;
+    padding: 0.55rem 0.8rem;
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6), 0 0 25px rgba(0, 230, 118, 0.15);
+    max-width: calc(100% - 2rem);
+    pointer-events: auto;
+}
+
+.hud-mode-selector {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+}
+
+.hud-tab {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: #CBD5E1;
+    padding: 0.48rem 0.85rem;
+    border-radius: 8px;
+    font-size: 0.825rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-family: inherit;
+    white-space: nowrap;
+    min-height: 38px;
+}
+
+.hud-tab:hover {
+    background: rgba(0, 230, 118, 0.15);
+    border-color: rgba(0, 230, 118, 0.6);
+    color: #FFFFFF;
+    transform: translateY(-1px);
+}
+
+.hud-tab.active {
+    background: #00E676;
+    border-color: #00E676;
+    color: #060D1F;
+    font-weight: 700;
+    box-shadow: 0 0 16px rgba(0, 230, 118, 0.45);
+}
+
+.hud-tab.active .hud-icon {
+    filter: drop-shadow(0 0 4px rgba(0,0,0,0.4));
+}
+
+.hud-actions {
+    display: flex;
+    align-items: center;
+    margin-left: 0.25rem;
+    padding-left: 0.65rem;
+    border-left: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.hud-action-btn {
+    background: linear-gradient(135deg, rgba(255, 122, 0, 0.25) 0%, rgba(234, 88, 12, 0.4) 100%);
+    border: 1px solid rgba(255, 122, 0, 0.55);
+    color: #FFFFFF;
+    padding: 0.48rem 0.95rem;
+    border-radius: 8px;
+    font-size: 0.825rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    font-family: inherit;
+    white-space: nowrap;
+    min-height: 38px;
+}
+
+.hud-action-btn:hover {
+    background: linear-gradient(135deg, #FF7A00 0%, #EA580C 100%);
+    border-color: #FF7A00;
+    color: #FFFFFF;
+    transform: translateY(-1px);
+    box-shadow: 0 0 16px rgba(255, 122, 0, 0.6);
+}
+
+.hud-action-btn:active {
+    transform: translateY(1px);
+}
+
+/* Bottom Feature Footer */
+.energy-3d-footer {
+    background: var(--alpha-3d-header-bg);
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 1.5rem 2rem;
+}
+
+.energy-footer-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+}
+
+.energy-footer-stat {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+}
+
+.stat-highlight {
+    font-family: var(--font-display, 'Sora', sans-serif);
+    font-size: 1rem;
+    font-weight: 700;
+    color: #F8FAFC;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.stat-highlight::before {
+    content: '';
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #00E676;
+}
+
+.stat-detail {
+    font-size: 0.88rem;
+    line-height: 1.55;
+    color: #94A3B8;
+}
+
+/* Solar Theme Variant for photovoltaik.html */
+.energy-3d-card.solar-theme {
+    border-color: rgba(255, 122, 0, 0.35);
+    box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.75), 0 0 35px rgba(255, 122, 0, 0.15);
+}
+
+.energy-3d-card.solar-theme .energy-live-indicator {
+    color: #FF7A00;
+    background: rgba(255, 122, 0, 0.12);
+    border-color: rgba(255, 122, 0, 0.4);
+}
+
+.energy-3d-card.solar-theme .pulse-dot {
+    background: #FF7A00;
+    box-shadow: 0 0 8px #FF7A00;
+}
+
+/* Responsive Media Queries */
+@media (max-width: 992px) {
+    .energy-3d-viewport {
+        height: 440px;
+    }
+    .energy-footer-stats {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .energy-network-section {
+        padding: 3.5rem 1rem;
+    }
+
+    .energy-3d-viewport {
+        height: 380px;
+    }
+
+    .energy-3d-header {
+        padding: 0.75rem 1rem;
+    }
+
+    .hide-mobile {
+        display: none !important;
+    }
+
+    .energy-3d-hud {
+        width: calc(100% - 1.25rem);
+        bottom: 0.75rem;
+        flex-direction: column;
+        gap: 0.45rem;
+        padding: 0.5rem;
+        border-radius: 12px;
+    }
+
+    .hud-mode-selector {
+        width: 100%;
+        overflow-x: auto;
+        justify-content: flex-start;
+        -webkit-overflow-scrolling: touch;
+        padding-bottom: 2px;
+        scrollbar-width: none;
+    }
+
+    .hud-mode-selector::-webkit-scrollbar {
+        display: none;
+    }
+
+    .hud-tab {
+        font-size: 0.75rem;
+        padding: 0.4rem 0.65rem;
+        min-height: 40px;
+        flex-shrink: 0;
+    }
+
+    .hud-actions {
+        width: 100%;
+        margin-left: 0;
+        padding-left: 0;
+        border-left: none;
+        border-top: 1px solid rgba(255, 255, 255, 0.08);
+        padding-top: 0.45rem;
+    }
+
+    .hud-action-btn {
+        width: 100%;
+        justify-content: center;
+        min-height: 40px;
+        font-size: 0.78rem;
+    }
+
+    .energy-3d-footer {
+        padding: 1.25rem 1rem;
+    }
+}
+
