@@ -734,21 +734,21 @@ document.addEventListener("DOMContentLoaded", async () => {
                 name: 'ALPHA BASIC',
                 workingPriceCt: 27.85,
                 basePriceEur: 11.90,
-                bonus: 100,
+                bonus: 0,
                 guaranteeMonths: 12
             },
             'alpha-time': {
                 name: 'ALPHA TIME',
                 workingPriceCt: 24.50,
                 basePriceEur: 12.00,
-                bonus: 150,
+                bonus: 0,
                 guaranteeMonths: 12
             },
             'alpha-premium': {
                 name: 'ALPHA PREMIUM',
                 workingPriceCt: 28.20,
                 basePriceEur: 12.90,
-                bonus: 180,
+                bonus: 0,
                 guaranteeMonths: 24
             }
         };
@@ -765,7 +765,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                 const annualWorkingCost = kwh * (spec.workingPriceCt / 100);
                 const annualBaseCost = spec.basePriceEur * 12;
                 const rawYearly = annualWorkingCost + annualBaseCost;
-                const netFirstYear = Math.max(0, rawYearly - spec.bonus);
+                const netFirstYear = rawYearly;
                 const monthlyPayment = Math.round(netFirstYear / 12);
                 const savings = Math.max(0, Math.round(currentYearly - netFirstYear));
 
@@ -814,9 +814,9 @@ document.addEventListener("DOMContentLoaded", async () => {
 
             if (calcSavingsValue) {
                 if (window.i18n && typeof window.i18n.formatMaxSavings === 'function') {
-                    calcSavingsValue.textContent = window.i18n.formatMaxSavings(maxSavings || 320);
+                    calcSavingsValue.textContent = window.i18n.formatMaxSavings(maxSavings || 380);
                 } else {
-                    calcSavingsValue.textContent = `Bis zu ${maxSavings || 320} € / Jahr!`;
+                    calcSavingsValue.textContent = `Bis zu ${maxSavings || 380} € / Jahr!`;
                 }
             }
         }
@@ -977,8 +977,8 @@ document.addEventListener("DOMContentLoaded", async () => {
             if (!orderModal) return;
             const spec = tariffSpecs[tariffId] || tariffSpecs['alpha-basic'];
             const kwh = btnElement ? btnElement.getAttribute('data-kwh') : (calcKwh ? calcKwh.value : '2500');
-            const monthly = btnElement ? btnElement.getAttribute('data-monthly') : '68';
-            const savings = btnElement ? btnElement.getAttribute('data-savings') : '320';
+            const monthly = btnElement ? btnElement.getAttribute('data-monthly') : '70';
+            const savings = btnElement ? btnElement.getAttribute('data-savings') : '300';
             const plz = calcPlz ? calcPlz.value : '44379';
 
             selectedOrderData = {
@@ -1482,16 +1482,21 @@ document.addEventListener("DOMContentLoaded", async () => {
     };
 
     // 1. Resolve active token dynamically
-    let activeToken = 'alpha-energie-live';
+    const DEFAULT_TOKEN = '1994e155-ce1c-47a7-83c8-21660f0857a7';
+    let activeToken = DEFAULT_TOKEN;
     try {
         const urlParams = new URLSearchParams(window.location.search);
         const urlToken = urlParams.get('firstcon_token') || urlParams.get('token');
-        if (urlToken) {
+        if (urlToken && urlToken.trim() !== '' && urlToken !== 'alpha-energie-live' && urlToken !== 'TOKEN') {
             localStorage.setItem('firstcon_token', urlToken.trim());
             activeToken = urlToken.trim();
         } else {
             const stored = localStorage.getItem('firstcon_token');
-            if (stored) activeToken = stored.trim();
+            if (stored && stored.trim() !== '' && stored !== 'alpha-energie-live' && stored !== 'TOKEN') {
+                activeToken = stored.trim();
+            } else {
+                activeToken = DEFAULT_TOKEN;
+            }
         }
     } catch (e) {
         console.warn('Firstcon token storage access warning:', e);

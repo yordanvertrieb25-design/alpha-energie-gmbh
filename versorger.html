@@ -35,6 +35,7 @@
     <script>
     (function() {
         try {
+            var DEFAULT_PRODUCTION_TOKEN = '1994e155-ce1c-47a7-83c8-21660f0857a7';
             var urlParams = new URLSearchParams(window.location.search);
             var tokenParam = urlParams.get('firstcon_token') || urlParams.get('token');
             if (tokenParam && tokenParam.trim() !== '' && tokenParam !== 'alpha-energie-live' && tokenParam !== 'TOKEN') {
@@ -44,10 +45,10 @@
             try { storedToken = localStorage.getItem('firstcon_token'); } catch(e){}
             var validToken = (tokenParam && tokenParam.trim() !== '' && tokenParam !== 'alpha-energie-live' && tokenParam !== 'TOKEN') 
                 ? tokenParam.trim() 
-                : (storedToken && storedToken !== 'alpha-energie-live' && storedToken !== 'TOKEN' ? storedToken.trim() : null);
+                : (storedToken && storedToken !== 'alpha-energie-live' && storedToken !== 'TOKEN' ? storedToken.trim() : DEFAULT_PRODUCTION_TOKEN);
 
-            window.__FIRSTCON_TOKEN__ = validToken || 'alpha-energie-live';
-            window.__FIRSTCON_ACTIVE__ = !!validToken;
+            window.__FIRSTCON_TOKEN__ = validToken;
+            window.__FIRSTCON_ACTIVE__ = true;
 
             // ONLY load Firstcon external scripts if explicitly enabled by production live flag!
             // This strictly isolates Firstcon scripts, eliminating external CSS overrides, 401 reload loops, and infinite spinners.
@@ -447,7 +448,7 @@
                         <div class="savings-banner-box">
                             <div>
                                 <div class="savings-label">Ihre errechnete Sparchance:</div>
-                                <div id="calcSavingsValue" class="savings-value">Bis zu 320 € / Jahr!</div>
+                                <div id="calcSavingsValue" class="savings-value">Bis zu 380 € / Jahr!</div>
                             </div>
                             <span style="display:flex;align-items:center;justify-content:center;width:40px;height:40px;border-radius:50%;background:rgba(255,122,0,0.15);color:#ff7a00;" aria-hidden="true">
                                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m23 6-9.5 9.5-5-5L1 18"></path><path d="M17 6h6v6"></path></svg>
@@ -574,7 +575,7 @@
 
         <!-- Headless Integration Token Container (Zero User-Facing Text) -->
         <div id="bestellstrasse_container" style="display:none;" aria-hidden="true">
-            <div id="bestellstrasse_widget" data-token="alpha-energie-live"></div>
+            <div id="bestellstrasse_widget" data-token="1994e155-ce1c-47a7-83c8-21660f0857a7"></div>
         </div>
 
         <!-- Trust & Bento Metrics Section with Animated Counters -->
@@ -670,10 +671,9 @@
                             <span class="tariff-badge">Flexibel &amp; Günstig</span>
                             <h3 class="tariff-title">ALPHA BASIC</h3>
                             <div class="tariff-card-price-box">
-                                <div class="tariff-price-monthly" id="price-alpha-basic">68 €<span> / Monat</span></div>
-                                <div class="tariff-bonus-pill">Inkl. 100 € Sofortbonus</div>
+                                <div class="tariff-price-monthly" id="price-alpha-basic">70 €<span> / Monat</span></div>
                                 <div class="tariff-price-details">
-                                    <span id="savings-alpha-basic">Bis zu 320 € / Jahr sparen</span>
+                                    <span id="savings-alpha-basic">Bis zu 300 € / Jahr sparen</span>
                                 </div>
                             </div>
                             <div class="tariff-feature-item" style="font-weight: 600; margin-bottom: 0.75rem;" id="kwh-desc-alpha-basic">
@@ -685,10 +685,6 @@
                             <div class="tariff-feature-item">
                                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
                                 <span>12 Monate volle Preisgarantie</span>
-                            </div>
-                            <div class="tariff-feature-item">
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                                <span>100 € Neukunden-Sofortbonus</span>
                             </div>
                             <div class="tariff-feature-item">
                                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
@@ -719,8 +715,7 @@
                             <span class="tariff-badge" style="background: #fff7ed; color: #9a3412;">Smart Energy &amp; § 14a</span>
                             <h3 class="tariff-title">ALPHA TIME</h3>
                             <div class="tariff-card-price-box" style="border-color: #fed7aa; background: #fff7ed;">
-                                <div class="tariff-price-monthly" id="price-alpha-time" style="color: #c2410c;">59 €<span> / Monat</span></div>
-                                <div class="tariff-bonus-pill" style="background: #ff7a00; color: #ffffff;">Inkl. 150 € Smart-Bonus</div>
+                                <div class="tariff-price-monthly" id="price-alpha-time" style="color: #c2410c;">63 €<span> / Monat</span></div>
                                 <div class="tariff-price-details">
                                     <span id="savings-alpha-time">Bis zu 380 € / Jahr sparen</span>
                                 </div>
@@ -745,10 +740,6 @@
                             </div>
                             <div class="tariff-feature-item">
                                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                                <span>150 € Smart-Energy-Sofortbonus</span>
-                            </div>
-                            <div class="tariff-feature-item">
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
                                 <span>Transparente App-Einsicht &amp; Live-Steuerung</span>
                             </div>
                         </div>
@@ -765,9 +756,8 @@
                             <h3 class="tariff-title">ALPHA PREMIUM</h3>
                             <div class="tariff-card-price-box">
                                 <div class="tariff-price-monthly" id="price-alpha-premium">72 €<span> / Monat</span></div>
-                                <div class="tariff-bonus-pill">Inkl. 180 € Treuebonus</div>
                                 <div class="tariff-price-details">
-                                    <span id="savings-alpha-premium">Bis zu 290 € / Jahr sparen</span>
+                                    <span id="savings-alpha-premium">Bis zu 280 € / Jahr sparen</span>
                                 </div>
                             </div>
                             <div class="tariff-feature-item" style="font-weight: 600; margin-bottom: 0.75rem;" id="kwh-desc-alpha-premium">
@@ -779,10 +769,6 @@
                             <div class="tariff-feature-item">
                                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
                                 <span>24 Monate volle Preisstabilität bis 2028</span>
-                            </div>
-                            <div class="tariff-feature-item">
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                                <span>180 € Treue- &amp; Neukundenprämie</span>
                             </div>
                             <div class="tariff-feature-item">
                                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
@@ -1273,13 +1259,13 @@
                 <div class="modal-step active" id="modalStep1">
                     <div style="background: #f8fafc; padding: 1.25rem; border-radius: 12px; margin-bottom: 1.5rem; border: 1px solid #e2e8f0;">
                         <div style="font-size: 0.85rem; color: #64748b;">Ausgewählter Tarif:</div>
-                        <div id="orderSummaryTariffName" style="font-size: 1.25rem; font-weight: 800; color: #0a1f44;">Alpha Strom Garant 24</div>
+                        <div id="orderSummaryTariffName" style="font-size: 1.25rem; font-weight: 800; color: #0a1f44;">ALPHA BASIC</div>
                         <div style="display: flex; gap: 1.5rem; margin-top: 0.5rem; font-size: 0.9rem;">
-                            <div>Monatlicher Abschlag: <strong id="orderSummaryMonthly">71 € / Monat</strong></div>
+                            <div>Monatlicher Abschlag: <strong id="orderSummaryMonthly">70 € / Monat</strong></div>
                             <div>Jahresverbrauch: <strong id="orderSummaryKwh">2.500 kWh</strong></div>
                         </div>
                         <div style="margin-top: 0.5rem; color: #ea580c; font-weight: 700; font-size: 0.85rem;" id="orderSummarySavings">
-                            Bis zu 290 € / Jahr sparen
+                            Bis zu 300 € / Jahr sparen
                         </div>
                     </div>
 
