@@ -40,7 +40,8 @@ public/js/three/
 ├── index.js              # ES Module entrypoint for bundlers (export { AlphaThree, ... })
 └── scenes/
     ├── energy-network.js # Smart Grid: solar/wind nodes, moving photons, central nexus
-    └── energy-globe.js   # Eco-Globe: 3D wireframe sphere, beacons, orbital rings, drag inertia
+    ├── energy-globe.js   # Eco-Globe: 3D wireframe sphere, beacons, orbital rings, drag inertia
+    └── versorger-flow.js # Eco-Flow: Generation (Hydro/Wind/Solar) -> Nexus -> Consumers (§14a EnWG)
 ```
 
 ---
@@ -98,11 +99,22 @@ Add any 3D scene to an HTML page with zero JavaScript boilerplate:
      data-three-speed="1.2"
      style="width: 100%; height: 400px;">
 </div>
+
+<!-- Scene 3: 3D Öko-Versorgungsfluss (Generation -> Nexus -> Smart Consumers) -->
+<div data-three-scene="versorger-flow"
+     data-three-mode="strom"
+     data-three-consumption="3500"
+     data-three-speed="1.0"
+     style="width: 100%; height: 450px;">
+</div>
 ```
 
 ### Supported Data Attributes:
-- `data-three-scene`: Name of the registered scene (`"energy-network"`, `"energy-globe"`).
-- `data-three-mode`: Initial operational mode (`"solar"`, `"wind"`, `"grid"`, `"balanced"`).
+- `data-three-scene`: Name of the registered scene (`"energy-network"`, `"energy-globe"`, `"versorger-flow"`).
+- `data-three-mode`: Initial operational mode:
+  - For `energy-network`: `"solar"`, `"wind"`, `"grid"`, `"balanced"`.
+  - For `versorger-flow`: `"strom"` / `"oekostrom"` (ok-power), `"waerme"` (§14a EnWG heat pump flexibility), `"gas"` (clean flame + CO2-offset ring tokens).
+- `data-three-consumption`: Annual electricity consumption in kWh (e.g. `3500`; scales photon flow velocity and particle density in `versorger-flow`).
 - `data-three-speed`: Float multiplier for animation velocity (default: `1.0`).
 - `data-three-interactive`: `"true"` or `"false"` (enables pointer parallax & click/drag).
 - `data-three-pixel-ratio`: Custom max pixel ratio (default: `2`).
@@ -116,17 +128,19 @@ Add any 3D scene to an HTML page with zero JavaScript boilerplate:
 
 ```javascript
 // 1. Programmatically initialize a scene
-const controller = await window.AlphaThree.init('#my-container', 'energy-network', {
-    mode: 'wind',
-    speed: 1.5,
+const controller = await window.AlphaThree.init('#my-container', 'versorger-flow', {
+    mode: 'strom',
+    consumption: 4500,
+    speed: 1.0,
     interactive: true
 });
 
 // 2. Access the active scene instance to trigger interactive features
 const scene = window.AlphaThree.getScene('#my-container');
-scene.setMode('solar');     // Switch energy flow to solar focus
-scene.pulseBurst();         // Trigger radial energy shockwave
-scene.setSpeed(2.0);        // Speed up animation
+scene.setMode('waerme');          // Switch to 'strom', 'waerme' (§14a EnWG), or 'gas'
+scene.setConsumption(6500);       // Dynamically adjust flow velocity & photon density based on annual kWh
+scene.pulseBurst();               // Trigger radial energy shockwave from Alpha Grid Nexus
+scene.setSpeed(1.5);              // Speed up animation
 
 // 3. Pause & Resume rendering
 window.AlphaThree.pauseAll();

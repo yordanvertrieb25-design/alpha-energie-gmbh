@@ -11,6 +11,7 @@ Welcome to the official developer guide for the **Alpha Energie 3D WebGL Engine*
 3. [Available Built-in Scenes](#3-available-built-in-scenes)
    - [Scene A: Energy Network (`energy-network`)](#scene-a-energy-network-energy-network)
    - [Scene B: Energy Globe (`energy-globe`)](#scene-b-energy-globe-energy-globe)
+   - [Scene C: Versorger Flow (`versorger-flow`)](#scene-c-versorger-flow-versorger-flow)
 4. [Live Interactive Showcase](#4-live-interactive-showcase)
 5. [Configuration & Options Matrix](#5-configuration--options-matrix)
 6. [Programmatic JavaScript API (`window.AlphaThree`)](#6-programmatic-javascript-api-windowalphathree)
@@ -37,7 +38,8 @@ public/js/three/
 ├── index.js                  # ESM entry point for bundlers (export { AlphaThree, ... })
 └── scenes/
     ├── energy-network.js     # 3D Smart Grid with traveling energy photons
-    └── energy-globe.js       # 3D Wireframe Eco-Globe with regional renewable hubs
+    ├── energy-globe.js       # 3D Wireframe Eco-Globe with regional renewable hubs
+    └── versorger-flow.js     # 3D Öko-Versorgungsfluss (Generation -> Nexus -> Smart Consumers)
 ```
 
 ### Key Architectural Highlights:
@@ -101,6 +103,37 @@ A 3D wireframe eco-grid globe representing decentralized energy networks.
   - Orbital rings with orbiting energy photon sprites.
   - Natural drag-to-rotate interaction with physics momentum and inertia damping.
 
+### Scene C: Versorger Flow (`versorger-flow`)
+A dedicated 3D visualization crafted specifically for public utility providers, energy suppliers, and customer portals, modeling the complete supply chain: **Generation Hubs &rarr; Alpha Grid Nexus &rarr; Smart Consumer Ecosystem**.
+
+- **Visual Features**:
+  - **Left (Erzeugung / Generation)**: 3 iconic glowing wireframe nodes:
+    - *Wasserkraft*: Undulating water wave ripple rings with cyan luminescence.
+    - *Windkraft*: Continuously spinning aerodynamic 3-blade rotor assembly.
+    - *Solar (Photovoltaik)*: Hexagonal PV wafer disk with coronal energy rings and radiating solar rays.
+  - **Center (Alpha Grid Nexus & Transformer Substation)**:
+    - Double rotating gyroscope rings and horizontal base grounding ring.
+    - Central pulsing icosahedron energy core with dynamic breathing halo.
+    - High-output central point light illuminating the entire network.
+  - **Right (Verbraucher / Consumer Ecosystem)**:
+    - Modern architectural pavilion wireframe structure with pitched roof.
+    - *Wärmepumpe Loop*: Highlighting §14a EnWG flexibility with pulsing thermal waves.
+    - *Digitaler Stromzähler*: Smart Meter Gateway beacon pulsing periodic data blinks.
+    - *Wallbox Halo*: Dynamic EV charging ring with rotating phase.
+    - *Solar-Batterie*: 3-cell battery accumulator with glowing state-of-charge rings.
+  - **Flow Dynamics & Traveling Photons**:
+    - 7 Curved Bezier trajectories connecting Generation &rarr; Nexus &rarr; Consumer.
+    - 120+ high-velocity traveling photons rendered in a single high-efficiency buffer geometry (`THREE.Points`).
+    - Perpetual closed-loop routing logic from generators into substation into smart consumers.
+- **Dynamic Multi-Energy Modes (`.setMode(mode)`)**:
+  - `strom` / `oekostrom`: Emerald Green (`#00E676`) + Electric Cyan (`#00D2FF`) with bright ok-power certified glowing aura.
+  - `waerme` / `waermestrom`: Warm Amber (`#FF7A00`) + Emerald (`#10B981`) thermal pulse waves for §14a EnWG heat pump flexibility and grid buffering.
+  - `gas` / `oekogas`: Clean Azure Gas Flame (`#00B0FF`) + Warm Gold (`#F59E0B`) with floating green CO2-offset ring tokens symbolizing 100% climate compensation.
+- **Dynamic Consumption Scaling (`.setConsumption(kwh)`)**:
+  - Dynamically adjusts photon flow velocity (from gentle 0.7x at 1,500 kWh to high-flux 2.8x at 10,000+ kWh) and active particle density.
+- **Interactive Radial Shockwave (`.pulseBurst()` / `.pulse()`)**:
+  - Emits expanding shockwave rings from the Alpha Grid Nexus, temporarily accelerating photon flow by 2.4x with smooth physics decay.
+
 ---
 
 ## 4. Live Interactive Showcase
@@ -110,8 +143,9 @@ A complete showcase and testing page is provided at `three-demo.html`:
 - Visit: `http://localhost:3000/three-demo.html`
 - Includes:
   - Hero interactive 3D Energy Network with live HUD controls.
-  - Side-by-side cards with `energy-network` and `energy-globe`.
-  - Mode switching buttons, speed sliders, and pulse shockwaves.
+  - Side-by-side cards with `energy-network`, `energy-globe`, and `versorger-flow`.
+  - Mode switching buttons (Ökostrom, Wärmestrom, Ökogas), speed sliders, and pulse shockwaves.
+  - Dynamic consumption slider scaling photon velocity and density.
   - Real-time memory disposal and re-initialization stress testing.
 
 ---
@@ -122,8 +156,9 @@ Scenes can be configured via HTML data attributes or via the JavaScript API:
 
 | HTML Attribute | JS Option Key | Type | Default | Description |
 |---|---|---|---|---|
-| `data-three-scene` | `sceneName` | String | *(Required)* | Registered scene name (`'energy-network'` or `'energy-globe'`) |
-| `data-three-mode` | `mode` | String | `'balanced'` | Operational mode (`'solar'`, `'wind'`, `'grid'`, `'balanced'`) |
+| `data-three-scene` | `sceneName` | String | *(Required)* | Registered scene name (`'energy-network'`, `'energy-globe'`, `'versorger-flow'`) |
+| `data-three-mode` | `mode` | String | `'balanced'` / `'strom'` | Operational mode (`'solar'`, `'wind'`, `'grid'`, `'strom'`, `'waerme'`, `'gas'`) |
+| `data-three-consumption` | `consumption` | Number | `3500` | Annual consumption in kWh (dynamically scales particle flux in `versorger-flow`) |
 | `data-three-speed` | `speed` | Float | `1.0` | Animation velocity multiplier (e.g. `0.5` for slow, `2.0` for fast) |
 | `data-three-interactive` | `interactive` | Boolean | `true` | Enables pointer parallax, mouse click bursts, and drag |
 | `data-three-pixel-ratio` | `maxPixelRatio` | Number | `2` | Upper clamp for `window.devicePixelRatio` |
@@ -161,6 +196,14 @@ if (scene) {
 
     // Adjust playback speed
     scene.setSpeed(1.5);
+}
+
+// Controlling VersorgerFlowScene:
+const flowScene = window.AlphaThree.getScene('#card-flow-canvas');
+if (flowScene) {
+    flowScene.setMode('waerme');     // 'strom' | 'waerme' | 'gas'
+    flowScene.setConsumption(4500);  // Dynamic kWh consumption scaling
+    flowScene.pulseBurst();          // Radial energy shockwave
 }
 ```
 

@@ -7,6 +7,7 @@ import * as THREE from './vendor/three.module.js';
 import ManagerModule from './three-manager.js';
 import EnergyNetworkScene from './scenes/energy-network.js';
 import EnergyGlobeScene from './scenes/energy-globe.js';
+import VersorgerFlowScene from './scenes/versorger-flow.js';
 
 const {
     PALETTE,
@@ -21,6 +22,7 @@ const {
 const managerInstance = new ThreeManager();
 managerInstance.registerScene('energy-network', EnergyNetworkScene);
 managerInstance.registerScene('energy-globe', EnergyGlobeScene);
+managerInstance.registerScene('versorger-flow', VersorgerFlowScene);
 
 export const AlphaThree = {
     version: '1.0.0',
@@ -32,6 +34,7 @@ export const AlphaThree = {
     ThreeManager,
     EnergyNetworkScene,
     EnergyGlobeScene,
+    VersorgerFlowScene,
     createGlowTexture,
 
     init(containerOrSelector, sceneName, options = {}) {
@@ -88,6 +91,7 @@ export {
     ThreeManager,
     EnergyNetworkScene,
     EnergyGlobeScene,
+    VersorgerFlowScene,
     createGlowTexture
 };
 

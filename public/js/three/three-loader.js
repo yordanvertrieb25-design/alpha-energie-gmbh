@@ -123,6 +123,22 @@
             }
         }
 
+        if (!manager.scenesRegistry.has('versorger-flow')) {
+            if (window.AlphaVersorgerFlowScene) {
+                manager.registerScene('versorger-flow', window.AlphaVersorgerFlowScene);
+            } else {
+                scenePromises.push(
+                    loadScript(`${basePath}/scenes/versorger-flow.js`, `/public/js/three/scenes/versorger-flow.js`)
+                        .then(() => {
+                            if (window.AlphaVersorgerFlowScene) {
+                                manager.registerScene('versorger-flow', window.AlphaVersorgerFlowScene);
+                            }
+                        })
+                        .catch(err => console.error('[AlphaThree] Error loading versorger-flow scene:', err))
+                );
+            }
+        }
+
         if (scenePromises.length > 0) {
             await Promise.all(scenePromises);
         }
@@ -202,7 +218,7 @@
          * Get registered scene names
          */
         getRegisteredScenes() {
-            return manager ? manager.getRegisteredScenes() : ['energy-network', 'energy-globe'];
+            return manager ? manager.getRegisteredScenes() : ['energy-network', 'energy-globe', 'versorger-flow'];
         },
 
         /**
@@ -302,12 +318,23 @@
                         btn.classList.add('active');
                         btn.setAttribute('aria-pressed', 'true');
                     }
+
+                    // Update mode labels smoothly if present
+                    const context = btn.closest('.energy-3d-card, .scene-card, .showcase-card, section') || root;
+                    const labelEls = context.querySelectorAll('[data-mode-label], .mode-status-text, .alpha-mode-label');
+                    labelEls.forEach(lbl => {
+                        if (scene && scene.currentConfig && scene.currentConfig.label) {
+                            lbl.textContent = scene.currentConfig.label;
+                        } else {
+                            lbl.textContent = mode.toUpperCase();
+                        }
+                    });
                 }
             });
         });
 
         // 2. Pulse / Burst Triggers
-        const burstButtons = root.querySelectorAll('[data-action="burst"], #btn-pulse-burst, #btn-burst');
+        const burstButtons = root.querySelectorAll('[data-action="burst"], [data-action="pulse"], #btn-pulse-burst, #btn-burst, #btn-pulse, #btn-globe-pulse');
         burstButtons.forEach(btn => {
             if (btn.dataset.threeBound === 'true') return;
             btn.dataset.threeBound = 'true';
@@ -334,6 +361,43 @@
                     }
                 }
             });
+        });
+
+        // 3. Dynamic Consumption Controls (kWh)
+        const consumptionInputs = root.querySelectorAll('[data-action="consumption"], #consumption-slider, [data-consumption-slider], [data-consumption-input]');
+        consumptionInputs.forEach(input => {
+            if (input.dataset.threeBound === 'true') return;
+            input.dataset.threeBound = 'true';
+
+            const onInput = () => {
+                const val = parseFloat(input.value || input.getAttribute('data-consumption'));
+                const targetSelector = input.getAttribute('data-scene-target');
+
+                let container = targetSelector ? document.querySelector(targetSelector) : null;
+                if (!container) {
+                    const parentCard = input.closest('.energy-3d-card, .scene-card, .showcase-card, section');
+                    container = parentCard ? parentCard.querySelector('[data-three-scene]') : null;
+                }
+                if (!container) {
+                    container = document.querySelector('[data-three-scene]');
+                }
+
+                if (container) {
+                    const scene = AlphaThree.getScene(container);
+                    if (scene && typeof scene.setConsumption === 'function') {
+                        scene.setConsumption(val);
+                    }
+                }
+
+                const context = input.closest('.energy-3d-card, .scene-card, .showcase-card, section') || root;
+                const displayEl = context.querySelector('#consumption-val, [data-consumption-val]');
+                if (displayEl && !isNaN(val)) {
+                    displayEl.textContent = `${val.toLocaleString('de-DE')} kWh`;
+                }
+            };
+
+            input.addEventListener('input', onInput);
+            input.addEventListener('change', onInput);
         });
     }
 

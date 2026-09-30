@@ -139,6 +139,7 @@
     <link rel="stylesheet" href="style.css">
     <script src="i18n.js" defer></script>
     <script src="main.js" defer></script>
+    <script src="/js/three/three-loader.js" defer></script>
 
     <!-- Schema.org Structured Data -->
     <script type="application/ld+json">
@@ -463,6 +464,110 @@
                             Kostenlos, unverbindlich &amp; TÜV-geprüfter Wechsel
                         </div>
                     </form>
+                </div>
+            </div>
+        </section>
+
+        <!-- 3D WebGL Versorger Flow Showcase Section -->
+        <section id="flow-visualizer" class="versorger-flow-section energy-network-section" aria-label="3D-Netzfluss Visualisierung">
+            <div class="energy-network-bg-glow" aria-hidden="true"></div>
+            <div class="container">
+                <div class="energy-section-header">
+                    <div class="energy-3d-badge">
+                        <span class="pulse-dot"></span>
+                        <span>Echtzeit-Netzfluss</span>
+                    </div>
+                    <h2 class="energy-section-title">3D-Energiefluss: Von der nachhaltigen Erzeugung direkt zu Ihrem Zähler</h2>
+                    <p class="energy-section-subtitle">Erleben Sie in Echtzeit, wie 100 % Ökostrom aus Wasser- und Windkraft, § 14a Wärmestrom und klimaneutrales Gas durch unser digitales Netz fließen.</p>
+                </div>
+
+                <!-- 3D Card Shell with Glassmorphic Telemetry Bar -->
+                <div class="energy-3d-card versorger-flow-card">
+                    <!-- Header Telemetry Bar -->
+                    <div class="energy-3d-header">
+                        <div class="energy-3d-title-group">
+                            <span class="energy-live-indicator">
+                                <span class="pulse-dot"></span>
+                                <span class="alpha-mode-label" data-mode-label>100% Ökostrom (ok-power)</span>
+                            </span>
+                            <span class="energy-telemetry-item">
+                                <span>⚡</span>
+                                <span>Netzfrequenz:</span>
+                                <strong>50.00 Hz</strong>
+                            </span>
+                            <span class="energy-telemetry-item hide-mobile">
+                                <span>🛡️</span>
+                                <span>Netzstabilität:</span>
+                                <strong>99.98% Übertragungsstabilität</strong>
+                            </span>
+                            <span class="energy-telemetry-item hide-mobile">
+                                <span>🌱</span>
+                                <span>CO₂-Reduktion:</span>
+                                <strong class="text-green">100% fossilfrei</strong>
+                            </span>
+                        </div>
+                        <div class="energy-interaction-hint">
+                            <span>🖱️ Ziehen zum Drehen &bull; Klick für Impuls</span>
+                        </div>
+                    </div>
+
+                    <!-- 3D WebGL Canvas Viewport -->
+                    <div id="alpha-versorger-canvas"
+                         class="energy-3d-viewport versorger-3d-viewport"
+                         data-three-scene="versorger-flow"
+                         data-three-mode="strom"
+                         data-three-consumption="2500"
+                         data-three-speed="1.0"
+                         data-three-interactive="true"
+                         aria-label="Interaktive 3D-Simulation des Alpha Energie Versorgungsflusses von Erzeugung bis Zähler">
+                        
+                        <!-- Floating Glassmorphic HUD Overlay -->
+                        <div class="energy-3d-hud" role="toolbar" aria-label="Energiefluss-Steuerung">
+                            <!-- Mode Switcher Tabs -->
+                            <div class="hud-mode-selector" role="group" aria-label="Energiemodus auswählen">
+                                <button type="button" class="hud-tab active" data-mode="strom" data-scene-target="#alpha-versorger-canvas" aria-pressed="true">
+                                    <span class="hud-icon">🌱</span>
+                                    <span>100% Ökostrom</span>
+                                </button>
+                                <button type="button" class="hud-tab" data-mode="waerme" data-scene-target="#alpha-versorger-canvas" aria-pressed="false">
+                                    <span class="hud-icon">🔥</span>
+                                    <span>Wärmestrom § 14a</span>
+                                </button>
+                                <button type="button" class="hud-tab" data-mode="gas" data-scene-target="#alpha-versorger-canvas" aria-pressed="false">
+                                    <span class="hud-icon">💨</span>
+                                    <span>Erdgas Klimabeitrag</span>
+                                </button>
+                            </div>
+
+                            <!-- Pulse Burst Action Button -->
+                            <div class="hud-actions">
+                                <button type="button" class="hud-action-btn" id="btn-versorger-burst" data-action="burst" data-scene-target="#alpha-versorger-canvas" title="Energie-Impuls auslösen" aria-label="Energie-Impuls auslösen">
+                                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                        <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+                                    </svg>
+                                    <span>Energie-Impuls auslösen</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Bottom Feature Footer -->
+                    <div class="energy-3d-footer">
+                        <div class="energy-footer-stats">
+                            <div class="energy-footer-stat">
+                                <span class="stat-highlight">Erzeugung &amp; Einspeisung</span>
+                                <span class="stat-detail">100 % Ökostrom aus europäischen Wasser- und Windkraftwerken mit ok-power Gütesiegel und Herkunftsnachweisen.</span>
+                            </div>
+                            <div class="energy-footer-stat">
+                                <span class="stat-highlight">Smarte Sektorenkopplung (§ 14a)</span>
+                                <span class="stat-detail">Steuerbare Verbrauchseinrichtungen (Wärmepumpen &amp; Wallboxen) mit gesetzlich garantierten Netzentgelt-Rabatten.</span>
+                            </div>
+                            <div class="energy-footer-stat">
+                                <span class="stat-highlight">Klimaneutrale Übergangslösungen</span>
+                                <span class="stat-detail">Erdgas mit 100 % freiwilligem Klimaschutzbeitrag zur Förderung zertifizierter Aufforstungs- und Biogasprojekte.</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </section>

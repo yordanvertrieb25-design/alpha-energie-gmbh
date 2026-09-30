@@ -654,7 +654,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     initVersorgerComponents();
 
     function initVersorgerComponents() {
-        const rechnerForm = document.getElementById('heroTarifrechnerForm');
+        const rechnerForm = document.getElementById('rechnerForm') || document.getElementById('heroTarifrechnerForm');
         const calcPlz = document.getElementById('calcPlz');
         const calcCityBadge = document.getElementById('calcCityBadge');
         const calcKwh = document.getElementById('calcKwh');
@@ -664,6 +664,50 @@ document.addEventListener("DOMContentLoaded", async () => {
         const householdBtns = document.querySelectorAll('.household-btn');
         
         let currentBranch = 'strom'; // strom, waerme, gas
+
+        // 3D Versorger Flow Scene Two-Way Synchronization
+        function getVersorgerScene() {
+            if (!window.AlphaThree || typeof window.AlphaThree.getScene !== 'function') return null;
+            return window.AlphaThree.getScene('#alpha-versorger-canvas') || window.AlphaThree.getScene('#versorger-flow-canvas');
+        }
+
+        function sync3DSceneMode(branch) {
+            const scene = getVersorgerScene();
+            if (scene && typeof scene.setMode === 'function') {
+                scene.setMode(branch);
+            }
+
+            // Sync 3D HUD tabs active state
+            const hudButtons = document.querySelectorAll('#alpha-versorger-canvas .hud-tab, #versorger-flow-canvas .hud-tab, .versorger-flow-card .hud-tab');
+            hudButtons.forEach(btn => {
+                const m = btn.getAttribute('data-mode');
+                const isActive = (m === branch);
+                btn.classList.toggle('active', isActive);
+                btn.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+            });
+
+            // Sync mode label badge
+            const labelEls = document.querySelectorAll('.versorger-flow-card [data-mode-label], .versorger-flow-card .alpha-mode-label');
+            labelEls.forEach(lbl => {
+                if (scene && scene.currentConfig && scene.currentConfig.label) {
+                    lbl.textContent = scene.currentConfig.label;
+                } else {
+                    const fallbackLabels = {
+                        strom: '100% Ökostrom (ok-power)',
+                        waerme: 'Wärmestrom (§14a EnWG Flexibel)',
+                        gas: 'Ökogas (100% CO2-Kompensiert)'
+                    };
+                    lbl.textContent = fallbackLabels[branch] || '100% Ökostrom';
+                }
+            });
+        }
+
+        function sync3DSceneConsumption(kwh) {
+            const scene = getVersorgerScene();
+            if (scene && typeof scene.setConsumption === 'function') {
+                scene.setConsumption(kwh);
+            }
+        }
 
         const cityMap = {
             '44': 'Dortmund',
@@ -798,6 +842,8 @@ document.addEventListener("DOMContentLoaded", async () => {
             calcKwh.addEventListener('input', () => {
                 householdBtns.forEach(b => b.classList.remove('active'));
                 recalculateTariffs();
+                const kwh = Math.max(500, parseInt(calcKwh.value, 10) || 2500);
+                sync3DSceneConsumption(kwh);
             });
         }
 
@@ -815,6 +861,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                 if (calcKwh && kwh) {
                     calcKwh.value = kwh;
                     recalculateTariffs();
+                    sync3DSceneConsumption(parseInt(kwh, 10));
                 }
             });
         });
@@ -854,8 +901,42 @@ document.addEventListener("DOMContentLoaded", async () => {
                     }
                 }
                 recalculateTariffs();
+
+                // Synchronize 3D scene mode and consumption
+                sync3DSceneMode(currentBranch);
+                const currentKwhVal = Math.max(500, parseInt(calcKwh ? calcKwh.value : 2500, 10) || 2500);
+                sync3DSceneConsumption(currentKwhVal);
             });
         });
+
+        // Two-way sync: Clicking 3D HUD mode buttons switches calculator tab
+        document.addEventListener('click', (e) => {
+            const hudBtn = e.target.closest('#alpha-versorger-canvas .hud-tab, #versorger-flow-canvas .hud-tab, .versorger-flow-card .hud-tab');
+            if (hudBtn) {
+                const targetMode = hudBtn.getAttribute('data-mode');
+                if (targetMode && targetMode !== currentBranch) {
+                    const matchingTab = document.querySelector(`.calc-tab-btn[data-branch="${targetMode}"]`);
+                    if (matchingTab) {
+                        matchingTab.click();
+                    }
+                }
+            }
+        });
+
+        // Initialize 3D scene when ready
+        function handleSceneReady() {
+            const initialKwh = Math.max(500, parseInt(calcKwh ? calcKwh.value : 2500, 10) || 2500);
+            sync3DSceneMode(currentBranch);
+            sync3DSceneConsumption(initialKwh);
+        }
+
+        window.addEventListener('alphathree:ready', handleSceneReady);
+        window.addEventListener('alphathree:scene-created', (e) => {
+            if (e.detail && (e.detail.name === 'versorger-flow' || (e.detail.container && e.detail.container.id && e.detail.container.id.includes('versorger')))) {
+                handleSceneReady();
+            }
+        });
+        setTimeout(handleSceneReady, 250);
 
         if (rechnerForm) {
             rechnerForm.addEventListener('submit', (e) => {
