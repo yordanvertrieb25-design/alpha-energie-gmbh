@@ -1714,3 +1714,244 @@ document.addEventListener("DOMContentLoaded", async () => {
         setupCounters();
     }
 })();
+
+// ==========================================================================
+// Alpha Energie - 3D Smart Home Sparsimulator Scrollytelling Controller
+// Scroll-driven sticky pinning architecture (380vh runway)
+// High-performance RAF scroll driver + IntersectionObserver offscreen gating
+// ==========================================================================
+(function() {
+    'use strict';
+
+    function initScrollytelling() {
+        const scrollySection = document.getElementById('scrolly-flow-section') || document.querySelector('.scrolly-energy-section');
+        if (!scrollySection) return;
+
+        const stepPills = scrollySection.querySelectorAll('.scrolly-step-pill');
+        const stepLabel = document.getElementById('scrolly-step-label');
+        const stepBadge = document.getElementById('scrolly-step-badge');
+        const progressBar = document.getElementById('scrolly-progress-bar');
+        const modeLabel = scrollySection.querySelector('[data-mode-label], .alpha-mode-label');
+        const savingsDisplay = document.getElementById('sim-savings-display');
+        const compareTag = document.getElementById('sim-compare-tag');
+
+        const stepsData = [
+            {
+                id: 'strom',
+                focus: 'strom',
+                branch: 'strom',
+                index: 0,
+                label: 'Schritt 1 von 4: Haushaltsstrom & Zähler',
+                badge: 'Station 1 von 4',
+                modeLabel: '100 % Ökostrom (ok-power)',
+                savings: 'bis zu 380 € / Jahr',
+                compare: 'Grundversorger: 1.140 € &rarr; Alpha Energie: <strong>760 €</strong>',
+                targetProgress: 0.08
+            },
+            {
+                id: 'waerme',
+                focus: 'waerme',
+                branch: 'waerme',
+                index: 1,
+                label: 'Schritt 2 von 4: Wärmepumpe (§ 14a EnWG)',
+                badge: 'Station 2 von 4',
+                modeLabel: 'Wärmestrom (§14a EnWG Flexibel)',
+                savings: 'bis zu 450 € / Jahr',
+                compare: 'Heizstrom Alt: 1.820 € &rarr; § 14a Rabatt: <strong>1.370 €</strong>',
+                targetProgress: 0.38
+            },
+            {
+                id: 'wallbox',
+                focus: 'wallbox',
+                branch: 'strom',
+                index: 2,
+                label: 'Schritt 3 von 4: Wallbox (E-Mobilität)',
+                badge: 'Station 3 von 4',
+                modeLabel: '100 % Ökostrom & Autostrom',
+                savings: 'bis zu 320 € / Jahr',
+                compare: 'Öffentl. Laden: 890 € &rarr; Heim-Wallbox: <strong>570 €</strong>',
+                targetProgress: 0.65
+            },
+            {
+                id: 'solar',
+                focus: 'solar',
+                branch: 'strom',
+                index: 3,
+                label: 'Schritt 4 von 4: Solaranlage & Batteriespeicher',
+                badge: 'Station 4 von 4',
+                modeLabel: 'Solar-Reststrom & Speicher-Kopplung',
+                savings: 'bis zu 580 € / Jahr',
+                compare: 'Vollbezug Netz: 1.480 € &rarr; PV + Speicher: <strong>900 €</strong>',
+                targetProgress: 0.92
+            }
+        ];
+
+        let isSectionInView = false;
+        let rafId = null;
+        let currentStepIndex = -1;
+
+        function getVersorgerScene() {
+            if (!window.AlphaThree || typeof window.AlphaThree.getScene !== 'function') return null;
+            return window.AlphaThree.getScene('#alpha-versorger-canvas') || window.AlphaThree.getScene('#versorger-flow-canvas');
+        }
+
+        function calculateProgress() {
+            const rect = scrollySection.getBoundingClientRect();
+            const sectionHeight = scrollySection.offsetHeight;
+            const windowHeight = window.innerHeight;
+            const maxScroll = sectionHeight - windowHeight;
+            if (maxScroll <= 0) return 0;
+
+            const sectionTop = rect.top + window.scrollY;
+            const currentScroll = window.scrollY;
+            const rawProgress = (currentScroll - sectionTop) / maxScroll;
+            return Math.max(0, Math.min(1, rawProgress));
+        }
+
+        function applyProgress(progress) {
+            // 1. Progress line fill
+            if (progressBar) {
+                progressBar.style.width = (progress * 100).toFixed(1) + '%';
+            }
+
+            // 2. Identify active step
+            let stepIdx = 0;
+            if (progress >= 0.75) stepIdx = 3;
+            else if (progress >= 0.50) stepIdx = 2;
+            else if (progress >= 0.25) stepIdx = 1;
+            else stepIdx = 0;
+
+            const stepInfo = stepsData[stepIdx];
+
+            // 3. Update 3D scene continuously
+            const scene = getVersorgerScene();
+            if (scene) {
+                if (typeof scene.setScrollProgress === 'function') {
+                    scene.setScrollProgress(progress);
+                } else {
+                    if (typeof scene.setFocus === 'function') scene.setFocus(stepInfo.focus);
+                    if (typeof scene.highlightAnchor === 'function') scene.highlightAnchor(stepInfo.id);
+                }
+            }
+
+            // 4. Update UI only when step changes
+            if (currentStepIndex !== stepIdx) {
+                currentStepIndex = stepIdx;
+
+                // Step pills active class
+                stepPills.forEach((pill, idx) => {
+                    const isActive = (idx === stepIdx);
+                    pill.classList.toggle('active', isActive);
+                    pill.setAttribute('aria-selected', isActive ? 'true' : 'false');
+                });
+
+                // Stepper labels
+                if (stepLabel) stepLabel.textContent = stepInfo.label;
+                if (stepBadge) stepBadge.textContent = stepInfo.badge;
+
+                // Mode label & savings display in cockpit header
+                if (modeLabel) modeLabel.textContent = stepInfo.modeLabel;
+                if (savingsDisplay) savingsDisplay.textContent = stepInfo.savings;
+                if (compareTag) compareTag.innerHTML = stepInfo.compare;
+
+                // Sync HUD mode selector tabs
+                const hudTabs = scrollySection.querySelectorAll('.hud-mode-selector .hud-tab');
+                hudTabs.forEach(tab => {
+                    const mode = tab.getAttribute('data-mode');
+                    const isTabActive = (mode === stepInfo.branch);
+                    tab.classList.toggle('active', isTabActive);
+                    tab.setAttribute('aria-pressed', isTabActive ? 'true' : 'false');
+                });
+
+                // Sync HUD focus selector tabs
+                const focusTabs = scrollySection.querySelectorAll('.hud-focus-selector .hud-tab');
+                focusTabs.forEach(tab => {
+                    const focus = tab.getAttribute('data-focus');
+                    tab.classList.toggle('active', focus === stepInfo.focus);
+                });
+            }
+        }
+
+        function onScroll() {
+            if (!isSectionInView) return;
+            if (rafId) return;
+            rafId = requestAnimationFrame(() => {
+                rafId = null;
+                const progress = calculateProgress();
+                applyProgress(progress);
+            });
+        }
+
+        // Stepper Pills Click Handler
+        stepPills.forEach(pill => {
+            pill.addEventListener('click', (e) => {
+                e.preventDefault();
+                const stepKey = pill.getAttribute('data-scrolly-step');
+                const targetStep = stepsData.find(s => s.id === stepKey);
+                if (!targetStep) return;
+
+                const rect = scrollySection.getBoundingClientRect();
+                const sectionTop = rect.top + window.scrollY;
+                const sectionHeight = scrollySection.offsetHeight;
+                const windowHeight = window.innerHeight;
+                const maxScroll = sectionHeight - windowHeight;
+
+                const targetY = sectionTop + targetStep.targetProgress * maxScroll;
+                window.scrollTo({
+                    top: targetY,
+                    behavior: 'smooth'
+                });
+
+                applyProgress(targetStep.targetProgress);
+            });
+        });
+
+        // IntersectionObserver for performance (gated execution when near viewport)
+        if ('IntersectionObserver' in window) {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    isSectionInView = entry.isIntersecting;
+                    if (isSectionInView) {
+                        const progress = calculateProgress();
+                        applyProgress(progress);
+                    }
+                });
+            }, {
+                root: null,
+                rootMargin: '120px 0px 120px 0px',
+                threshold: [0, 0.05, 0.25, 0.5, 0.75, 1.0]
+            });
+
+            observer.observe(scrollySection);
+        } else {
+            isSectionInView = true;
+        }
+
+        window.addEventListener('scroll', onScroll, { passive: true });
+        window.addEventListener('resize', onScroll, { passive: true });
+
+        // Initial updates on scene ready events
+        window.addEventListener('alphathree:ready', () => {
+            const progress = calculateProgress();
+            applyProgress(progress);
+        });
+        window.addEventListener('alphathree:scene-created', (e) => {
+            if (e.detail && (e.detail.name === 'versorger-flow' || (e.detail.container && e.detail.container.id && e.detail.container.id.includes('versorger')))) {
+                const progress = calculateProgress();
+                applyProgress(progress);
+            }
+        });
+
+        setTimeout(() => {
+            const progress = calculateProgress();
+            applyProgress(progress);
+        }, 350);
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initScrollytelling);
+    } else {
+        initScrollytelling();
+    }
+})();
+

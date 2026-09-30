@@ -6109,6 +6109,240 @@ html.swal2-height-auto {
     border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 
+.scrolly-energy-section {
+    position: relative;
+    height: 380vh;
+    padding: 0 !important;
+    overflow: visible !important;
+}
+
+.scrolly-sticky-frame {
+    position: -webkit-sticky;
+    position: sticky;
+    top: 75px;
+    height: calc(100vh - 90px);
+    max-height: 840px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    z-index: 15;
+    padding: 0.5rem 0;
+    box-sizing: border-box;
+}
+
+.scrolly-container {
+    display: flex;
+    flex-direction: column;
+    gap: 0.65rem;
+    width: 100%;
+    max-width: 1240px;
+    margin: 0 auto;
+}
+
+/* Scrolly Tour Header & Stepper Bar */
+.scrolly-tour-header {
+    background: rgba(11, 21, 54, 0.90);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 16px;
+    padding: 0.65rem 1.25rem;
+    box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.55), 0 0 20px rgba(0, 230, 118, 0.08);
+    display: flex;
+    flex-direction: column;
+    gap: 0.55rem;
+}
+
+.scrolly-header-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.65rem;
+}
+
+.scrolly-badge-group {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.scrolly-tour-subtext {
+    font-size: 0.82rem;
+    font-weight: 500;
+    color: #94A3B8;
+    letter-spacing: 0.02em;
+}
+
+.scrolly-stage-prompt {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.scrolly-step-label {
+    font-family: var(--font-display, 'Sora', sans-serif);
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: #F8FAFC;
+    letter-spacing: 0.01em;
+}
+
+.scrolly-scroll-hint {
+    font-size: 0.76rem;
+    font-weight: 600;
+    color: #00E676;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    background: rgba(0, 230, 118, 0.12);
+    border: 1px solid rgba(0, 230, 118, 0.32);
+    padding: 0.22rem 0.65rem;
+    border-radius: 9999px;
+    animation: hintPulseGlow 2.2s ease-in-out infinite;
+}
+
+.scrolly-hint-arrow {
+    display: inline-block;
+    animation: hintArrowBounce 1.5s ease-in-out infinite;
+}
+
+@keyframes hintArrowBounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(3px); }
+}
+
+@keyframes hintPulseGlow {
+    0%, 100% { box-shadow: 0 0 10px rgba(0, 230, 118, 0.15); }
+    50% { box-shadow: 0 0 18px rgba(0, 230, 118, 0.4); }
+}
+
+/* Stepper Progress Track & Fill Line */
+.scrolly-stepper-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+.scrolly-progress-line {
+    position: absolute;
+    top: 50%;
+    left: 20px;
+    right: 20px;
+    height: 3px;
+    transform: translateY(-50%);
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 3px;
+    z-index: 1;
+    overflow: hidden;
+}
+
+.scrolly-progress-fill {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, #00E676 0%, #FF7A00 40%, #00D2FF 70%, #FFD700 100%);
+    box-shadow: 0 0 10px rgba(0, 230, 118, 0.8);
+    transition: width 0.12s linear;
+}
+
+.scrolly-stepper-track {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    justify-content: space-between;
+    gap: 0.5rem;
+    width: 100%;
+}
+
+.scrolly-step-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.42rem 0.9rem;
+    background: rgba(15, 23, 42, 0.85);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 9999px;
+    color: #94A3B8;
+    font-family: var(--font-display, 'Sora', sans-serif);
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    white-space: nowrap;
+    text-decoration: none;
+    user-select: none;
+}
+
+.scrolly-step-pill .step-num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 19px;
+    height: 19px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.1);
+    color: #CBD5E1;
+    font-size: 0.7rem;
+    font-weight: 700;
+    transition: all 0.25s ease;
+}
+
+.scrolly-step-pill .step-text-short {
+    display: none;
+}
+
+.scrolly-step-pill:hover {
+    color: #F8FAFC;
+    border-color: rgba(255, 255, 255, 0.3);
+    background: rgba(15, 23, 42, 0.95);
+    transform: translateY(-1px);
+}
+
+.scrolly-step-pill.active {
+    color: #FFFFFF;
+    background: linear-gradient(135deg, rgba(0, 230, 118, 0.25) 0%, rgba(15, 23, 42, 0.9) 100%);
+    border-color: #00E676;
+    box-shadow: 0 0 16px rgba(0, 230, 118, 0.4), inset 0 0 12px rgba(0, 230, 118, 0.15);
+}
+
+.scrolly-step-pill.active .step-num {
+    background: #00E676;
+    color: #050B14;
+    box-shadow: 0 0 10px rgba(0, 230, 118, 0.8);
+}
+
+.scrolly-step-pill[data-scrolly-step="waerme"].active {
+    border-color: #FF7A00;
+    box-shadow: 0 0 16px rgba(255, 122, 0, 0.4), inset 0 0 12px rgba(255, 122, 0, 0.15);
+    background: linear-gradient(135deg, rgba(255, 122, 0, 0.25) 0%, rgba(15, 23, 42, 0.9) 100%);
+}
+.scrolly-step-pill[data-scrolly-step="waerme"].active .step-num {
+    background: #FF7A00;
+    color: #050B14;
+    box-shadow: 0 0 10px rgba(255, 122, 0, 0.8);
+}
+
+.scrolly-step-pill[data-scrolly-step="wallbox"].active {
+    border-color: #00D2FF;
+    box-shadow: 0 0 16px rgba(0, 210, 255, 0.4), inset 0 0 12px rgba(0, 210, 255, 0.15);
+    background: linear-gradient(135deg, rgba(0, 210, 255, 0.25) 0%, rgba(15, 23, 42, 0.9) 100%);
+}
+.scrolly-step-pill[data-scrolly-step="wallbox"].active .step-num {
+    background: #00D2FF;
+    color: #050B14;
+    box-shadow: 0 0 10px rgba(0, 210, 255, 0.8);
+}
+
+.scrolly-step-pill[data-scrolly-step="solar"].active {
+    border-color: #FFD700;
+    box-shadow: 0 0 16px rgba(255, 215, 0, 0.4), inset 0 0 12px rgba(255, 215, 0, 0.15);
+    background: linear-gradient(135deg, rgba(255, 215, 0, 0.25) 0%, rgba(15, 23, 42, 0.9) 100%);
+}
+.scrolly-step-pill[data-scrolly-step="solar"].active .step-num {
+    background: #FFD700;
+    color: #050B14;
+    box-shadow: 0 0 10px rgba(255, 215, 0, 0.8);
+}
+
 .versorger-flow-section .energy-network-bg-glow {
     position: absolute;
     top: 50%;
@@ -6120,6 +6354,198 @@ html.swal2-height-auto {
     pointer-events: none;
     z-index: 1;
 }
+
+
+
+/* Scrollytelling Pinned Tour Section */
+.scrolly-energy-section {
+    position: relative;
+    min-height: 280vh;
+    padding: 0 !important;
+    overflow: visible !important;
+}
+
+.scrolly-sticky-frame {
+    position: -webkit-sticky;
+    position: sticky;
+    top: 72px;
+    z-index: 20;
+    padding: 1.25rem 0 2rem;
+    pointer-events: auto;
+}
+
+.scrolly-container {
+    max-width: 1240px;
+    margin: 0 auto;
+    padding: 0 1.25rem;
+}
+
+.scrolly-tour-header {
+    margin-bottom: 0.85rem;
+    background: rgba(11, 21, 54, 0.82);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    padding: 0.85rem 1.25rem;
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
+}
+
+.scrolly-header-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.65rem;
+    gap: 1rem;
+}
+
+.scrolly-badge-group {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+}
+
+.scrolly-tour-subtext {
+    font-size: 0.82rem;
+    color: #94A3B8;
+    font-weight: 500;
+}
+
+.scrolly-stage-prompt {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    font-size: 0.82rem;
+}
+
+.scrolly-step-label {
+    font-weight: 700;
+    color: #00E676;
+    font-family: 'Sora', sans-serif;
+    letter-spacing: 0.01em;
+}
+
+.scrolly-scroll-hint {
+    color: #94A3B8;
+    font-size: 0.78rem;
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+}
+
+.scrolly-hint-arrow {
+    display: inline-block;
+    animation: scrollyBounce 1.5s infinite;
+    color: #00E676;
+}
+
+@keyframes scrollyBounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(3px); }
+}
+
+/* Stepper Track & Progress Line */
+.scrolly-stepper-wrapper {
+    position: relative;
+    padding: 0.25rem 0;
+}
+
+.scrolly-progress-line {
+    position: absolute;
+    top: 50%;
+    left: 24px;
+    right: 24px;
+    height: 3px;
+    background: rgba(255, 255, 255, 0.1);
+    transform: translateY(-50%);
+    border-radius: 9999px;
+    z-index: 1;
+}
+
+.scrolly-progress-fill {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, #00E676, #00D2FF, #FF7A00, #FFD700);
+    border-radius: 9999px;
+    box-shadow: 0 0 10px rgba(0, 230, 118, 0.6);
+    transition: width 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.scrolly-stepper-track {
+    position: relative;
+    z-index: 2;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.75rem;
+}
+
+.scrolly-step-pill {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.55rem;
+    padding: 0.45rem 0.85rem;
+    border-radius: 9999px;
+    background: rgba(15, 23, 42, 0.9);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: #94A3B8;
+    font-size: 0.78rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.scrolly-step-pill:hover {
+    background: rgba(30, 41, 59, 0.95);
+    border-color: rgba(255, 255, 255, 0.25);
+    color: #F8FAFC;
+    transform: translateY(-1px);
+}
+
+.scrolly-step-pill.active {
+    background: linear-gradient(135deg, rgba(0, 230, 118, 0.2), rgba(0, 210, 255, 0.15));
+    border-color: #00E676;
+    color: #FFFFFF;
+    box-shadow: 0 0 16px rgba(0, 230, 118, 0.3);
+}
+
+.scrolly-step-pill .step-num {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.1);
+    font-size: 0.7rem;
+    font-weight: 700;
+}
+
+.scrolly-step-pill.active .step-num {
+    background: #00E676;
+    color: #0F172A;
+}
+
+.scrolly-step-pill .step-text-short {
+    display: none;
+}
+
+@media (max-width: 768px) {
+    .scrolly-energy-section {
+        min-height: 240vh;
+    }
+    .scrolly-sticky-frame {
+        top: 60px;
+        padding: 0.5rem 0 1rem;
+    }
+    .scrolly-step-pill .step-text-full {
+        display: none;
+    }
+    .scrolly-step-pill .step-text-short {
+        display: inline;
+    }
+}
+
 
 .versorger-flow-card {
     position: relative;
@@ -6446,6 +6872,14 @@ html.swal2-height-auto {
 }
 
 @media (max-width: 992px) {
+    .scrolly-energy-section {
+        height: 340vh;
+    }
+    .scrolly-sticky-frame {
+        top: 70px;
+        height: calc(100vh - 80px);
+        max-height: 780px;
+    }
     .versorger-3d-viewport {
         height: 420px;
     }
@@ -6458,8 +6892,33 @@ html.swal2-height-auto {
 }
 
 @media (max-width: 768px) {
+    .scrolly-energy-section {
+        height: 300vh;
+    }
+    .scrolly-sticky-frame {
+        top: 65px;
+        height: calc(100vh - 75px);
+        max-height: 720px;
+        padding: 0.35rem 0;
+    }
+    .scrolly-tour-header {
+        padding: 0.55rem 0.85rem;
+        gap: 0.45rem;
+    }
+    .scrolly-step-label {
+        font-size: 0.84rem;
+    }
+    .scrolly-step-pill {
+        padding: 0.35rem 0.65rem;
+        font-size: 0.74rem;
+        gap: 0.35rem;
+    }
+    .scrolly-progress-line {
+        left: 10px;
+        right: 10px;
+    }
     .versorger-3d-viewport {
-        height: 380px;
+        height: 360px;
     }
     .versorger-flow-section {
         padding: 3rem 1rem;
@@ -6505,6 +6964,38 @@ html.swal2-height-auto {
     }
 }
 
+@media (max-width: 540px) {
+    .scrolly-container {
+        padding-left: 0.4rem;
+        padding-right: 0.4rem;
+    }
+    .scrolly-stepper-track {
+        gap: 0.25rem;
+    }
+    .scrolly-step-pill {
+        flex: 1 1 0;
+        min-width: 0;
+        padding: 0.35rem 0.25rem;
+        justify-content: center;
+    }
+    .scrolly-step-pill .step-text-full {
+        display: none;
+    }
+    .scrolly-step-pill .step-text-short {
+        display: inline;
+        font-size: 0.72rem;
+    }
+    .scrolly-step-pill .step-num {
+        display: none;
+    }
+    .versorger-3d-viewport {
+        height: 330px;
+    }
+    .alpha-anchor-card {
+        width: min(240px, calc(100vw - 28px));
+    }
+}
+
 
 
 /* ==========================================================================
@@ -6520,28 +7011,30 @@ html.swal2-height-auto {
     overflow: hidden;
 }
 
+/* Single-Banner Spotlight: ONLY the currently active anchor card is visible */
 .alpha-anchor-item {
     position: absolute;
     top: 0;
     left: 0;
     pointer-events: auto;
+    opacity: 1;
+    visibility: visible;
     will-change: transform, opacity;
-    transition: opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    transition: opacity 0.35s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.35s ease;
     z-index: 20;
     font-family: 'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     scroll-margin-top: 140px;
 }
 
-.alpha-anchor-item:hover {
-    z-index: 85 !important;
+.alpha-anchor-item.is-active {
+    opacity: 1 !important;
+    pointer-events: auto !important;
+    visibility: visible !important;
+    z-index: 80 !important;
 }
 
-.alpha-anchor-item.is-active {
-    z-index: 50 !important;
-}
-
-.alpha-anchor-item.is-active {
-    z-index: 60 !important;
+.alpha-anchor-item.is-active:hover {
+    z-index: 95 !important;
 }
 
 /* Pulsing Anchor Pin & Leader Line */
@@ -6617,7 +7110,12 @@ html.swal2-height-auto {
     z-index: 4;
     pointer-events: none;
     box-shadow: 0 0 8px rgba(0, 230, 118, 0.5);
-    transition: height 0.25s ease, background 0.25s ease;
+    opacity: 0;
+    transition: opacity 0.25s ease, height 0.25s ease, background 0.25s ease;
+}
+
+.alpha-anchor-item.is-active .alpha-anchor-line {
+    opacity: 1;
 }
 
 .alpha-anchor-item.is-inverted .alpha-anchor-line {
@@ -6626,34 +7124,45 @@ html.swal2-height-auto {
     background: linear-gradient(to bottom, #00E676 0%, rgba(0, 230, 118, 0.4) 60%, rgba(0, 230, 118, 0) 100%);
 }
 
-/* Glassmorphic Callout Card */
+/* Glassmorphic Callout Card - Hidden by default; ONLY active stage banner is shown */
 .alpha-anchor-card {
     position: absolute;
     left: 0;
     bottom: 38px;
-    transform: translateX(-50%);
-    width: 238px;
+    transform: translateX(-50%) translateY(8px) scale(0.92);
+    width: 250px;
     scroll-margin-top: 140px;
-    background: rgba(15, 23, 42, 0.90);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border: 1px solid rgba(255, 255, 255, 0.14);
+    background: rgba(11, 21, 54, 0.94);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    border: 1px solid rgba(255, 255, 255, 0.16);
     border-radius: 14px;
     box-shadow: 0 16px 36px -6px rgba(0, 0, 0, 0.65), 0 0 20px rgba(0, 230, 118, 0.15);
     overflow: hidden;
     cursor: default;
-    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s ease, border-color 0.25s ease;
+    opacity: 0;
+    pointer-events: none;
+    visibility: hidden;
+    transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1), transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s ease, border-color 0.25s ease, visibility 0.3s;
 }
 
 .alpha-anchor-item.is-inverted .alpha-anchor-card {
     bottom: auto;
     top: 38px;
+    transform: translateX(-50%) translateY(-8px) scale(0.92);
 }
 
-.alpha-anchor-item:hover .alpha-anchor-card,
 .alpha-anchor-item.is-active .alpha-anchor-card {
-    border-color: rgba(255, 255, 255, 0.28);
-    box-shadow: 0 20px 42px -6px rgba(0, 0, 0, 0.75), 0 0 28px rgba(0, 230, 118, 0.3);
+    opacity: 1 !important;
+    pointer-events: auto !important;
+    visibility: visible !important;
+    transform: translateX(-50%) translateY(0) scale(1) !important;
+    border-color: rgba(255, 255, 255, 0.32);
+    box-shadow: 0 20px 42px -6px rgba(0, 0, 0, 0.8), 0 0 28px rgba(0, 230, 118, 0.35);
+}
+
+.alpha-anchor-item.is-active.is-inverted .alpha-anchor-card {
+    transform: translateX(-50%) translateY(0) scale(1);
 }
 
 /* Card Body Content */
@@ -7006,12 +7515,70 @@ html.swal2-height-auto {
     border-top: 3px solid #FFD700;
 }
 
-.tariff-card-header {
+.energy-tariff-card .tariff-card-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 0.4rem;
     margin-bottom: 0.6rem;
+}
+
+/* Explicit layout styling for Versorger Tariff Cards */
+.versorger-tariff-card .tariff-card-header {
+    display: block !important;
+    text-align: center;
+    margin-bottom: 1.25rem;
+}
+.versorger-tariff-card .tariff-badge {
+    display: inline-block;
+    margin-bottom: 0.5rem;
+}
+.versorger-tariff-card .tariff-title {
+    display: block;
+    font-size: 1.45rem;
+    font-weight: 800;
+    margin-bottom: 0.25rem;
+}
+.versorger-tariff-card .tariff-card-price-box {
+    display: block !important;
+    width: 100%;
+    background: #f8fafc;
+    border-radius: 14px;
+    padding: 1.5rem 1.25rem;
+    margin-bottom: 1rem;
+    text-align: center;
+    border: 1px solid #f1f5f9;
+}
+.versorger-tariff-card.bestseller .tariff-card-price-box {
+    background: #fff7ed;
+    border-color: #fed7aa;
+}
+.versorger-tariff-card .tariff-price-monthly {
+    font-size: 2.4rem;
+    font-weight: 800;
+    line-height: 1.1;
+}
+.versorger-tariff-card .tariff-price-details {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 0.75rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid #e2e8f0;
+}
+.versorger-tariff-card.bestseller .tariff-price-details {
+    border-top-color: #fed7aa;
+}
+.versorger-tariff-card .tariff-kwh-subtext {
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-align: center;
+    margin-bottom: 1.5rem;
+    display: block;
+}
+.versorger-tariff-card .tariff-feature-item {
+    line-height: 1.5;
 }
 
 .tariff-card-badge {
@@ -7152,4 +7719,35 @@ html.swal2-height-auto {
 .calc-highlight-pulse {
     animation: calcPulseHighlight 1.5s ease-out 2 !important;
     border-color: #00E676 !important;
+}
+
+/* Tariff Overview Section below Scrollytelling Pinned Runway */
+.energy-tariffs-overview-section {
+    position: relative;
+    padding: 4.5rem 0 3.5rem 0;
+    background: radial-gradient(circle at 50% 10%, rgba(16, 185, 129, 0.07) 0%, rgba(5, 11, 20, 0.98) 70%, #050B14 100%);
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    z-index: 5;
+}
+
+.scrolly-tariffs-header {
+    margin-bottom: 2.25rem;
+}
+
+.scrolly-tariffs-header .badge-accent {
+    display: inline-block;
+    padding: 0.3rem 0.85rem;
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #00E676;
+    background: rgba(0, 230, 118, 0.12);
+    border: 1px solid rgba(0, 230, 118, 0.3);
+    border-radius: 9999px;
+    margin-bottom: 0.75rem;
+}
+
+#rechner {
+    scroll-margin-top: 90px;
 }

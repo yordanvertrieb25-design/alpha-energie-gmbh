@@ -469,196 +469,255 @@
             </div>
         </section>
 
-        <!-- 3D WebGL Versorger Flow Showcase Section -->
-        <section id="flow-visualizer" class="versorger-flow-section energy-network-section" aria-label="3D-Netzfluss Visualisierung">
+        <!-- 3D WebGL Versorger Flow Scrollytelling Pinned Section -->
+        <section id="scrolly-flow-section" class="energy-network-section scrolly-energy-section versorger-flow-section" aria-label="3D-Netzfluss Visualisierung &amp; Sparsimulator">
             <div class="energy-network-bg-glow" aria-hidden="true"></div>
-            <div class="container">
-                <div class="energy-section-header">
-                    <div class="energy-3d-badge">
-                        <span class="pulse-dot"></span>
-                        <span>Interaktiver 3D-Sparsimulator</span>
-                    </div>
-                    <h2 class="energy-section-title">Interaktiver 3D-Sparsimulator: Ihr Zuhause im Effizienz- &amp; Kostenvergleich</h2>
-                    <p class="energy-section-subtitle">Sehen Sie auf einen Cent genau, wie viel Sie mit Alpha Energie sparen: Vergleichen Sie Haushaltsstrom, § 14a Wärmepumpe und Wallbox direkt an unserem interaktiven 3D-Zuhause.</p>
-                </div>
-
-                <!-- 3D Card Shell with Glassmorphic Telemetry Bar -->
-                <div class="energy-3d-card versorger-flow-card">
-                    <!-- Header Telemetry Bar & Savings Cockpit -->
-                    <div class="energy-3d-header sim-cockpit-header">
-                        <div class="energy-3d-title-group">
-                            <!-- Live Mode Status Indicator -->
-                            <span class="energy-live-indicator">
-                                <span class="pulse-dot"></span>
-                                <span class="alpha-mode-label" data-mode-label>100 % Ökostrom (ok-power)</span>
-                            </span>
-
-                            <!-- Prominent Savings Cockpit Badge -->
-                            <div class="sim-savings-badge">
-                                <span class="sim-savings-coin-icon">💰</span>
-                                <span class="sim-savings-label">Ihre Ersparnis: <strong id="sim-savings-display">bis zu 380 € / Jahr</strong></span>
+            
+            <!-- Sticky Viewport Wrapper -->
+            <div class="scrolly-sticky-frame">
+                <div class="container scrolly-container">
+                    <!-- Sleek Scrollytelling Tour Header & Stepper -->
+                    <div class="scrolly-tour-header">
+                        <div class="scrolly-header-top">
+                            <div class="scrolly-badge-group">
+                                <div class="energy-3d-badge">
+                                    <span class="pulse-dot"></span>
+                                    <span id="scrolly-step-badge">Station 1 von 4</span>
+                                </div>
+                                <span class="scrolly-tour-subtext hide-mobile">Interaktive 3D Smart Home Tour</span>
                             </div>
-
-                            <!-- Direct Real-World Comparison Tag -->
-                            <span class="sim-compare-tag" id="sim-compare-tag">Grundversorger: 1.140 € &rarr; Alpha Energie: <strong>760 €</strong></span>
-
-                            <!-- Customer Trust Tags -->
-                            <div class="sim-trust-tags-group hide-mobile">
-                                <span class="sim-trust-tag">
-                                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 14 14"></polyline></svg>
-                                    24 Monate Preisgarantie
-                                </span>
-                                <span class="sim-trust-tag">
-                                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                                    0 € Wechselgebühr
+                            <div class="scrolly-stage-prompt">
+                                <span id="scrolly-step-label" class="scrolly-step-label">Schritt 1 von 4: Haushaltsstrom &amp; Zähler</span>
+                                <span class="scrolly-scroll-hint hide-mobile">
+                                    <span class="scrolly-hint-arrow" aria-hidden="true">&darr;</span> Weiterscrollen f&uuml;r n&auml;chste Station
                                 </span>
                             </div>
                         </div>
 
-                        <!-- CTA & Interaction Hint -->
-                        <div class="sim-header-actions">
-                            <span class="energy-interaction-hint hide-tablet">
-                                <span>🖱️ 3D-Drehen &bull; Bauteile fokussieren &bull; Impuls testen</span>
-                            </span>
-                            <a href="#rechner" class="btn btn-primary sim-cta-button">
-                                <span>Jetzt Tarif sichern &rarr;</span>
-                            </a>
+                        <!-- Stepper Progress Track with 4 Clickable Step Pills -->
+                        <div class="scrolly-stepper-wrapper">
+                            <div class="scrolly-progress-line" aria-hidden="true">
+                                <div class="scrolly-progress-fill" id="scrolly-progress-bar"></div>
+                            </div>
+                            <nav class="scrolly-stepper-track" role="tablist" aria-label="Smart Home Spar-Stationen">
+                                <button type="button" class="scrolly-step-pill active" data-scrolly-step="strom" data-step-index="0" role="tab" aria-selected="true" title="Station 1: Haushaltsstrom">
+                                    <span class="step-num">1</span>
+                                    <span class="step-label-text">
+                                        <span class="step-text-full">&#128161; Hausstrom</span>
+                                        <span class="step-text-short">&#128161; Strom</span>
+                                    </span>
+                                </button>
+                                <button type="button" class="scrolly-step-pill" data-scrolly-step="waerme" data-step-index="1" role="tab" aria-selected="false" title="Station 2: Wärmepumpe (§ 14a)">
+                                    <span class="step-num">2</span>
+                                    <span class="step-label-text">
+                                        <span class="step-text-full">&#9832;&#65039; W&auml;rmepumpe (&sect; 14a)</span>
+                                        <span class="step-text-short">&#9832;&#65039; W&auml;rme</span>
+                                    </span>
+                                </button>
+                                <button type="button" class="scrolly-step-pill" data-scrolly-step="wallbox" data-step-index="2" role="tab" aria-selected="false" title="Station 3: Wallbox (E-Mobilität)">
+                                    <span class="step-num">3</span>
+                                    <span class="step-label-text">
+                                        <span class="step-text-full">&#128268; Wallbox</span>
+                                        <span class="step-text-short">&#128268; Wallbox</span>
+                                    </span>
+                                </button>
+                                <button type="button" class="scrolly-step-pill" data-scrolly-step="solar" data-step-index="3" role="tab" aria-selected="false" title="Station 4: Solaranlage &amp; Speicher">
+                                    <span class="step-num">4</span>
+                                    <span class="step-label-text">
+                                        <span class="step-text-full">&#9728;&#65039; Solaranlage</span>
+                                        <span class="step-text-short">&#9728;&#65039; Solar</span>
+                                    </span>
+                                </button>
+                            </nav>
                         </div>
                     </div>
 
-                    <!-- 3D WebGL Canvas Viewport -->
-                    <div id="alpha-versorger-canvas"
-                         class="energy-3d-viewport versorger-3d-viewport"
-                         data-three-scene="versorger-flow"
-                         data-three-mode="strom"
-                         data-three-consumption="2500"
-                         data-three-speed="1.0"
-                         data-three-interactive="true"
-                         aria-label="Interaktive 3D-Simulation des Alpha Energie Smart Home Spar- und Versorgungsflusses">
-                        
-                        <!-- Floating Glassmorphic HUD Toolbar -->
-                        <div class="energy-3d-hud sim-hud-cockpit" role="toolbar" aria-label="3D-Sparsimulator Steuerung">
-                            <!-- Mode Switcher Tabs (Ökostrom, Wärmestrom, Erdgas) -->
-                            <div class="hud-mode-selector" role="group" aria-label="Energiemodus auswählen">
-                                <button type="button" class="hud-tab active" data-mode="strom" data-scene-target="#alpha-versorger-canvas" aria-pressed="true">
-                                    <span class="hud-icon">🌱</span>
-                                    <span>100% Ökostrom</span>
-                                </button>
-                                <button type="button" class="hud-tab" data-mode="waerme" data-scene-target="#alpha-versorger-canvas" aria-pressed="false">
-                                    <span class="hud-icon">🔥</span>
-                                    <span>Wärmestrom § 14a</span>
-                                </button>
-                                <button type="button" class="hud-tab" data-mode="gas" data-scene-target="#alpha-versorger-canvas" aria-pressed="false">
-                                    <span class="hud-icon">💨</span>
-                                    <span>Erdgas Klimabeitrag</span>
-                                </button>
+                    <!-- 3D Card Shell with Glassmorphic Telemetry Bar -->
+                    <div class="energy-3d-card versorger-flow-card scrolly-flow-card">
+                        <!-- Header Telemetry Bar & Savings Cockpit -->
+                        <div class="energy-3d-header sim-cockpit-header">
+                            <div class="energy-3d-title-group">
+                                <!-- Live Mode Status Indicator -->
+                                <span class="energy-live-indicator">
+                                    <span class="pulse-dot"></span>
+                                    <span class="alpha-mode-label" data-mode-label>100 % &Ouml;kostrom (ok-power)</span>
+                                </span>
+
+                                <!-- Prominent Savings Cockpit Badge -->
+                                <div class="sim-savings-badge">
+                                    <span class="sim-savings-coin-icon">&#128176;</span>
+                                    <span class="sim-savings-label">Ihre Ersparnis: <strong id="sim-savings-display">bis zu 380 &euro; / Jahr</strong></span>
+                                </div>
+
+                                <!-- Direct Real-World Comparison Tag -->
+                                <span class="sim-compare-tag" id="sim-compare-tag">Grundversorger: 1.140 &euro; &rarr; Alpha Energie: <strong>760 &euro;</strong></span>
+
+                                <!-- Customer Trust Tags -->
+                                <div class="sim-trust-tags-group hide-mobile">
+                                    <span class="sim-trust-tag">
+                                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 14 14"></polyline></svg>
+                                        24 Monate Preisgarantie
+                                    </span>
+                                    <span class="sim-trust-tag">
+                                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                                        0 &euro; Wechselgeb&uuml;hr
+                                    </span>
+                                </div>
                             </div>
 
-                            <!-- Camera Hotspot Focus Selectors: Solar & Speicher, Wärmepumpe, Wallbox, Haushaltsstrom, Gesamtansicht -->
-                            <div class="hud-focus-selector" role="group" aria-label="Kamera-Perspektive wählen">
-                                <button type="button" class="hud-tab active" data-focus="overview" data-scene-target="#alpha-versorger-canvas" title="Gesamtansicht Smart Home">
-                                    <span>🏠 Gesamtansicht</span>
-                                </button>
-                                <button type="button" class="hud-tab" data-focus="solar" data-scene-target="#alpha-versorger-canvas" title="Solar &amp; Speicher (Photovoltaik Dach)">
-                                    <span>☀️ Solar &amp; Speicher</span>
-                                </button>
-                                <button type="button" class="hud-tab" data-focus="waerme" data-scene-target="#alpha-versorger-canvas" title="Wärmepumpe (§ 14a Außenmodul)">
-                                    <span>♨️ Wärmepumpe (§ 14a)</span>
-                                </button>
-                                <button type="button" class="hud-tab" data-focus="wallbox" data-scene-target="#alpha-versorger-canvas" title="Wallbox (E-Auto)">
-                                    <span>🔌 Wallbox (E-Auto)</span>
-                                </button>
-                                <button type="button" class="hud-tab" data-focus="strom" data-scene-target="#alpha-versorger-canvas" title="Haushaltsstrom &amp; Zähler">
-                                    <span>💡 Haushaltsstrom</span>
-                                </button>
-                            </div>
-
-                            <!-- Quick Consumption Selector Buttons: 1.500 kWh | 2.500 kWh | 3.500 kWh | 5.000 kWh -->
-                            <div class="hud-consumption-selector" role="group" aria-label="Jahresverbrauch Richtwert wählen">
-                                <span class="hud-kwh-label">Verbrauch:</span>
-                                <button type="button" class="hud-kwh-btn" data-sim-kwh="1500" title="1 Person (1.500 kWh)">1.500 kWh</button>
-                                <button type="button" class="hud-kwh-btn active" data-sim-kwh="2500" title="2 Personen (2.500 kWh)">2.500 kWh</button>
-                                <button type="button" class="hud-kwh-btn" data-sim-kwh="3500" title="3 Personen (3.500 kWh)">3.500 kWh</button>
-                                <button type="button" class="hud-kwh-btn" data-sim-kwh="5000" title="4+ Personen (5.000 kWh)">5.000 kWh</button>
-                            </div>
-
-                            <!-- Actions: Shockwave Pulse & Direct CTA -->
-                            <div class="hud-actions">
-                                <button type="button" class="hud-action-btn" id="btn-versorger-burst" data-action="burst" data-scene-target="#alpha-versorger-canvas" title="Energie-Impuls auslösen" aria-label="Energie-Impuls auslösen">
-                                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                                        <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
-                                    </svg>
-                                    <span>Energie-Impuls auslösen</span>
-                                </button>
-                                <a href="#rechner" class="hud-cta-link hide-desktop-inline" title="Tarif berechnen">
+                            <!-- CTA & Interaction Hint -->
+                            <div class="sim-header-actions">
+                                <span class="energy-interaction-hint hide-tablet">
+                                    <span>&#128433;&#65039; 3D-Drehen &bull; Bauteile fokussieren &bull; Impuls testen</span>
+                                </span>
+                                <a href="#rechner" class="btn btn-primary sim-cta-button btn-rechner-sync" data-branch="strom" data-focus="strom">
                                     <span>Jetzt Tarif sichern &rarr;</span>
                                 </a>
                             </div>
                         </div>
+
+                        <!-- 3D WebGL Canvas Viewport -->
+                        <div id="alpha-versorger-canvas"
+                             class="energy-3d-viewport versorger-3d-viewport"
+                             data-three-scene="versorger-flow"
+                             data-three-mode="strom"
+                             data-three-consumption="2500"
+                             data-three-speed="1.0"
+                             data-three-interactive="true"
+                             aria-label="Interaktive 3D-Simulation des Alpha Energie Smart Home Spar- und Versorgungsflusses">
+                            
+                            <!-- Floating Glassmorphic HUD Toolbar -->
+                            <div class="energy-3d-hud sim-hud-cockpit" role="toolbar" aria-label="3D-Sparsimulator Steuerung">
+                                <!-- Mode Switcher Tabs (Ökostrom, Wärmestrom, Erdgas) -->
+                                <div class="hud-mode-selector" role="group" aria-label="Energiemodus auswählen">
+                                    <button type="button" class="hud-tab active" data-mode="strom" data-scene-target="#alpha-versorger-canvas" aria-pressed="true">
+                                        <span class="hud-icon">&#127793;</span>
+                                        <span>100% &Ouml;kostrom</span>
+                                    </button>
+                                    <button type="button" class="hud-tab" data-mode="waerme" data-scene-target="#alpha-versorger-canvas" aria-pressed="false">
+                                        <span class="hud-icon">&#128293;</span>
+                                        <span>W&auml;rmestrom &sect; 14a</span>
+                                    </button>
+                                    <button type="button" class="hud-tab" data-mode="gas" data-scene-target="#alpha-versorger-canvas" aria-pressed="false">
+                                        <span class="hud-icon">&#128168;</span>
+                                        <span>Erdgas Klimabeitrag</span>
+                                    </button>
+                                </div>
+
+                                <!-- Camera Hotspot Focus Selectors: Solar & Speicher, Wärmepumpe, Wallbox, Haushaltsstrom, Gesamtansicht -->
+                                <div class="hud-focus-selector" role="group" aria-label="Kamera-Perspektive wählen">
+                                    <button type="button" class="hud-tab active" data-focus="overview" data-scene-target="#alpha-versorger-canvas" title="Gesamtansicht Smart Home">
+                                        <span>&#127968; Gesamtansicht</span>
+                                    </button>
+                                    <button type="button" class="hud-tab" data-focus="solar" data-scene-target="#alpha-versorger-canvas" title="Solar &amp; Speicher (Photovoltaik Dach)">
+                                        <span>&#9728;&#65039; Solar &amp; Speicher</span>
+                                    </button>
+                                    <button type="button" class="hud-tab" data-focus="waerme" data-scene-target="#alpha-versorger-canvas" title="Wärmepumpe (§ 14a Außenmodul)">
+                                        <span>&#9832;&#65039; W&auml;rmepumpe (&sect; 14a)</span>
+                                    </button>
+                                    <button type="button" class="hud-tab" data-focus="wallbox" data-scene-target="#alpha-versorger-canvas" title="Wallbox (E-Auto)">
+                                        <span>&#128268; Wallbox (E-Auto)</span>
+                                    </button>
+                                    <button type="button" class="hud-tab" data-focus="strom" data-scene-target="#alpha-versorger-canvas" title="Haushaltsstrom &amp; Zähler">
+                                        <span>&#128161; Haushaltsstrom</span>
+                                    </button>
+                                </div>
+
+                                <!-- Quick Consumption Selector Buttons: 1.500 kWh | 2.500 kWh | 3.500 kWh | 5.000 kWh -->
+                                <div class="hud-consumption-selector" role="group" aria-label="Jahresverbrauch Richtwert wählen">
+                                    <span class="hud-kwh-label">Verbrauch:</span>
+                                    <button type="button" class="hud-kwh-btn" data-sim-kwh="1500" title="1 Person (1.500 kWh)">1.500 kWh</button>
+                                    <button type="button" class="hud-kwh-btn active" data-sim-kwh="2500" title="2 Personen (2.500 kWh)">2.500 kWh</button>
+                                    <button type="button" class="hud-kwh-btn" data-sim-kwh="3500" title="3 Personen (3.500 kWh)">3.500 kWh</button>
+                                    <button type="button" class="hud-kwh-btn" data-sim-kwh="5000" title="4+ Personen (5.000 kWh)">5.000 kWh</button>
+                                </div>
+
+                                <!-- Actions: Shockwave Pulse & Direct CTA -->
+                                <div class="hud-actions">
+                                    <button type="button" class="hud-action-btn" id="btn-versorger-burst" data-action="burst" data-scene-target="#alpha-versorger-canvas" title="Energie-Impuls auslösen" aria-label="Energie-Impuls auslösen">
+                                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+                                        </svg>
+                                        <span>Energie-Impuls</span>
+                                    </button>
+                                    <a href="#rechner" class="hud-cta-link hide-desktop-inline btn-rechner-sync" data-branch="strom" data-focus="strom" title="Tarif berechnen">
+                                        <span>Jetzt Tarif sichern &rarr;</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Tariff Offerings Grid Section (Revealed smoothly after scrollytelling runway) -->
+        <section class="energy-tariffs-overview-section" id="tarife-overview">
+            <div class="container">
+                <div class="scrolly-tariffs-header text-center">
+                    <span class="badge-accent">Tarifauswahl &amp; Kostenvergleich</span>
+                    <h2 class="energy-section-title">Unsere Tarife f&uuml;r Ihr Zuhause im &Uuml;berblick</h2>
+                    <p class="energy-section-subtitle">W&auml;hlen Sie den passenden Tarif oder berechnen Sie Ihr pers&ouml;nliches Sparpotenzial mit unserem TÜV-gepr&uuml;ften Tarifrechner.</p>
+                </div>
+                <!-- Bottom Feature Footer: 4 Clear Tariff Offerings -->
+                <div class="energy-footer-stats energy-footer-tariff-grid">
+                    <!-- Card 1: Hausstrom -->
+                    <div class="energy-footer-stat energy-tariff-card tariff-card-strom">
+                        <div class="tariff-card-header">
+                            <span class="tariff-card-badge">&#128161; Haushaltsstrom &amp; Z&auml;hler</span>
+                            <span class="tariff-card-tag tag-strom">100 % &Ouml;kostrom</span>
+                        </div>
+                        <h3 class="stat-highlight">Wir bieten 100 % &Ouml;kostromtarife f&uuml;r Ihren Hausstrom an</h3>
+                        <p class="stat-detail">Bis zu 380 &euro; pro Jahr gegen&uuml;ber der Grundversorgung sparen mit 24 Monaten voller Preisgarantie und ok-power G&uuml;tesiegel.</p>
+                        <div class="tariff-card-action">
+                            <a href="#rechner" class="tariff-card-cta btn-rechner-sync" data-branch="strom" data-focus="strom">
+                                <span>Hausstrom berechnen &rarr;</span>
+                            </a>
+                        </div>
                     </div>
 
-                    <!-- Bottom Feature Footer: 4 Clear Tariff Offerings -->
-                    <div class="energy-3d-footer">
-                        <div class="energy-footer-stats energy-footer-tariff-grid">
-                            <!-- Card 1: Hausstrom -->
-                            <div class="energy-footer-stat energy-tariff-card tariff-card-strom">
-                                <div class="tariff-card-header">
-                                    <span class="tariff-card-badge">💡 Haushaltsstrom &amp; Zähler</span>
-                                    <span class="tariff-card-tag tag-strom">100 % Ökostrom</span>
-                                </div>
-                                <h3 class="stat-highlight">Wir bieten 100 % Ökostromtarife für Ihren Hausstrom an</h3>
-                                <p class="stat-detail">Bis zu 380 € pro Jahr gegenüber der Grundversorgung sparen mit 24 Monaten voller Preisgarantie und ok-power Gütesiegel.</p>
-                                <div class="tariff-card-action">
-                                    <a href="#rechner" class="tariff-card-cta btn-rechner-sync" data-branch="strom" data-focus="strom">
-                                        <span>Hausstrom berechnen &rarr;</span>
-                                    </a>
-                                </div>
-                            </div>
+                    <!-- Card 2: Wärmepumpe -->
+                    <div class="energy-footer-stat energy-tariff-card tariff-card-waerme">
+                        <div class="tariff-card-header">
+                            <span class="tariff-card-badge">&#9832;&#65039; W&auml;rmestrom &sect; 14a EnWG</span>
+                            <span class="tariff-card-tag tag-waerme">&sect; 14a EnWG</span>
+                        </div>
+                        <h3 class="stat-highlight">Wir bieten g&uuml;nstige Stromtarife f&uuml;r W&auml;rmepumpen an</h3>
+                        <p class="stat-detail">Bis zu 25 % reduzierte Netzentgelte nach &sect; 14a EnWG – sparen Sie hunderte Euro bei Ihren j&auml;hrlichen Heizkosten!</p>
+                        <div class="tariff-card-action">
+                            <a href="#rechner" class="tariff-card-cta btn-rechner-sync" data-branch="waerme" data-focus="waerme">
+                                <span>W&auml;rmetarif berechnen &rarr;</span>
+                            </a>
+                        </div>
+                    </div>
 
-                            <!-- Card 2: Wärmepumpe -->
-                            <div class="energy-footer-stat energy-tariff-card tariff-card-waerme">
-                                <div class="tariff-card-header">
-                                    <span class="tariff-card-badge">♨️ Wärmestrom § 14a EnWG</span>
-                                    <span class="tariff-card-tag tag-waerme">§ 14a EnWG</span>
-                                </div>
-                                <h3 class="stat-highlight">Wir bieten günstige Stromtarife für Wärmepumpen an</h3>
-                                <p class="stat-detail">Bis zu 25 % reduzierte Netzentgelte nach § 14a EnWG – sparen Sie hunderte Euro bei Ihren jährlichen Heizkosten!</p>
-                                <div class="tariff-card-action">
-                                    <a href="#rechner" class="tariff-card-cta btn-rechner-sync" data-branch="waerme" data-focus="waerme">
-                                        <span>Wärmetarif berechnen &rarr;</span>
-                                    </a>
-                                </div>
-                            </div>
+                    <!-- Card 3: Wallbox -->
+                    <div class="energy-footer-stat energy-tariff-card tariff-card-wallbox">
+                        <div class="tariff-card-header">
+                            <span class="tariff-card-badge">&#128268; Wallbox- &amp; Autostrom</span>
+                            <span class="tariff-card-tag tag-wallbox">Autostrom</span>
+                        </div>
+                        <h3 class="stat-highlight">Wir bieten spezielle Stromtarife f&uuml;r Wallboxen an</h3>
+                        <p class="stat-detail">Laden Sie Ihr E-Auto zuhause g&uuml;nstig mit 100 % zertifiziertem &Ouml;kostrom zu besten Konditionen und voller Transparenz.</p>
+                        <div class="tariff-card-action">
+                            <a href="#rechner" class="tariff-card-cta btn-rechner-sync" data-branch="strom" data-focus="wallbox">
+                                <span>Autostrom berechnen &rarr;</span>
+                            </a>
+                        </div>
+                    </div>
 
-                            <!-- Card 3: Wallbox -->
-                            <div class="energy-footer-stat energy-tariff-card tariff-card-wallbox">
-                                <div class="tariff-card-header">
-                                    <span class="tariff-card-badge">🔌 Wallbox- &amp; Autostrom</span>
-                                    <span class="tariff-card-tag tag-wallbox">Autostrom</span>
-                                </div>
-                                <h3 class="stat-highlight">Wir bieten spezielle Stromtarife für Wallboxen an</h3>
-                                <p class="stat-detail">Laden Sie Ihr E-Auto zuhause günstig mit 100 % zertifiziertem Ökostrom zu besten Konditionen und voller Transparenz.</p>
-                                <div class="tariff-card-action">
-                                    <a href="#rechner" class="tariff-card-cta btn-rechner-sync" data-branch="strom" data-focus="wallbox">
-                                        <span>Autostrom berechnen &rarr;</span>
-                                    </a>
-                                </div>
-                            </div>
-
-                            <!-- Card 4: Solar & Speicher -->
-                            <div class="energy-footer-stat energy-tariff-card tariff-card-solar">
-                                <div class="tariff-card-header">
-                                    <span class="tariff-card-badge">☀️ Solar &amp; Heimspeicher</span>
-                                    <span class="tariff-card-tag tag-solar">PV-Tarif</span>
-                                </div>
-                                <h3 class="stat-highlight">Wir bieten flexible Stromtarife für Solaranlagen &amp; Speicher an</h3>
-                                <p class="stat-detail">Die perfekte Reststrom-Belieferung für maximale Unabhängigkeit und Eigenverbrauchs-Optimierung Ihres Solar-Zuhause!</p>
-                                <div class="tariff-card-action">
-                                    <a href="#rechner" class="tariff-card-cta btn-rechner-sync" data-branch="strom" data-focus="solar">
-                                        <span>PV-Tarif ansehen &rarr;</span>
-                                    </a>
-                                </div>
-                            </div>
+                    <!-- Card 4: Solar & Speicher -->
+                    <div class="energy-footer-stat energy-tariff-card tariff-card-solar">
+                        <div class="tariff-card-header">
+                            <span class="tariff-card-badge">&#9728;&#65039; Solar &amp; Heimspeicher</span>
+                            <span class="tariff-card-tag tag-solar">PV-Tarif</span>
+                        </div>
+                        <h3 class="stat-highlight">Wir bieten flexible Stromtarife f&uuml;r Solaranlagen &amp; Speicher an</h3>
+                        <p class="stat-detail">Die perfekte Reststrom-Belieferung f&uuml;r maximale Unabh&auml;ngigkeit und Eigenverbrauchs-Optimierung Ihres Solar-Zuhause!</p>
+                        <div class="tariff-card-action">
+                            <a href="#rechner" class="tariff-card-cta btn-rechner-sync" data-branch="strom" data-focus="solar">
+                                <span>PV-Tarif ansehen &rarr;</span>
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -762,16 +821,16 @@
                         <div class="tariff-card-header">
                             <span class="tariff-badge">Flexibel &amp; Günstig</span>
                             <h3 class="tariff-title">ALPHA BASIC</h3>
-                            <div class="tariff-card-price-box">
-                                <div class="tariff-price-monthly" id="price-alpha-basic">70 €<span> / Monat</span></div>
-                                <div class="tariff-price-details">
-                                    <span id="savings-alpha-basic">Bis zu 300 € / Jahr sparen</span>
-                                </div>
-                            </div>
-                            <div class="tariff-feature-item" style="font-weight: 600; margin-bottom: 0.75rem;" id="kwh-desc-alpha-basic">
-                                2.500 kWh/Jahr • 27,85 ct/kWh
+                        </div>
+
+                        <div class="tariff-card-price-box">
+                            <div class="tariff-price-monthly" id="price-alpha-basic">70 €<span> / Monat</span></div>
+                            <div class="tariff-price-details">
+                                <span id="savings-alpha-basic">Bis zu 300 € / Jahr sparen</span>
                             </div>
                         </div>
+
+                        <div class="tariff-kwh-subtext" id="kwh-desc-alpha-basic">2.500 kWh/Jahr • 27,85 ct/kWh</div>
 
                         <div class="tariff-feature-list">
                             <div class="tariff-feature-item">
@@ -806,16 +865,16 @@
                         <div class="tariff-card-header">
                             <span class="tariff-badge" style="background: #fff7ed; color: #9a3412;">Smart Energy &amp; § 14a</span>
                             <h3 class="tariff-title">ALPHA TIME</h3>
-                            <div class="tariff-card-price-box" style="border-color: #fed7aa; background: #fff7ed;">
-                                <div class="tariff-price-monthly" id="price-alpha-time" style="color: #c2410c;">63 €<span> / Monat</span></div>
-                                <div class="tariff-price-details">
-                                    <span id="savings-alpha-time">Bis zu 380 € / Jahr sparen</span>
-                                </div>
-                            </div>
-                            <div class="tariff-feature-item" style="font-weight: 600; margin-bottom: 0.75rem;" id="kwh-desc-alpha-time">
-                                2.500 kWh/Jahr • 24,50 ct/kWh
+                        </div>
+
+                        <div class="tariff-card-price-box">
+                            <div class="tariff-price-monthly" id="price-alpha-time" style="color: #c2410c;">63 €<span> / Monat</span></div>
+                            <div class="tariff-price-details">
+                                <span id="savings-alpha-time">Bis zu 380 € / Jahr sparen</span>
                             </div>
                         </div>
+
+                        <div class="tariff-kwh-subtext" id="kwh-desc-alpha-time">2.500 kWh/Jahr • 24,50 ct/kWh</div>
 
                         <div class="tariff-feature-list">
                             <div class="tariff-feature-item">
@@ -846,16 +905,16 @@
                         <div class="tariff-card-header">
                             <span class="tariff-badge">24 Monate Preisschutz &amp; VIP</span>
                             <h3 class="tariff-title">ALPHA PREMIUM</h3>
-                            <div class="tariff-card-price-box">
-                                <div class="tariff-price-monthly" id="price-alpha-premium">72 €<span> / Monat</span></div>
-                                <div class="tariff-price-details">
-                                    <span id="savings-alpha-premium">Bis zu 280 € / Jahr sparen</span>
-                                </div>
-                            </div>
-                            <div class="tariff-feature-item" style="font-weight: 600; margin-bottom: 0.75rem;" id="kwh-desc-alpha-premium">
-                                2.500 kWh/Jahr • 28,20 ct/kWh
+                        </div>
+
+                        <div class="tariff-card-price-box">
+                            <div class="tariff-price-monthly" id="price-alpha-premium">72 €<span> / Monat</span></div>
+                            <div class="tariff-price-details">
+                                <span id="savings-alpha-premium">Bis zu 280 € / Jahr sparen</span>
                             </div>
                         </div>
+
+                        <div class="tariff-kwh-subtext" id="kwh-desc-alpha-premium">2.500 kWh/Jahr • 28,20 ct/kWh</div>
 
                         <div class="tariff-feature-list">
                             <div class="tariff-feature-item">
