@@ -802,33 +802,27 @@
 
         // Tariff Card 1: ALPHA BASIC
         { selector: '#card-alpha-basic .tariff-badge', key: 'tariff_basic_badge', isHtml: true },
-        { selector: '#card-alpha-basic .tariff-bonus-pill', key: 'tariff_basic_bonus' },
         { selector: '#card-alpha-basic .tariff-feature-list .tariff-feature-item:nth-child(1) span', key: 'tariff_basic_b1' },
         { selector: '#card-alpha-basic .tariff-feature-list .tariff-feature-item:nth-child(2) span', key: 'tariff_basic_b2' },
         { selector: '#card-alpha-basic .tariff-feature-list .tariff-feature-item:nth-child(3) span', key: 'tariff_basic_b3' },
         { selector: '#card-alpha-basic .tariff-feature-list .tariff-feature-item:nth-child(4) span', key: 'tariff_basic_b4' },
-        { selector: '#card-alpha-basic .tariff-feature-list .tariff-feature-item:nth-child(5) span', key: 'tariff_basic_b5' },
         { selector: '#card-alpha-basic .tariff-action-btn', key: 'tariff_basic_btn', isHtml: true },
 
         // Tariff Card 2: ALPHA TIME
         { selector: '#card-alpha-time .tariff-ribbon span', key: 'tariff_time_ribbon', isHtml: true },
         { selector: '#card-alpha-time .tariff-badge', key: 'tariff_time_badge', isHtml: true },
-        { selector: '#card-alpha-time .tariff-bonus-pill', key: 'tariff_time_bonus' },
         { selector: '#card-alpha-time .tariff-feature-list .tariff-feature-item:nth-child(1) span', key: 'tariff_time_b1' },
         { selector: '#card-alpha-time .tariff-feature-list .tariff-feature-item:nth-child(2) span', key: 'tariff_time_b2' },
         { selector: '#card-alpha-time .tariff-feature-list .tariff-feature-item:nth-child(3) span', key: 'tariff_time_b3' },
         { selector: '#card-alpha-time .tariff-feature-list .tariff-feature-item:nth-child(4) span', key: 'tariff_time_b4' },
-        { selector: '#card-alpha-time .tariff-feature-list .tariff-feature-item:nth-child(5) span', key: 'tariff_time_b5' },
         { selector: '#card-alpha-time .tariff-action-btn', key: 'tariff_time_btn', isHtml: true },
 
         // Tariff Card 3: ALPHA PREMIUM
         { selector: '#card-alpha-premium .tariff-badge', key: 'tariff_premium_badge', isHtml: true },
-        { selector: '#card-alpha-premium .tariff-bonus-pill', key: 'tariff_premium_bonus' },
         { selector: '#card-alpha-premium .tariff-feature-list .tariff-feature-item:nth-child(1) span', key: 'tariff_premium_b1' },
         { selector: '#card-alpha-premium .tariff-feature-list .tariff-feature-item:nth-child(2) span', key: 'tariff_premium_b2' },
         { selector: '#card-alpha-premium .tariff-feature-list .tariff-feature-item:nth-child(3) span', key: 'tariff_premium_b3' },
         { selector: '#card-alpha-premium .tariff-feature-list .tariff-feature-item:nth-child(4) span', key: 'tariff_premium_b4' },
-        { selector: '#card-alpha-premium .tariff-feature-list .tariff-feature-item:nth-child(5) span', key: 'tariff_premium_b5' },
         { selector: '#card-alpha-premium .tariff-action-btn', key: 'tariff_premium_btn', isHtml: true },
 
         // Advantages (Warum wir)
