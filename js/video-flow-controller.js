@@ -32,8 +32,8 @@
     // Configuration & Stage Definitions
     // -------------------------------------------------------------
     var CONFIG = {
-        videoSelector: '#versorger-video, video.versorger-video, #scrolly-flow-section video',
-        sectionSelector: '#scrolly-flow-section, .versorger-flow-section',
+        videoSelector: '#versorger-video, .versorger-video-fullformat-element, video.versorger-video, #scrolly-flow-section video',
+        sectionSelector: '#scrolly-flow-section, .versorger-video-fullformat-section, .versorger-flow-section',
         stepperSelector: '[data-video-step], [data-scrolly-step]',
         progressBarSelector: '#scrolly-progress-bar, [data-video-progress]',
         statusBadgeSelector: '#video-status-badge, [data-video-status], #scrolly-step-badge',
@@ -170,7 +170,7 @@
     }
 
     // -------------------------------------------------------------
-    // CSS Injection for Scroll Lock & Banner Animations
+    // CSS Injection for Scroll Lock & Video Hardware Acceleration
     // -------------------------------------------------------------
     function injectDefaultStyles() {
         if (document.getElementById('alpha-video-flow-injected-styles')) return;
@@ -185,47 +185,12 @@
             '    touch-action: none !important;',
             '}',
             '',
-            '/* Video Callout Banners Isolation */',
-            '.video-callout-banner, [data-video-banner] {',
-            '    opacity: 0 !important;',
-            '    pointer-events: none !important;',
-            '    visibility: hidden !important;',
-            '    transform: translateY(12px) scale(0.97) !important;',
-            '    transition: opacity 0.38s cubic-bezier(0.16, 1, 0.3, 1), transform 0.38s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.38s !important;',
-            '}',
-            '',
-            '.video-callout-banner.active, [data-video-banner].active {',
-            '    opacity: 1 !important;',
-            '    pointer-events: auto !important;',
-            '    visibility: visible !important;',
-            '    transform: translateY(0) scale(1) !important;',
-            '}',
-            '',
-            '/* Floating Skip Button */',
-            '.video-skip-btn, [data-video-action="skip"] {',
-            '    transition: opacity 0.25s ease, transform 0.25s ease, visibility 0.25s;',
-            '}',
-            '.video-skip-btn.is-hidden, [data-video-action="skip"].is-hidden {',
-            '    opacity: 0 !important;',
-            '    pointer-events: none !important;',
-            '    visibility: hidden !important;',
-            '}',
-            '',
-            '/* Replay Button */',
-            '.video-replay-btn, [data-video-action="replay"] {',
-            '    transition: opacity 0.3s ease, transform 0.3s ease, visibility 0.3s;',
-            '}',
-            '.video-replay-btn.is-hidden, [data-video-action="replay"].is-hidden {',
-            '    opacity: 0 !important;',
-            '    pointer-events: none !important;',
-            '    visibility: hidden !important;',
-            '}',
-            '',
             '/* High-Performance Hardware Accelerated Video Container */',
-            '#versorger-video, .versorger-video {',
+            '#versorger-video, .versorger-video, .versorger-video-fullformat-element {',
             '    transform: translateZ(0);',
             '    backface-visibility: hidden;',
             '    will-change: transform;',
+            '    cursor: pointer;',
             '}'
         ].join('\n');
 
@@ -233,182 +198,13 @@
     }
 
     // -------------------------------------------------------------
-    // Dynamic Fallback Banner & Control Injection (Self-Healing DOM)
+    // Dynamic Fallback Banner & Control Injection (Disabled for Clean Full-Format)
     // -------------------------------------------------------------
     function ensureBannersAndControls() {
-        var existingBanners = document.querySelectorAll('[data-video-banner], [data-banner-id], .video-tariff-banner');
-        var skipBtn = document.querySelector(CONFIG.skipButtonSelector);
-        var replayBtn = document.querySelector(CONFIG.replayButtonSelector);
-
-        // If banners already exist in the HTML, no injection required
-        if (existingBanners.length > 0 && skipBtn && replayBtn) {
-            return;
-        }
-
-        var hostContainer = state.section
-            ? (state.section.querySelector('.scrolly-sticky-frame') ||
-               state.section.querySelector('.scrolly-flow-card') ||
-               state.section.querySelector('.versorger-flow-card') ||
-               state.section.querySelector('.container') ||
-               state.section)
-            : document.body;
-
-        if (!hostContainer) return;
-
-        // Ensure host is positioned relative
-        var hostStyle = window.getComputedStyle(hostContainer);
-        if (hostStyle.position === 'static') {
-            hostContainer.style.position = 'relative';
-        }
-
-        // If banners are missing, create wrapper and inject them
-        if (existingBanners.length === 0) {
-            var bannersContainer = document.createElement('div');
-            bannersContainer.className = 'video-flow-hud-container';
-            bannersContainer.setAttribute('data-video-flow-hud', 'true');
-            bannersContainer.style.cssText = 'position: absolute; inset: 0; pointer-events: none; z-index: 25; overflow: hidden;';
-
-            bannersContainer.innerHTML = [
-                '<!-- Wallbox Callout Banner -->',
-                '<div class="video-callout-banner banner-wallbox" data-video-banner="wallbox" aria-hidden="true" style="position: absolute; bottom: 28px; left: 28px; max-width: 440px; z-index: 30;">',
-                '    <div class="callout-glass-card" style="background: rgba(11, 21, 54, 0.88); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid rgba(0, 210, 255, 0.35); box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.65), 0 0 25px rgba(0, 210, 255, 0.15); border-radius: 16px; padding: 1.15rem 1.35rem;">',
-                '        <div class="callout-header" style="display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; margin-bottom: 0.55rem;">',
-                '            <span class="callout-badge" style="display: inline-flex; align-items: center; gap: 0.35rem; font-size: 0.76rem; font-weight: 700; color: #00D2FF; background: rgba(0, 210, 255, 0.12); border: 1px solid rgba(0, 210, 255, 0.3); padding: 0.2rem 0.65rem; border-radius: 9999px;">',
-                '                <span>🔌</span> Wallbox- &amp; Autostrom',
-                '            </span>',
-                '            <span style="font-size: 0.72rem; color: #94A3B8;">100 % Ökostrom</span>',
-                '        </div>',
-                '        <h4 class="callout-title" style="font-family: inherit; font-size: 1.05rem; font-weight: 700; color: #FFFFFF; margin: 0 0 0.45rem 0; line-height: 1.35;">',
-                '            Wir bieten spezielle Stromtarife f&uuml;r Wallboxen an',
-                '        </h4>',
-                '        <p class="callout-desc" style="font-size: 0.84rem; color: #CBD5E1; margin: 0 0 0.95rem 0; line-height: 1.45;">',
-                '            Laden Sie Ihr E-Auto zuhause g&uuml;nstig mit 100 % zertifiziertem &Ouml;kostrom zu besten Konditionen und voller Transparenz.',
-                '        </p>',
-                '        <div class="callout-actions">',
-                '            <a href="#rechner" class="btn btn-primary btn-rechner-sync" data-branch="strom" data-focus="wallbox" style="display: inline-flex; align-items: center; gap: 0.4rem; font-size: 0.84rem; font-weight: 700; padding: 0.48rem 1.1rem; border-radius: 9999px; text-decoration: none;">',
-                '                <span>Autostrom berechnen &rarr;</span>',
-                '            </a>',
-                '        </div>',
-                '    </div>',
-                '</div>',
-                '',
-                '<!-- Wärmepumpe Callout Banner -->',
-                '<div class="video-callout-banner banner-waerme" data-video-banner="waerme" aria-hidden="true" style="position: absolute; bottom: 28px; left: 28px; max-width: 440px; z-index: 30;">',
-                '    <div class="callout-glass-card" style="background: rgba(11, 21, 54, 0.88); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid rgba(255, 122, 0, 0.35); box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.65), 0 0 25px rgba(255, 122, 0, 0.15); border-radius: 16px; padding: 1.15rem 1.35rem;">',
-                '        <div class="callout-header" style="display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; margin-bottom: 0.55rem;">',
-                '            <span class="callout-badge" style="display: inline-flex; align-items: center; gap: 0.35rem; font-size: 0.76rem; font-weight: 700; color: #FF7A00; background: rgba(255, 122, 0, 0.12); border: 1px solid rgba(255, 122, 0, 0.3); padding: 0.2rem 0.65rem; border-radius: 9999px;">',
-                '                <span>♨️</span> W&auml;rmestrom &sect; 14a EnWG',
-                '            </span>',
-                '            <span style="font-size: 0.72rem; color: #94A3B8;">Bis 25% Rabatt</span>',
-                '        </div>',
-                '        <h4 class="callout-title" style="font-family: inherit; font-size: 1.05rem; font-weight: 700; color: #FFFFFF; margin: 0 0 0.45rem 0; line-height: 1.35;">',
-                '            Wir bieten g&uuml;nstige Stromtarife f&uuml;r W&auml;rmepumpen an',
-                '        </h4>',
-                '        <p class="callout-desc" style="font-size: 0.84rem; color: #CBD5E1; margin: 0 0 0.95rem 0; line-height: 1.45;">',
-                '            Bis zu 25 % reduzierte Netzentgelte nach &sect; 14a EnWG &ndash; sparen Sie hunderte Euro bei Ihren j&auml;hrlichen Heizkosten!',
-                '        </p>',
-                '        <div class="callout-actions">',
-                '            <a href="#rechner" class="btn btn-primary btn-rechner-sync" data-branch="waerme" data-focus="waerme" style="display: inline-flex; align-items: center; gap: 0.4rem; font-size: 0.84rem; font-weight: 700; padding: 0.48rem 1.1rem; border-radius: 9999px; text-decoration: none;">',
-                '                <span>W&auml;rmetarif berechnen &rarr;</span>',
-                '            </a>',
-                '        </div>',
-                '    </div>',
-                '</div>',
-                '',
-                '<!-- Ganzes Haus / Hausstrom Banner -->',
-                '<div class="video-callout-banner banner-haus" data-video-banner="haus" aria-hidden="true" style="position: absolute; bottom: 28px; left: 28px; max-width: 440px; z-index: 30;">',
-                '    <div class="callout-glass-card" style="background: rgba(11, 21, 54, 0.88); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid rgba(0, 230, 118, 0.35); box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.65), 0 0 25px rgba(0, 230, 118, 0.15); border-radius: 16px; padding: 1.15rem 1.35rem;">',
-                '        <div class="callout-header" style="display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; margin-bottom: 0.55rem;">',
-                '            <span class="callout-badge" style="display: inline-flex; align-items: center; gap: 0.35rem; font-size: 0.76rem; font-weight: 700; color: #00E676; background: rgba(0, 230, 118, 0.12); border: 1px solid rgba(0, 230, 118, 0.3); padding: 0.2rem 0.65rem; border-radius: 9999px;">',
-                '                <span>💡</span> Haushaltsstrom &amp; Z&auml;hler',
-                '            </span>',
-                '            <span style="font-size: 0.72rem; color: #94A3B8;">ok-power Siegel</span>',
-                '        </div>',
-                '        <h4 class="callout-title" style="font-family: inherit; font-size: 1.05rem; font-weight: 700; color: #FFFFFF; margin: 0 0 0.45rem 0; line-height: 1.35;">',
-                '            Wir bieten 100 % &Ouml;kostromtarife f&uuml;r Ihren Hausstrom an',
-                '        </h4>',
-                '        <p class="callout-desc" style="font-size: 0.84rem; color: #CBD5E1; margin: 0 0 0.95rem 0; line-height: 1.45;">',
-                '            Bis zu 380 &euro; pro Jahr gegen&uuml;ber der Grundversorgung sparen mit 24 Monaten Preisgarantie und 100 % nachhaltiger Energie.',
-                '        </p>',
-                '        <div class="callout-actions">',
-                '            <a href="#rechner" class="btn btn-primary btn-rechner-sync" data-branch="strom" data-focus="strom" style="display: inline-flex; align-items: center; gap: 0.4rem; font-size: 0.84rem; font-weight: 700; padding: 0.48rem 1.1rem; border-radius: 9999px; text-decoration: none;">',
-                '                <span>Hausstrom berechnen &rarr;</span>',
-                '            </a>',
-                '        </div>',
-                '    </div>',
-                '</div>'
-            ].join('\n');
-
-            hostContainer.appendChild(bannersContainer);
-        }
-
-        // If skip button is missing, append it
-        if (!skipBtn) {
-            var newSkipBtn = document.createElement('button');
-            newSkipBtn.type = 'button';
-            newSkipBtn.id = 'btn-video-skip';
-            newSkipBtn.className = 'video-skip-btn is-hidden';
-            newSkipBtn.setAttribute('data-video-action', 'skip');
-            newSkipBtn.setAttribute('title', 'Tour überspringen & weiterscrollen (Esc)');
-            newSkipBtn.setAttribute('aria-label', 'Tour überspringen & weiterscrollen');
-            newSkipBtn.style.cssText = [
-                'position: absolute;',
-                'bottom: 24px;',
-                'right: 24px;',
-                'z-index: 40;',
-                'background: rgba(15, 23, 42, 0.85);',
-                'backdrop-filter: blur(12px);',
-                '-webkit-backdrop-filter: blur(12px);',
-                'border: 1px solid rgba(255, 255, 255, 0.2);',
-                'color: #CBD5E1;',
-                'font-family: inherit;',
-                'font-size: 0.8rem;',
-                'font-weight: 600;',
-                'padding: 0.45rem 1rem;',
-                'border-radius: 9999px;',
-                'cursor: pointer;',
-                'box-shadow: 0 6px 18px rgba(0, 0, 0, 0.45);',
-                'display: inline-flex;',
-                'align-items: center;',
-                'gap: 0.35rem;'
-            ].join(' ');
-            newSkipBtn.innerHTML = '<span>&Uuml;berspringen &amp; Weiterscrollen</span> <span aria-hidden="true">&darr;</span>';
-            hostContainer.appendChild(newSkipBtn);
-        }
-
-        // If replay button is missing, append it
-        if (!replayBtn) {
-            var newReplayBtn = document.createElement('button');
-            newReplayBtn.type = 'button';
-            newReplayBtn.id = 'btn-video-replay';
-            newReplayBtn.className = 'video-replay-btn is-hidden';
-            newReplayBtn.setAttribute('data-video-action', 'replay');
-            newReplayBtn.setAttribute('title', 'Tour erneut abspielen');
-            newReplayBtn.setAttribute('aria-label', 'Tour erneut abspielen');
-            newReplayBtn.style.cssText = [
-                'position: absolute;',
-                'bottom: 24px;',
-                'right: 24px;',
-                'z-index: 40;',
-                'background: linear-gradient(135deg, rgba(0, 230, 118, 0.22) 0%, rgba(11, 21, 54, 0.95) 100%);',
-                'backdrop-filter: blur(14px);',
-                '-webkit-backdrop-filter: blur(14px);',
-                'border: 1px solid #00E676;',
-                'color: #FFFFFF;',
-                'font-family: inherit;',
-                'font-size: 0.84rem;',
-                'font-weight: 700;',
-                'padding: 0.5rem 1.15rem;',
-                'border-radius: 9999px;',
-                'cursor: pointer;',
-                'box-shadow: 0 0 20px rgba(0, 230, 118, 0.4);',
-                'display: inline-flex;',
-                'align-items: center;',
-                'gap: 0.45rem;'
-            ].join(' ');
-            newReplayBtn.innerHTML = '<span aria-hidden="true">&#8634;</span> <span>Tour erneut abspielen</span>';
-            hostContainer.appendChild(newReplayBtn);
-        }
+        // Clean Full-Format Cinematic Mode:
+        // Explicit directive: "kein text oder playbuttons zeigen und video in vollformat"
+        // Do NOT dynamically inject banners or HUD buttons onto the video viewport.
+        return;
     }
 
     // -------------------------------------------------------------
@@ -916,8 +712,38 @@
     // Event Delegation & UI Wire-Up
     // -------------------------------------------------------------
     function setupInteractions() {
-        // Stepper pills click navigation
+        // Global Escape key handler to immediately unlock scrolling at any time
+        window.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' || e.keyCode === 27) {
+                if (state.isLocked) {
+                    unlockScroll('escape_key');
+                }
+            }
+        }, true);
+
+        // Click delegation on document
         document.addEventListener('click', function(e) {
+            // Click on video or full-format container unlocks scroll & toggles playback
+            var clickedVideo = e.target.closest(CONFIG.videoSelector) ||
+                               e.target.closest('#versorger-video-container') ||
+                               e.target.closest('.versorger-video-fullformat-container') ||
+                               e.target.closest('.versorger-video-fullformat-section');
+            if (clickedVideo && !e.target.closest('a, button')) {
+                e.preventDefault();
+                if (state.isLocked) {
+                    unlockScroll('video_click');
+                }
+                if (state.video) {
+                    if (state.video.paused || state.video.ended) {
+                        play();
+                    } else {
+                        pause();
+                    }
+                }
+                return;
+            }
+
+            // Stepper pills click navigation
             var stepBtn = e.target.closest(CONFIG.stepperSelector);
             if (stepBtn) {
                 e.preventDefault();
@@ -1016,16 +842,17 @@
 
         // Self-healing: If no video tag exists, create one inside #scrolly-flow-section
         if (!video && state.section) {
-            var container = state.section.querySelector('.scrolly-sticky-frame') ||
+            var container = state.section.querySelector('#versorger-video-container') ||
+                            state.section.querySelector('.versorger-video-fullformat-container') ||
+                            state.section.querySelector('.scrolly-sticky-frame') ||
                             state.section.querySelector('.versorger-3d-viewport') ||
-                            state.section.querySelector('#alpha-versorger-canvas') ||
                             state.section;
 
             video = document.createElement('video');
             video.id = 'versorger-video';
-            video.className = 'versorger-video';
+            video.className = 'versorger-video-fullformat-element';
             video.src = CONFIG.defaultVideoSrc;
-            video.style.cssText = 'position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 10; border-radius: inherit;';
+            video.style.cssText = 'width: 100%; height: 100%; object-fit: cover; border: none;';
             container.appendChild(video);
         }
 
@@ -1045,6 +872,19 @@
             video.src = CONFIG.defaultVideoSrc;
         }
 
+        // Direct click on video to toggle playback & unlock scroll
+        video.addEventListener('click', function(e) {
+            e.preventDefault();
+            if (state.isLocked) {
+                unlockScroll('video_click');
+            }
+            if (video.paused || video.ended) {
+                play();
+            } else {
+                pause();
+            }
+        });
+
         // Video event listeners
         video.addEventListener('loadedmetadata', function() {
             if (video.duration && !isNaN(video.duration)) {
@@ -1061,10 +901,8 @@
         });
 
         video.addEventListener('pause', function() {
-            if (video.currentTime < 10.0 && !state.hasCompletedOnce) {
-                // If paused before completion, release scroll lock so user is not stuck
-                unlockScroll('video_paused');
-            }
+            // Unlock scrolling immediately on pause
+            unlockScroll('video_paused');
         });
 
         video.addEventListener('error', function(err) {

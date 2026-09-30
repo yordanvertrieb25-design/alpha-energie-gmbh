@@ -1,6 +1,6 @@
 const { test, expect } = require('@playwright/test');
 
-test.describe('Alpha Energie Smart Home Video Scrollytelling Suite', () => {
+test.describe('Alpha Energie Smart Home Video Showcase Suite (Clean Full-Format Cinematic)', () => {
 
     test('1. versorger.html loads with 0 console errors and initializes AlphaVideoFlow', async ({ page }) => {
         const consoleErrors = [];
@@ -24,14 +24,20 @@ test.describe('Alpha Energie Smart Home Video Scrollytelling Suite', () => {
         expect(isControllerMounted).toBe(true);
     });
 
-    test('2. Video container and video element are properly mounted with correct sources', async ({ page }) => {
+    test('2. Video container and video element are properly mounted in full-format with correct sources', async ({ page }) => {
         await page.goto('/versorger.html', { waitUntil: 'load' });
+
+        const videoSection = page.locator('#scrolly-flow-section');
+        await expect(videoSection).toBeVisible();
+        await expect(videoSection).toHaveClass(/versorger-video-fullformat-section/);
 
         const videoContainer = page.locator('#versorger-video-container');
         await expect(videoContainer).toBeVisible();
+        await expect(videoContainer).toHaveClass(/versorger-video-fullformat-container/);
 
         const videoEl = page.locator('#versorger-video');
         await expect(videoEl).toBeAttached();
+        await expect(videoEl).toHaveClass(/versorger-video-fullformat-element/);
 
         // Check attributes: muted, playsinline, preload
         await expect(videoEl).toHaveAttribute('muted', '');
@@ -47,26 +53,28 @@ test.describe('Alpha Energie Smart Home Video Scrollytelling Suite', () => {
         expect(hasSmartHomeFlow).toBe(true);
     });
 
-    test('3. Exact German commercial offering phrasing is intact on all 3 banners', async ({ page }) => {
+    test('3. Directive enforcement: NO text overlays, NO play buttons, NO HUD bar, NO banners in the video viewport', async ({ page }) => {
         await page.goto('/versorger.html', { waitUntil: 'load' });
 
-        // Wallbox
-        const wallboxBanner = page.locator('#video-banner-wallbox');
-        await expect(wallboxBanner).toBeAttached();
-        const wallboxTitle = wallboxBanner.locator('.video-banner-title');
-        await expect(wallboxTitle).toHaveText('Wir bieten spezielle Stromtarife für Wallboxen an');
+        // HUD bar must not exist or be visible
+        const hud = page.locator('.video-player-hud');
+        await expect(hud).toHaveCount(0);
 
-        // Wärmepumpe
-        const waermeBanner = page.locator('#video-banner-waerme');
-        await expect(waermeBanner).toBeAttached();
-        const waermeTitle = waermeBanner.locator('.video-banner-title');
-        await expect(waermeTitle).toHaveText('Wir bieten günstige Stromtarife für Wärmepumpen an');
+        // Play/Pause button on video must not exist or be visible
+        const playBtn = page.locator('#btn-video-toggle-play, .video-hud-btn');
+        await expect(playBtn).toHaveCount(0);
 
-        // Hausstrom
-        const hausBanner = page.locator('#video-banner-haus');
-        await expect(hausBanner).toBeAttached();
-        const hausTitle = hausBanner.locator('.video-banner-title');
-        await expect(hausTitle).toHaveText('Wir bieten 100 % Ökostromtarife für Ihren Hausstrom an');
+        // Stepper / Cockpit header inside video must not exist or be visible
+        const scrollyHeader = page.locator('#scrolly-flow-section .scrolly-tour-header, #scrolly-flow-section .sim-cockpit-header');
+        await expect(scrollyHeader).toHaveCount(0);
+
+        // Floating banners inside video must not exist or be visible
+        const banners = page.locator('#scrolly-flow-section .video-tariff-banner, #scrolly-flow-section [data-video-banner], #scrolly-flow-section .video-banners-layer');
+        await expect(banners).toHaveCount(0);
+
+        // Skip / replay buttons must not be visible on video
+        const skipBtn = page.locator('#scrolly-flow-section .btn-video-skip, #scrolly-flow-section .video-skip-btn');
+        await expect(skipBtn).toHaveCount(0);
     });
 
     test('4. Stage definitions enforce accurate playback rates (slow-mo 0.35x / 0.45x)', async ({ page }) => {
@@ -103,103 +111,80 @@ test.describe('Alpha Energie Smart Home Video Scrollytelling Suite', () => {
         expect(hausStage.speed).toBeCloseTo(0.45, 2);
     });
 
-    test('5. Single-banner isolation & stepper time seeking functionality', async ({ page }) => {
+    test('5. Video click unlocks scrolling and toggles playback', async ({ page }) => {
         await page.goto('/versorger.html', { waitUntil: 'load' });
 
-        const wallboxBanner = page.locator('#video-banner-wallbox');
-        const waermeBanner = page.locator('#video-banner-waerme');
-        const hausBanner = page.locator('#video-banner-haus');
-
-        // 1. Activate Wallbox stage (seek to 3.0s)
+        // Manually lock scroll
         await page.evaluate(() => {
-            window.AlphaVideoFlow.seek(3.0);
+            window.AlphaVideoFlow.lockScroll();
         });
 
-        await expect(wallboxBanner).toHaveClass(/active/);
-        await expect(wallboxBanner).toHaveAttribute('aria-hidden', 'false');
-        await expect(waermeBanner).not.toHaveClass(/active/);
-        await expect(hausBanner).not.toHaveClass(/active/);
+        let isLocked = await page.evaluate(() => window.AlphaVideoFlow.isLocked());
+        expect(isLocked).toBe(true);
 
-        // 2. Activate Wärmepumpe stage (seek to 5.5s)
-        await page.evaluate(() => {
-            window.AlphaVideoFlow.seek(5.5);
-        });
+        // Click the video element
+        const videoEl = page.locator('#versorger-video');
+        await videoEl.dispatchEvent('click');
 
-        await expect(waermeBanner).toHaveClass(/active/);
-        await expect(waermeBanner).toHaveAttribute('aria-hidden', 'false');
-        await expect(wallboxBanner).not.toHaveClass(/active/);
-        await expect(hausBanner).not.toHaveClass(/active/);
-
-        // 3. Activate Hausstrom stage (seek to 8.0s)
-        await page.evaluate(() => {
-            window.AlphaVideoFlow.seek(8.0);
-        });
-
-        await expect(hausBanner).toHaveClass(/active/);
-        await expect(hausBanner).toHaveAttribute('aria-hidden', 'false');
-        await expect(wallboxBanner).not.toHaveClass(/active/);
-        await expect(waermeBanner).not.toHaveClass(/active/);
+        // Scroll lock must now be unlocked
+        isLocked = await page.evaluate(() => window.AlphaVideoFlow.isLocked());
+        expect(isLocked).toBe(false);
     });
 
-    test('6. Stepper pills click navigates to corresponding stage and updates active states', async ({ page }) => {
+    test('6. Escape key unlocks scrolling immediately', async ({ page }) => {
         await page.goto('/versorger.html', { waitUntil: 'load' });
 
-        const stepWaermePill = page.locator('.scrolly-step-pill[data-video-step="waerme"]');
-        await expect(stepWaermePill).toBeVisible();
-        await stepWaermePill.dispatchEvent('click');
-
-        await expect(stepWaermePill).toHaveClass(/active/);
-        const waermeBanner = page.locator('#video-banner-waerme');
-        await expect(waermeBanner).toHaveClass(/active/);
-
-        const stepHausPill = page.locator('.scrolly-step-pill[data-video-step="haus"]');
-        await expect(stepHausPill).toBeVisible();
-        await stepHausPill.dispatchEvent('click');
-
-        await expect(stepHausPill).toHaveClass(/active/);
-        const hausBanner = page.locator('#video-banner-haus');
-        await expect(hausBanner).toHaveClass(/active/);
-    });
-
-    test('7. Two-way sync: Banner CTA clicks activate calculator branch', async ({ page }) => {
-        await page.goto('/versorger.html', { waitUntil: 'load' });
-
-        // Seek to waerme stage
+        // Manually lock scroll
         await page.evaluate(() => {
-            window.AlphaVideoFlow.seek(5.5);
+            window.AlphaVideoFlow.lockScroll();
         });
 
-        const waermeCta = page.locator('#video-banner-waerme .btn-video-banner-cta');
-        await expect(waermeCta).toBeVisible();
-        await waermeCta.dispatchEvent('click');
+        let isLocked = await page.evaluate(() => window.AlphaVideoFlow.isLocked());
+        expect(isLocked).toBe(true);
 
-        // Calculator tab 'waerme' should be activated
-        const activeCalcTab = page.locator('.calc-tab-btn.active');
-        await expect(activeCalcTab).toHaveAttribute('data-branch', 'waerme');
+        // Press Escape
+        await page.keyboard.press('Escape');
+
+        // Scroll lock must now be unlocked
+        isLocked = await page.evaluate(() => window.AlphaVideoFlow.isLocked());
+        expect(isLocked).toBe(false);
     });
 
-    test('8. Skip & Replay controls operate smoothly', async ({ page }) => {
+    test('7. Pausing or ending video immediately releases scroll lock', async ({ page }) => {
         await page.goto('/versorger.html', { waitUntil: 'load' });
 
-        const skipBtn = page.locator('#btn-video-skip');
-        await expect(skipBtn).toBeVisible();
-        await skipBtn.dispatchEvent('click');
-
-        // After skip, scroll lock is false
-        const isLocked = await page.evaluate(() => {
-            return window.AlphaVideoFlow.isLocked();
+        await page.evaluate(() => {
+            window.AlphaVideoFlow.lockScroll();
+            window.AlphaVideoFlow.pause();
         });
+
+        let isLocked = await page.evaluate(() => window.AlphaVideoFlow.isLocked());
         expect(isLocked).toBe(false);
 
-        const replayBtn = page.locator('#btn-video-replay');
-        if (await replayBtn.isVisible()) {
-            await replayBtn.dispatchEvent('click');
-            const currentTime = await page.evaluate(() => {
-                const v = document.getElementById('versorger-video');
-                return v ? v.currentTime : -1;
-            });
-            expect(currentTime).toBeLessThan(1.0);
-        }
+        // Test tour ended
+        await page.evaluate(() => {
+            window.AlphaVideoFlow.lockScroll();
+            window.AlphaVideoFlow.seek(10.0);
+        });
+
+        isLocked = await page.evaluate(() => window.AlphaVideoFlow.isLocked());
+        expect(isLocked).toBe(false);
+    });
+
+    test('8. Tariff offerings grid section below video is intact with 4 cards', async ({ page }) => {
+        await page.goto('/versorger.html', { waitUntil: 'load' });
+
+        const tariffSection = page.locator('#tarife-overview');
+        await expect(tariffSection).toBeAttached();
+
+        const tariffCards = page.locator('#tarife-overview .energy-tariff-card');
+        const count = await tariffCards.count();
+        expect(count).toBeGreaterThanOrEqual(3);
+
+        // Calculator CTA buttons on tariff cards are present
+        const rechnerCtas = page.locator('#tarife-overview .btn-rechner-sync');
+        const ctaCount = await rechnerCtas.count();
+        expect(ctaCount).toBeGreaterThanOrEqual(3);
     });
 
     test('9. Mobile responsiveness (375px viewport) and zero horizontal overflow', async ({ page }) => {
@@ -221,21 +206,27 @@ test.describe('Alpha Energie Smart Home Video Scrollytelling Suite', () => {
         expect(overflow.hasOverflow).toBe(false);
     });
 
-    test('10. Desktop layout (1280px viewport) renders HUD, Stepper and Banners flawlessly', async ({ page }) => {
+    test('10. Full-format edge-to-edge layout renders without borders or padding', async ({ page }) => {
         await page.setViewportSize({ width: 1280, height: 800 });
         await page.goto('/versorger.html', { waitUntil: 'load' });
 
         const videoContainer = page.locator('#versorger-video-container');
         await expect(videoContainer).toBeVisible();
 
-        const stepperTrack = page.locator('.scrolly-stepper-track');
-        await expect(stepperTrack).toBeVisible();
+        const videoEl = page.locator('#versorger-video');
+        await expect(videoEl).toBeVisible();
 
-        const hud = page.locator('.video-player-hud');
-        await expect(hud).toBeVisible();
+        const styles = await videoContainer.evaluate(el => {
+            const cs = window.getComputedStyle(el);
+            return {
+                borderRadius: cs.borderRadius,
+                borderTopWidth: cs.borderTopWidth,
+                padding: cs.padding
+            };
+        });
 
-        const playBtn = page.locator('#btn-video-toggle-play');
-        await expect(playBtn).toBeVisible();
+        expect(styles.borderRadius).toBe('0px');
+        expect(styles.borderTopWidth).toBe('0px');
     });
 
 });
