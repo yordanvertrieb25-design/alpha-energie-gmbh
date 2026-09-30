@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alpha Energie GmbH | Firstcon Test-Bestellstrecke</title>
+    <meta name="robots" content="noindex, nofollow">
+    <link rel="icon" href="/favicon.ico">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #0a1f44;
+            --accent: #ff7a00;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+        }
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: var(--bg);
+            color: var(--text-main);
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+        }
+        .header-bar {
+            background: #ffffff;
+            border-bottom: 1px solid var(--border);
+            padding: 1rem 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .header-bar img {
+            height: 40px;
+        }
+        .env-badge {
+            background: #fff7ed;
+            color: #c2410c;
+            border: 1px solid #fed7aa;
+            padding: 0.35rem 0.85rem;
+            border-radius: 9999px;
+            font-size: 0.8rem;
+            font-weight: 700;
+        }
+        .test-container {
+            max-width: 900px;
+            margin: 2.5rem auto;
+            padding: 0 1.5rem;
+        }
+        .test-card {
+            background: #ffffff;
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
+            padding: 2rem;
+        }
+        .test-info-box {
+            background: #f1f5f9;
+            border-left: 4px solid var(--accent);
+            padding: 1rem 1.25rem;
+            border-radius: 6px;
+            font-size: 0.88rem;
+            color: var(--text-muted);
+            margin-bottom: 2rem;
+            line-height: 1.5;
+        }
+        .test-info-box strong {
+            color: var(--primary);
+        }
+    </style>
+
+    <!-- Firstcon Dev01 Head Script -->
+    <script src="https://cdn.dev01.firstcon.de/static/js/firstcon.bestellstrasse.head.js"></script>
+</head>
+<body>
+    <header class="header-bar">
+        <a href="/">
+            <img src="/logo.png" alt="Alpha Energie GmbH Logo">
+        </a>
+        <span class="env-badge">Firstcon Dev01 Testsystem</span>
+    </header>
+
+    <main class="test-container">
+        <div class="test-card">
+            <div class="test-info-box">
+                <strong>Alpha Energie GmbH • Offizielle Firstcon-Integration</strong><br>
+                Testumgebung für die technische Validierung (Token: <code>1994e155-ce1c-47a7-83c8-21660f0857a7</code>). In dieser Teststrecke können Tarifabfragen und Bestellschritte ohne Auslösung echter Verträge geprüft werden.
+            </div>
+
+            <!-- Firstcon Widget Container -->
+            <div id="bestellstrasse_widget" data-token="1994e155-ce1c-47a7-83c8-21660f0857a7"></div>
+        </div>
+    </main>
+
+    <!-- Firstcon Dev01 Body Script -->
+    <script src="https://cdn.dev01.firstcon.de/static/js/firstcon.bestellstrasse.body.js"></script>
+</body>
+</html>

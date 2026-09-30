@@ -140,6 +140,7 @@
     <link rel="stylesheet" href="style.css">
     <script src="i18n.js" defer></script>
     <script src="main.js" defer></script>
+    <script src="/js/video-flow-controller.js" defer></script>
     <script src="/js/three/three-loader.js" defer></script>
 
     <!-- Schema.org Structured Data -->
@@ -469,8 +470,8 @@
             </div>
         </section>
 
-        <!-- 3D WebGL Versorger Flow Scrollytelling Pinned Section -->
-        <section id="scrolly-flow-section" class="energy-network-section scrolly-energy-section versorger-flow-section" aria-label="3D-Netzfluss Visualisierung &amp; Sparsimulator">
+        <!-- Photorealistic Smart Home Video Scrollytelling Section -->
+        <section id="scrolly-flow-section" class="energy-network-section scrolly-energy-section versorger-flow-section" aria-label="Smart Home Video-Tour &amp; Sparsimulator">
             <div class="energy-network-bg-glow" aria-hidden="true"></div>
             
             <!-- Sticky Viewport Wrapper -->
@@ -482,50 +483,42 @@
                             <div class="scrolly-badge-group">
                                 <div class="energy-3d-badge">
                                     <span class="pulse-dot"></span>
-                                    <span id="scrolly-step-badge">Station 1 von 4</span>
+                                    <span id="scrolly-step-badge">Station 1 von 3</span>
                                 </div>
-                                <span class="scrolly-tour-subtext hide-mobile">Interaktive 3D Smart Home Tour</span>
+                                <span class="scrolly-tour-subtext hide-mobile">Interaktive Smart Home Video-Tour</span>
                             </div>
                             <div class="scrolly-stage-prompt">
-                                <span id="scrolly-step-label" class="scrolly-step-label">Schritt 1 von 4: Haushaltsstrom &amp; Zähler</span>
-                                <span class="scrolly-scroll-hint hide-mobile">
-                                    <span class="scrolly-hint-arrow" aria-hidden="true">&darr;</span> Weiterscrollen f&uuml;r n&auml;chste Station
-                                </span>
+                                <span id="scrolly-step-label" class="scrolly-step-label">Station 1: Wallbox &amp; E-Mobilität</span>
+                                <button type="button" id="btn-video-skip" class="btn-video-skip" data-video-action="skip" title="Video überspringen und weiterscrollen"><span>Überspringen &amp; Weiterscrollen &darr;</span></button>
+                                <button type="button" id="btn-video-replay" class="btn-video-replay is-hidden" data-video-action="replay" style="display:none;" title="Tour erneut abspielen"><span>Tour erneut abspielen &#8635;</span></button>
                             </div>
                         </div>
 
-                        <!-- Stepper Progress Track with 4 Clickable Step Pills -->
+                        <!-- Stepper Progress Track with 3 Customer-Centric Stations -->
                         <div class="scrolly-stepper-wrapper">
                             <div class="scrolly-progress-line" aria-hidden="true">
                                 <div class="scrolly-progress-fill" id="scrolly-progress-bar"></div>
                             </div>
                             <nav class="scrolly-stepper-track" role="tablist" aria-label="Smart Home Spar-Stationen">
-                                <button type="button" class="scrolly-step-pill active" data-scrolly-step="strom" data-step-index="0" role="tab" aria-selected="true" title="Station 1: Haushaltsstrom">
+                                <button type="button" class="scrolly-step-pill active" data-video-step="wallbox" data-scrolly-step="wallbox" data-step-index="0" role="tab" aria-selected="true" title="Station 1: Wallbox">
                                     <span class="step-num">1</span>
                                     <span class="step-label-text">
-                                        <span class="step-text-full">&#128161; Hausstrom</span>
-                                        <span class="step-text-short">&#128161; Strom</span>
+                                        <span class="step-text-full">🔌 Wallbox</span>
+                                        <span class="step-text-short">🔌 Wallbox</span>
                                     </span>
                                 </button>
-                                <button type="button" class="scrolly-step-pill" data-scrolly-step="waerme" data-step-index="1" role="tab" aria-selected="false" title="Station 2: Wärmepumpe (§ 14a)">
+                                <button type="button" class="scrolly-step-pill" data-video-step="waerme" data-scrolly-step="waerme" data-step-index="1" role="tab" aria-selected="false" title="Station 2: Wärmepumpe (§ 14a)">
                                     <span class="step-num">2</span>
                                     <span class="step-label-text">
-                                        <span class="step-text-full">&#9832;&#65039; W&auml;rmepumpe (&sect; 14a)</span>
-                                        <span class="step-text-short">&#9832;&#65039; W&auml;rme</span>
+                                        <span class="step-text-full">♨️ Wärmepumpe (§ 14a)</span>
+                                        <span class="step-text-short">♨️ Wärme</span>
                                     </span>
                                 </button>
-                                <button type="button" class="scrolly-step-pill" data-scrolly-step="wallbox" data-step-index="2" role="tab" aria-selected="false" title="Station 3: Wallbox (E-Mobilität)">
+                                <button type="button" class="scrolly-step-pill" data-video-step="haus" data-scrolly-step="haus" data-step-index="2" role="tab" aria-selected="false" title="Station 3: 100 % Hausstrom">
                                     <span class="step-num">3</span>
                                     <span class="step-label-text">
-                                        <span class="step-text-full">&#128268; Wallbox</span>
-                                        <span class="step-text-short">&#128268; Wallbox</span>
-                                    </span>
-                                </button>
-                                <button type="button" class="scrolly-step-pill" data-scrolly-step="solar" data-step-index="3" role="tab" aria-selected="false" title="Station 4: Solaranlage &amp; Speicher">
-                                    <span class="step-num">4</span>
-                                    <span class="step-label-text">
-                                        <span class="step-text-full">&#9728;&#65039; Solaranlage</span>
-                                        <span class="step-text-short">&#9728;&#65039; Solar</span>
+                                        <span class="step-text-full">💡 100 % Hausstrom</span>
+                                        <span class="step-text-short">💡 Hausstrom</span>
                                     </span>
                                 </button>
                             </nav>
@@ -540,7 +533,7 @@
                                 <!-- Live Mode Status Indicator -->
                                 <span class="energy-live-indicator">
                                     <span class="pulse-dot"></span>
-                                    <span class="alpha-mode-label" data-mode-label>100 % &Ouml;kostrom (ok-power)</span>
+                                    <span class="alpha-mode-label" data-mode-label>100 % Ökostrom (ok-power)</span>
                                 </span>
 
                                 <!-- Prominent Savings Cockpit Badge -->
@@ -568,7 +561,7 @@
                             <!-- CTA & Interaction Hint -->
                             <div class="sim-header-actions">
                                 <span class="energy-interaction-hint hide-tablet">
-                                    <span>&#128433;&#65039; 3D-Drehen &bull; Bauteile fokussieren &bull; Impuls testen</span>
+                                    <span>🎬 Video-Tour &bull; Wallbox &bull; Wärmepumpe &bull; Hausstrom</span>
                                 </span>
                                 <a href="#rechner" class="btn btn-primary sim-cta-button btn-rechner-sync" data-branch="strom" data-focus="strom">
                                     <span>Jetzt Tarif sichern &rarr;</span>
@@ -576,73 +569,74 @@
                             </div>
                         </div>
 
-                        <!-- 3D WebGL Canvas Viewport -->
-                        <div id="alpha-versorger-canvas"
-                             class="energy-3d-viewport versorger-3d-viewport"
-                             data-three-scene="versorger-flow"
-                             data-three-mode="strom"
-                             data-three-consumption="2500"
-                             data-three-speed="1.0"
-                             data-three-interactive="true"
-                             aria-label="Interaktive 3D-Simulation des Alpha Energie Smart Home Spar- und Versorgungsflusses">
-                            
-                            <!-- Floating Glassmorphic HUD Toolbar -->
-                            <div class="energy-3d-hud sim-hud-cockpit" role="toolbar" aria-label="3D-Sparsimulator Steuerung">
-                                <!-- Mode Switcher Tabs (Ökostrom, Wärmestrom, Erdgas) -->
-                                <div class="hud-mode-selector" role="group" aria-label="Energiemodus auswählen">
-                                    <button type="button" class="hud-tab active" data-mode="strom" data-scene-target="#alpha-versorger-canvas" aria-pressed="true">
-                                        <span class="hud-icon">&#127793;</span>
-                                        <span>100% &Ouml;kostrom</span>
-                                    </button>
-                                    <button type="button" class="hud-tab" data-mode="waerme" data-scene-target="#alpha-versorger-canvas" aria-pressed="false">
-                                        <span class="hud-icon">&#128293;</span>
-                                        <span>W&auml;rmestrom &sect; 14a</span>
-                                    </button>
-                                    <button type="button" class="hud-tab" data-mode="gas" data-scene-target="#alpha-versorger-canvas" aria-pressed="false">
-                                        <span class="hud-icon">&#128168;</span>
-                                        <span>Erdgas Klimabeitrag</span>
-                                    </button>
+                        <!-- Responsive Video Viewport Container -->
+                        <div id="versorger-video-container" class="energy-3d-viewport versorger-video-viewport" aria-label="Interaktive Video-Tour durch das smarte Alpha Energie Zuhause">
+                            <video id="versorger-video" class="versorger-video-element" muted playsinline preload="auto">
+                                <source src="videos/smart-home-flow.mp4" type="video/mp4">
+                                <source src="public/videos/smart-home-flow.mp4" type="video/mp4">
+                                Ihr Browser unterstützt dieses Video nicht.
+                            </video>
+
+                            <!-- Floating Glassmorphic Tariff Banners (Isolated: only active banner shown) -->
+                            <div class="video-banners-layer" aria-live="polite">
+                                <!-- 1. Wallbox Banner -->
+                                <div id="video-banner-wallbox" class="video-tariff-banner video-callout-banner banner-wallbox" data-banner-id="wallbox" data-video-banner="wallbox" aria-hidden="true">
+                                    <div class="video-banner-badge-row">
+                                        <span class="video-banner-badge badge-wallbox">🔌 Wallbox &amp; E-Mobilität</span>
+                                        <span class="video-banner-rate-tag">100 % Ökostrom</span>
+                                    </div>
+                                    <h3 class="video-banner-title">Wir bieten spezielle Stromtarife für Wallboxen an</h3>
+                                    <p class="video-banner-text">Laden Sie Ihr E-Auto zuhause günstig mit zertifiziertem Ökostrom. Volle Transparenz, attraktive Verbrauchspreise und reibungsloser Ladekomfort!</p>
+                                    <div class="video-banner-actions">
+                                        <a href="#rechner" class="btn-video-banner-cta btn-rechner-sync" data-branch="strom" data-focus="wallbox">
+                                            <span>Autostrom berechnen &rarr;</span>
+                                        </a>
+                                    </div>
                                 </div>
 
-                                <!-- Camera Hotspot Focus Selectors: Solar & Speicher, Wärmepumpe, Wallbox, Haushaltsstrom, Gesamtansicht -->
-                                <div class="hud-focus-selector" role="group" aria-label="Kamera-Perspektive wählen">
-                                    <button type="button" class="hud-tab active" data-focus="overview" data-scene-target="#alpha-versorger-canvas" title="Gesamtansicht Smart Home">
-                                        <span>&#127968; Gesamtansicht</span>
-                                    </button>
-                                    <button type="button" class="hud-tab" data-focus="solar" data-scene-target="#alpha-versorger-canvas" title="Solar &amp; Speicher (Photovoltaik Dach)">
-                                        <span>&#9728;&#65039; Solar &amp; Speicher</span>
-                                    </button>
-                                    <button type="button" class="hud-tab" data-focus="waerme" data-scene-target="#alpha-versorger-canvas" title="Wärmepumpe (§ 14a Außenmodul)">
-                                        <span>&#9832;&#65039; W&auml;rmepumpe (&sect; 14a)</span>
-                                    </button>
-                                    <button type="button" class="hud-tab" data-focus="wallbox" data-scene-target="#alpha-versorger-canvas" title="Wallbox (E-Auto)">
-                                        <span>&#128268; Wallbox (E-Auto)</span>
-                                    </button>
-                                    <button type="button" class="hud-tab" data-focus="strom" data-scene-target="#alpha-versorger-canvas" title="Haushaltsstrom &amp; Zähler">
-                                        <span>&#128161; Haushaltsstrom</span>
-                                    </button>
+                                <!-- 2. Wärmepumpe Banner -->
+                                <div id="video-banner-waerme" class="video-tariff-banner video-callout-banner banner-waerme" data-banner-id="waerme" data-video-banner="waerme" aria-hidden="true">
+                                    <div class="video-banner-badge-row">
+                                        <span class="video-banner-badge badge-waerme">♨️ Wärmepumpen-Strom (§ 14a)</span>
+                                        <span class="video-banner-rate-tag">§ 14a EnWG Rabatt</span>
+                                    </div>
+                                    <h3 class="video-banner-title">Wir bieten günstige Stromtarife für Wärmepumpen an</h3>
+                                    <p class="video-banner-text">Bis zu 25 % reduzierte Netzentgelte nach § 14a EnWG – sparen Sie hunderte Euro bei Ihren jährlichen Heizkosten und schonen Sie das Klima!</p>
+                                    <div class="video-banner-actions">
+                                        <a href="#rechner" class="btn-video-banner-cta btn-rechner-sync" data-branch="waerme" data-focus="waerme">
+                                            <span>Wärmetarif berechnen &rarr;</span>
+                                        </a>
+                                    </div>
                                 </div>
 
-                                <!-- Quick Consumption Selector Buttons: 1.500 kWh | 2.500 kWh | 3.500 kWh | 5.000 kWh -->
-                                <div class="hud-consumption-selector" role="group" aria-label="Jahresverbrauch Richtwert wählen">
-                                    <span class="hud-kwh-label">Verbrauch:</span>
-                                    <button type="button" class="hud-kwh-btn" data-sim-kwh="1500" title="1 Person (1.500 kWh)">1.500 kWh</button>
-                                    <button type="button" class="hud-kwh-btn active" data-sim-kwh="2500" title="2 Personen (2.500 kWh)">2.500 kWh</button>
-                                    <button type="button" class="hud-kwh-btn" data-sim-kwh="3500" title="3 Personen (3.500 kWh)">3.500 kWh</button>
-                                    <button type="button" class="hud-kwh-btn" data-sim-kwh="5000" title="4+ Personen (5.000 kWh)">5.000 kWh</button>
+                                <!-- 3. Hausstrom / Gesamtes Haus Banner -->
+                                <div id="video-banner-haus" class="video-tariff-banner video-callout-banner banner-haus" data-banner-id="haus" data-video-banner="haus" aria-hidden="true">
+                                    <div class="video-banner-badge-row">
+                                        <span class="video-banner-badge badge-haus">💡 Haushaltsstrom &amp; Zähler</span>
+                                        <span class="video-banner-rate-tag">ok-power Siegel</span>
+                                    </div>
+                                    <h3 class="video-banner-title">Wir bieten 100 % Ökostromtarife für Ihren Hausstrom an</h3>
+                                    <p class="video-banner-text">Sparen Sie bis zu 380 € pro Jahr gegenüber der Grundversorgung mit 24 Monaten voller Preisgarantie und TÜV-geprüftem Wechselservice!</p>
+                                    <div class="video-banner-actions">
+                                        <a href="#rechner" class="btn-video-banner-cta btn-rechner-sync" data-branch="strom" data-focus="strom">
+                                            <span>Hausstrom berechnen &rarr;</span>
+                                        </a>
+                                    </div>
                                 </div>
+                            </div>
 
-                                <!-- Actions: Shockwave Pulse & Direct CTA -->
-                                <div class="hud-actions">
-                                    <button type="button" class="hud-action-btn" id="btn-versorger-burst" data-action="burst" data-scene-target="#alpha-versorger-canvas" title="Energie-Impuls auslösen" aria-label="Energie-Impuls auslösen">
-                                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                                            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
-                                        </svg>
-                                        <span>Energie-Impuls</span>
-                                    </button>
-                                    <a href="#rechner" class="hud-cta-link hide-desktop-inline btn-rechner-sync" data-branch="strom" data-focus="strom" title="Tarif berechnen">
-                                        <span>Jetzt Tarif sichern &rarr;</span>
-                                    </a>
+                            <!-- Floating Video Player Controls Bar (Playback Speed, Play/Pause, Timeline) -->
+                            <div class="video-player-hud" role="toolbar" aria-label="Videosteuerung">
+                                <button type="button" id="btn-video-toggle-play" class="video-hud-btn" aria-label="Video abspielen/pausieren">
+                                    <span class="hud-play-icon">▶</span>
+                                    <span class="hud-btn-text">Pause</span>
+                                </button>
+                                <div class="video-hud-timeline">
+                                    <div class="video-hud-time-display"><span id="video-time-cur">0:00</span> / <span id="video-time-dur">0:10</span></div>
+                                </div>
+                                <div class="video-hud-speed-badge">
+                                    <span class="speed-label">Tempo:</span>
+                                    <span id="video-speed-display" class="speed-value">1.0x</span>
                                 </div>
                             </div>
                         </div>

@@ -931,6 +931,12 @@ document.addEventListener("DOMContentLoaded", async () => {
                 const targetBranch = syncBtn.getAttribute('data-branch') || 'strom';
                 const targetFocus = syncBtn.getAttribute('data-anchor-focus') || syncBtn.getAttribute('data-focus') || targetBranch;
 
+                // If video flow controller is present, unlock scroll and sync calculator
+                if (window.AlphaVideoFlow && typeof window.AlphaVideoFlow.syncToRechner === 'function') {
+                    window.AlphaVideoFlow.syncToRechner(targetBranch, targetFocus);
+                    return;
+                }
+
                 // 1. Orient 3D camera and highlight anchor in scene
                 const scene = getVersorgerScene();
                 if (scene) {
@@ -1727,6 +1733,11 @@ document.addEventListener("DOMContentLoaded", async () => {
         const scrollySection = document.getElementById('scrolly-flow-section') || document.querySelector('.scrolly-energy-section');
         if (!scrollySection) return;
 
+        // If versorger video showcase exists, AlphaVideoFlow handles scrollytelling exclusively
+        if (document.getElementById('versorger-video') || document.getElementById('versorger-video-container')) {
+            return;
+        }
+
         const stepPills = scrollySection.querySelectorAll('.scrolly-step-pill');
         const stepLabel = document.getElementById('scrolly-step-label');
         const stepBadge = document.getElementById('scrolly-step-badge');
@@ -1952,6 +1963,24 @@ document.addEventListener("DOMContentLoaded", async () => {
         document.addEventListener('DOMContentLoaded', initScrollytelling);
     } else {
         initScrollytelling();
+    }
+})();
+
+// ==========================================================================
+// Alpha Energie - Smart Home Showcase Video Flow Controller Initialization
+// ==========================================================================
+(function() {
+    'use strict';
+    function initVideoFlow() {
+        if (window.AlphaVideoFlow && typeof window.AlphaVideoFlow.init === 'function') {
+            window.AlphaVideoFlow.init();
+        }
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initVideoFlow);
+    } else {
+        initVideoFlow();
     }
 })();
 
