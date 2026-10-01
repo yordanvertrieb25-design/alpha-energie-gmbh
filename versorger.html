@@ -140,7 +140,7 @@
     <link rel="stylesheet" href="style.css">
     <script src="i18n.js" defer></script>
     <script src="main.js" defer></script>
-    <script src="/js/video-flow-controller.js" defer></script>
+    <script src="/js/smart-scrolly-controller.js" defer></script>
     <script src="/js/three/three-loader.js" defer></script>
 
     <!-- Schema.org Structured Data -->
@@ -470,85 +470,215 @@
             </div>
         </section>
 
-        <!-- Photorealistic Smart Home Video Showcase (Full-Format / Clean Cinematic) -->
-        <section id="scrolly-flow-section" class="versorger-video-fullformat-section" aria-label="Alpha Energie Smart Home Video">
-            <div id="versorger-video-container" class="versorger-video-fullformat-container">
-                <video id="versorger-video" class="versorger-video-fullformat-element" muted playsinline preload="auto">
-                    <source src="videos/smart-home-flow.mp4" type="video/mp4">
-                    <source src="public/videos/smart-home-flow.mp4" type="video/mp4">
-                    Ihr Browser unterstützt dieses Video nicht.
-                </video>
-            </div>
-        </section>
-
-        <!-- Tariff Offerings Grid Section (Revealed smoothly after scrollytelling runway) -->
-        <section class="energy-tariffs-overview-section" id="tarife-overview">
-            <div class="container">
-                <div class="scrolly-tariffs-header text-center">
-                    <span class="badge-accent">Tarifauswahl &amp; Kostenvergleich</span>
-                    <h2 class="energy-section-title">Unsere Tarife f&uuml;r Ihr Zuhause im &Uuml;berblick</h2>
-                    <p class="energy-section-subtitle">W&auml;hlen Sie den passenden Tarif oder berechnen Sie Ihr pers&ouml;nliches Sparpotenzial mit unserem TÜV-gepr&uuml;ften Tarifrechner.</p>
-                </div>
-                <!-- Bottom Feature Footer: 4 Clear Tariff Offerings -->
-                <div class="energy-footer-stats energy-footer-tariff-grid">
-                    <!-- Card 1: Hausstrom -->
-                    <div class="energy-footer-stat energy-tariff-card tariff-card-strom">
-                        <div class="tariff-card-header">
-                            <span class="tariff-card-badge">&#128161; Haushaltsstrom &amp; Z&auml;hler</span>
-                            <span class="tariff-card-tag tag-strom">100 % &Ouml;kostrom</span>
+        <!-- Smart Energy Flow Scrollytelling Showcase -->
+        <section id="smart-energy-flow" class="smart-scrolly-section" aria-label="Smart Energy Flow: Ihr vernetztes Zuhause">
+            <!-- Scrolly Runway Sticky Viewport Container -->
+            <div class="smart-scrolly-sticky">
+                <div class="smart-scrolly-container container">
+                    
+                    <!-- Section Header & Floating Stepper Navigation -->
+                    <div class="smart-scrolly-nav-wrapper">
+                        <div class="smart-scrolly-header text-center">
+                            <span class="badge-accent">Smart Living &amp; Sektorenkopplung</span>
+                            <h2 class="smart-scrolly-title">Ihr intelligentes Energie-Zuhause im Zusammenspiel</h2>
                         </div>
-                        <h3 class="stat-highlight">Wir bieten 100 % &Ouml;kostromtarife f&uuml;r Ihren Hausstrom an</h3>
-                        <p class="stat-detail">Bis zu 380 &euro; pro Jahr gegen&uuml;ber der Grundversorgung sparen mit 24 Monaten voller Preisgarantie und ok-power G&uuml;tesiegel.</p>
-                        <div class="tariff-card-action">
-                            <a href="#rechner" class="tariff-card-cta btn-rechner-sync" data-branch="strom" data-focus="strom">
-                                <span>Hausstrom berechnen &rarr;</span>
-                            </a>
+                        
+                        <!-- Floating Stepper Tabs -->
+                        <div class="smart-scrolly-stepper" role="tablist" aria-label="Smart Energy Phasen">
+                            <button type="button" class="smart-scrolly-tab active" data-stage="0" role="tab" aria-selected="true" aria-controls="smart-stage-0" id="smart-tab-0">
+                                <span class="tab-number">01</span>
+                                <span class="tab-icon">🔌</span>
+                                <span class="tab-label">Wallbox</span>
+                            </button>
+                            <button type="button" class="smart-scrolly-tab" data-stage="1" role="tab" aria-selected="false" aria-controls="smart-stage-1" id="smart-tab-1">
+                                <span class="tab-number">02</span>
+                                <span class="tab-icon">♨️</span>
+                                <span class="tab-label">W&auml;rmepumpe</span>
+                            </button>
+                            <button type="button" class="smart-scrolly-tab" data-stage="2" role="tab" aria-selected="false" aria-controls="smart-stage-2" id="smart-tab-2">
+                                <span class="tab-number">03</span>
+                                <span class="tab-icon">🏡</span>
+                                <span class="tab-label">Smart Home</span>
+                            </button>
                         </div>
-                    </div>
-
-                    <!-- Card 2: Wärmepumpe -->
-                    <div class="energy-footer-stat energy-tariff-card tariff-card-waerme">
-                        <div class="tariff-card-header">
-                            <span class="tariff-card-badge">&#9832;&#65039; W&auml;rmestrom &sect; 14a EnWG</span>
-                            <span class="tariff-card-tag tag-waerme">&sect; 14a EnWG</span>
-                        </div>
-                        <h3 class="stat-highlight">Wir bieten g&uuml;nstige Stromtarife f&uuml;r W&auml;rmepumpen an</h3>
-                        <p class="stat-detail">Bis zu 25 % reduzierte Netzentgelte nach &sect; 14a EnWG – sparen Sie hunderte Euro bei Ihren j&auml;hrlichen Heizkosten!</p>
-                        <div class="tariff-card-action">
-                            <a href="#rechner" class="tariff-card-cta btn-rechner-sync" data-branch="waerme" data-focus="waerme">
-                                <span>W&auml;rmetarif berechnen &rarr;</span>
-                            </a>
+                        
+                        <!-- Dynamic Progress Track -->
+                        <div class="smart-scrolly-progress-track" aria-hidden="true">
+                            <div class="smart-scrolly-progress-fill" id="smartScrollyProgressFill" style="width: 15%;"></div>
                         </div>
                     </div>
 
-                    <!-- Card 3: Wallbox -->
-                    <div class="energy-footer-stat energy-tariff-card tariff-card-wallbox">
-                        <div class="tariff-card-header">
-                            <span class="tariff-card-badge">&#128268; Wallbox- &amp; Autostrom</span>
-                            <span class="tariff-card-tag tag-wallbox">Autostrom</span>
-                        </div>
-                        <h3 class="stat-highlight">Wir bieten spezielle Stromtarife f&uuml;r Wallboxen an</h3>
-                        <p class="stat-detail">Laden Sie Ihr E-Auto zuhause g&uuml;nstig mit 100 % zertifiziertem &Ouml;kostrom zu besten Konditionen und voller Transparenz.</p>
-                        <div class="tariff-card-action">
-                            <a href="#rechner" class="tariff-card-cta btn-rechner-sync" data-branch="strom" data-focus="wallbox">
-                                <span>Autostrom berechnen &rarr;</span>
-                            </a>
-                        </div>
-                    </div>
+                    <!-- Stage Presentation Canvas (3 Synchronized Stages) -->
+                    <div class="smart-stages-viewport" id="smartStagesViewport">
+                        
+                        <!-- STAGE 1: Wallbox & Autostrom -->
+                        <article class="smart-scrolly-stage active" id="smart-stage-0" data-stage="0" role="tabpanel" aria-labelledby="smart-tab-0">
+                            <!-- Visual Left -->
+                            <div class="smart-stage-visual-pane">
+                                <div class="smart-visual-card card-wallbox">
+                                    <picture class="smart-picture">
+                                        <source srcset="/public/images/smart_step_wallbox.webp" type="image/webp">
+                                        <img src="/public/images/smart_step_wallbox.jpg" alt="Alpha Energie Wallbox- und Autostrom Ladestation" class="smart-stage-media" loading="eager" width="1376" height="768">
+                                    </picture>
+                                    <div class="smart-visual-glow glow-green"></div>
+                                    <div class="smart-visual-chip">
+                                        <span class="chip-pulse-dot dot-green"></span>
+                                        <span class="chip-text">100 % &Ouml;kostrom Ladestation</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Content Right (Sleek Glassmorphic Banner Card) -->
+                            <div class="smart-stage-content-pane">
+                                <div class="smart-glass-card glass-wallbox">
+                                    <div class="smart-badge-pill pill-wallbox">
+                                        <span class="pill-icon">&#128268;</span>
+                                        <span class="pill-text">Wallbox- &amp; Autostrom</span>
+                                    </div>
+                                    <h3 class="smart-card-heading">Intelligent laden mit 100 % &Ouml;kostrom</h3>
+                                    <p class="smart-card-desc">Spezielle Autostromtarife f&uuml;r Ihre heimische Ladestation &ndash; laden Sie g&uuml;nstig und profitieren Sie von bis zu 25 % reduzierten Netzentgelten nach &sect; 14a EnWG.</p>
+                                    
+                                    <div class="smart-usp-grid">
+                                        <div class="smart-usp-item">
+                                            <div class="smart-usp-icon icon-green">
+                                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                                            </div>
+                                            <span class="smart-usp-text">100 % zertifizierter &Ouml;kostrom</span>
+                                        </div>
+                                        <div class="smart-usp-item">
+                                            <div class="smart-usp-icon icon-green">
+                                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                                            </div>
+                                            <span class="smart-usp-text">24 Monate Preisgarantie</span>
+                                        </div>
+                                        <div class="smart-usp-item">
+                                            <div class="smart-usp-icon icon-green">
+                                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                                            </div>
+                                            <span class="smart-usp-text">KfW &amp; &sect; 14a konform</span>
+                                        </div>
+                                    </div>
 
-                    <!-- Card 4: Solar & Speicher -->
-                    <div class="energy-footer-stat energy-tariff-card tariff-card-solar">
-                        <div class="tariff-card-header">
-                            <span class="tariff-card-badge">&#9728;&#65039; Solar &amp; Heimspeicher</span>
-                            <span class="tariff-card-tag tag-solar">PV-Tarif</span>
-                        </div>
-                        <h3 class="stat-highlight">Wir bieten flexible Stromtarife f&uuml;r Solaranlagen &amp; Speicher an</h3>
-                        <p class="stat-detail">Die perfekte Reststrom-Belieferung f&uuml;r maximale Unabh&auml;ngigkeit und Eigenverbrauchs-Optimierung Ihres Solar-Zuhause!</p>
-                        <div class="tariff-card-action">
-                            <a href="#rechner" class="tariff-card-cta btn-rechner-sync" data-branch="strom" data-focus="solar">
-                                <span>PV-Tarif ansehen &rarr;</span>
-                            </a>
-                        </div>
+                                    <div class="smart-card-action">
+                                        <a href="#rechner" class="btn btn-primary smart-cta-btn btn-rechner-sync" data-branch="strom" data-focus="wallbox">
+                                            <span>Autostrom berechnen &amp; sparen &rarr;</span>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </article>
+
+                        <!-- STAGE 2: Wärmepumpe § 14a EnWG -->
+                        <article class="smart-scrolly-stage" id="smart-stage-1" data-stage="1" role="tabpanel" aria-labelledby="smart-tab-1" aria-hidden="true">
+                            <!-- Visual Left -->
+                            <div class="smart-stage-visual-pane">
+                                <div class="smart-visual-card card-waerme">
+                                    <picture class="smart-picture">
+                                        <source srcset="/public/images/smart_step_waermepumpe.webp" type="image/webp">
+                                        <img src="/public/images/smart_step_waermepumpe.jpg" alt="Alpha Energie Wärmepumpenstrom § 14a EnWG" class="smart-stage-media" loading="lazy" width="1376" height="768">
+                                    </picture>
+                                    <div class="smart-visual-glow glow-orange"></div>
+                                    <div class="smart-visual-chip chip-orange">
+                                        <span class="chip-pulse-dot dot-orange"></span>
+                                        <span class="chip-text">&sect; 14a EnWG Netzentgelt-Rabatt</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Content Right (Sleek Glassmorphic Banner Card) -->
+                            <div class="smart-stage-content-pane">
+                                <div class="smart-glass-card glass-waerme">
+                                    <div class="smart-badge-pill pill-waerme">
+                                        <span class="pill-icon">&#9832;&#65039;</span>
+                                        <span class="pill-text">W&auml;rmepumpenstrom &sect; 14a EnWG</span>
+                                    </div>
+                                    <h3 class="smart-card-heading">Heizkosten senken mit speziellem W&auml;rmestrom</h3>
+                                    <p class="smart-card-desc">G&uuml;nstige Konditionen f&uuml;r moderne W&auml;rmepumpen. Nutzen Sie reduzierte Netzentgelte nach &sect; 14a EnWG und sparen Sie hunderte Euro j&auml;hrlich.</p>
+                                    
+                                    <div class="smart-usp-grid">
+                                        <div class="smart-usp-item">
+                                            <div class="smart-usp-icon icon-orange">
+                                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                                            </div>
+                                            <span class="smart-usp-text">Bis zu 25 % Netzentgelt-Rabatt</span>
+                                        </div>
+                                        <div class="smart-usp-item">
+                                            <div class="smart-usp-icon icon-orange">
+                                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                                            </div>
+                                            <span class="smart-usp-text">100 % &Ouml;ko-Heizstrom</span>
+                                        </div>
+                                        <div class="smart-usp-item">
+                                            <div class="smart-usp-icon icon-orange">
+                                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                                            </div>
+                                            <span class="smart-usp-text">T&Uuml;V-gepr&uuml;fter Wechselservice</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="smart-card-action">
+                                        <a href="#rechner" class="btn btn-primary smart-cta-btn btn-rechner-sync" data-branch="waerme" data-focus="waerme">
+                                            <span>W&auml;rmetarif berechnen &amp; sparen &rarr;</span>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </article>
+
+                        <!-- STAGE 3: Das vernetzte Smart Energy Zuhause -->
+                        <article class="smart-scrolly-stage" id="smart-stage-2" data-stage="2" role="tabpanel" aria-labelledby="smart-tab-2" aria-hidden="true">
+                            <!-- Visual Left -->
+                            <div class="smart-stage-visual-pane">
+                                <div class="smart-visual-card card-house">
+                                    <picture class="smart-picture">
+                                        <source srcset="/public/images/smart_step_house.webp" type="image/webp">
+                                        <img src="/public/images/smart_step_house.png" alt="Alpha Energie Vernetztes Smart Energy Zuhause" class="smart-stage-media" loading="lazy" width="1024" height="576">
+                                    </picture>
+                                    <div class="smart-visual-glow glow-cyan"></div>
+                                    <div class="smart-visual-chip chip-cyan">
+                                        <span class="chip-pulse-dot dot-cyan"></span>
+                                        <span class="chip-text">Ganzheitliche Sektorenkopplung</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Content Right (Sleek Glassmorphic Banner Card) -->
+                            <div class="smart-stage-content-pane">
+                                <div class="smart-glass-card glass-house">
+                                    <div class="smart-badge-pill pill-house">
+                                        <span class="pill-icon">&#127969;</span>
+                                        <span class="pill-text">Das vernetzte Smart Energy Zuhause</span>
+                                    </div>
+                                    <h3 class="smart-card-heading">Alles vernetzt: Photovoltaik, Speicher, W&auml;rmepumpe &amp; Wallbox</h3>
+                                    <p class="smart-card-desc">Die ganzheitliche Energiezukunft f&uuml;r Ihr Eigenheim. Maximale Unabh&auml;ngigkeit, optimaler Eigenverbrauch und 100 % verl&auml;sslicher Reststrom.</p>
+                                    
+                                    <div class="smart-usp-grid">
+                                        <div class="smart-usp-item">
+                                            <div class="smart-usp-icon icon-cyan">
+                                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                                            </div>
+                                            <span class="smart-usp-text">Volle Sektorenkopplung</span>
+                                        </div>
+                                        <div class="smart-usp-item">
+                                            <div class="smart-usp-icon icon-cyan">
+                                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                                            </div>
+                                            <span class="smart-usp-text">Solar- &amp; PV-Reststrom</span>
+                                        </div>
+                                        <div class="smart-usp-item">
+                                            <div class="smart-usp-icon icon-cyan">
+                                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                                            </div>
+                                            <span class="smart-usp-text">Dortmunder Expertenberatung</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="smart-card-action">
+                                        <a href="#rechner" class="btn btn-primary smart-cta-btn btn-rechner-sync" data-branch="strom" data-focus="solar">
+                                            <span>Tarif f&uuml;r Ihr Zuhause berechnen &rarr;</span>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </article>
+
                     </div>
                 </div>
             </div>
