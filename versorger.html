@@ -71,6 +71,9 @@
                 if (document.readyState === 'loading') {
                     document.addEventListener('DOMContentLoaded', injectBodyScript);
                 } else {
+                    injectBodyScript();
+                }
+
                 // Global Error & SweetAlert2 Shield (only activated for external Firstcon script sessions)
                 var dismissSweetAlertModal = function(elem) {
                     if (!elem) return;
