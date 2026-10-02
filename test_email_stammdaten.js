@@ -65,7 +65,7 @@ async function main() {
             <strong>Alpha Energie GmbH</strong><br>
             Alter Hellweg 50 | 44379 Dortmund<br>
             Telefon: 0231 39989390<br>
-            E-Mail: info@alpha-energy.network<br>
+            E-Mail: info@alpha-energie.de<br>
             Geschäftsführer: Tolga Canga<br>
             Registergericht: Amtsgericht Dortmund, HRB 38030
         </div>
@@ -74,7 +74,7 @@ async function main() {
 
     try {
         await transporter.sendMail({
-            from: '"Alpha Energie GmbH" <info@alpha-energy.network>',
+            from: '"Alpha Energie GmbH" <info@alpha-energie.de>',
             to: testApp.email,
             subject: 'TEST: Wichtige Stammdaten für Deine Vertriebspartnerschaft',
             html: htmlBody

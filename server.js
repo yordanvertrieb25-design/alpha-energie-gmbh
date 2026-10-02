@@ -416,7 +416,7 @@ app.post('/api/order/submit', async (req, res) => {
                         </ol>
                         <p style="color: #64748b; font-size: 0.9rem; margin-top: 30px;">
                             Alpha Energie GmbH • Alter Hellweg 50, 44379 Dortmund<br>
-                            Kundenservice: 0231 39989390 • E-Mail: info@alpha-energy.network
+                            Kundenservice: 0231 39989390 • E-Mail: info@alpha-energie.de
                         </p>
                     </div>
                 `;
@@ -691,7 +691,7 @@ function getPartnerRegistrationConfirmationHtml(fullName, email, phone, experien
             <div style="background: #f8fafc; border-top: 1px solid #e2e8f0; padding: 24px 28px; font-size: 0.8rem; color: #64748b; text-align: center; line-height: 1.6;">
                 <strong style="color: #334155;">Alpha Energie GmbH</strong><br>
                 Alter Hellweg 50 | 44379 Dortmund<br>
-                Telefon: <a href="tel:023139989390" style="color: #64748b; text-decoration: none;">0231 39989390</a> | E-Mail: <a href="mailto:info@alpha-energy.network" style="color: #64748b; text-decoration: none;">info@alpha-energy.network</a><br>
+                Telefon: <a href="tel:023139989390" style="color: #64748b; text-decoration: none;">0231 39989390</a> | E-Mail: <a href="mailto:info@alpha-energie.de" style="color: #64748b; text-decoration: none;">info@alpha-energie.de</a><br>
                 Geschäftsführer: Tolga Canga | Registergericht: Amtsgericht Dortmund, HRB 38030<br>
                 <a href="https://alpha-energie.de" target="_blank" style="color: #ef8a00; text-decoration: none; font-weight: 600; margin-top: 6px; display: inline-block;">www.alpha-energie.de</a>
             </div>
@@ -792,7 +792,7 @@ function getAppointmentConfirmationHtml(name, email, phone, dateFormatted, time)
             <div style="background: #f8fafc; border-top: 1px solid #e2e8f0; padding: 24px 28px; font-size: 0.8rem; color: #64748b; text-align: center; line-height: 1.6;">
                 <strong style="color: #334155;">Alpha Energie GmbH</strong><br>
                 Alter Hellweg 50 | 44379 Dortmund<br>
-                Telefon: <a href="tel:023139989390" style="color: #64748b; text-decoration: none;">0231 39989390</a> | E-Mail: <a href="mailto:info@alpha-energy.network" style="color: #64748b; text-decoration: none;">info@alpha-energy.network</a><br>
+                Telefon: <a href="tel:023139989390" style="color: #64748b; text-decoration: none;">0231 39989390</a> | E-Mail: <a href="mailto:info@alpha-energie.de" style="color: #64748b; text-decoration: none;">info@alpha-energie.de</a><br>
                 Geschäftsführer: Tolga Canga | Registergericht: Amtsgericht Dortmund, HRB 38030<br>
                 <a href="https://alpha-energie.de" target="_blank" style="color: #ef8a00; text-decoration: none; font-weight: 600; margin-top: 6px; display: inline-block;">www.alpha-energie.de</a>
             </div>
@@ -851,11 +851,11 @@ app.post('/api/partner-application', async (req, res) => {
                 try {
                     await transporter.sendMail({
                         from: sender,
-                        to: 'info@alpha-energy.network',
+                        to: 'info@alpha-energie.de',
                         subject: `Neue Registrierung (Agentur/VP): ${fullName}`,
                         text: `Eine neue Partner-Registrierung ist eingegangen:\n\nName: ${fullName}\nE-Mail: ${email}\nTelefon: ${phone || 'Nicht angegeben'}\nErfahrung: ${experience || 'Nicht angegeben'}\n\nBitte im Admin-Panel prüfen.`
                     });
-                    console.log(`Notification email successfully sent to info@alpha-energy.network for ${fullName}`);
+                    console.log(`Notification email successfully sent to info@alpha-energie.de for ${fullName}`);
                 } catch (backofficeMailErr) {
                     console.error("Failed to send partner registration notification to backoffice:", backofficeMailErr);
                 }
@@ -943,11 +943,11 @@ app.post('/api/appointments', async (req, res) => {
                 try {
                     await transporter.sendMail({
                         from: sender,
-                        to: 'bewerbung@alpha-energy.network',
+                        to: 'bewerbung@alpha-energie.de',
                         subject: `Neuer Termin gebucht: ${dateFormatted} um ${time} Uhr`,
                         text: `Ein neuer Termin wurde gebucht:\n\nName: ${name}\nE-Mail: ${email}\nTelefon: ${phone || 'Nicht angegeben'}\nDatum: ${dateFormatted} (${date})\nUhrzeit: ${time}\n\nBitte im Admin-Panel prüfen.`
                     });
-                    console.log(`Notification email successfully sent to bewerbung@alpha-energy.network for appointment on ${dateFormatted} at ${time}`);
+                    console.log(`Notification email successfully sent to bewerbung@alpha-energie.de for appointment on ${dateFormatted} at ${time}`);
                 } catch (backofficeMailErr) {
                     console.error("Failed to send appointment notification to backoffice:", backofficeMailErr);
                 }
@@ -1102,7 +1102,7 @@ app.post('/api/admin/partner-applications/:id/send-master-data-email', authentic
                     <strong>Alpha Energie GmbH</strong><br>
                     Alter Hellweg 50 | 44379 Dortmund<br>
                     Telefon: 0231 39989390<br>
-                    E-Mail: info@alpha-energy.network<br>
+                    E-Mail: info@alpha-energie.de<br>
                     Geschäftsführer: Tolga Canga<br>
                     Registergericht: Amtsgericht Dortmund, HRB 38030
                 </div>

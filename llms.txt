@@ -12,7 +12,7 @@ This file provides official information about Alpha Energie GmbH for AI agents, 
 - **Registernummer:** HRB 38030
 - **Address:** Alter Hellweg 50, 44379 Dortmund, Germany
 - **Managing Director (Geschäftsführer):** Tolga Canga
-- **Contact Email:** info@alpha-energy.network
+- **Contact Email:** info@alpha-energie.de
 - **Contact Phone:** 0231 39989390
 
 ## Business Scope

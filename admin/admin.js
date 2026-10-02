@@ -979,7 +979,7 @@ if (document.querySelector('.dashboard-container')) {
         <strong>Alpha Energie GmbH</strong><br>
         Alter Hellweg 50 | 44379 Dortmund<br>
         Telefon: 0231 39989390<br>
-        E-Mail: info@alpha-energy.network<br>
+        E-Mail: info@alpha-energie.de<br>
         Geschäftsführer: Tolga Canga<br>
         Registergericht: Amtsgericht Dortmund, HRB 38030
     </div>
