@@ -833,8 +833,13 @@ document.addEventListener("DOMContentLoaded", async () => {
             const currentSpecs = getActiveSpecs();
             const defaultKwh = currentBranch === 'gas' ? 12000 : 2500;
             const defaultAbschlag = currentBranch === 'gas' ? 115 : 95;
-            const kwh = Math.max(500, parseInt(calcKwh.value, 10) || defaultKwh);
-            const currentMonthly = parseFloat(calcAbschlag && calcAbschlag.value ? calcAbschlag.value : defaultAbschlag) || defaultAbschlag;
+            const rawKwh = (calcKwh && calcKwh.value) ? calcKwh.value.toString().replace(/\D/g, '').trim() : '';
+            const parsedKwh = rawKwh ? parseInt(rawKwh, 10) : NaN;
+            const kwh = (!isNaN(parsedKwh) && parsedKwh > 0) ? Math.max(500, parsedKwh) : defaultKwh;
+
+            const rawAbschlag = (calcAbschlag && calcAbschlag.value) ? calcAbschlag.value.toString().replace(',', '.').trim() : '';
+            const parsedAbschlag = rawAbschlag ? parseFloat(rawAbschlag) : NaN;
+            const currentMonthly = (!isNaN(parsedAbschlag) && parsedAbschlag > 0) ? parsedAbschlag : defaultAbschlag;
             const currentYearly = currentMonthly * 12;
 
             let maxSavings = 0;
@@ -943,20 +948,30 @@ document.addEventListener("DOMContentLoaded", async () => {
             calcPlz.addEventListener('input', () => {
                 const val = calcPlz.value.replace(/\D/g, '').slice(0, 5);
                 calcPlz.value = val;
-                if (val.length >= 2 && calcCityBadge) {
-                    const prefix = val.slice(0, 2);
-                    const city = cityMap[prefix] || (val.startsWith('4') || val.startsWith('5') ? 'NRW' : 'Deutschland');
-                    calcCityBadge.textContent = city;
-                    calcCityBadge.style.display = 'inline-block';
+                if (calcCityBadge) {
+                    if (val.length >= 2) {
+                        const prefix = val.slice(0, 2);
+                        const city = cityMap[prefix] || (val.startsWith('4') || val.startsWith('5') ? 'NRW' : 'Deutschland');
+                        calcCityBadge.textContent = city;
+                        calcCityBadge.style.display = 'inline-block';
+                    } else {
+                        calcCityBadge.style.display = 'none';
+                    }
                 }
             });
         }
 
         if (calcKwh) {
             calcKwh.addEventListener('input', () => {
-                householdBtns.forEach(b => b.classList.remove('active'));
+                const rawKwh = calcKwh.value ? calcKwh.value.toString().replace(/\D/g, '').trim() : '';
+                const typedKwh = rawKwh ? parseInt(rawKwh, 10) : null;
+                householdBtns.forEach(b => {
+                    const btnKwh = parseInt(b.getAttribute('data-kwh'), 10);
+                    b.classList.toggle('active', Boolean(typedKwh && btnKwh === typedKwh));
+                });
                 recalculateTariffs();
-                const kwh = Math.max(500, parseInt(calcKwh.value, 10) || 2500);
+                const defaultKwh = currentBranch === 'gas' ? 12000 : 2500;
+                const kwh = (typedKwh && typedKwh > 0) ? Math.max(500, typedKwh) : defaultKwh;
                 sync3DSceneConsumption(kwh);
             });
         }
@@ -983,15 +998,18 @@ document.addEventListener("DOMContentLoaded", async () => {
         function updateHouseholdPresets(branch) {
             const presets = branch === 'gas' ? [
                 { label: 'Wohnung', sub: '5.000 kWh', kwh: 5000 },
-                { label: 'Reihenhaus', sub: '12.000 kWh', kwh: 12000, active: true },
+                { label: 'Reihenhaus', sub: '12.000 kWh', kwh: 12000 },
                 { label: 'Einfamilienhaus', sub: '18.000 kWh', kwh: 18000 },
                 { label: 'Großes Haus', sub: '25.000 kWh', kwh: 25000 }
             ] : [
                 { label: '1 Person', sub: '1.500 kWh', kwh: 1500 },
-                { label: '2 Personen', sub: '2.500 kWh', kwh: 2500, active: true },
+                { label: '2 Personen', sub: '2.500 kWh', kwh: 2500 },
                 { label: '3 Personen', sub: '3.500 kWh', kwh: 3500 },
                 { label: '4+ Personen', sub: '4.500 kWh', kwh: 4500 }
             ];
+
+            const rawVal = (calcKwh && calcKwh.value) ? calcKwh.value.toString().replace(/\D/g, '').trim() : '';
+            const currentVal = rawVal ? parseInt(rawVal, 10) : null;
 
             householdBtns.forEach((btn, idx) => {
                 if (presets[idx]) {
@@ -1000,7 +1018,8 @@ document.addEventListener("DOMContentLoaded", async () => {
                     const subEl = btn.querySelector('.household-btn-sub');
                     if (labelEl) labelEl.textContent = presets[idx].label;
                     if (subEl) subEl.textContent = presets[idx].sub;
-                    btn.classList.toggle('active', !!presets[idx].active);
+                    const isActive = Boolean(currentVal !== null && currentVal === presets[idx].kwh);
+                    btn.classList.toggle('active', isActive);
                 }
             });
         }
@@ -1014,10 +1033,25 @@ document.addEventListener("DOMContentLoaded", async () => {
                 currentBranch = tab.getAttribute('data-branch') || 'strom';
                 
                 const noticeText = document.getElementById('calcBranchNoticeText');
+                const hasUserKwh = Boolean(calcKwh && calcKwh.value && calcKwh.value.toString().trim() !== '');
+                const hasUserAbschlag = Boolean(calcAbschlag && calcAbschlag.value && calcAbschlag.value.toString().trim() !== '');
+
                 if (currentBranch === 'gas') {
+                    if (hasUserKwh) {
+                        if (calcKwh.value === '2500' || calcKwh.value === '1500' || calcKwh.value === '3500' || calcKwh.value === '4500') {
+                            calcKwh.value = '12000';
+                        }
+                    } else if (calcKwh) {
+                        calcKwh.placeholder = 'z. B. 12.000';
+                    }
+                    if (hasUserAbschlag) {
+                        if (calcAbschlag.value === '95') {
+                            calcAbschlag.value = '115';
+                        }
+                    } else if (calcAbschlag) {
+                        calcAbschlag.placeholder = 'z. B. 115';
+                    }
                     updateHouseholdPresets('gas');
-                    if (calcKwh) calcKwh.value = '12000';
-                    if (calcAbschlag) calcAbschlag.value = '115';
                     if (noticeText) {
                         noticeText.textContent = (window.i18n && typeof window.i18n.getBranchNotice === 'function')
                             ? window.i18n.getBranchNotice('gas')
@@ -1025,9 +1059,21 @@ document.addEventListener("DOMContentLoaded", async () => {
                     }
                 } else {
                     currentBranch = 'strom';
+                    if (hasUserKwh) {
+                        if (calcKwh.value === '12000' || calcKwh.value === '5000' || calcKwh.value === '18000' || calcKwh.value === '25000') {
+                            calcKwh.value = '2500';
+                        }
+                    } else if (calcKwh) {
+                        calcKwh.placeholder = 'z. B. 2.500';
+                    }
+                    if (hasUserAbschlag) {
+                        if (calcAbschlag.value === '115') {
+                            calcAbschlag.value = '95';
+                        }
+                    } else if (calcAbschlag) {
+                        calcAbschlag.placeholder = 'z. B. 95';
+                    }
                     updateHouseholdPresets('strom');
-                    if (calcKwh) calcKwh.value = '2500';
-                    if (calcAbschlag) calcAbschlag.value = '95';
                     if (noticeText) {
                         noticeText.textContent = (window.i18n && typeof window.i18n.getBranchNotice === 'function')
                             ? window.i18n.getBranchNotice('strom')
@@ -1038,7 +1084,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
                 // Synchronize 3D scene mode and consumption
                 sync3DSceneMode(currentBranch);
-                const currentKwhVal = Math.max(500, parseInt(calcKwh ? calcKwh.value : (currentBranch === 'gas' ? 12000 : 2500), 10) || 2500);
+                const currentKwhVal = Math.max(500, parseInt(calcKwh && calcKwh.value ? calcKwh.value : (currentBranch === 'gas' ? 12000 : 2500), 10) || 2500);
                 sync3DSceneConsumption(currentKwhVal);
             });
         });
@@ -1203,10 +1249,10 @@ document.addEventListener("DOMContentLoaded", async () => {
             const currentSpecs = getActiveSpecs();
             const spec = currentSpecs[tariffId] || currentSpecs['alpha-basic'];
             const defaultKwh = currentBranch === 'gas' ? '12000' : '2500';
-            const kwh = btnElement ? btnElement.getAttribute('data-kwh') : (calcKwh ? calcKwh.value : defaultKwh);
+            const kwh = btnElement ? btnElement.getAttribute('data-kwh') : ((calcKwh && calcKwh.value) ? calcKwh.value : defaultKwh);
             const monthly = btnElement ? btnElement.getAttribute('data-monthly') : (currentBranch === 'gas' ? '112' : '70');
             const savings = btnElement ? btnElement.getAttribute('data-savings') : '250';
-            const plz = calcPlz ? calcPlz.value : '44379';
+            const plz = (calcPlz && calcPlz.value && calcPlz.value.trim()) ? calcPlz.value.trim() : '';
 
             selectedOrderData = {
                 tariffId,
@@ -1223,6 +1269,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             const kwhEl = document.getElementById('orderSummaryKwh');
             const savingsEl = document.getElementById('orderSummarySavings');
             const plzInputModal = document.getElementById('orderPlz');
+            const cityInputModal = document.getElementById('orderCity');
 
             if (nameEl) nameEl.textContent = spec.name;
             const curLang = (window.i18n && typeof window.i18n.getLanguage === 'function') ? window.i18n.getLanguage() : 'de';
@@ -1245,11 +1292,36 @@ document.addEventListener("DOMContentLoaded", async () => {
                     savingsEl.textContent = `Bis zu ${savings} € / Jahr sparen`;
                 }
             }
-            if (plzInputModal && !plzInputModal.value) plzInputModal.value = plz;
+            if (plzInputModal) {
+                plzInputModal.value = plz;
+                plzInputModal.placeholder = 'z. B. 44379';
+            }
+            if (cityInputModal) {
+                if (plz && calcCityBadge && calcCityBadge.textContent && calcCityBadge.style.display !== 'none') {
+                    cityInputModal.value = calcCityBadge.textContent;
+                } else if (!plz) {
+                    cityInputModal.value = '';
+                    cityInputModal.placeholder = 'z. B. Dortmund';
+                }
+            }
 
             showModalStep(1);
             orderModal.style.display = 'flex';
             document.body.style.overflow = 'hidden';
+        }
+
+        const modalPlzInput = document.getElementById('orderPlz');
+        if (modalPlzInput) {
+            modalPlzInput.addEventListener('input', () => {
+                const val = modalPlzInput.value.replace(/\D/g, '').slice(0, 5);
+                modalPlzInput.value = val;
+                const modalCityInput = document.getElementById('orderCity');
+                if (val.length >= 2 && modalCityInput && !modalCityInput.value) {
+                    const prefix = val.slice(0, 2);
+                    const city = cityMap[prefix] || (val.startsWith('4') || val.startsWith('5') ? 'NRW' : 'Deutschland');
+                    modalCityInput.value = city;
+                }
+            });
         }
 
         function closeOrderModal() {

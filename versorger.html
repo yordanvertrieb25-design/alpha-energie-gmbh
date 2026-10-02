@@ -396,8 +396,8 @@
                             <label for="calcPlz" class="calc-label">Ihre Postleitzahl</label>
                             <div class="calc-input-wrapper">
                                 <span class="calc-input-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg></span>
-                                <input type="text" id="calcPlz" class="calc-input" value="44379" maxlength="5" pattern="[0-9]{5}" required>
-                                <span id="calcCityBadge" class="calc-plz-city" style="display: inline-block;">Dortmund</span>
+                                <input type="text" id="calcPlz" class="calc-input" placeholder="z. B. 44379" maxlength="5" pattern="[0-9]{5}" required>
+                                <span id="calcCityBadge" class="calc-plz-city" style="display: none;">Dortmund</span>
                             </div>
                         </div>
 
@@ -409,7 +409,7 @@
                                     <span class="household-btn-label">1 Person</span>
                                     <span class="household-btn-sub">1.500 kWh</span>
                                 </button>
-                                <button type="button" class="household-btn active" data-kwh="2500">
+                                <button type="button" class="household-btn" data-kwh="2500">
                                     <span class="household-btn-label">2 Personen</span>
                                     <span class="household-btn-sub">2.500 kWh</span>
                                 </button>
@@ -424,7 +424,7 @@
                             </div>
                             <div class="calc-input-wrapper" style="margin-top: 0.5rem;">
                                 <span class="calc-input-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg></span>
-                                <input type="number" id="calcKwh" class="calc-input" value="2500" min="500" max="100000" required>
+                                <input type="number" id="calcKwh" class="calc-input" placeholder="z. B. 2.500" min="500" max="100000" required>
                                 <span style="position: absolute; right: 1rem; color: #64748b; font-size: 0.85rem; pointer-events: none;">kWh / Jahr</span>
                             </div>
                         </div>
@@ -434,7 +434,7 @@
                             <label for="calcAbschlag" class="calc-label">Aktueller monatlicher Abschlag (€ / Monat)</label>
                             <div class="calc-input-wrapper">
                                 <span class="calc-input-icon" style="font-weight:700;font-size:0.95rem;">€</span>
-                                <input type="number" id="calcAbschlag" class="calc-input" value="95" min="20" max="2000">
+                                <input type="number" id="calcAbschlag" class="calc-input" placeholder="z. B. 95" min="20" max="2000">
                             </div>
                         </div>
 
@@ -1400,11 +1400,11 @@
                     <div class="form-grid" style="margin-bottom: 1rem;">
                         <div class="form-group">
                             <label for="orderPlz" class="calc-label">Postleitzahl *</label>
-                            <input type="text" id="orderPlz" class="calc-input" value="44379" required>
+                            <input type="text" id="orderPlz" class="calc-input" placeholder="z. B. 44379" required>
                         </div>
                         <div class="form-group">
                             <label for="orderCity" class="calc-label">Ort *</label>
-                            <input type="text" id="orderCity" class="calc-input" value="Dortmund" required>
+                            <input type="text" id="orderCity" class="calc-input" placeholder="z. B. Dortmund" required>
                         </div>
                     </div>
 

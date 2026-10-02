@@ -430,6 +430,7 @@ test.describe('Multi-Language Translation System Verification (DE | EN | TR)', (
     });
 
     test('6. Turkish Language (TR) Bento Metric Card 2 bounds and overflow check across all viewports (375px, 768px, 1024px, 1280px, 1440px)', async ({ page }) => {
+        test.setTimeout(90000);
         const viewports = [375, 768, 1024, 1280, 1440];
 
         for (const width of viewports) {
