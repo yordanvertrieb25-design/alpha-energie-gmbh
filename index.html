@@ -37,7 +37,6 @@
     <!-- CSS and JS -->
     <link rel="stylesheet" href="style.css">
     <script src="main.js" defer></script>
-    <script src="/js/three/three-loader.js" defer></script>
 
     <!-- Schema.org Structured Data -->
     <script type="application/ld+json">
@@ -248,113 +247,6 @@
                     <h2 class="card-title">Für Vertriebspartner</h2>
                     <p class="card-text">Nutzen Sie unser digitales VP-Portal für Strom, Gas und Telekommunikation. Profitieren Sie von Spitzenprovisionen, wöchentlichen Auszahlungen, Echtzeit-Tracking und persönlichem Support.</p>
                     <a href="vertriebspartner.html" class="btn btn-secondary">Jetzt Partner werden</a>
-                </div>
-            </div>
-        </section>
-
-        <!-- Interactive 3D Energy Grid Section -->
-        <section id="energy-grid-3d" class="energy-network-section" aria-label="Digitales Energienetzwerk der Zukunft">
-            <div class="container">
-                <div class="energy-section-header">
-                    <span class="energy-3d-badge">
-                        <span class="pulse-dot"></span>
-                        Digitales Energie-Ökosystem
-                    </span>
-                    <h2 class="energy-section-title">Digitales Energienetzwerk der Zukunft</h2>
-                    <p class="energy-section-subtitle">
-                        Erleben Sie Deutschlands dezentrales Smart Grid in Echtzeit. Alpha Energie synchronisiert erneuerbare Erzeugung, B2B-Speichersysteme und über 7.000 Vertriebspartner in einer hochmodernen, intelligenten Plattform.
-                    </p>
-                </div>
-
-                <div class="energy-3d-card">
-                    <!-- Top Telemetry & Status Bar -->
-                    <div class="energy-3d-header">
-                        <div class="energy-3d-title-group">
-                            <div class="energy-live-indicator">
-                                <span class="pulse-dot"></span>
-                                <span>LIVE GRID: AKTIV</span>
-                            </div>
-                            <span class="energy-telemetry-item hide-mobile">
-                                <span>⚡</span>
-                                <span>Netzfrequenz:</span>
-                                <strong>50.02 Hz</strong>
-                            </span>
-                            <span class="energy-telemetry-item hide-mobile">
-                                <span>🛡️</span>
-                                <span>Netzstabilität:</span>
-                                <strong>99.8%</strong>
-                            </span>
-                            <span class="energy-telemetry-item hide-mobile">
-                                <span>🌱</span>
-                                <span>CO₂-Neutral:</span>
-                                <strong class="text-green">100% Flow</strong>
-                            </span>
-                        </div>
-                        <div class="energy-interaction-hint">
-                            <span>🖱️ Ziehen zum Drehen &bull; Klick für Energieimpuls</span>
-                        </div>
-                    </div>
-
-                    <!-- 3D WebGL Canvas Viewport -->
-                    <div id="alpha-energy-network-canvas"
-                         class="energy-3d-viewport"
-                         data-three-scene="energy-network"
-                         data-three-mode="balanced"
-                         data-three-speed="1.0"
-                         data-three-interactive="true"
-                         aria-label="Interaktive 3D-Simulation des Alpha Energie Strom- und Partnernetzwerks">
-                        
-                        <!-- Floating Glassmorphic HUD Overlay -->
-                        <div class="energy-3d-hud" role="toolbar" aria-label="Energiemodus-Steuerung">
-                            <!-- Mode Switcher Tabs -->
-                            <div class="hud-mode-selector" role="group" aria-label="Szenenmodus auswählen">
-                                <button type="button" class="hud-tab active" data-mode="balanced" aria-pressed="true">
-                                    <span class="hud-icon">🌐</span>
-                                    <span>Gesamtnetz</span>
-                                </button>
-                                <button type="button" class="hud-tab" data-mode="solar" aria-pressed="false">
-                                    <span class="hud-icon">☀️</span>
-                                    <span>Photovoltaik</span>
-                                </button>
-                                <button type="button" class="hud-tab" data-mode="wind" aria-pressed="false">
-                                    <span class="hud-icon">💨</span>
-                                    <span>Windkraft</span>
-                                </button>
-                                <button type="button" class="hud-tab" data-mode="grid" aria-pressed="false">
-                                    <span class="hud-icon">🔋</span>
-                                    <span>B2B &amp; Speicher</span>
-                                </button>
-                            </div>
-
-                            <!-- Pulse Burst Action Button -->
-                            <div class="hud-actions">
-                                <button type="button" class="hud-action-btn" id="btn-pulse-burst" data-action="burst" title="Energie-Stoßwelle durch das Netz auslösen" aria-label="Energie-Stoßwelle senden">
-                                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                                        <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
-                                    </svg>
-                                    <span>Energieimpuls</span>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Bottom Key Metrics & Facts -->
-                    <div class="energy-3d-footer">
-                        <div class="energy-footer-stats">
-                            <div class="energy-footer-stat">
-                                <span class="stat-highlight">Echtzeit-Synchronisation</span>
-                                <span class="stat-detail">Nahtlose Verknüpfung von PV-Erzeugung, Großbatterien und Einspeisepunkten für maximale Versorgungssicherheit.</span>
-                            </div>
-                            <div class="energy-footer-stat">
-                                <span class="stat-highlight">B2B Sektorenkopplung</span>
-                                <span class="stat-detail">Kopplung von Strom, Wärme und Fuhrpark inklusive Peak Shaving zur gezielten Reduzierung von Netzentgelten.</span>
-                            </div>
-                            <div class="energy-footer-stat">
-                                <span class="stat-highlight">Bundesweites Partnernetz</span>
-                                <span class="stat-detail">Über 7.000 Fachpartner nutzen das Alpha VP-Portal für digitale Tarifberatung, Audits und Abwicklung.</span>
-                            </div>
-                        </div>
-                    </div>
                 </div>
             </div>
         </section>
