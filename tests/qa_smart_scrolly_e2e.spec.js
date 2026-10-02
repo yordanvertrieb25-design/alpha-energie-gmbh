@@ -105,12 +105,12 @@ test.describe('Alpha Energie GmbH - Dedicated QA End-to-End Verification Suite',
         await page.evaluate((top) => window.scrollTo({ top, behavior: 'instant' }), smartBox.y);
         await page.waitForTimeout(300);
 
-        // Switch to Stage 1 (Wärmepumpe)
+        // Switch to Stage 1 (Ökogas)
         await tabs.nth(1).click();
         await page.waitForTimeout(300);
         await expect(tabs.nth(1)).toHaveClass(/active/);
         await expect(stages.nth(1)).toHaveClass(/active/);
-        await expect(stages.nth(1).locator('.smart-card-heading')).toContainText('Wärmestrom');
+        await expect(stages.nth(1).locator('.smart-card-heading')).toContainText('Wohlfühlwärme');
 
         // Switch to Stage 2 (Smart Home)
         await tabs.nth(2).click();
@@ -119,12 +119,12 @@ test.describe('Alpha Energie GmbH - Dedicated QA End-to-End Verification Suite',
         await expect(stages.nth(2)).toHaveClass(/active/);
         await expect(stages.nth(2).locator('.smart-card-heading')).toContainText('Photovoltaik');
 
-        // Switch back to Stage 0 (Wallbox)
+        // Switch back to Stage 0 (Ökostrom)
         await tabs.nth(0).click();
         await page.waitForTimeout(300);
         await expect(tabs.nth(0)).toHaveClass(/active/);
         await expect(stages.nth(0)).toHaveClass(/active/);
-        await expect(stages.nth(0).locator('.smart-card-heading')).toContainText('Intelligent laden');
+        await expect(stages.nth(0).locator('.smart-card-heading')).toContainText('Saubere Energie');
     });
 
     test('4. Tablet (768x1024): Layout, No Overflow, and Stepper Tabs', async ({ page }) => {
@@ -187,22 +187,18 @@ test.describe('Alpha Energie GmbH - Dedicated QA End-to-End Verification Suite',
         const tabs = smartFlow.locator('.smart-scrolly-tab');
         const stages = smartFlow.locator('.smart-scrolly-stage');
 
-        // Test Stage 1 CTA (Wärmepumpe) -> waerme tab
+        // Test Stage 1 CTA (Ökogas) -> gas tab
         await tabs.nth(1).click();
         await page.waitForTimeout(300);
         await stages.nth(1).locator('.smart-cta-btn').click();
-        await page.waitForTimeout(600);
+        await page.waitForTimeout(800);
 
-        const waermeTab = page.locator('.calc-tab-btn[data-branch="waerme"]');
-        await expect(waermeTab).toHaveClass(/active/);
+        const gasTab = page.locator('.calc-tab-btn[data-branch="gas"]');
+        await expect(gasTab).toHaveClass(/active/);
 
         // Verify calculator in viewport
         const rechner = page.locator('#rechner');
-        const isRechnerNearTop = await rechner.evaluate((el) => {
-            const rect = el.getBoundingClientRect();
-            return rect.top >= 0 && rect.top <= 250;
-        });
-        expect(isRechnerNearTop).toBe(true);
+        await expect(rechner).toBeInViewport();
 
         // Test Stage 2 CTA (Smart Home) -> solar/strom tab
         await tabs.nth(2).click();
@@ -213,7 +209,7 @@ test.describe('Alpha Energie GmbH - Dedicated QA End-to-End Verification Suite',
         const stromTabAfterSolar = page.locator('.calc-tab-btn[data-branch="strom"]');
         await expect(stromTabAfterSolar).toHaveClass(/active/);
 
-        // Test Stage 0 CTA (Wallbox) -> strom tab
+        // Test Stage 0 CTA (Ökostrom) -> strom tab
         await tabs.nth(0).click();
         await page.waitForTimeout(300);
         await stages.nth(0).locator('.smart-cta-btn').click();

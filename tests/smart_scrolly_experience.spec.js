@@ -48,8 +48,8 @@ test.describe('Alpha Energie GmbH - Smart Scrollytelling Experience Suite', () =
         // Check stepper tabs
         const tabs = smartFlow.locator('.smart-scrolly-tab');
         await expect(tabs).toHaveCount(3);
-        await expect(tabs.nth(0)).toContainText('Wallbox');
-        await expect(tabs.nth(1)).toContainText('Wärmepumpe');
+        await expect(tabs.nth(0)).toContainText('Ökostrom');
+        await expect(tabs.nth(1)).toContainText('Ökogas');
         await expect(tabs.nth(2)).toContainText('Smart Home');
 
         // Check initial active state
@@ -59,29 +59,29 @@ test.describe('Alpha Energie GmbH - Smart Scrollytelling Experience Suite', () =
         const stages = smartFlow.locator('.smart-scrolly-stage');
         await expect(stages).toHaveCount(3);
 
-        // Stage 1: Wallbox
+        // Stage 0: Ökostrom
         const stage1 = stages.nth(0);
         await expect(stage1).toHaveClass(/active/);
-        await expect(stage1.locator('.smart-badge-pill')).toContainText('Wallbox- & Autostrom');
-        await expect(stage1.locator('.smart-card-heading')).toContainText('Intelligent laden mit 100 % Ökostrom');
+        await expect(stage1.locator('.smart-badge-pill')).toContainText('100 % Ökostrom');
+        await expect(stage1.locator('.smart-card-heading')).toContainText('Saubere Energie aus 100 % Wind- & Sonnenkraft');
         await expect(stage1.locator('.smart-usp-grid')).toContainText('100 % zertifizierter Ökostrom');
-        await expect(stage1.locator('.smart-usp-grid')).toContainText('24 Monate Preisgarantie');
-        await expect(stage1.locator('.smart-usp-grid')).toContainText('KfW & § 14a konform');
-        await expect(stage1.locator('.smart-cta-btn')).toContainText('Autostrom berechnen & sparen');
+        await expect(stage1.locator('.smart-usp-grid')).toContainText('Bis zu 24 Monate Preisgarantie');
+        await expect(stage1.locator('.smart-usp-grid')).toContainText('Kostenloser & TÜV-geprüfter Wechselservice');
+        await expect(stage1.locator('.smart-cta-btn')).toContainText('Ökostrom berechnen & sparen');
 
-        // Stage 2: Wärmepumpe
+        // Stage 1: Ökogas
         const stage2 = stages.nth(1);
-        await expect(stage2.locator('.smart-badge-pill')).toContainText('Wärmepumpenstrom § 14a EnWG');
-        await expect(stage2.locator('.smart-card-heading')).toContainText('Heizkosten senken mit speziellem Wärmestrom');
-        await expect(stage2.locator('.smart-usp-grid')).toContainText('Bis zu 25 % Netzentgelt-Rabatt');
-        await expect(stage2.locator('.smart-usp-grid')).toContainText('100 % Öko-Heizstrom');
-        await expect(stage2.locator('.smart-usp-grid')).toContainText('TÜV-geprüfter Wechselservice');
-        await expect(stage2.locator('.smart-cta-btn')).toContainText('Wärmetarif berechnen & sparen');
+        await expect(stage2.locator('.smart-badge-pill')).toContainText('Klimaneutrales Ökogas');
+        await expect(stage2.locator('.smart-card-heading')).toContainText('Wohlfühlwärme mit fairen Ökogastarifen');
+        await expect(stage2.locator('.smart-usp-grid')).toContainText('100 % CO₂-kompensiertes Ökogas');
+        await expect(stage2.locator('.smart-usp-grid')).toContainText('Volle Preissicherheit');
+        await expect(stage2.locator('.smart-usp-grid')).toContainText('Automatische Abmeldung beim Vorversorger');
+        await expect(stage2.locator('.smart-cta-btn')).toContainText('Gastarif berechnen & sparen');
 
-        // Stage 3: Smart Home
+        // Stage 2: Smart Home
         const stage3 = stages.nth(2);
         await expect(stage3.locator('.smart-badge-pill')).toContainText('Das vernetzte Smart Energy Zuhause');
-        await expect(stage3.locator('.smart-card-heading')).toContainText('Alles vernetzt: Photovoltaik, Speicher, Wärmepumpe & Wallbox');
+        await expect(stage3.locator('.smart-card-heading')).toContainText('Alles vernetzt: Photovoltaik, Speicher & Smart Energy');
         await expect(stage3.locator('.smart-usp-grid')).toContainText('Volle Sektorenkopplung');
         await expect(stage3.locator('.smart-usp-grid')).toContainText('Solar- & PV-Reststrom');
         await expect(stage3.locator('.smart-usp-grid')).toContainText('Dortmunder Expertenberatung');
@@ -103,7 +103,7 @@ test.describe('Alpha Energie GmbH - Smart Scrollytelling Experience Suite', () =
         const tabs = smartFlow.locator('.smart-scrolly-tab');
         const stages = smartFlow.locator('.smart-scrolly-stage');
 
-        // Click Wärmepumpe Tab (index 1)
+        // Click Ökogas Tab (index 1)
         await tabs.nth(1).click();
         await expect(tabs.nth(1)).toHaveClass(/active/);
         await expect(stages.nth(1)).toHaveClass(/active/);
@@ -113,7 +113,7 @@ test.describe('Alpha Energie GmbH - Smart Scrollytelling Experience Suite', () =
         await expect(tabs.nth(2)).toHaveClass(/active/);
         await expect(stages.nth(2)).toHaveClass(/active/);
 
-        // Click Wallbox Tab (index 0)
+        // Click Ökostrom Tab (index 0)
         await tabs.nth(0).click();
         await expect(tabs.nth(0)).toHaveClass(/active/);
         await expect(stages.nth(0)).toHaveClass(/active/);
@@ -126,17 +126,17 @@ test.describe('Alpha Energie GmbH - Smart Scrollytelling Experience Suite', () =
         const tabs = smartFlow.locator('.smart-scrolly-tab');
         const stages = smartFlow.locator('.smart-scrolly-stage');
 
-        // Stage 2 CTA (Wärmepumpe) -> should switch #rechner to Wärmestrom tab (data-branch="waerme")
+        // Stage 1 CTA (Ökogas) -> should switch #rechner to Erdgas tab (data-branch="gas")
         await tabs.nth(1).click();
         await page.waitForTimeout(300);
         const stage2Cta = stages.nth(1).locator('.smart-cta-btn');
         await stage2Cta.click();
 
         await page.waitForTimeout(600);
-        const waermeTab = page.locator('.calc-tab-btn[data-branch="waerme"]');
-        await expect(waermeTab).toHaveClass(/active/);
+        const gasTab = page.locator('.calc-tab-btn[data-branch="gas"]');
+        await expect(gasTab).toHaveClass(/active/);
 
-        // Now go to Stage 1 CTA (Wallbox) -> should switch #rechner to Ökostrom tab (data-branch="strom")
+        // Now go to Stage 0 CTA (Ökostrom) -> should switch #rechner to Ökostrom tab (data-branch="strom")
         await tabs.nth(0).click();
         await page.waitForTimeout(300);
         const stage1Cta = stages.nth(0).locator('.smart-cta-btn');
@@ -181,12 +181,12 @@ test.describe('Alpha Energie GmbH - Smart Scrollytelling Experience Suite', () =
         await smartFlow.scrollIntoViewIfNeeded();
         await page.waitForTimeout(400);
 
-        // Stage 0 (Wallbox)
+        // Stage 0 (Ökostrom)
         await smartFlow.locator('.smart-scrolly-tab[data-stage="0"]').click();
         await page.waitForTimeout(600);
         await page.screenshot({ path: 'scratch/screenshot_desktop_stage0.png' });
 
-        // Stage 1 (Wärmepumpe)
+        // Stage 1 (Ökogas)
         await smartFlow.locator('.smart-scrolly-tab[data-stage="1"]').click();
         await page.waitForTimeout(400);
         await page.screenshot({ path: 'scratch/screenshot_desktop_stage1.png' });

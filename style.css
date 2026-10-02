@@ -8092,7 +8092,8 @@ html.swal2-height-auto {
     position: relative;
 }
 
-.smart-glass-card.glass-waerme {
+.smart-glass-card.glass-waerme,
+.smart-glass-card.glass-oekogas {
     border-color: rgba(255, 122, 0, 0.25);
     box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6), 0 0 30px rgba(255, 122, 0, 0.08);
 }
@@ -8116,7 +8117,8 @@ html.swal2-height-auto {
     border: 1px solid rgba(0, 230, 118, 0.3);
 }
 
-.smart-badge-pill.pill-waerme {
+.smart-badge-pill.pill-waerme,
+.smart-badge-pill.pill-oekogas {
     background: rgba(255, 122, 0, 0.12);
     color: #ff9100;
     border-color: rgba(255, 122, 0, 0.35);
