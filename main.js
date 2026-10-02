@@ -18,33 +18,18 @@ document.addEventListener("DOMContentLoaded", async () => {
         console.error('Error saving ref code:', e);
     }
 
-    // 1. Sticky Header Effect (Optimized: isScrolled guard, passive listener & RAF throttle)
+    // 1. Sticky Header Effect
     const header = document.getElementById("main-header");
     if (header) {
-        let isScrolled = false;
-        let headerRaf = null;
-
-        const updateHeader = () => {
-            const scrolled = window.scrollY > 50;
-            if (scrolled !== isScrolled) {
-                isScrolled = scrolled;
-                if (isScrolled) {
-                    header.style.background = "rgba(255, 255, 255, 0.95)";
-                    header.style.boxShadow = "0 4px 30px rgba(0, 0, 0, 0.1)";
-                } else {
-                    header.style.background = "rgba(255, 255, 255, 0.85)";
-                    header.style.boxShadow = "none";
-                }
-            }
-            headerRaf = null;
-        };
-
         window.addEventListener("scroll", () => {
-            if (!headerRaf) {
-                headerRaf = requestAnimationFrame(updateHeader);
+            if (window.scrollY > 50) {
+                header.style.background = "rgba(255, 255, 255, 0.95)";
+                header.style.boxShadow = "0 4px 30px rgba(0, 0, 0, 0.1)";
+            } else {
+                header.style.background = "rgba(255, 255, 255, 0.85)";
+                header.style.boxShadow = "none";
             }
-        }, { passive: true });
-        updateHeader();
+        });
     }
 
     // Helper to dynamically load external scripts
@@ -298,43 +283,24 @@ document.addEventListener("DOMContentLoaded", async () => {
         const aboutSection = document.getElementById("about");
         const timelineWrapper = document.querySelector('.timeline-scroll-wrapper');
         if (aboutSection && timelineWrapper) {
-            // If GSAP/ScrollTrigger is active, do not run this fallback scroll listener at all
-            if (window.gsap && window.ScrollTrigger) {
-                return;
-            }
-
             const milestones = document.querySelectorAll('.milestone-block');
             const currentYearEl = document.getElementById('timeline-current-year');
             const progressFill = document.getElementById('timeline-progress-fill');
-            let rafId = null;
-
-            const updateTimeline = () => {
-                if (window.gsap && window.ScrollTrigger) {
-                    rafId = null;
-                    return;
-                }
+            
+            const handleTimelineScroll = () => {
                 const viewportHeight = window.innerHeight;
                 const triggerPoint = viewportHeight * 0.5;
-
-                // Phase 1: Batch DOM geometry reads
-                const wrapperRect = timelineWrapper.getBoundingClientRect();
-                const blockMetrics = [];
-                for (let i = 0; i < milestones.length; i++) {
-                    blockMetrics.push(milestones[i].getBoundingClientRect());
-                }
-
-                // Phase 2: Compute states
                 let activeIndex = 0;
-                const blockStates = [];
-
-                for (let i = 0; i < milestones.length; i++) {
-                    const rect = blockMetrics[i];
-                    if (rect.top < triggerPoint) { activeIndex = i; }
+                
+                milestones.forEach((block, index) => {
+                    const rect = block.getBoundingClientRect();
+                    if (rect.top < triggerPoint) { activeIndex = index; }
                     const blockCenter = rect.top + rect.height / 2;
-                    const isLast = (i === milestones.length - 1);
-
+                    const isLast = index === milestones.length - 1;
+                    
                     let opacity;
                     if (isLast && blockCenter < triggerPoint) {
+                        // Keep the last point fully visible and highlighted once scrolled past it
                         opacity = 1;
                     } else {
                         const distanceToCenter = Math.abs(blockCenter - triggerPoint);
@@ -342,49 +308,34 @@ document.addEventListener("DOMContentLoaded", async () => {
                         opacity = 1 - (distanceToCenter / maxDistance);
                         opacity = Math.max(0.15, Math.min(1, opacity));
                     }
-
-                    const isActive = (isLast && blockCenter < triggerPoint) || (opacity > 0.5);
-                    blockStates.push({ opacity, isActive });
-                }
-
-                const activeBlock = milestones[activeIndex];
-                const newYear = activeBlock ? activeBlock.getAttribute('data-year') : null;
-
-                const wrapperHeight = wrapperRect.height;
-                let progress = (triggerPoint - wrapperRect.top) / (wrapperHeight - viewportHeight * 0.3);
-                progress = Math.max(0, Math.min(1, progress));
-
-                // Phase 3: Batch DOM writes
-                for (let i = 0; i < milestones.length; i++) {
-                    const block = milestones[i];
-                    const state = blockStates[i];
-                    block.style.opacity = state.opacity;
-                    if (state.isActive) {
+                    
+                    block.style.opacity = opacity;
+                    
+                    if (isLast && blockCenter < triggerPoint) {
+                        block.classList.add('active');
+                    } else if (opacity > 0.5) {
                         block.classList.add('active');
                     } else {
                         block.classList.remove('active');
                     }
+                });
+                
+                const activeBlock = milestones[activeIndex];
+                if (activeBlock && currentYearEl) {
+                    const year = activeBlock.getAttribute('data-year');
+                    if (currentYearEl.textContent !== year) {
+                        currentYearEl.textContent = year;
+                    }
                 }
-
-                if (newYear && currentYearEl && currentYearEl.textContent !== newYear) {
-                    currentYearEl.textContent = newYear;
-                }
-
-                if (progressFill) {
-                    progressFill.style.height = `${progress * 100}%`;
-                }
-
-                rafId = null;
+                
+                const wrapperRect = timelineWrapper.getBoundingClientRect();
+                const wrapperHeight = wrapperRect.height;
+                let progress = (triggerPoint - wrapperRect.top) / (wrapperHeight - viewportHeight * 0.3);
+                progress = Math.max(0, Math.min(1, progress));
+                if (progressFill) { progressFill.style.height = `${progress * 100}%`; }
             };
-
-            const handleTimelineScroll = () => {
-                if (!rafId) {
-                    rafId = requestAnimationFrame(updateTimeline);
-                }
-            };
-
-            window.addEventListener('scroll', handleTimelineScroll, { passive: true });
-            window.addEventListener('resize', handleTimelineScroll, { passive: true });
+            window.addEventListener('scroll', handleTimelineScroll);
+            window.addEventListener('resize', handleTimelineScroll);
             handleTimelineScroll();
         }
     }
@@ -1695,43 +1646,17 @@ document.addEventListener("DOMContentLoaded", async () => {
         const cards = document.querySelectorAll('.spotlight-card, .versorger-tariff-card, .sektor-card, .vorteil-card, .ok-power-explainer-card, .comparison-matrix-wrapper');
         cards.forEach((card) => {
             card.classList.add('spotlight-card');
-            let rect = null;
-            let rafId = null;
-            let mouseX = -500;
-            let mouseY = -500;
-
-            const updateSpotlight = () => {
-                if (rect) {
-                    card.style.setProperty('--mouse-x', `${mouseX}px`);
-                    card.style.setProperty('--mouse-y', `${mouseY}px`);
-                }
-                rafId = null;
-            };
-
-            card.addEventListener('mouseenter', () => {
-                rect = card.getBoundingClientRect();
-            }, { passive: true });
-
             card.addEventListener('mousemove', (e) => {
-                if (!rect) {
-                    rect = card.getBoundingClientRect();
-                }
-                mouseX = e.clientX - rect.left;
-                mouseY = e.clientY - rect.top;
-                if (!rafId) {
-                    rafId = requestAnimationFrame(updateSpotlight);
-                }
-            }, { passive: true });
-
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                card.style.setProperty('--mouse-x', `${x}px`);
+                card.style.setProperty('--mouse-y', `${y}px`);
+            });
             card.addEventListener('mouseleave', () => {
-                rect = null;
-                if (rafId) {
-                    cancelAnimationFrame(rafId);
-                    rafId = null;
-                }
                 card.style.setProperty('--mouse-x', '-500px');
                 card.style.setProperty('--mouse-y', '-500px');
-            }, { passive: true });
+            });
         });
     };
 
@@ -1793,6 +1718,251 @@ document.addEventListener("DOMContentLoaded", async () => {
         document.addEventListener('DOMContentLoaded', setupCounters);
     } else {
         setupCounters();
+    }
+})();
+
+// ==========================================================================
+// Alpha Energie - 3D Smart Home Sparsimulator Scrollytelling Controller
+// Scroll-driven sticky pinning architecture (380vh runway)
+// High-performance RAF scroll driver + IntersectionObserver offscreen gating
+// ==========================================================================
+(function() {
+    'use strict';
+
+    function initScrollytelling() {
+        const scrollySection = document.getElementById('scrolly-flow-section') || document.querySelector('.scrolly-energy-section');
+        if (!scrollySection) return;
+
+        // If versorger video showcase exists, AlphaVideoFlow handles scrollytelling exclusively
+        if (document.getElementById('versorger-video') || document.getElementById('versorger-video-container')) {
+            return;
+        }
+
+        const stepPills = scrollySection.querySelectorAll('.scrolly-step-pill');
+        const stepLabel = document.getElementById('scrolly-step-label');
+        const stepBadge = document.getElementById('scrolly-step-badge');
+        const progressBar = document.getElementById('scrolly-progress-bar');
+        const modeLabel = scrollySection.querySelector('[data-mode-label], .alpha-mode-label');
+        const savingsDisplay = document.getElementById('sim-savings-display');
+        const compareTag = document.getElementById('sim-compare-tag');
+
+        const stepsData = [
+            {
+                id: 'strom',
+                focus: 'strom',
+                branch: 'strom',
+                index: 0,
+                label: 'Schritt 1 von 4: Haushaltsstrom & Zähler',
+                badge: 'Station 1 von 4',
+                modeLabel: '100 % Ökostrom (ok-power)',
+                savings: 'bis zu 380 € / Jahr',
+                compare: 'Grundversorger: 1.140 € &rarr; Alpha Energie: <strong>760 €</strong>',
+                targetProgress: 0.08
+            },
+            {
+                id: 'waerme',
+                focus: 'waerme',
+                branch: 'waerme',
+                index: 1,
+                label: 'Schritt 2 von 4: Wärmepumpe (§ 14a EnWG)',
+                badge: 'Station 2 von 4',
+                modeLabel: 'Wärmestrom (§14a EnWG Flexibel)',
+                savings: 'bis zu 450 € / Jahr',
+                compare: 'Heizstrom Alt: 1.820 € &rarr; § 14a Rabatt: <strong>1.370 €</strong>',
+                targetProgress: 0.38
+            },
+            {
+                id: 'wallbox',
+                focus: 'wallbox',
+                branch: 'strom',
+                index: 2,
+                label: 'Schritt 3 von 4: Wallbox (E-Mobilität)',
+                badge: 'Station 3 von 4',
+                modeLabel: '100 % Ökostrom & Autostrom',
+                savings: 'bis zu 320 € / Jahr',
+                compare: 'Öffentl. Laden: 890 € &rarr; Heim-Wallbox: <strong>570 €</strong>',
+                targetProgress: 0.65
+            },
+            {
+                id: 'solar',
+                focus: 'solar',
+                branch: 'strom',
+                index: 3,
+                label: 'Schritt 4 von 4: Solaranlage & Batteriespeicher',
+                badge: 'Station 4 von 4',
+                modeLabel: 'Solar-Reststrom & Speicher-Kopplung',
+                savings: 'bis zu 580 € / Jahr',
+                compare: 'Vollbezug Netz: 1.480 € &rarr; PV + Speicher: <strong>900 €</strong>',
+                targetProgress: 0.92
+            }
+        ];
+
+        let isSectionInView = false;
+        let rafId = null;
+        let currentStepIndex = -1;
+
+        function getVersorgerScene() {
+            if (!window.AlphaThree || typeof window.AlphaThree.getScene !== 'function') return null;
+            return window.AlphaThree.getScene('#alpha-versorger-canvas') || window.AlphaThree.getScene('#versorger-flow-canvas');
+        }
+
+        function calculateProgress() {
+            const rect = scrollySection.getBoundingClientRect();
+            const sectionHeight = scrollySection.offsetHeight;
+            const windowHeight = window.innerHeight;
+            const maxScroll = sectionHeight - windowHeight;
+            if (maxScroll <= 0) return 0;
+
+            const sectionTop = rect.top + window.scrollY;
+            const currentScroll = window.scrollY;
+            const rawProgress = (currentScroll - sectionTop) / maxScroll;
+            return Math.max(0, Math.min(1, rawProgress));
+        }
+
+        function applyProgress(progress) {
+            // 1. Progress line fill
+            if (progressBar) {
+                progressBar.style.width = (progress * 100).toFixed(1) + '%';
+            }
+
+            // 2. Identify active step
+            let stepIdx = 0;
+            if (progress >= 0.75) stepIdx = 3;
+            else if (progress >= 0.50) stepIdx = 2;
+            else if (progress >= 0.25) stepIdx = 1;
+            else stepIdx = 0;
+
+            const stepInfo = stepsData[stepIdx];
+
+            // 3. Update 3D scene continuously
+            const scene = getVersorgerScene();
+            if (scene) {
+                if (typeof scene.setScrollProgress === 'function') {
+                    scene.setScrollProgress(progress);
+                } else {
+                    if (typeof scene.setFocus === 'function') scene.setFocus(stepInfo.focus);
+                    if (typeof scene.highlightAnchor === 'function') scene.highlightAnchor(stepInfo.id);
+                }
+            }
+
+            // 4. Update UI only when step changes
+            if (currentStepIndex !== stepIdx) {
+                currentStepIndex = stepIdx;
+
+                // Step pills active class
+                stepPills.forEach((pill, idx) => {
+                    const isActive = (idx === stepIdx);
+                    pill.classList.toggle('active', isActive);
+                    pill.setAttribute('aria-selected', isActive ? 'true' : 'false');
+                });
+
+                // Stepper labels
+                if (stepLabel) stepLabel.textContent = stepInfo.label;
+                if (stepBadge) stepBadge.textContent = stepInfo.badge;
+
+                // Mode label & savings display in cockpit header
+                if (modeLabel) modeLabel.textContent = stepInfo.modeLabel;
+                if (savingsDisplay) savingsDisplay.textContent = stepInfo.savings;
+                if (compareTag) compareTag.innerHTML = stepInfo.compare;
+
+                // Sync HUD mode selector tabs
+                const hudTabs = scrollySection.querySelectorAll('.hud-mode-selector .hud-tab');
+                hudTabs.forEach(tab => {
+                    const mode = tab.getAttribute('data-mode');
+                    const isTabActive = (mode === stepInfo.branch);
+                    tab.classList.toggle('active', isTabActive);
+                    tab.setAttribute('aria-pressed', isTabActive ? 'true' : 'false');
+                });
+
+                // Sync HUD focus selector tabs
+                const focusTabs = scrollySection.querySelectorAll('.hud-focus-selector .hud-tab');
+                focusTabs.forEach(tab => {
+                    const focus = tab.getAttribute('data-focus');
+                    tab.classList.toggle('active', focus === stepInfo.focus);
+                });
+            }
+        }
+
+        function onScroll() {
+            if (!isSectionInView) return;
+            if (rafId) return;
+            rafId = requestAnimationFrame(() => {
+                rafId = null;
+                const progress = calculateProgress();
+                applyProgress(progress);
+            });
+        }
+
+        // Stepper Pills Click Handler
+        stepPills.forEach(pill => {
+            pill.addEventListener('click', (e) => {
+                e.preventDefault();
+                const stepKey = pill.getAttribute('data-scrolly-step');
+                const targetStep = stepsData.find(s => s.id === stepKey);
+                if (!targetStep) return;
+
+                const rect = scrollySection.getBoundingClientRect();
+                const sectionTop = rect.top + window.scrollY;
+                const sectionHeight = scrollySection.offsetHeight;
+                const windowHeight = window.innerHeight;
+                const maxScroll = sectionHeight - windowHeight;
+
+                const targetY = sectionTop + targetStep.targetProgress * maxScroll;
+                window.scrollTo({
+                    top: targetY,
+                    behavior: 'smooth'
+                });
+
+                applyProgress(targetStep.targetProgress);
+            });
+        });
+
+        // IntersectionObserver for performance (gated execution when near viewport)
+        if ('IntersectionObserver' in window) {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    isSectionInView = entry.isIntersecting;
+                    if (isSectionInView) {
+                        const progress = calculateProgress();
+                        applyProgress(progress);
+                    }
+                });
+            }, {
+                root: null,
+                rootMargin: '120px 0px 120px 0px',
+                threshold: [0, 0.05, 0.25, 0.5, 0.75, 1.0]
+            });
+
+            observer.observe(scrollySection);
+        } else {
+            isSectionInView = true;
+        }
+
+        window.addEventListener('scroll', onScroll, { passive: true });
+        window.addEventListener('resize', onScroll, { passive: true });
+
+        // Initial updates on scene ready events
+        window.addEventListener('alphathree:ready', () => {
+            const progress = calculateProgress();
+            applyProgress(progress);
+        });
+        window.addEventListener('alphathree:scene-created', (e) => {
+            if (e.detail && (e.detail.name === 'versorger-flow' || (e.detail.container && e.detail.container.id && e.detail.container.id.includes('versorger')))) {
+                const progress = calculateProgress();
+                applyProgress(progress);
+            }
+        });
+
+        setTimeout(() => {
+            const progress = calculateProgress();
+            applyProgress(progress);
+        }, 350);
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initScrollytelling);
+    } else {
+        initScrollytelling();
     }
 })();
 

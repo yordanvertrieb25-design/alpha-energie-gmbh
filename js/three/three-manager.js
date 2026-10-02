@@ -196,10 +196,8 @@
         constructor(container, SceneClass, options = {}) {
             this.container = container;
             this.SceneClass = SceneClass;
-            const isMobile = typeof window !== 'undefined' && window.innerWidth <= 768;
-            const defaultMaxPR = isMobile ? 1.0 : 1.5;
             this.options = Object.assign({
-                maxPixelRatio: defaultMaxPR,
+                maxPixelRatio: 2,
                 fov: 50,
                 near: 0.1,
                 far: 1000,
@@ -222,7 +220,7 @@
 
             this.rafId = null;
             this.isRunning = false;
-            this.isVisible = false;
+            this.isVisible = true;
 
             // Pointer state
             this.targetPointer = { x: 0, y: 0 };
@@ -285,9 +283,7 @@
                 preserveDrawingBuffer: false
             });
 
-            const isMobile = typeof window !== 'undefined' && window.innerWidth <= 768;
-            const targetMaxPR = isMobile ? 1.0 : 1.5;
-            const maxPR = Math.min(this.options.maxPixelRatio || targetMaxPR, targetMaxPR);
+            const maxPR = this.options.maxPixelRatio || 2;
             const pixelRatio = Math.min(typeof window !== 'undefined' ? window.devicePixelRatio || 1 : 1, maxPR);
             this.renderer.setPixelRatio(pixelRatio);
             this.renderer.setSize(width, height, false);
@@ -322,11 +318,9 @@
             this.setupInteractivity();
             this.setupObservers();
 
-            // 5. Start Render Loop (deferred until confirmed visible)
+            // 5. Start Render Loop
             this.isRunning = true;
-            if (this.isVisible) {
-                this.startLoop();
-            }
+            this.startLoop();
         }
 
         setupInteractivity() {
@@ -402,27 +396,10 @@
                     }
                 }, {
                     root: null,
-                    threshold: [0, 0.01] // Trigger on boundary cross
+                    threshold: 0.01 // Trigger as soon as 1% enters/exits
                 });
                 this.intersectionObserver.observe(this.container);
-            } else {
-                this.resume();
             }
-
-            // Fallback scroll/resize handler to guarantee immediate visibility state updates
-            this.boundCheckVisibility = () => {
-                if (!this.container) return;
-                const rect = this.container.getBoundingClientRect();
-                const vh = window.innerHeight || (document.documentElement ? document.documentElement.clientHeight : 800);
-                const inView = rect.bottom > 0 && rect.top < vh;
-                if (inView && !this.isVisible) {
-                    this.resume();
-                } else if (!inView && this.isVisible) {
-                    this.pause();
-                }
-            };
-            window.addEventListener('scroll', this.boundCheckVisibility, { passive: true });
-            window.addEventListener('resize', this.boundCheckVisibility, { passive: true });
 
             // 2. ResizeObserver: Responsive canvas resize tracking container dimensions
             if (typeof ResizeObserver !== 'undefined') {
@@ -542,11 +519,6 @@
             this.stopLoop();
 
             // 1. Remove Observers
-            if (this.boundCheckVisibility) {
-                window.removeEventListener('scroll', this.boundCheckVisibility);
-                window.removeEventListener('resize', this.boundCheckVisibility);
-                this.boundCheckVisibility = null;
-            }
             if (this.intersectionObserver) {
                 this.intersectionObserver.disconnect();
                 this.intersectionObserver = null;
@@ -713,7 +685,7 @@
                     transparent: container.getAttribute('data-three-transparent') !== 'false',
                     cameraZ: parseFloat(container.getAttribute('data-three-camera-z')) || 25,
                     fov: parseFloat(container.getAttribute('data-three-fov')) || 50,
-                    maxPixelRatio: parseFloat(container.getAttribute('data-three-pixel-ratio')) || 1.5,
+                    maxPixelRatio: parseFloat(container.getAttribute('data-three-pixel-ratio')) || 2,
                     particleMultiplier: parseFloat(container.getAttribute('data-three-particles')) || 1.0,
                     reducedMotionBehavior: container.getAttribute('data-three-reduced-motion') || 'drift'
                 };

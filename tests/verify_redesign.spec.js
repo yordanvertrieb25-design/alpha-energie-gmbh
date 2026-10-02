@@ -100,7 +100,7 @@ test.describe('Redesign Verification Suite', () => {
         let imageStatus = null;
         let imageContentType = null;
         page.on('response', response => {
-            if (response.url().includes('clean_energy_home.jpg') || response.url().includes('clean_energy_home.webp')) {
+            if (response.url().includes('clean_energy_home.jpg')) {
                 imageStatus = response.status();
                 imageContentType = response.headers()['content-type'];
             }
@@ -116,7 +116,7 @@ test.describe('Redesign Verification Suite', () => {
         const isLoaded = await heroImg.evaluate((img) => img.complete && img.naturalWidth > 0 && img.naturalHeight > 0);
         expect(isLoaded).toBe(true);
         expect(imageStatus).toBe(200);
-        expect(imageContentType).toMatch(/image\/(jpeg|webp)/);
+        expect(imageContentType).toContain('image/jpeg');
 
         // Verify the 3 specific badges
         const badgesContainer = page.locator('.hero-visual-frame');

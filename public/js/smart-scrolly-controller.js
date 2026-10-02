@@ -16,42 +16,22 @@
             this.progressFill = document.getElementById('smartScrollyProgressFill');
             
             this.activeStage = 0;
-            this.hasInitialized = false;
             this.isIntersecting = false;
             this.isTicking = false;
             this.isManualScrolling = false;
             this.touchStartX = 0;
             this.touchStartY = 0;
 
-            this.cachedSectionTop = 0;
-            this.cachedTotalScrollable = 0;
-
             this.init();
         }
 
         init() {
-            if (this.progressFill) {
-                this.progressFill.style.transformOrigin = 'left';
-                this.progressFill.style.willChange = 'transform';
-            }
-            this.updateGeometry();
             this.setupIntersectionObserver();
             this.setupScrollListener();
             this.setupTabControls();
             this.setupCtaButtons();
             this.setupTouchGestures();
             this.setStage(0, false);
-
-            if (typeof window !== 'undefined') {
-                window.addEventListener('load', () => this.updateGeometry(), { passive: true });
-            }
-        }
-
-        updateGeometry() {
-            if (!this.section) return;
-            const rect = this.section.getBoundingClientRect();
-            this.cachedSectionTop = window.scrollY + rect.top;
-            this.cachedTotalScrollable = this.section.offsetHeight - window.innerHeight;
         }
 
         setupIntersectionObserver() {
@@ -59,11 +39,8 @@
                 this.observer = new IntersectionObserver((entries) => {
                     entries.forEach(entry => {
                         this.isIntersecting = entry.isIntersecting;
-                        if (this.isIntersecting) {
-                            this.updateGeometry();
-                            if (!this.isManualScrolling) {
-                                this.updateOnScroll();
-                            }
+                        if (this.isIntersecting && !this.isManualScrolling) {
+                            this.updateOnScroll();
                         }
                     });
                 }, {
@@ -89,12 +66,6 @@
             }, { passive: true });
 
             window.addEventListener('resize', () => {
-                this.updateGeometry();
-                this.updateOnScroll();
-            }, { passive: true });
-
-            window.addEventListener('orientationchange', () => {
-                this.updateGeometry();
                 this.updateOnScroll();
             }, { passive: true });
         }
@@ -102,21 +73,19 @@
         updateOnScroll() {
             if (!this.section || window.innerWidth <= 768) return;
 
-            if (this.cachedTotalScrollable <= 0) {
-                this.updateGeometry();
-            }
+            const rect = this.section.getBoundingClientRect();
+            const totalScrollable = this.section.offsetHeight - window.innerHeight;
 
-            const totalScrollable = this.cachedTotalScrollable;
             if (totalScrollable <= 0) return;
 
-            // Compute normalized progress [0.0, 1.0] using cached geometry without forced reflow
-            const scrolled = window.scrollY - this.cachedSectionTop;
+            // Compute normalized progress [0.0, 1.0]
+            const scrolled = -rect.top;
             let progress = scrolled / totalScrollable;
             progress = Math.max(0, Math.min(1, progress));
 
-            // Update visual progress fill bar with hardware-accelerated transform
+            // Update visual progress fill bar
             if (this.progressFill) {
-                this.progressFill.style.transform = `scaleX(${progress})`;
+                this.progressFill.style.width = `${Math.round(progress * 100)}%`;
             }
 
             // Determine active stage based on runway zones:
@@ -139,9 +108,7 @@
 
         setStage(index, shouldScroll = false) {
             if (index < 0 || index >= this.stages.length) return;
-            if (index === this.activeStage && !shouldScroll && this.hasInitialized) return;
 
-            this.hasInitialized = true;
             this.activeStage = index;
 
             // Update stage classes and accessibility
@@ -162,8 +129,8 @@
 
             // Update progress fill if triggered programmatically
             if (this.progressFill && (window.innerWidth <= 768 || shouldScroll)) {
-                const fraction = index === 0 ? 0.15 : (index === 1 ? 0.50 : 1.0);
-                this.progressFill.style.transform = `scaleX(${fraction})`;
+                const pct = index === 0 ? 15 : (index === 1 ? 50 : 100);
+                this.progressFill.style.width = `${pct}%`;
             }
 
             // Smooth scroll runway into place if user clicked a stepper tab
@@ -185,10 +152,10 @@
                 clearTimeout(this.manualScrollTimeout);
             }
             this.isManualScrolling = true;
-            this.updateGeometry();
-            const totalScrollable = this.cachedTotalScrollable;
+            const totalScrollable = this.section.offsetHeight - window.innerHeight;
             const targetProg = index === 0 ? 0.08 : (index === 1 ? 0.50 : 0.92);
-            const targetY = this.cachedSectionTop + (targetProg * totalScrollable);
+            const sectionTop = window.pageYOffset + this.section.getBoundingClientRect().top;
+            const targetY = sectionTop + (targetProg * totalScrollable);
 
             window.scrollTo({
                 top: targetY,
@@ -223,33 +190,23 @@
         }
 
         syncToCalculator(branch, focus) {
-            if (this.manualScrollTimeout) {
-                clearTimeout(this.manualScrollTimeout);
-                this.manualScrollTimeout = null;
-            }
-            this.isManualScrolling = false;
-
             // 1. Switch calculator branch tab
             const matchingTab = document.querySelector(`.calc-tab-btn[data-branch="${branch}"]`);
             if (matchingTab) {
                 matchingTab.click();
             }
 
-            // 2. Scroll to Live-Tarifrechner
+            // 2. Smoothly scroll to Live-Tarifrechner
             const rechner = document.getElementById('rechner') || document.getElementById('tarifrechner');
             if (rechner) {
                 const headerOffset = 90;
                 const elementPosition = rechner.getBoundingClientRect().top;
-                const offsetPosition = Math.max(0, elementPosition + window.pageYOffset - headerOffset);
+                const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
 
-                try {
-                    window.scrollTo({
-                        top: offsetPosition,
-                        behavior: 'instant'
-                    });
-                } catch (e) {
-                    window.scrollTo(0, offsetPosition);
-                }
+                window.scrollTo({
+                    top: offsetPosition,
+                    behavior: 'smooth'
+                });
 
                 // 3. Highlight pulse animation
                 rechner.classList.remove('calc-highlight-pulse');

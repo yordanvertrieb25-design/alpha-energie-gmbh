@@ -73,47 +73,47 @@
                 } else {
                     injectBodyScript();
                 }
-
-                // Global Error & SweetAlert2 Shield (only activated for external Firstcon script sessions)
-                var dismissSweetAlertModal = function(elem) {
-                    if (!elem) return;
-                    elem.style.cssText = 'display:none!important;visibility:hidden!important;pointer-events:none!important;opacity:0!important;z-index:-99999!important;';
-                    if (elem.parentNode) {
-                        try { elem.parentNode.removeChild(elem); } catch (e) {}
-                    }
-                    if (document.body) document.body.classList.remove('swal2-shown', 'swal2-height-auto');
-                    if (document.documentElement) document.documentElement.classList.remove('swal2-shown', 'swal2-height-auto');
-                };
-
-                var swalObserver = new MutationObserver(function(mutations) {
-                    for (var i = 0; i < mutations.length; i++) {
-                        var added = mutations[i].addedNodes;
-                        for (var j = 0; j < added.length; j++) {
-                            var node = added[j];
-                            if (node.nodeType === 1) {
-                                if (node.classList && (node.classList.contains('swal2-container') || node.id === 'swal2-container')) {
-                                    dismissSweetAlertModal(node);
-                                } else if (node.querySelector) {
-                                    var swal = node.querySelector('.swal2-container, #swal2-container');
-                                    if (swal) dismissSweetAlertModal(swal);
-                                }
-                            }
-                        }
-                    }
-                });
-
-                if (document.documentElement) {
-                    swalObserver.observe(document.documentElement, { childList: true, subtree: true });
-                } else {
-                    document.addEventListener('DOMContentLoaded', function() {
-                        swalObserver.observe(document.documentElement, { childList: true, subtree: true });
-                    });
-                }
             } else {
                 console.log('[Order Engine] Native Alpha Energie Live-Tarifrechner active.');
             }
         } catch (e) {
             console.warn('[Order Engine] Init warning:', e);
+        }
+
+        // Global Error & SweetAlert2 Shield (in case external scripts are ever activated)
+        var dismissSweetAlertModal = function(elem) {
+            if (!elem) return;
+            elem.style.cssText = 'display:none!important;visibility:hidden!important;pointer-events:none!important;opacity:0!important;z-index:-99999!important;';
+            if (elem.parentNode) {
+                try { elem.parentNode.removeChild(elem); } catch (e) {}
+            }
+            if (document.body) document.body.classList.remove('swal2-shown', 'swal2-height-auto');
+            if (document.documentElement) document.documentElement.classList.remove('swal2-shown', 'swal2-height-auto');
+        };
+
+        var swalObserver = new MutationObserver(function(mutations) {
+            for (var i = 0; i < mutations.length; i++) {
+                var added = mutations[i].addedNodes;
+                for (var j = 0; j < added.length; j++) {
+                    var node = added[j];
+                    if (node.nodeType === 1) {
+                        if (node.classList && (node.classList.contains('swal2-container') || node.id === 'swal2-container')) {
+                            dismissSweetAlertModal(node);
+                        } else if (node.querySelector) {
+                            var swal = node.querySelector('.swal2-container, #swal2-container');
+                            if (swal) dismissSweetAlertModal(swal);
+                        }
+                    }
+                }
+            }
+        });
+
+        if (document.documentElement) {
+            swalObserver.observe(document.documentElement, { childList: true, subtree: true });
+        } else {
+            document.addEventListener('DOMContentLoaded', function() {
+                swalObserver.observe(document.documentElement, { childList: true, subtree: true });
+            });
         }
     })();
     </script>
@@ -141,6 +141,7 @@
     <script src="i18n.js" defer></script>
     <script src="main.js" defer></script>
     <script src="/js/smart-scrolly-controller.js" defer></script>
+    <script src="/js/three/three-loader.js" defer></script>
 
     <!-- Schema.org Structured Data -->
     <script type="application/ld+json">
@@ -321,10 +322,7 @@
 
                     <!-- Hero Visual Showcase with Interactive Glassmorphism Badges -->
                     <div class="hero-visual-frame">
-                        <picture>
-                            <source srcset="/clean_energy_home.webp" type="image/webp">
-                            <img src="/clean_energy_home.jpg" alt="Alpha Energie – Modernes Eigenheim und Gewerbe mit Photovoltaik, Speicher und Wallbox" loading="eager" fetchpriority="high" width="1376" height="774" decoding="async">
-                        </picture>
+                        <img src="/clean_energy_home.jpg" alt="Alpha Energie – Modernes Eigenheim und Gewerbe mit Photovoltaik, Speicher und Wallbox" loading="eager" fetchpriority="high" width="1376" height="774">
                         
                         <!-- Floating Glassmorphic Badge 1: 100% Strom aus erneuerbaren Quellen -->
                         <div class="hero-floating-glass-badge badge-top-right">
@@ -713,7 +711,7 @@
                                 <div class="smart-visual-card card-waerme">
                                     <picture class="smart-picture">
                                         <source srcset="/public/images/smart_step_waermepumpe.webp" type="image/webp">
-                                        <img src="/public/images/smart_step_waermepumpe.jpg" alt="Alpha Energie Wärmepumpenstrom § 14a EnWG" class="smart-stage-media" loading="eager" width="1376" height="768">
+                                        <img src="/public/images/smart_step_waermepumpe.jpg" alt="Alpha Energie Wärmepumpenstrom § 14a EnWG" class="smart-stage-media" loading="lazy" width="1376" height="768">
                                     </picture>
                                     <div class="smart-visual-glow glow-orange"></div>
                                     <div class="smart-visual-chip chip-orange">
@@ -769,7 +767,7 @@
                                 <div class="smart-visual-card card-house">
                                     <picture class="smart-picture">
                                         <source srcset="/public/images/smart_step_house.webp" type="image/webp">
-                                        <img src="/public/images/smart_step_house.png" alt="Alpha Energie Vernetztes Smart Energy Zuhause" class="smart-stage-media" loading="eager" width="1024" height="576">
+                                        <img src="/public/images/smart_step_house.png" alt="Alpha Energie Vernetztes Smart Energy Zuhause" class="smart-stage-media" loading="lazy" width="1024" height="576">
                                     </picture>
                                     <div class="smart-visual-glow glow-cyan"></div>
                                     <div class="smart-visual-chip chip-cyan">
@@ -1244,10 +1242,11 @@
         <section id="video-intro" class="section-pad bg-light">
             <div class="container grid-2 gap-4xl" style="align-items: center;">
                 <div class="video-intro-wrapper" style="border-radius: 20px; overflow: hidden; box-shadow: var(--shadow-xl); transform: translateZ(0); position: relative; aspect-ratio: 16/9; width: 100%;">
-                    <video id="intro-video" class="autoplay-on-scroll" loop muted playsinline preload="none" poster="/public/images/smart_step_house.webp" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; display: block;">
+                    <video id="intro-video" class="autoplay-on-scroll" autoplay loop muted playsinline style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; display: block;">
                         <source src="public/b2c_tarifberatung.mp4" type="video/mp4">
                         Ihr Browser unterstützt keine HTML5-Videos.
                     </video>
+                    <span class="ai-video-badge" aria-label="Mit KI generiert">KI-generiert</span>
                 </div>
 
                 <div class="video-intro-text">
