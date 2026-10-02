@@ -3534,7 +3534,7 @@ section {
 /* Tabs / Segmented Energy Utility Cards */
 .calc-tab-group {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(2, 1fr);
     background: #f8fafc;
     border: 1px solid #e2e8f0;
     border-radius: 14px;
@@ -3546,7 +3546,7 @@ section {
 .calc-tab-btn {
     border: 1.5px solid transparent;
     background: transparent;
-    padding: 0.75rem 0.35rem;
+    padding: 0.75rem 0.5rem;
     border-radius: 10px;
     font-family: var(--font-main);
     cursor: pointer;
@@ -3661,28 +3661,29 @@ section {
 
 @media (max-width: 600px) {
     .calc-tab-group {
-        padding: 0.25rem;
-        gap: 0.25rem;
+        grid-template-columns: repeat(2, 1fr);
+        padding: 0.3rem;
+        gap: 0.35rem;
         margin-bottom: 0.75rem;
     }
     .calc-tab-btn {
-        padding: 0.5rem 0.2rem;
+        padding: 0.65rem 0.35rem;
         gap: 0.25rem;
     }
     .calc-tab-icon-wrap {
-        width: 26px;
-        height: 26px;
-        border-radius: 6px;
+        width: 28px;
+        height: 28px;
+        border-radius: 7px;
     }
     .calc-tab-icon-wrap svg {
-        width: 14px;
-        height: 14px;
+        width: 15px;
+        height: 15px;
     }
     .calc-tab-title {
-        font-size: 0.78rem;
+        font-size: 0.82rem;
     }
     .calc-tab-subtitle {
-        font-size: 0.6rem;
+        font-size: 0.65rem;
     }
     .calc-branch-info-bar {
         font-size: 0.72rem;

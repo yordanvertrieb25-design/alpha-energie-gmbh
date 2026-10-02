@@ -68,7 +68,6 @@ test.describe('Multi-Language Translation System Verification (DE | EN | TR)', (
 
         // Calculator Tabs
         await expect(page.locator('.calc-tab-btn[data-branch="strom"] .calc-tab-title')).toHaveText('Green Electricity');
-        await expect(page.locator('.calc-tab-btn[data-branch="waerme"] .calc-tab-title')).toHaveText('Heat Pump Power');
         await expect(page.locator('.calc-tab-btn[data-branch="gas"] .calc-tab-title')).toHaveText('Natural Gas');
 
         // Notice Bar
@@ -179,7 +178,6 @@ test.describe('Multi-Language Translation System Verification (DE | EN | TR)', (
 
         // Calculator Tabs
         await expect(page.locator('.calc-tab-btn[data-branch="strom"] .calc-tab-title')).toHaveText('Yeşil Elektrik');
-        await expect(page.locator('.calc-tab-btn[data-branch="waerme"] .calc-tab-title')).toHaveText('Isı Pompası');
         await expect(page.locator('.calc-tab-btn[data-branch="gas"] .calc-tab-title')).toHaveText('Doğal Gaz');
 
         // Notice Bar
@@ -289,7 +287,6 @@ test.describe('Multi-Language Translation System Verification (DE | EN | TR)', (
         const rechnerTitle = page.locator('#rechner .rechner-header-title');
         await expect(rechnerTitle).toHaveText('Live-Tarifrechner');
         await expect(page.locator('.calc-tab-btn[data-branch="strom"] .calc-tab-title')).toHaveText('Ökostrom');
-        await expect(page.locator('.calc-tab-btn[data-branch="waerme"] .calc-tab-title')).toHaveText('Wärmestrom');
         await expect(page.locator('.calc-tab-btn[data-branch="gas"] .calc-tab-title')).toHaveText('Erdgas');
 
         const noticeBar = page.locator('#calcBranchNoticeText');
@@ -328,7 +325,7 @@ test.describe('Multi-Language Translation System Verification (DE | EN | TR)', (
 
         // 10. Sektorenkopplung
         const sektorSection = page.locator('#sektorenkopplung');
-        await expect(sektorSection.locator('.section-title')).toContainText('Sektorenkopplung: PV + Wärmepumpe + Wallbox');
+        await expect(sektorSection.locator('.section-title')).toContainText('Ganzheitliche Energielösungen');
 
         // 11. Footer
         const footer = page.locator('#main-footer');

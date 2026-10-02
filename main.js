@@ -732,39 +732,129 @@ document.addEventListener("DOMContentLoaded", async () => {
             '70': 'Stuttgart'
         };
 
-        const tariffSpecs = {
+        const stromTariffSpecs = {
             'alpha-basic': {
                 name: 'ALPHA BASIC',
+                badge: 'Flexibel & Günstig',
                 workingPriceCt: 27.85,
                 basePriceEur: 11.90,
                 bonus: 0,
-                guaranteeMonths: 12
+                guaranteeMonths: 12,
+                features: [
+                    '12 Monate volle Preisgarantie',
+                    'Ökostrom aus 100 % erneuerbaren Energien (Wasserkraft)',
+                    'Monatlich kündbar nach dem 1. Jahr',
+                    'Kostenloser Wechselservice & Abmeldung'
+                ]
             },
             'alpha-time': {
                 name: 'ALPHA TIME',
+                badge: 'Bestseller & Smart Energy',
                 workingPriceCt: 24.50,
                 basePriceEur: 12.00,
                 bonus: 0,
-                guaranteeMonths: 12
+                guaranteeMonths: 12,
+                features: [
+                    'Zeitvariabler dynamischer Smart-Tarif',
+                    'Optimiert für Smart Home & Batteriespeicher',
+                    'Bis zu 25% reduzierte Netzentgelte (§ 14a EnWG)',
+                    'Transparente App-Einsicht & Live-Steuerung'
+                ]
             },
             'alpha-premium': {
                 name: 'ALPHA PREMIUM',
+                badge: '24 Monate Preisschutz & VIP',
                 workingPriceCt: 28.20,
                 basePriceEur: 12.90,
                 bonus: 0,
-                guaranteeMonths: 24
+                guaranteeMonths: 24,
+                features: [
+                    '24 Monate garantierte Preisstabilität bis 2028',
+                    '100 % zertifizierter Ökostrom (ok-power Kriterien)',
+                    'Persönlicher VIP-Kundenservice aus Dortmund',
+                    'Voller Schutz vor steigenden Steuern & Netzentgelten'
+                ]
             }
         };
 
+        const gasTariffSpecs = {
+            'alpha-basic': {
+                name: 'ALPHA ÖKOGAS BASIS',
+                badge: 'Klimafreundlich & Günstig',
+                workingPriceCt: 9.85,
+                basePriceEur: 12.50,
+                bonus: 0,
+                guaranteeMonths: 12,
+                features: [
+                    '12 Monate garantierte Preisstabilität',
+                    '100 % klimaneutral durch zertifizierte Klimaschutzprojekte',
+                    'Monatlich kündbar nach dem 1. Jahr',
+                    'Kostenloser & automatischer Wechselservice'
+                ]
+            },
+            'alpha-time': {
+                name: 'ALPHA ÖKOGAS PLUS',
+                badge: 'Bestseller & Spar-Vorteil',
+                workingPriceCt: 8.90,
+                basePriceEur: 13.00,
+                bonus: 0,
+                guaranteeMonths: 12,
+                features: [
+                    'Besonders günstiger Arbeitspreis (8,90 ct/kWh)',
+                    '12 Monate volle Preisgarantie für Heizperiode',
+                    '100 % CO₂-kompensiertes Erdgas',
+                    'Bester Schutz vor Preisschwankungen am Gasmarkt'
+                ]
+            },
+            'alpha-premium': {
+                name: 'ALPHA ÖKOGAS PREMIUM',
+                badge: '24 Monate Preisschutz & 10% Biogas',
+                workingPriceCt: 10.20,
+                basePriceEur: 14.00,
+                guaranteeMonths: 24,
+                features: [
+                    '24 Monate langfristige Preisgarantie bis 2028',
+                    'Inklusive 10 % echtem regionalem Biogasanteil',
+                    '100 % CO₂-Kompensation für die Restmenge',
+                    'Prioritäts-Kundenservice aus Dortmund'
+                ]
+            }
+        };
+
+        function getActiveSpecs() {
+            return (currentBranch === 'gas') ? gasTariffSpecs : stromTariffSpecs;
+        }
+
+        // Backward-compatible reference
+        const tariffSpecs = stromTariffSpecs;
+
         function recalculateTariffs() {
             if (!calcKwh) return;
-            const kwh = Math.max(500, parseInt(calcKwh.value, 10) || 2500);
-            const currentMonthly = parseFloat(calcAbschlag ? calcAbschlag.value : 95) || 95;
+            const currentSpecs = getActiveSpecs();
+            const defaultKwh = currentBranch === 'gas' ? 12000 : 2500;
+            const defaultAbschlag = currentBranch === 'gas' ? 115 : 95;
+            const kwh = Math.max(500, parseInt(calcKwh.value, 10) || defaultKwh);
+            const currentMonthly = parseFloat(calcAbschlag && calcAbschlag.value ? calcAbschlag.value : defaultAbschlag) || defaultAbschlag;
             const currentYearly = currentMonthly * 12;
 
             let maxSavings = 0;
 
-            for (const [id, spec] of Object.entries(tariffSpecs)) {
+            const isDe = !window.i18n || typeof window.i18n.getLanguage !== 'function' || window.i18n.getLanguage() === 'de';
+
+            // Dynamically update section header for #tarife
+            const secTitle = document.querySelector('#tarife .section-title');
+            const secSub = document.querySelector('#tarife .section-subtitle');
+            if (secTitle && secSub && isDe) {
+                if (currentBranch === 'gas') {
+                    secTitle.innerHTML = 'Transparente Ökogastarife für Ihr Zuhause &amp; Gewerbe';
+                    secSub.textContent = '100 % klimaneutrales Erdgas mit verlässlicher Preisgarantie und automatischem Wechselservice ohne Unterbrechung.';
+                } else {
+                    secTitle.innerHTML = 'Transparente Stromtarife für Ihr Zuhause &amp; Gewerbe';
+                    secSub.textContent = 'Ökostrom aus 100 % erneuerbaren Energien, volle Preisgarantie und kostenloser Wechselservice ohne bürokratischen Aufwand.';
+                }
+            }
+
+            for (const [id, spec] of Object.entries(currentSpecs)) {
                 const annualWorkingCost = kwh * (spec.workingPriceCt / 100);
                 const annualBaseCost = spec.basePriceEur * 12;
                 const rawYearly = annualWorkingCost + annualBaseCost;
@@ -776,7 +866,26 @@ document.addEventListener("DOMContentLoaded", async () => {
                     maxSavings = savings;
                 }
 
-                // Update Tariff Card displays
+                // Update Tariff Card displays (title, badge, features)
+                const cardEl = document.getElementById(`card-${id}`);
+                if (cardEl && isDe) {
+                    const titleEl = cardEl.querySelector('.tariff-title');
+                    if (titleEl) titleEl.textContent = spec.name;
+
+                    const badgeEl = cardEl.querySelector('.tariff-badge');
+                    if (badgeEl) badgeEl.textContent = spec.badge;
+
+                    const featList = cardEl.querySelector('.tariff-feature-list');
+                    if (featList && spec.features) {
+                        featList.innerHTML = spec.features.map(f => `
+                            <div class="tariff-feature-item">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                                <span>${f}</span>
+                            </div>
+                        `).join('');
+                    }
+                }
+
                 const priceEl = document.getElementById(`price-${id}`);
                 const savingsEl = document.getElementById(`savings-${id}`);
                 const kwhEl = document.getElementById(`kwh-desc-${id}`);
@@ -812,14 +921,16 @@ document.addEventListener("DOMContentLoaded", async () => {
                     btn.setAttribute('data-kwh', kwh);
                     btn.setAttribute('data-savings', savings);
                     btn.setAttribute('data-name', spec.name);
+                    btn.setAttribute('data-branch', currentBranch);
                 }
             }
 
             if (calcSavingsValue) {
+                const displaySavings = maxSavings > 0 ? maxSavings : (currentBranch === 'gas' ? 240 : 380);
                 if (window.i18n && typeof window.i18n.formatMaxSavings === 'function') {
-                    calcSavingsValue.textContent = window.i18n.formatMaxSavings(maxSavings || 380);
+                    calcSavingsValue.textContent = window.i18n.formatMaxSavings(displaySavings);
                 } else {
-                    calcSavingsValue.textContent = `Bis zu ${maxSavings || 380} € / Jahr!`;
+                    calcSavingsValue.textContent = `Bis zu ${displaySavings} € / Jahr!`;
                 }
             }
         }
@@ -869,6 +980,31 @@ document.addEventListener("DOMContentLoaded", async () => {
             });
         });
 
+        function updateHouseholdPresets(branch) {
+            const presets = branch === 'gas' ? [
+                { label: 'Wohnung', sub: '5.000 kWh', kwh: 5000 },
+                { label: 'Reihenhaus', sub: '12.000 kWh', kwh: 12000, active: true },
+                { label: 'Einfamilienhaus', sub: '18.000 kWh', kwh: 18000 },
+                { label: 'Großes Haus', sub: '25.000 kWh', kwh: 25000 }
+            ] : [
+                { label: '1 Person', sub: '1.500 kWh', kwh: 1500 },
+                { label: '2 Personen', sub: '2.500 kWh', kwh: 2500, active: true },
+                { label: '3 Personen', sub: '3.500 kWh', kwh: 3500 },
+                { label: '4+ Personen', sub: '4.500 kWh', kwh: 4500 }
+            ];
+
+            householdBtns.forEach((btn, idx) => {
+                if (presets[idx]) {
+                    btn.setAttribute('data-kwh', presets[idx].kwh);
+                    const labelEl = btn.querySelector('.household-btn-label');
+                    const subEl = btn.querySelector('.household-btn-sub');
+                    if (labelEl) labelEl.textContent = presets[idx].label;
+                    if (subEl) subEl.textContent = presets[idx].sub;
+                    btn.classList.toggle('active', !!presets[idx].active);
+                }
+            });
+        }
+
         // Tabs click
         tabBtns.forEach(tab => {
             tab.addEventListener('click', (e) => {
@@ -878,23 +1014,18 @@ document.addEventListener("DOMContentLoaded", async () => {
                 currentBranch = tab.getAttribute('data-branch') || 'strom';
                 
                 const noticeText = document.getElementById('calcBranchNoticeText');
-                if (currentBranch === 'waerme') {
-                    if (calcKwh) calcKwh.value = '4000';
-                    if (calcAbschlag) calcAbschlag.value = '145';
-                    if (noticeText) {
-                        noticeText.textContent = (window.i18n && typeof window.i18n.getBranchNotice === 'function')
-                            ? window.i18n.getBranchNotice('waerme')
-                            : 'Wärmestrom nach § 14a EnWG • Bis zu 25 % reduzierte Netzentgelte für Wärmepumpen';
-                    }
-                } else if (currentBranch === 'gas') {
-                    if (calcKwh) calcKwh.value = '15000';
-                    if (calcAbschlag) calcAbschlag.value = '130';
+                if (currentBranch === 'gas') {
+                    updateHouseholdPresets('gas');
+                    if (calcKwh) calcKwh.value = '12000';
+                    if (calcAbschlag) calcAbschlag.value = '115';
                     if (noticeText) {
                         noticeText.textContent = (window.i18n && typeof window.i18n.getBranchNotice === 'function')
                             ? window.i18n.getBranchNotice('gas')
-                            : 'Erdgas mit freiwilligem Klimaschutzbeitrag • Zertifizierte CO2-Kompensation';
+                            : 'Klimaneutrales Ökogas • 100 % CO₂-kompensiert mit voller Preisgarantie';
                     }
                 } else {
+                    currentBranch = 'strom';
+                    updateHouseholdPresets('strom');
                     if (calcKwh) calcKwh.value = '2500';
                     if (calcAbschlag) calcAbschlag.value = '95';
                     if (noticeText) {
@@ -907,7 +1038,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
                 // Synchronize 3D scene mode and consumption
                 sync3DSceneMode(currentBranch);
-                const currentKwhVal = Math.max(500, parseInt(calcKwh ? calcKwh.value : 2500, 10) || 2500);
+                const currentKwhVal = Math.max(500, parseInt(calcKwh ? calcKwh.value : (currentBranch === 'gas' ? 12000 : 2500), 10) || 2500);
                 sync3DSceneConsumption(currentKwhVal);
             });
         });
@@ -1069,10 +1200,12 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         function openOrderModal(tariffId, btnElement) {
             if (!orderModal) return;
-            const spec = tariffSpecs[tariffId] || tariffSpecs['alpha-basic'];
-            const kwh = btnElement ? btnElement.getAttribute('data-kwh') : (calcKwh ? calcKwh.value : '2500');
-            const monthly = btnElement ? btnElement.getAttribute('data-monthly') : '70';
-            const savings = btnElement ? btnElement.getAttribute('data-savings') : '300';
+            const currentSpecs = getActiveSpecs();
+            const spec = currentSpecs[tariffId] || currentSpecs['alpha-basic'];
+            const defaultKwh = currentBranch === 'gas' ? '12000' : '2500';
+            const kwh = btnElement ? btnElement.getAttribute('data-kwh') : (calcKwh ? calcKwh.value : defaultKwh);
+            const monthly = btnElement ? btnElement.getAttribute('data-monthly') : (currentBranch === 'gas' ? '112' : '70');
+            const savings = btnElement ? btnElement.getAttribute('data-savings') : '250';
             const plz = calcPlz ? calcPlz.value : '44379';
 
             selectedOrderData = {
@@ -1218,6 +1351,8 @@ document.addEventListener("DOMContentLoaded", async () => {
 
                 const payload = {
                     ...selectedOrderData,
+                    branch: selectedOrderData.branch || currentBranch,
+                    orderflowToken: window.__FIRSTCON_TOKEN__ || '1994e155-ce1c-47a7-83c8-21660f0857a7',
                     salutation: salutation ? salutation.value : 'Herr/Frau',
                     firstName: firstName.value.trim(),
                     lastName: lastName.value.trim(),

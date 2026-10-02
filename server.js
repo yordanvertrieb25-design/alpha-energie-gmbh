@@ -231,12 +231,15 @@ app.post('/api/contact', async (req, res) => {
 app.post('/api/tarife/calculate', (req, res) => {
     try {
         const { plz, consumption, currentAbschlag, branch = 'strom' } = req.body;
-        const kwh = Math.max(500, parseInt(consumption, 10) || 2500);
-        const abschlagOld = parseFloat(currentAbschlag) || 95;
+        const isGas = branch === 'gas';
+        const defaultKwh = isGas ? 12000 : 2500;
+        const defaultAbschlag = isGas ? 115 : 95;
+        const kwh = Math.max(500, parseInt(consumption, 10) || defaultKwh);
+        const abschlagOld = parseFloat(currentAbschlag) || defaultAbschlag;
         const cleanPlz = String(plz || '44379').replace(/\D/g, '').slice(0, 5);
 
         // Standardized green energy tariffs
-        const tariffs = [
+        const stromTariffs = [
             {
                 id: 'alpha-basic',
                 name: 'ALPHA BASIC',
@@ -269,7 +272,7 @@ app.post('/api/tarife/calculate', (req, res) => {
                 ecoCertificate: '100% Dynamischer Ökostrom (§ 14a EnWG)',
                 features: [
                     'Zeitvariabler Smart-Tarif für flexible Verbräuche',
-                    'Optimiert für Wärmepumpe, Wallbox & Heimspeicher',
+                    'Optimiert für Smart Home & Batteriespeicher',
                     'Bis zu 25% reduzierte Netzentgelte (§ 14a EnWG)',
                     '150 € Smart-Energy-Bonus',
                     'Transparente App-Einsicht & Steuerung'
@@ -296,6 +299,65 @@ app.post('/api/tarife/calculate', (req, res) => {
             }
         ];
 
+        const gasTariffs = [
+            {
+                id: 'alpha-basic',
+                name: 'ALPHA ÖKOGAS BASIS',
+                badge: 'Klimafreundlich & Günstig',
+                isBestseller: false,
+                workingPriceCt: 9.85,
+                basePriceEurMonth: 12.50,
+                bonusEur: 80,
+                priceGuaranteeMonths: 12,
+                contractTermMonths: 12,
+                ecoCertificate: '100% CO2-Kompensiertes Ökogas',
+                features: [
+                    '12 Monate garantierte Preisstabilität',
+                    '100 % klimaneutral durch zertifizierte Klimaschutzprojekte',
+                    'Monatlich kündbar nach dem 1. Jahr',
+                    'Kostenloser & automatischer Wechselservice'
+                ]
+            },
+            {
+                id: 'alpha-time',
+                name: 'ALPHA ÖKOGAS PLUS',
+                badge: 'Bestseller & Spar-Vorteil',
+                isBestseller: true,
+                workingPriceCt: 8.90,
+                basePriceEurMonth: 13.00,
+                bonusEur: 120,
+                priceGuaranteeMonths: 12,
+                contractTermMonths: 12,
+                ecoCertificate: '100% Klimaneutrales Erdgas Bestseller',
+                features: [
+                    'Besonders günstiger Arbeitspreis (8,90 ct/kWh)',
+                    '12 Monate volle Preisgarantie für Heizperiode',
+                    '100 % CO₂-kompensiertes Erdgas',
+                    'Bester Schutz vor Preisschwankungen am Gasmarkt'
+                ]
+            },
+            {
+                id: 'alpha-premium',
+                name: 'ALPHA ÖKOGAS PREMIUM',
+                badge: '24 Monate Preisschutz & 10% Biogas',
+                isBestseller: false,
+                workingPriceCt: 10.20,
+                basePriceEurMonth: 14.00,
+                bonusEur: 150,
+                priceGuaranteeMonths: 24,
+                contractTermMonths: 24,
+                ecoCertificate: '10% Biogas + 90% Klimakompensiert',
+                features: [
+                    '24 Monate langfristige Preisgarantie bis 2028',
+                    'Inklusive 10 % echtem regionalem Biogasanteil',
+                    '100 % CO₂-Kompensation für die Restmenge',
+                    'Prioritäts-Kundenservice aus Dortmund'
+                ]
+            }
+        ];
+
+        const tariffs = isGas ? gasTariffs : stromTariffs;
+
         const calculatedTariffs = tariffs.map(t => {
             const rawYearly = (kwh * (t.workingPriceCt / 100)) + (t.basePriceEurMonth * 12);
             const netYearlyFirstYear = Math.max(0, rawYearly - t.bonusEur);
@@ -319,7 +381,7 @@ app.post('/api/tarife/calculate', (req, res) => {
             plz: cleanPlz,
             consumption: kwh,
             currentAbschlag: abschlagOld,
-            branch,
+            branch: isGas ? 'gas' : 'strom',
             maxSavings,
             tariffs: calculatedTariffs
         });

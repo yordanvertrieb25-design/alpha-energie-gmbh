@@ -79,12 +79,16 @@ test.describe('Firstcon Guard & Error Interceptor Verification', () => {
         const kwhInput = page.locator('#calcKwh');
         await expect(kwhInput).toHaveValue('3500');
 
-        // Test tariff tab switching (.calc-tab-btn[data-branch="waerme"])
-        const tabWaerme = page.locator('.calc-tab-btn[data-branch="waerme"]');
-        await tabWaerme.click();
-        await expect(tabWaerme).toHaveClass(/active/);
+        // Assert waerme tab does NOT exist in live calculator
+        await expect(page.locator('.calc-tab-btn[data-branch="waerme"]')).toHaveCount(0);
+
+        // Test tariff tab switching (.calc-tab-btn[data-branch="gas"])
+        const tabGas = page.locator('.calc-tab-btn[data-branch="gas"]');
+        await expect(tabGas).toBeVisible();
+        await tabGas.click();
+        await expect(tabGas).toHaveClass(/active/);
         const noticeEl = page.locator('#calcBranchNoticeText');
-        await expect(noticeEl).toContainText('Wärmestrom nach § 14a EnWG');
+        await expect(noticeEl).toContainText('Klimaschutzbeitrag');
 
         // Test tariff order modal opening
         const btnOrderTariff = page.locator('[data-select-tariff]').first();
