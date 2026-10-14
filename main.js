@@ -630,12 +630,16 @@ document.addEventListener("DOMContentLoaded", async () => {
         });
     }
 
-    // 6. Autoplay videos on scroll
+    // 6. Autoplay videos on scroll (always muted / no sound)
     const scrollVideos = document.querySelectorAll('.autoplay-on-scroll');
     if (scrollVideos.length > 0) {
         const videoObserver = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
+                    // Ensure video stays muted before playing
+                    entry.target.muted = true;
+                    entry.target.defaultMuted = true;
+                    entry.target.volume = 0;
                     // Start playing if in view
                     entry.target.play().catch(e => console.log("Video play blocked:", e));
                 } else {
@@ -646,6 +650,15 @@ document.addEventListener("DOMContentLoaded", async () => {
         }, { threshold: 0.1 });
 
         scrollVideos.forEach(video => {
+            video.muted = true;
+            video.defaultMuted = true;
+            video.volume = 0;
+            video.addEventListener('volumechange', () => {
+                if (!video.muted || video.volume > 0) {
+                    video.muted = true;
+                    video.volume = 0;
+                }
+            });
             videoObserver.observe(video);
         });
     }
@@ -821,8 +834,12 @@ document.addEventListener("DOMContentLoaded", async () => {
             }
         };
 
-        function getActiveSpecs() {
-            return (currentBranch === 'gas') ? gasTariffSpecs : stromTariffSpecs;
+        let userHasEnteredKwh = false;
+        window.markUserCalculated = () => { userHasEnteredKwh = true; };
+
+        function getActiveSpecs(branchOverride) {
+            const b = branchOverride || currentBranch;
+            return (b === 'gas') ? gasTariffSpecs : stromTariffSpecs;
         }
 
         // Backward-compatible reference
@@ -919,15 +936,14 @@ document.addEventListener("DOMContentLoaded", async () => {
                     }
                 }
 
-                // Store computed values in data-attributes of action button
-                const btn = document.querySelector(`[data-select-tariff="${id}"]`);
-                if (btn) {
+                // Store computed values in data-attributes of ALL matching action buttons on the page
+                document.querySelectorAll(`[data-select-tariff="${id}"]`).forEach(btn => {
                     btn.setAttribute('data-monthly', monthlyPayment);
                     btn.setAttribute('data-kwh', kwh);
                     btn.setAttribute('data-savings', savings);
                     btn.setAttribute('data-name', spec.name);
                     btn.setAttribute('data-branch', currentBranch);
-                }
+                });
             }
 
             if (calcSavingsValue) {
@@ -963,6 +979,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         if (calcKwh) {
             calcKwh.addEventListener('input', () => {
+                userHasEnteredKwh = true;
                 const rawKwh = calcKwh.value ? calcKwh.value.toString().replace(/\D/g, '').trim() : '';
                 const typedKwh = rawKwh ? parseInt(rawKwh, 10) : null;
                 householdBtns.forEach(b => {
@@ -977,13 +994,17 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
 
         if (calcAbschlag) {
-            calcAbschlag.addEventListener('input', recalculateTariffs);
+            calcAbschlag.addEventListener('input', () => {
+                userHasEnteredKwh = true;
+                recalculateTariffs();
+            });
         }
 
         // Household buttons click
         householdBtns.forEach(btn => {
             btn.addEventListener('click', (e) => {
                 e.preventDefault();
+                userHasEnteredKwh = true;
                 householdBtns.forEach(b => b.classList.remove('active'));
                 btn.classList.add('active');
                 const kwh = btn.getAttribute('data-kwh');
@@ -1151,6 +1172,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             const kwhBtn = e.target.closest('[data-sim-kwh]');
             if (kwhBtn) {
                 e.preventDefault();
+                userHasEnteredKwh = true;
                 const kwhVal = parseInt(kwhBtn.getAttribute('data-sim-kwh'), 10);
                 if (kwhVal) {
                     if (calcKwh) {
@@ -1212,6 +1234,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         if (rechnerForm) {
             rechnerForm.addEventListener('submit', (e) => {
                 e.preventDefault();
+                userHasEnteredKwh = true;
                 recalculateTariffs();
                 const tarifeSection = document.getElementById('tarife');
                 if (tarifeSection) {
@@ -1220,13 +1243,95 @@ document.addEventListener("DOMContentLoaded", async () => {
             });
         }
 
+        // Check URL parameters (?plz=...&branch=...&kwh=...)
+        try {
+            const urlParams = new URLSearchParams(window.location.search);
+            const urlPlz = urlParams.get('plz');
+            const urlBranch = urlParams.get('branch');
+            const urlKwh = urlParams.get('kwh');
+            if (urlBranch && (urlBranch === 'gas' || urlBranch === 'strom')) {
+                const targetTab = document.querySelector(`.calc-tab-btn[data-branch="${urlBranch}"]`);
+                if (targetTab) targetTab.click();
+            }
+            if (urlPlz && calcPlz) {
+                calcPlz.value = urlPlz.replace(/\D/g, '').slice(0, 5);
+                calcPlz.dispatchEvent(new Event('input', { bubbles: true }));
+            }
+            if (urlKwh && calcKwh) {
+                calcKwh.value = urlKwh.replace(/\D/g, '');
+                userHasEnteredKwh = true;
+            }
+        } catch (err) {}
+
         // Initial run
         recalculateTariffs();
+
+        // --- Global Strict Scroll Lock for Modals ---
+        function lockAlphaModalScroll() {
+            const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
+            if (scrollbarWidth > 0) {
+                document.body.style.paddingRight = `${scrollbarWidth}px`;
+            }
+            document.documentElement.classList.add('alpha-modal-open');
+            document.body.classList.add('alpha-modal-open');
+            document.documentElement.style.setProperty('overflow', 'hidden', 'important');
+            document.body.style.setProperty('overflow', 'hidden', 'important');
+        }
+
+        function unlockAlphaModalScroll() {
+            const anyVisible = Array.from(document.querySelectorAll('.digital-modal-backdrop, #alphaDsgvoOverlay')).some(m => {
+                return m.style.display === 'flex' || m.style.display === 'block' || window.getComputedStyle(m).display !== 'none';
+            });
+            if (!anyVisible) {
+                document.documentElement.classList.remove('alpha-modal-open');
+                document.body.classList.remove('alpha-modal-open');
+                document.documentElement.style.removeProperty('overflow');
+                document.body.style.removeProperty('overflow');
+                document.body.style.paddingRight = '';
+            }
+        }
+
+        window.lockAlphaModalScroll = lockAlphaModalScroll;
+        window.unlockAlphaModalScroll = unlockAlphaModalScroll;
+
+        // Block wheel/touch scroll chaining on background when modal is open
+        document.addEventListener('wheel', (e) => {
+            if (!document.documentElement.classList.contains('alpha-modal-open')) return;
+            const scrollableBody = e.target.closest('.modal-body');
+            if (!scrollableBody) {
+                e.preventDefault();
+                return;
+            }
+            const { scrollTop, scrollHeight, clientHeight } = scrollableBody;
+            const deltaY = e.deltaY;
+            const isAtTop = scrollTop <= 0 && deltaY < 0;
+            const isAtBottom = scrollTop + clientHeight >= scrollHeight - 1 && deltaY > 0;
+            if (scrollHeight <= clientHeight || isAtTop || isAtBottom) {
+                e.preventDefault();
+            }
+        }, { passive: false });
+
+        document.addEventListener('touchmove', (e) => {
+            if (!document.documentElement.classList.contains('alpha-modal-open')) return;
+            const scrollableBody = e.target.closest('.modal-body');
+            if (!scrollableBody) {
+                e.preventDefault();
+                return;
+            }
+            if (scrollableBody.scrollHeight <= scrollableBody.clientHeight) {
+                e.preventDefault();
+            }
+        }, { passive: false });
 
         // --- Digital Single-Page Order Modal ---
         const orderModal = document.getElementById('orderModal');
         const modalSteps = document.querySelectorAll('.modal-step');
         const progressSteps = document.querySelectorAll('.progress-step');
+        const modalCalcPlz = document.getElementById('modalCalcPlz');
+        const modalCalcCityBadge = document.getElementById('modalCalcCityBadge');
+        const modalCalcKwh = document.getElementById('modalCalcKwh');
+        const modalPresetBtns = document.querySelectorAll('.modal-kwh-preset-btn');
+        const modalStep1ValidationMsg = document.getElementById('modalStep1ValidationMsg');
         let currentModalStep = 1;
         let selectedOrderData = {};
 
@@ -1244,70 +1349,275 @@ document.addEventListener("DOMContentLoaded", async () => {
             }
         }
 
-        function openOrderModal(tariffId, btnElement) {
-            if (!orderModal) return;
-            const currentSpecs = getActiveSpecs();
-            const spec = currentSpecs[tariffId] || currentSpecs['alpha-basic'];
-            const defaultKwh = currentBranch === 'gas' ? '12000' : '2500';
-            const kwh = btnElement ? btnElement.getAttribute('data-kwh') : ((calcKwh && calcKwh.value) ? calcKwh.value : defaultKwh);
-            const monthly = btnElement ? btnElement.getAttribute('data-monthly') : (currentBranch === 'gas' ? '112' : '70');
-            const savings = btnElement ? btnElement.getAttribute('data-savings') : '250';
-            const plz = (calcPlz && calcPlz.value && calcPlz.value.trim()) ? calcPlz.value.trim() : '';
+        function resolveCityFromPlz(plzStr) {
+            if (!plzStr || plzStr.length < 2) return '';
+            const prefix = plzStr.slice(0, 2);
+            return cityMap[prefix] || (plzStr.startsWith('4') || plzStr.startsWith('5') ? 'NRW' : 'Deutschland');
+        }
 
-            selectedOrderData = {
-                tariffId,
-                tariffName: spec.name,
-                branch: currentBranch,
-                consumption: kwh,
-                monthlyPayment: monthly,
-                savings: savings,
-                plz: plz
-            };
+        function updateModalPresetsForBranch(branch) {
+            const presets = branch === 'gas' ? [
+                { label: 'Wohnung', sub: '5.000 kWh', kwh: 5000 },
+                { label: 'Reihenhaus', sub: '12.000 kWh', kwh: 12000 },
+                { label: 'Haus', sub: '18.000 kWh', kwh: 18000 },
+                { label: 'Großes Haus', sub: '25.000 kWh', kwh: 25000 }
+            ] : [
+                { label: '1 Person', sub: '1.500 kWh', kwh: 1500 },
+                { label: '2 Pers.', sub: '2.500 kWh', kwh: 2500 },
+                { label: '3 Pers.', sub: '3.500 kWh', kwh: 3500 },
+                { label: '4+ Pers.', sub: '4.500 kWh', kwh: 4500 }
+            ];
+            modalPresetBtns.forEach((btn, idx) => {
+                if (presets[idx]) {
+                    btn.setAttribute('data-modal-kwh', String(presets[idx].kwh));
+                    const lbl = btn.querySelector('.mp-label');
+                    const sub = btn.querySelector('.mp-sub');
+                    if (lbl) lbl.textContent = presets[idx].label;
+                    if (sub) sub.textContent = presets[idx].sub;
+                }
+            });
+            if (modalCalcKwh) {
+                modalCalcKwh.placeholder = branch === 'gas' ? 'z. B. 12000' : 'z. B. 2500';
+            }
+        }
+
+        function refreshModalStep1Calculation() {
+            const branch = selectedOrderData.branch || currentBranch || 'strom';
+            const currentSpecs = getActiveSpecs(branch);
+            const tariffId = selectedOrderData.tariffId || 'alpha-basic';
+            const spec = currentSpecs[tariffId] || currentSpecs['alpha-basic'];
 
             const nameEl = document.getElementById('orderSummaryTariffName');
+            const badgeEl = document.getElementById('orderSummaryTariffBadge');
             const monthlyEl = document.getElementById('orderSummaryMonthly');
             const kwhEl = document.getElementById('orderSummaryKwh');
             const savingsEl = document.getElementById('orderSummarySavings');
+            const promptBox = document.getElementById('modalInlineCalcBox');
+            const promptHeader = document.getElementById('modalInlineCalcPromptHeader');
+            const promptIcon = document.getElementById('modalInlineCalcPromptIcon');
+            const promptText = document.getElementById('modalInlineCalcPromptText');
             const plzInputModal = document.getElementById('orderPlz');
             const cityInputModal = document.getElementById('orderCity');
 
             if (nameEl) nameEl.textContent = spec.name;
-            const curLang = (window.i18n && typeof window.i18n.getLanguage === 'function') ? window.i18n.getLanguage() : 'de';
-            if (monthlyEl) {
-                const suffix = curLang === 'en' ? ' / month' : (curLang === 'tr' ? ' / ay' : ' / Monat');
-                const prefix = curLang === 'en' ? '€' : '';
-                const post = curLang === 'en' ? '' : ' €';
-                monthlyEl.textContent = `${prefix}${monthly}${post}${suffix}`;
+            if (badgeEl) badgeEl.textContent = `${spec.guaranteeMonths} Monate Preisgarantie`;
+
+            const plzVal = modalCalcPlz ? modalCalcPlz.value.replace(/\D/g, '').slice(0, 5) : (selectedOrderData.plz || '');
+            if (modalCalcPlz && modalCalcPlz.value !== plzVal) {
+                modalCalcPlz.value = plzVal;
             }
-            if (kwhEl) {
-                const locale = curLang === 'en' ? 'en-US' : (curLang === 'tr' ? 'tr-TR' : 'de-DE');
-                kwhEl.textContent = `${parseInt(kwh, 10).toLocaleString(locale)} kWh`;
-            }
-            if (savingsEl) {
-                if (curLang === 'en') {
-                    savingsEl.textContent = `Save up to €${savings} / year`;
-                } else if (curLang === 'tr') {
-                    savingsEl.textContent = `Yılda ${savings} €'ya varan tasarruf`;
+
+            const detectedCity = resolveCityFromPlz(plzVal);
+            if (modalCalcCityBadge) {
+                if (plzVal.length >= 2 && detectedCity) {
+                    modalCalcCityBadge.textContent = detectedCity;
+                    modalCalcCityBadge.style.display = 'inline-block';
                 } else {
-                    savingsEl.textContent = `Bis zu ${savings} € / Jahr sparen`;
-                }
-            }
-            if (plzInputModal) {
-                plzInputModal.value = plz;
-                plzInputModal.placeholder = 'z. B. 44379';
-            }
-            if (cityInputModal) {
-                if (plz && calcCityBadge && calcCityBadge.textContent && calcCityBadge.style.display !== 'none') {
-                    cityInputModal.value = calcCityBadge.textContent;
-                } else if (!plz) {
-                    cityInputModal.value = '';
-                    cityInputModal.placeholder = 'z. B. Dortmund';
+                    modalCalcCityBadge.style.display = 'none';
                 }
             }
 
+            // Sync PLZ & City to Step 2 and main calculator
+            selectedOrderData.plz = plzVal;
+            if (plzInputModal) plzInputModal.value = plzVal;
+            if (cityInputModal && plzVal.length >= 2 && detectedCity) {
+                cityInputModal.value = detectedCity;
+                selectedOrderData.city = detectedCity;
+            }
+            if (calcPlz && plzVal.length === 5 && calcPlz.value !== plzVal) {
+                calcPlz.value = plzVal;
+                if (calcCityBadge && detectedCity) {
+                    calcCityBadge.textContent = detectedCity;
+                    calcCityBadge.style.display = 'inline-block';
+                }
+            }
+
+            const rawKwh = modalCalcKwh && modalCalcKwh.value ? modalCalcKwh.value.toString().replace(/\D/g, '').trim() : '';
+            const parsedKwh = rawKwh ? parseInt(rawKwh, 10) : NaN;
+            const isKwhValid = !isNaN(parsedKwh) && parsedKwh >= 500;
+            const isPlzValid = /^\d{5}$/.test(plzVal);
+
+            // Highlight matching preset button
+            modalPresetBtns.forEach(btn => {
+                const btnKwh = parseInt(btn.getAttribute('data-modal-kwh'), 10);
+                btn.classList.toggle('active', Boolean(isKwhValid && btnKwh === parsedKwh));
+            });
+
+            const curLang = (window.i18n && typeof window.i18n.getLanguage === 'function') ? window.i18n.getLanguage() : 'de';
+
+            if (isKwhValid) {
+                const annualWorkingCost = parsedKwh * (spec.workingPriceCt / 100);
+                const annualBaseCost = spec.basePriceEur * 12;
+                const rawYearly = annualWorkingCost + annualBaseCost;
+                const monthlyPayment = Math.round(rawYearly / 12);
+
+                const refRateCt = branch === 'gas' ? 13.20 : 38.50;
+                const refBaseYear = branch === 'gas' ? 180 : 168;
+                const refYearly = (parsedKwh * (refRateCt / 100)) + refBaseYear;
+                const savings = Math.max(50, Math.round(refYearly - rawYearly));
+
+                selectedOrderData.consumption = String(parsedKwh);
+                selectedOrderData.monthlyPayment = String(monthlyPayment);
+                selectedOrderData.savings = String(savings);
+                selectedOrderData.userEnteredModalKwh = parsedKwh;
+
+                if (monthlyEl) {
+                    const suffix = curLang === 'en' ? ' / month' : (curLang === 'tr' ? ' / ay' : ' / Monat');
+                    const prefix = curLang === 'en' ? '€' : '';
+                    const post = curLang === 'en' ? '' : ' €';
+                    monthlyEl.textContent = `${prefix}${monthlyPayment}${post}${suffix}`;
+                    monthlyEl.style.color = '#0a1f44';
+                }
+                if (kwhEl) {
+                    const locale = curLang === 'en' ? 'en-US' : (curLang === 'tr' ? 'tr-TR' : 'de-DE');
+                    kwhEl.textContent = `${parsedKwh.toLocaleString(locale)} kWh / Jahr`;
+                    kwhEl.style.color = '#0a1f44';
+                }
+                if (savingsEl) {
+                    const rateFormatted = spec.workingPriceCt.toFixed(2).replace('.', ',');
+                    const baseFormatted = spec.basePriceEur.toFixed(2).replace('.', ',');
+                    if (curLang === 'en') {
+                        savingsEl.textContent = `Save up to €${savings} / year (${rateFormatted} ct/kWh • €${baseFormatted}/mo base)`;
+                    } else if (curLang === 'tr') {
+                        savingsEl.textContent = `Yılda ${savings} €'ya varan tasarruf (${rateFormatted} ct/kWh)`;
+                    } else {
+                        savingsEl.textContent = `Bis zu ${savings.toLocaleString('de-DE')} € / Jahr sparen (${rateFormatted} ct/kWh • ${baseFormatted} € Grundpreis)`;
+                    }
+                }
+
+                // Sync back to main page calculator
+                if (calcKwh && calcKwh.value !== String(parsedKwh)) {
+                    calcKwh.value = String(parsedKwh);
+                    userHasEnteredKwh = true;
+                    recalculateTariffs();
+                }
+            } else {
+                selectedOrderData.consumption = '';
+                selectedOrderData.monthlyPayment = '';
+                selectedOrderData.savings = '';
+
+                if (monthlyEl) {
+                    monthlyEl.textContent = 'Bitte unten Verbrauch wählen';
+                    monthlyEl.style.color = '#ea580c';
+                }
+                if (kwhEl) {
+                    kwhEl.textContent = 'Bitte unten angeben';
+                    kwhEl.style.color = '#ea580c';
+                }
+                if (savingsEl) {
+                    const rateFormatted = spec.workingPriceCt.toFixed(2).replace('.', ',');
+                    const baseFormatted = spec.basePriceEur.toFixed(2).replace('.', ',');
+                    savingsEl.textContent = `⚡ Konditionen: ${rateFormatted} ct/kWh • ${baseFormatted} €/Monat Grundpreis – bitte unten Verbrauch angeben`;
+                }
+            }
+
+            if (promptBox && promptHeader && promptIcon && promptText) {
+                if (isPlzValid && isKwhValid) {
+                    promptIcon.textContent = '✓';
+                    promptIcon.style.background = '#dcfce7';
+                    promptIcon.style.color = '#15803d';
+                    promptHeader.style.color = '#166534';
+                    promptText.textContent = 'Deine Angaben wurden übernommen – dein persönlicher Abschlag ist berechnet:';
+                    promptBox.style.borderColor = '#86efac';
+                    promptBox.style.background = '#f0fdf4';
+                    if (modalStep1ValidationMsg) modalStep1ValidationMsg.style.display = 'none';
+                } else {
+                    promptIcon.textContent = '⚡';
+                    promptIcon.style.background = '#ffedd5';
+                    promptIcon.style.color = '#ea580c';
+                    promptHeader.style.color = '#9a3412';
+                    promptBox.style.borderColor = 'rgba(249, 178, 51, 0.85)';
+                    promptBox.style.background = '#fffdf9';
+                    if (!isPlzValid && !isKwhValid) {
+                        promptText.textContent = 'Noch keine Verbrauchsdaten eingegeben – bitte hier kurz PLZ & Verbrauch ergänzen:';
+                    } else if (!isPlzValid && isKwhValid) {
+                        promptText.textContent = 'Fast fertig – bitte gib noch kurz deine 5-stellige Postleitzahl (Lieferort) ein:';
+                    } else {
+                        promptText.textContent = 'Fast fertig – bitte wähle noch kurz deine Haushaltsgröße oder gib deinen Jahresverbrauch (kWh) ein:';
+                    }
+                }
+            }
+        }
+
+        if (modalCalcPlz) {
+            modalCalcPlz.addEventListener('input', () => {
+                modalCalcPlz.style.borderColor = '';
+                refreshModalStep1Calculation();
+            });
+        }
+
+        if (modalCalcKwh) {
+            modalCalcKwh.addEventListener('input', () => {
+                modalCalcKwh.style.borderColor = '';
+                userHasEnteredKwh = true;
+                refreshModalStep1Calculation();
+            });
+        }
+
+        modalPresetBtns.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
+                const presetKwh = btn.getAttribute('data-modal-kwh');
+                if (modalCalcKwh && presetKwh) {
+                    modalCalcKwh.value = presetKwh;
+                    modalCalcKwh.style.borderColor = '';
+                    userHasEnteredKwh = true;
+                    refreshModalStep1Calculation();
+                }
+            });
+        });
+
+        function openOrderModal(tariffId, btnElement) {
+            if (!orderModal) return;
+            const branch = (btnElement && btnElement.getAttribute('data-branch')) || currentBranch || 'strom';
+            const currentSpecs = getActiveSpecs(branch);
+            const validTariffId = (tariffId && currentSpecs[tariffId]) ? tariffId : 'alpha-basic';
+            const spec = currentSpecs[validTariffId];
+
+            const mainPlz = (calcPlz && calcPlz.value && calcPlz.value.trim()) ? calcPlz.value.replace(/\D/g, '').slice(0, 5) : (selectedOrderData.plz || '');
+            const rawMainKwh = (calcKwh && calcKwh.value) ? parseInt(calcKwh.value.toString().replace(/\D/g, ''), 10) : NaN;
+            const prefilledKwh = (userHasEnteredKwh && !isNaN(rawMainKwh) && rawMainKwh >= 500)
+                ? rawMainKwh
+                : (selectedOrderData.userEnteredModalKwh || null);
+
+            selectedOrderData = {
+                tariffId: validTariffId,
+                tariffName: spec.name,
+                branch: branch,
+                consumption: prefilledKwh ? String(prefilledKwh) : '',
+                monthlyPayment: '',
+                savings: '',
+                plz: mainPlz,
+                userEnteredModalKwh: prefilledKwh
+            };
+
+            updateModalPresetsForBranch(branch);
+
+            if (modalCalcPlz) {
+                modalCalcPlz.value = mainPlz;
+                modalCalcPlz.style.borderColor = '';
+            }
+            if (modalCalcKwh) {
+                modalCalcKwh.value = prefilledKwh ? String(prefilledKwh) : '';
+                modalCalcKwh.style.borderColor = '';
+            }
+            if (modalStep1ValidationMsg) {
+                modalStep1ValidationMsg.style.display = 'none';
+            }
+
+            refreshModalStep1Calculation();
+
             showModalStep(1);
             orderModal.style.display = 'flex';
-            document.body.style.overflow = 'hidden';
+            lockAlphaModalScroll();
+
+            setTimeout(() => {
+                if (modalCalcPlz && !/^\d{5}$/.test(modalCalcPlz.value)) {
+                    modalCalcPlz.focus();
+                } else if (modalCalcKwh && (!modalCalcKwh.value || parseInt(modalCalcKwh.value, 10) < 500)) {
+                    modalCalcKwh.focus();
+                }
+            }, 80);
         }
 
         const modalPlzInput = document.getElementById('orderPlz');
@@ -1327,7 +1637,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         function closeOrderModal() {
             if (!orderModal) return;
             orderModal.style.display = 'none';
-            document.body.style.overflow = '';
+            unlockAlphaModalScroll();
         }
 
         document.querySelectorAll('[data-select-tariff]').forEach(btn => {
@@ -1347,10 +1657,38 @@ document.addEventListener("DOMContentLoaded", async () => {
             });
         }
 
-        // Step 1 -> Step 2
+        // Step 1 -> Step 2 (Requires valid PLZ & kWh)
         const btnStep1Next = document.getElementById('btnStep1Next');
         if (btnStep1Next) {
             btnStep1Next.addEventListener('click', () => {
+                refreshModalStep1Calculation();
+                const plzVal = modalCalcPlz ? modalCalcPlz.value.replace(/\D/g, '').trim() : (selectedOrderData.plz || '');
+                const rawKwh = modalCalcKwh && modalCalcKwh.value ? modalCalcKwh.value.toString().replace(/\D/g, '').trim() : (selectedOrderData.consumption || '');
+                const kwhVal = rawKwh ? parseInt(rawKwh, 10) : NaN;
+                const isPlzOk = /^\d{5}$/.test(plzVal);
+                const isKwhOk = !isNaN(kwhVal) && kwhVal >= 500;
+
+                if (!isPlzOk || !isKwhOk) {
+                    if (modalStep1ValidationMsg) {
+                        if (!isPlzOk && !isKwhOk) {
+                            modalStep1ValidationMsg.textContent = 'Bitte gib deine 5-stellige Postleitzahl ein und wähle deinen geschätzten Jahresverbrauch (oder deine Haushaltsgröße).';
+                        } else if (!isPlzOk) {
+                            modalStep1ValidationMsg.textContent = 'Bitte gib deine 5-stellige Postleitzahl (Lieferort) ein.';
+                        } else {
+                            modalStep1ValidationMsg.textContent = 'Bitte wähle deine Haushaltsgröße oder gib deinen geschätzten Jahresverbrauch (ab 500 kWh) ein.';
+                        }
+                        modalStep1ValidationMsg.style.display = 'block';
+                    }
+                    if (!isPlzOk && modalCalcPlz) {
+                        modalCalcPlz.style.borderColor = '#ef4444';
+                        modalCalcPlz.focus();
+                    } else if (!isKwhOk && modalCalcKwh) {
+                        modalCalcKwh.style.borderColor = '#ef4444';
+                        modalCalcKwh.focus();
+                    }
+                    return;
+                }
+
                 const startDateSelect = document.getElementById('orderStartDate');
                 selectedOrderData.startDate = startDateSelect ? startDateSelect.value : 'schnellstmoeglich';
                 showModalStep(2);
@@ -1441,7 +1779,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                     });
                     const data = await res.json();
                     if (data.success) {
-                        const orderNumEl = document.getElementById('orderSuccessNumber');
+                        const orderNumEl = document.getElementById('orderSuccessNumber') || document.getElementById('confirmedOrderNumber');
                         const orderEmailEl = document.getElementById('orderSuccessEmail');
                         if (orderNumEl) orderNumEl.textContent = data.orderNumber;
                         if (orderEmailEl) orderEmailEl.textContent = payload.email;
@@ -1453,7 +1791,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                     }
                 } catch (e) {
                     const fallbackNum = 'AE-' + new Date().getFullYear() + '-' + Math.floor(100000 + Math.random() * 900000);
-                    const orderNumEl = document.getElementById('orderSuccessNumber');
+                    const orderNumEl = document.getElementById('orderSuccessNumber') || document.getElementById('confirmedOrderNumber');
                     const orderEmailEl = document.getElementById('orderSuccessEmail');
                     if (orderNumEl) orderNumEl.textContent = fallbackNum;
                     if (orderEmailEl) orderEmailEl.textContent = payload.email;
@@ -1470,14 +1808,14 @@ document.addEventListener("DOMContentLoaded", async () => {
         function closeMeterModal() {
             if (!meterModal) return;
             meterModal.style.display = 'none';
-            document.body.style.overflow = '';
+            unlockAlphaModalScroll();
         }
 
         if (btnOpenMeterModal && meterModal) {
             btnOpenMeterModal.addEventListener('click', (e) => {
                 e.preventDefault();
                 meterModal.style.display = 'flex';
-                document.body.style.overflow = 'hidden';
+                lockAlphaModalScroll();
             });
         }
 
@@ -1561,7 +1899,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         function closeCancelModal() {
             if (!cancelModal) return;
             cancelModal.style.display = 'none';
-            document.body.style.overflow = '';
+            unlockAlphaModalScroll();
         }
 
         const triggerCancelModal = (type) => {
@@ -1574,7 +1912,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                 if (cancelTypeInput) cancelTypeInput.value = 'KUENDIGUNG';
             }
             cancelModal.style.display = 'flex';
-            document.body.style.overflow = 'hidden';
+            lockAlphaModalScroll();
         };
 
         if (btnOpenCancel) btnOpenCancel.addEventListener('click', (e) => { e.preventDefault(); triggerCancelModal('KUENDIGUNG'); });
@@ -1632,11 +1970,11 @@ document.addEventListener("DOMContentLoaded", async () => {
                 }
                 if (targetModal) {
                     targetModal.style.display = 'none';
-                    document.body.style.overflow = '';
+                    unlockAlphaModalScroll();
                 }
             } else if (e.target.classList && e.target.classList.contains('digital-modal-backdrop')) {
                 e.target.style.display = 'none';
-                document.body.style.overflow = '';
+                unlockAlphaModalScroll();
             }
         });
 
@@ -1652,7 +1990,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                     }
                 });
                 if (anyClosed) {
-                    document.body.style.overflow = '';
+                    unlockAlphaModalScroll();
                 }
             }
         });

@@ -1758,6 +1758,73 @@
             height: 148px !important;
             width: auto !important;
         }
+
+        /* 4. Strict Modal Scroll Lock & Interactive Step-1 Inquiry Styles */
+        html.alpha-modal-open,
+        html.alpha-modal-open body,
+        body.alpha-modal-open {
+            overflow: hidden !important;
+            overscroll-behavior: none !important;
+        }
+
+        .digital-modal-backdrop {
+            overscroll-behavior: contain !important;
+        }
+
+        .digital-modal .modal-body {
+            overscroll-behavior: contain !important;
+        }
+
+        .modal-kwh-preset-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 8px 6px;
+            border-radius: 10px;
+            border: 1.5px solid #fed7aa;
+            background: #ffffff;
+            color: #1e293b;
+            cursor: pointer;
+            transition: all 0.18s ease;
+            font-family: inherit;
+            text-align: center;
+        }
+
+        .modal-kwh-preset-btn:hover {
+            border-color: #f99239;
+            background: #fff7ed;
+            transform: translateY(-1px);
+        }
+
+        .modal-kwh-preset-btn.active {
+            background: linear-gradient(135deg, #f9b233 0%, #f99239 55%, #e95e24 100%);
+            border-color: #e95e24;
+            color: #ffffff;
+            box-shadow: 0 4px 12px rgba(233, 94, 36, 0.25);
+        }
+
+        .modal-kwh-preset-btn .mp-label {
+            font-size: 0.8rem;
+            font-weight: 800;
+            line-height: 1.2;
+        }
+
+        .modal-kwh-preset-btn .mp-sub {
+            font-size: 0.7rem;
+            font-weight: 600;
+            opacity: 0.88;
+            margin-top: 2px;
+        }
+
+        @media (max-width: 560px) {
+            .modal-inline-grid-2 {
+                grid-template-columns: 1fr !important;
+            }
+            #modalPresetBtnsContainer {
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+        }
     </style>
 
     <!-- Schema.org Structured Data -->
@@ -2644,7 +2711,7 @@
                 <div class="octo-about-grid">
                     <!-- Top: Full-Width 16:9 Widescreen Video (Uncropped) -->
                     <div class="octo-about-media-card">
-                        <video id="intro-video" class="autoplay-on-scroll" autoplay loop muted playsinline controls poster="clean_energy_home.jpg">
+                        <video id="intro-video" class="autoplay-on-scroll" autoplay loop muted playsinline disablePictureInPicture poster="clean_energy_home.jpg">
                             <source src="public/b2c_tarifberatung.mp4" type="video/mp4">
                         </video>
                         <div style="background:#ffffff;border-top:1.5px solid rgba(249,178,51,0.48);padding:16px 24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
@@ -2922,19 +2989,73 @@
             <div class="modal-body">
                 <!-- Step 1: Tarif & Termin -->
                 <div class="modal-step active" id="modalStep1">
-                    <div style="background: #f8fafc; padding: 1.25rem; border-radius: 12px; margin-bottom: 1.5rem; border: 1px solid #e2e8f0;">
-                        <div style="font-size: 0.85rem; color: #64748b;">Ausgewählter Tarif:</div>
-                        <div id="orderSummaryTariffName" style="font-size: 1.25rem; font-weight: 800; color: #0a1f44;">ALPHA BASIC</div>
-                        <div style="display: flex; gap: 1.5rem; margin-top: 0.5rem; font-size: 0.9rem; color: #1e293b;">
-                            <div>Monatlicher Abschlag: <strong id="orderSummaryMonthly">70 € / Monat</strong></div>
-                            <div>Jahresverbrauch: <strong id="orderSummaryKwh">2.500 kWh</strong></div>
+                    <div id="orderSummaryCard" style="background: #f8fafc; padding: 1.15rem 1.25rem; border-radius: 12px; margin-bottom: 1.15rem; border: 1.5px solid #e2e8f0; transition: all 0.25s ease;">
+                        <div style="font-size: 0.82rem; color: #64748b; font-weight: 600;">Ausgewählter Tarif:</div>
+                        <div style="display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; flex-wrap: wrap; margin-top: 0.2rem;">
+                            <div id="orderSummaryTariffName" style="font-size: 1.25rem; font-weight: 800; color: #0a1f44;">ALPHA BASIC</div>
+                            <span id="orderSummaryTariffBadge" style="font-size: 0.75rem; font-weight: 700; background: #fff7ed; color: #c2410c; border: 1px solid #fed7aa; padding: 3px 10px; border-radius: 999px;">12 Monate Preisgarantie</span>
                         </div>
-                        <div style="margin-top: 0.5rem; color: #e95e24; font-weight: 700; font-size: 0.85rem;" id="orderSummarySavings">
-                            Bis zu 300 € / Jahr sparen
+                        <div style="display: flex; gap: 1.5rem; flex-wrap: wrap; margin-top: 0.55rem; font-size: 0.92rem; color: #1e293b;">
+                            <div>Monatlicher Abschlag: <strong id="orderSummaryMonthly" style="color: #0a1f44;">Bitte Verbrauch wählen</strong></div>
+                            <div>Jahresverbrauch: <strong id="orderSummaryKwh" style="color: #0a1f44;">Bitte unten angeben</strong></div>
+                        </div>
+                        <div style="margin-top: 0.45rem; color: #e95e24; font-weight: 700; font-size: 0.85rem;" id="orderSummarySavings">
+                            ⚡ Bitte gib unten kurz deine PLZ &amp; deinen Jahresverbrauch an
                         </div>
                     </div>
 
-                    <div class="form-group" style="margin-bottom: 1.25rem;">
+                    <!-- Active Consumption & PLZ Inquiry in Step 1 -->
+                    <div id="modalInlineCalcBox" style="background: #fffdf9; border: 1.5px solid rgba(249, 178, 51, 0.75); border-radius: 12px; padding: 1.1rem 1.2rem; margin-bottom: 1.15rem; box-shadow: 0 6px 18px rgba(233, 94, 36, 0.06);">
+                        <div id="modalInlineCalcPromptHeader" style="display: flex; align-items: center; gap: 8px; font-size: 0.85rem; font-weight: 800; color: #9a3412; margin-bottom: 0.85rem;">
+                            <span id="modalInlineCalcPromptIcon" style="display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 50%; background: #ffedd5; color: #ea580c; font-size: 0.8rem; flex-shrink: 0;">⚡</span>
+                            <span id="modalInlineCalcPromptText">Noch keine Verbrauchsdaten eingegeben – bitte hier kurz ergänzen:</span>
+                        </div>
+
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.85rem; margin-bottom: 0.85rem;" class="modal-inline-grid-2">
+                            <div class="form-group" style="margin: 0;">
+                                <label for="modalCalcPlz" class="calc-label" style="color:#1e293b; font-size:0.8rem; margin-bottom:4px; display:block; font-weight:700;">Postleitzahl (Lieferort) *</label>
+                                <div style="position: relative; display: flex; align-items: center;">
+                                    <input type="text" id="modalCalcPlz" class="calc-input" placeholder="z. B. 44379" maxlength="5" inputmode="numeric" style="color:#1e293b; background:#fff; width:100%; padding-right: 92px; height: 42px;">
+                                    <span id="modalCalcCityBadge" style="display: none; position: absolute; right: 8px; background: #fff7ed; color: #c2410c; border: 1px solid #fdba74; font-size: 0.72rem; font-weight: 800; padding: 2px 8px; border-radius: 999px; pointer-events: none;">Dortmund</span>
+                                </div>
+                            </div>
+                            <div class="form-group" style="margin: 0;">
+                                <label for="modalCalcKwh" class="calc-label" style="color:#1e293b; font-size:0.8rem; margin-bottom:4px; display:block; font-weight:700;">Jahresverbrauch (kWh/Jahr) *</label>
+                                <div style="position: relative; display: flex; align-items: center;">
+                                    <input type="number" id="modalCalcKwh" class="calc-input" placeholder="z. B. 2500" min="500" max="100000" style="color:#1e293b; background:#fff; width:100%; padding-right: 54px; height: 42px;">
+                                    <span style="position: absolute; right: 10px; font-size: 0.75rem; font-weight: 700; color: #64748b; pointer-events: none;">kWh</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <div style="font-size: 0.78rem; font-weight: 700; color: #475569; margin-bottom: 6px;">Oder Haushaltsgröße per Klick auswählen:</div>
+                            <div id="modalPresetBtnsContainer" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px;">
+                                <button type="button" class="modal-kwh-preset-btn" data-modal-kwh="1500">
+                                    <span class="mp-label">1 Person</span>
+                                    <span class="mp-sub">1.500 kWh</span>
+                                </button>
+                                <button type="button" class="modal-kwh-preset-btn" data-modal-kwh="2500">
+                                    <span class="mp-label">2 Pers.</span>
+                                    <span class="mp-sub">2.500 kWh</span>
+                                </button>
+                                <button type="button" class="modal-kwh-preset-btn" data-modal-kwh="3500">
+                                    <span class="mp-label">3 Pers.</span>
+                                    <span class="mp-sub">3.500 kWh</span>
+                                </button>
+                                <button type="button" class="modal-kwh-preset-btn" data-modal-kwh="4500">
+                                    <span class="mp-label">4+ Pers.</span>
+                                    <span class="mp-sub">4.500 kWh</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div id="modalStep1ValidationMsg" style="display: none; margin-top: 10px; padding: 9px 12px; border-radius: 8px; background: #fef2f2; border: 1px solid #fecaca; color: #b91c1c; font-size: 0.82rem; font-weight: 700;">
+                            Bitte gib zuerst deine 5-stellige Postleitzahl und deinen geschätzten Jahresverbrauch (oder deine Haushaltsgröße) an.
+                        </div>
+                    </div>
+
+                    <div class="form-group" style="margin-bottom: 1.15rem;">
                         <label for="orderStartDate" class="calc-label" style="color:#1e293b;">Gewünschter Lieferbeginn</label>
                         <select id="orderStartDate" class="calc-input" style="color:#1e293b;background:#fff;">
                             <option value="schnellstmoeglich">Schnellstmöglich (zum nächstzulässigen Termin)</option>
@@ -3187,7 +3308,12 @@
             footerMeterBtn.addEventListener('click', function(e) {
                 e.preventDefault();
                 meterModal.style.display = 'flex';
-                document.body.style.overflow = 'hidden';
+                if (typeof window.lockAlphaModalScroll === 'function') {
+                    window.lockAlphaModalScroll();
+                } else {
+                    document.documentElement.style.overflow = 'hidden';
+                    document.body.style.overflow = 'hidden';
+                }
             });
         }
 
@@ -3199,6 +3325,20 @@
                 e.preventDefault();
                 newsSuccess.style.display = 'block';
                 newsForm.reset();
+            });
+        }
+
+        // 4. Enforce permanent mute (zero sound) on Versorgerseite video
+        var introVid = document.getElementById('intro-video');
+        if (introVid) {
+            introVid.muted = true;
+            introVid.defaultMuted = true;
+            introVid.volume = 0;
+            introVid.addEventListener('volumechange', function() {
+                if (!introVid.muted || introVid.volume > 0) {
+                    introVid.muted = true;
+                    introVid.volume = 0;
+                }
             });
         }
     });
