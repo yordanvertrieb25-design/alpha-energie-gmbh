@@ -913,11 +913,11 @@ app.post('/api/partner-application', async (req, res) => {
                 try {
                     await transporter.sendMail({
                         from: sender,
-                        to: 'info@alpha-energie.de',
+                        to: 'bewerbung@alpha-energie.de',
                         subject: `Neue Registrierung (Agentur/VP): ${fullName}`,
                         text: `Eine neue Partner-Registrierung ist eingegangen:\n\nName: ${fullName}\nE-Mail: ${email}\nTelefon: ${phone || 'Nicht angegeben'}\nErfahrung: ${experience || 'Nicht angegeben'}\n\nBitte im Admin-Panel prüfen.`
                     });
-                    console.log(`Notification email successfully sent to info@alpha-energie.de for ${fullName}`);
+                    console.log(`Notification email successfully sent to bewerbung@alpha-energie.de for ${fullName}`);
                 } catch (backofficeMailErr) {
                     console.error("Failed to send partner registration notification to backoffice:", backofficeMailErr);
                 }
