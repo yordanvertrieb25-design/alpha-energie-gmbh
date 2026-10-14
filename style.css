@@ -4095,6 +4095,13 @@ section {
 }
 
 /* --- Multi-Step Digital Order Modal --- */
+html.alpha-modal-open,
+html.alpha-modal-open body,
+body.alpha-modal-open {
+    overflow: hidden !important;
+    overscroll-behavior: none !important;
+}
+
 .digital-modal-backdrop {
     display: none;
     position: fixed;
@@ -4110,6 +4117,7 @@ section {
     justify-content: center;
     padding: 1.5rem;
     overflow-y: auto;
+    overscroll-behavior: contain !important;
 }
 
 .digital-modal {
@@ -4121,7 +4129,7 @@ section {
     border: 1px solid rgba(255, 122, 0, 0.2);
     overflow: hidden;
     position: relative;
-    max-height: 90vh;
+    max-height: 92vh;
     display: flex;
     flex-direction: column;
 }
@@ -4129,7 +4137,7 @@ section {
 .modal-header-bar {
     background: linear-gradient(135deg, #0a1f44 0%, #173369 100%);
     color: #ffffff;
-    padding: 1.5rem 2rem;
+    padding: 1.25rem 1.75rem;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -4185,8 +4193,9 @@ section {
 }
 
 .modal-body {
-    padding: 2rem;
+    padding: 1.6rem 1.75rem;
     overflow-y: auto;
+    overscroll-behavior: contain !important;
     flex: 1;
 }
 
@@ -4197,6 +4206,57 @@ section {
 .modal-step.active {
     display: block;
     animation: fadeIn 0.3s ease;
+}
+
+.modal-kwh-preset-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 6px;
+    border-radius: 10px;
+    border: 1.5px solid #fed7aa;
+    background: #ffffff;
+    color: #1e293b;
+    cursor: pointer;
+    transition: all 0.18s ease;
+    font-family: inherit;
+    text-align: center;
+}
+
+.modal-kwh-preset-btn:hover {
+    border-color: #f99239;
+    background: #fff7ed;
+    transform: translateY(-1px);
+}
+
+.modal-kwh-preset-btn.active {
+    background: linear-gradient(135deg, #f9b233 0%, #f99239 55%, #e95e24 100%);
+    border-color: #e95e24;
+    color: #ffffff;
+    box-shadow: 0 4px 12px rgba(233, 94, 36, 0.25);
+}
+
+.modal-kwh-preset-btn .mp-label {
+    font-size: 0.8rem;
+    font-weight: 800;
+    line-height: 1.2;
+}
+
+.modal-kwh-preset-btn .mp-sub {
+    font-size: 0.7rem;
+    font-weight: 600;
+    opacity: 0.88;
+    margin-top: 2px;
+}
+
+@media (max-width: 560px) {
+    .modal-inline-grid-2 {
+        grid-template-columns: 1fr !important;
+    }
+    #modalPresetBtnsContainer {
+        grid-template-columns: repeat(2, 1fr) !important;
+    }
 }
 
 @keyframes fadeIn {
@@ -4439,10 +4499,10 @@ div[class*="swal2-container"] {
     z-index: -99999 !important;
 }
 
-body.swal2-shown,
-html.swal2-shown,
-body.swal2-height-auto,
-html.swal2-height-auto {
+body.swal2-shown:not(.alpha-modal-open),
+html.swal2-shown:not(.alpha-modal-open),
+body.swal2-height-auto:not(.alpha-modal-open),
+html.swal2-height-auto:not(.alpha-modal-open) {
     overflow: auto !important;
     height: auto !important;
 }

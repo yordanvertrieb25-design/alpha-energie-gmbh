@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta name="robots" content="noindex">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kontakt - Alpha Energie GmbH</title>
+    <meta name="description" content="Nehmen Sie Kontakt mit der Alpha Energie GmbH auf. Erreichen Sie unsere Fachabteilungen für Vertriebspartner, Gewerbekunden und Produktgeber in Dortmund.">
+
+    <!-- Favicon for Google Search & Browsers (Glühbirne) -->
+    <link rel="icon" href="/favicon.ico" sizes="any">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="icon" type="image/png" sizes="48x48" href="/favicon-48x48.png">
+    <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192x192.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="manifest" href="/site.webmanifest">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- CSS and JS -->
+    <link rel="stylesheet" href="style.css">
+    <script src="main.js" defer></script>
+</head>
+<body>
+    <div id="topbar" class="topbar">
+        <div class="topbar-left">
+            <span>Montag – Freitag 09:00 Uhr bis 17:30 Uhr</span>
+        </div>
+        <div class="topbar-right">
+            <a href="tel:023139989392" class="topbar-contact">T 0231 39989392</a>
+            <a href="mailto:info@alpha-energie.de" class="topbar-contact">E info@alpha-energie.de</a>
+        </div>
+    </div>
+
+    <header id="main-header" class="header">
+        <div class="container header-container">
+            <div class="logo">
+            <a href="/">
+                <img src="logo.png" alt="Alpha Energie GmbH" class="nav-logo">
+            </a>
+        </div>
+<button class="hamburger" aria-label="Menu">
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+            </button>
+            <nav id="main-nav" class="nav">
+                <ul class="nav-list">
+                    <li class="nav-item">
+                        <a href="ueber-uns.html">Über uns</a>
+                    </li>
+                    <li class="nav-item has-dropdown">
+                        <a href="#">Lösungen</a>
+                        <ul class="dropdown">
+                            <li><a href="vertriebspartner.html">Für Vertriebspartner</a></li>
+                            <li><a href="gewerbekunden.html">Für Gewerbekunden (B2B)</a></li>
+                            <li><a href="produktgeber.html">Für Produktgeber</a></li>
+                            <li><a href="agenturen.html">Für Agenturen</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item"><a href="karriere.html">Karriere</a></li>
+                    <li class="nav-item"><a href="kontakt.html">Kontakt</a></li>
+                </ul>
+            </nav>
+            <div class="header-actions">
+                <a href="vertriebspartner.html" class="btn btn-primary">Partner werden</a>
+                <a href="https://vp.alpha-energie.de" class="btn btn-secondary">VP-Portal</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main id="main-content">
+        
+        <section class="page-header">
+            <div class="container">
+                <h1 style="color: white; font-size: clamp(2.5rem, 5vw, 4rem);">Kontakt</h1>
+                <p style="font-size: 1.2rem; max-width: 800px; margin: 0 auto; color: white; opacity: 0.9;">Wir sind jederzeit gerne für Sie da – persönlich, kompetent, auf Augenhöhe und absolut lösungsorientiert. Treten Sie jetzt mit unseren Experten in Dortmund in Kontakt.</p>
+            </div>
+        </section>
+
+        <section class="section-pad">
+            <div class="container">
+                <div class="grid-contact">
+                    <!-- Contact Form -->
+                    <div class="card p-3xl">
+                        <h2 class="card-title">Schreiben Sie uns eine Nachricht</h2>
+                        <p class="section-text" style="margin-left: 0; font-size: 0.95rem; margin-bottom: 2rem;">
+                            Haben Sie Fragen zu unseren B2B-Energielösungen, möchten Sie Vertriebspartner werden oder planen Sie eine Kooperation als Produktgeber? Wählen Sie Ihr Anliegen einfach aus, damit wir Ihre Anfrage direkt an den richtigen Ansprechpartner in unserem Haus weiterleiten können. Wir melden uns schnellstmöglich bei Ihnen.
+                        </p>
+                        <form id="contact-form" style="display: flex; flex-direction: column; gap: 1.2rem;">
+                            <div class="form-grid">
+                                <div>
+                                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; font-size: 0.9rem;">Vorname & Nachname *</label>
+                                    <input type="text" id="contact-name" style="width: 100%; padding: 0.8rem; border: 1px solid rgba(0,0,0,0.1); border-radius: 8px;" placeholder="Ihr Name" required>
+                                </div>
+                                <div>
+                                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; font-size: 0.9rem;">Telefonnummer</label>
+                                    <input type="tel" id="contact-phone" style="width: 100%; padding: 0.8rem; border: 1px solid rgba(0,0,0,0.1); border-radius: 8px;" placeholder="Ihre Telefonnummer">
+                                </div>
+                            </div>
+                            <div>
+                                <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; font-size: 0.9rem;">E-Mail-Adresse *</label>
+                                <input type="email" id="contact-email" style="width: 100%; padding: 0.8rem; border: 1px solid rgba(0,0,0,0.1); border-radius: 8px;" placeholder="Deine E-Mail-Adresse" required>
+                            </div>
+                            <div>
+                                <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; font-size: 0.9rem;">Betreff / Bereich *</label>
+                                <select id="contact-subject" style="width: 100%; padding: 0.8rem; border: 1px solid rgba(0,0,0,0.1); border-radius: 8px;">
+                                    <option>B2B Beratung / Gewerbekunden</option>
+                                    <option>Vertriebspartner werden / B2C</option>
+                                    <option>Produktgeber Kooperation</option>
+                                    <option>Partnerschaft / Handelsvertreter & Agenturen</option>
+                                    <option>Allgemeine Anfrage</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; font-size: 0.9rem;">Ihre Nachricht *</label>
+                                <textarea id="contact-message" rows="5" style="width: 100%; padding: 0.8rem; border: 1px solid rgba(0,0,0,0.1); border-radius: 8px;" placeholder="Wie können wir Ihnen helfen?" required></textarea>
+                            </div>
+                            <button type="submit" id="contact-submit" class="btn btn-secondary mt-2" style="width: 100%;">Anfrage absenden</button>
+                            <div id="contact-success" style="display: none; color: green; font-weight: bold; margin-top: 10px;">Nachricht erfolgreich gesendet! Wir melden uns in Kürze.</div>
+                        </form>
+                        <script>
+                            document.getElementById('contact-form').addEventListener('submit', async (e) => {
+                                e.preventDefault();
+                                const submitBtn = document.getElementById('contact-submit');
+                                submitBtn.disabled = true;
+                                submitBtn.innerText = 'Wird gesendet...';
+                                
+                                const data = {
+                                    name: document.getElementById('contact-name').value,
+                                    phone: document.getElementById('contact-phone').value,
+                                    email: document.getElementById('contact-email').value,
+                                    subject: document.getElementById('contact-subject').value,
+                                    message: document.getElementById('contact-message').value
+                                };
+
+                                const isLocalDev = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') && window.location.port !== '3000';
+                                const isFileProtocol = window.location.protocol === 'file:';
+                                const API_URL = (isLocalDev || isFileProtocol) ? 'http://localhost:3000/api/contact' : '/api/contact';
+
+                                try {
+                                    const res = await fetch(API_URL, {
+                                        method: 'POST',
+                                        headers: { 'Content-Type': 'application/json' },
+                                        body: JSON.stringify(data)
+                                    });
+                                    if(res.ok) {
+                                        document.getElementById('contact-success').style.display = 'block';
+                                        document.getElementById('contact-form').reset();
+                                    } else {
+                                        alert('Es gab einen Fehler. Bitte versuchen Sie es erneut.');
+                                    }
+                                } catch(err) {
+                                    alert('Es gab einen Fehler. Bitte versuchen Sie es erneut.');
+                                } finally {
+                                    submitBtn.disabled = false;
+                                    submitBtn.innerText = 'Anfrage absenden';
+                                }
+                            });
+                        </script>
+                    </div>
+
+                    <!-- Side Info & Address -->
+                    <div style="display: flex; flex-direction: column; gap: 2rem;">
+                        <!-- Address -->
+                        <div class="card p-xxl">
+                            <h3 class="card-title" style="font-size: 1.25rem;">Hauptsitz Dortmund</h3>
+                            <p style="font-size: 0.95rem; color: var(--text-muted); line-height: 1.8; margin-top: 1rem;">
+                                Alpha Energie GmbH<br>
+                                Alter Hellweg 50<br>
+                                44379 Dortmund
+                            </p>
+                            <p style="font-size: 0.95rem; color: var(--text-muted); line-height: 1.8; margin-top: 1rem;">
+                                Wir freuen uns auf Ihren Besuch oder Ihre Kontaktaufnahme. Parkplätze stehen Ihnen direkt vor unserem Gebäude im Zukunftspark Dortmund zur Verfügung.
+                            </p>
+                            <p style="font-size: 0.95rem; color: var(--text-muted); line-height: 1.8; margin-top: 1rem;">
+                                <strong>Telefon:</strong> <a href="tel:023139989392" style="color: var(--accent-orange);">0231 39989392</a> (Vertrieb &amp; Zentrale) | <a href="tel:023139989390" style="color: var(--accent-orange);">0231 39989390</a> (Kundenservice Versorger)<br>
+                                <strong>E-Mail:</strong> <a href="mailto:info@alpha-energie.de" style="color: var(--accent-orange);">info@alpha-energie.de</a>
+                            </p>
+                        </div>
+
+                        <!-- Business Hours -->
+                        <div class="card p-xxl">
+                            <h3 class="card-title" style="font-size: 1.25rem;">Geschäftszeiten</h3>
+                            <ul style="font-size: 0.95rem; color: var(--text-muted); display: flex; flex-direction: column; gap: 0.5rem; margin-top: 1rem;">
+                                <li style="display: flex; justify-content: space-between;">
+                                    <span>Montag – Donnerstag:</span>
+                                    <strong>08:00 – 17:00 Uhr</strong>
+                                </li>
+                                <li style="display: flex; justify-content: space-between;">
+                                    <span>Freitag:</span>
+                                    <strong>08:00 – 15:00 Uhr</strong>
+                                </li>
+                                <li style="display: flex; justify-content: space-between;">
+                                    <span>Samstag & Sonntag:</span>
+                                    <strong>Geschlossen</strong>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <!-- Mock Map -->
+                        <div class="card p-lg" style="background-color: var(--bg-alt); border: 1px solid rgba(0,0,0,0.05); text-align: center; border-radius: 12px; overflow: hidden;">
+                            <div style="height: 180px; background-color: #e5e7eb; border-radius: 8px; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 1.5rem; box-sizing: border-box; border: 1px dashed rgba(0,0,0,0.15);">
+                                <span style="display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 44px; border-radius: 50%; background: #ffffff; color: var(--primary-color); margin-bottom: 0.5rem; box-shadow: 0 2px 6px rgba(0,0,0,0.08);">
+                                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                                </span>
+                                <strong style="font-size: 0.9rem; color: var(--text-main);">Interaktive Standortkarte</strong>
+                                <span style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem; max-width: 200px; display: inline-block;">Alter Hellweg 50, Dortmund</span>
+                                <a href="https://maps.google.com" target="_blank" class="btn btn-outline" style="font-size: 0.8rem; padding: 0.4rem 1rem; margin-top: 0.8rem;">Route berechnen</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+    </main>
+
+    <footer id="main-footer" class="footer">
+        <div class="container">
+            <div class="footer-top grid-4">
+                <div class="footer-widget brand-widget">
+                    <a href="/">
+                        <img src="logo.png" alt="Alpha Energie GmbH" class="footer-logo">
+                    </a>
+                    <p class="footer-desc">Alpha Energie GmbH ist dein kompetenter Begleiter und Berater bei der Energiekostenoptimierung!</p>
+                    
+                    <p class="footer-address" style="color: rgba(255,255,255,0.7); font-size: 0.9rem; margin-top: 0.5rem; margin-bottom: 1.5rem;">Alter Hellweg 50, 44379 Dortmund</p>
+                    <div class="social-links">
+                        <a href="#facebook" class="social-icon" aria-label="Facebook">Facebook</a>
+                        <a href="#linkedin" class="social-icon" aria-label="LinkedIn">LinkedIn</a>
+                        <a href="#instagram" class="social-icon" aria-label="Instagram">Instagram</a>
+                    </div>
+                                        <div class="footer-trust-badges">
+                        <div class="trust-badge-item">
+                            <img src="/bdeb-mitglied.png" alt="BDEB Verbandsmitgliedschaft Alpha Energie" class="footer-badge-bdeb">
+                        </div>
+                        <div class="trust-badge-item">
+                            <img src="/ok-power-siegel.png" alt="ok-power Gütesiegel für 100 % erneuerbare Energien" class="footer-badge-okpower">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="footer-widget links-widget">
+                    <h4 class="widget-title">Unternehmen</h4>
+                    <ul class="footer-links">
+                        <li><a href="ueber-uns.html">Über uns</a></li>
+                        <li><a href="karriere.html">Karriere</a></li>
+                        <li><a href="kontakt.html">Kontakt</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-widget links-widget">
+                    <h4 class="widget-title">Lösungen</h4>
+                    <ul class="footer-links">
+                        <li><a href="vertriebspartner.html">Für Vertriebspartner</a></li>
+                        <li><a href="gewerbekunden.html">Für Gewerbekunden</a></li>
+                        <li><a href="produktgeber.html">Für Produktgeber</a></li>
+                        <li><a href="agenturen.html">Für Agenturen</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-widget links-widget">
+                    <h4 class="widget-title">Rechtliches</h4>
+                    <ul class="footer-links">
+                        <li><a href="datenschutz.html">Datenschutz</a></li>
+                        <li><a href="impressum.html">Impressum</a></li>
+                        <li><a href="cookie-einstellungen.html">Cookie-Einstellungen</a></li>
+                        <li><a href="cookie-richtlinie.html">Cookie-Richtlinie</a></li>
+                        <li><a href="https://vp.alpha-energie.de">VP-Portal</a></li>
+                    </ul>
+                </div>
+            </div>
+                        
+                
+
+            <div class="footer-bottom flex-between">
+                <p class="copyright">&copy; Copyright 2026. Alle Rechte vorbehalten. Alpha Energie GmbH</p>
+            </div>
+            
+            <div class="cookie-settings mt-2">
+                <a href="cookie-einstellungen.html" class="cookie-link">Cookie-Einstellungen verwalten</a>
+            </div>
+        </div>
+    </footer>
+
+</body>
+</html>
+
