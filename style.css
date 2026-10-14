@@ -3395,25 +3395,26 @@ section {
 :root {
     --versorger-navy: #07152d;
     --versorger-navy-light: #0d2348;
-    --versorger-orange: #ff7a00;
-    --versorger-orange-dark: #ea580c;
-    --versorger-orange-light: #fff7ed;
-    --versorger-card-border: rgba(255, 122, 0, 0.25);
+    --versorger-orange: #f9b233;
+    --versorger-orange-mid: #f99239;
+    --versorger-orange-dark: #e95e24;
+    --versorger-orange-light: #fff9eb;
+    --versorger-card-border: rgba(249, 178, 51, 0.35);
 
     /* Backwards compatibility aliases */
-    --versorger-green: #ff7a00;
-    --versorger-green-dark: #ea580c;
-    --versorger-green-light: #fff7ed;
-    --versorger-lime: #f59e0b;
-    --versorger-gold: #f59e0b;
+    --versorger-green: #f9b233;
+    --versorger-green-dark: #e95e24;
+    --versorger-green-light: #fff9eb;
+    --versorger-lime: #f9b233;
+    --versorger-gold: #f9b233;
 }
 
 /* --- Hero Versorger Section --- */
 .hero-versorger {
     position: relative;
     padding: 3rem 1.5rem 5rem 1.5rem;
-    background: radial-gradient(circle at 10% 20%, rgba(255, 122, 0, 0.12) 0%, transparent 40%),
-                radial-gradient(circle at 90% 80%, rgba(239, 138, 0, 0.1) 0%, transparent 45%),
+    background: radial-gradient(circle at 10% 20%, rgba(249, 178, 51, 0.16) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(249, 146, 57, 0.12) 0%, transparent 45%),
                 linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
     overflow: hidden;
 }
@@ -3444,9 +3445,9 @@ section {
     display: inline-flex;
     align-items: center;
     gap: 0.5rem;
-    background: #fff7ed;
+    background: #fff9eb;
     color: #9a3412;
-    border: 1px solid rgba(255, 122, 0, 0.3);
+    border: 1px solid rgba(249, 178, 51, 0.45);
     padding: 0.4rem 1rem;
     border-radius: 9999px;
     font-size: 0.875rem;
@@ -3455,7 +3456,7 @@ section {
 }
 
 .versorger-tag svg {
-    color: #ff7a00;
+    color: #f9b233;
 }
 
 .hero-versorger-title {
@@ -3469,7 +3470,7 @@ section {
 
 .hero-versorger-title .text-green-gradient,
 .hero-versorger-title .text-orange-gradient {
-    background: linear-gradient(135deg, #ff7a00 0%, #ea580c 100%);
+    background: linear-gradient(135deg, #f9b233 0%, #f99239 52%, #e95e24 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
 }
@@ -3506,7 +3507,7 @@ section {
 .tarifrechner-card {
     background: #ffffff;
     border-radius: 20px;
-    border: 1px solid rgba(255, 122, 0, 0.25);
+    border: 1px solid rgba(249, 178, 51, 0.35);
     box-shadow: 0 20px 45px -12px rgba(10, 31, 68, 0.12), 0 0 0 1px rgba(0, 0, 0, 0.02);
     padding: 2rem;
     position: relative;
@@ -3572,8 +3573,8 @@ section {
 }
 
 .calc-tab-icon-strom {
-    background: rgba(255, 122, 0, 0.12);
-    color: #ff7a00;
+    background: rgba(249, 178, 51, 0.16);
+    color: #f99239;
 }
 
 .calc-tab-icon-waerme {
@@ -3616,8 +3617,8 @@ section {
 
 .calc-tab-btn.active {
     background: #ffffff;
-    border-color: #ff7a00;
-    box-shadow: 0 4px 14px rgba(255, 122, 0, 0.16);
+    border-color: #f9b233;
+    box-shadow: 0 4px 14px rgba(249, 178, 51, 0.24);
     transform: translateY(-1px);
 }
 
@@ -3626,7 +3627,7 @@ section {
 }
 
 .calc-tab-btn.active .calc-tab-subtitle {
-    color: #ea580c;
+    color: #e95e24;
     font-weight: 700;
 }
 
@@ -3636,8 +3637,8 @@ section {
 
 /* Dynamic Compliance Context Notice Bar */
 .calc-branch-info-bar {
-    background: #fff7ed;
-    border: 1px solid rgba(255, 122, 0, 0.25);
+    background: #fff9eb;
+    border: 1px solid rgba(249, 178, 51, 0.35);
     border-radius: 8px;
     padding: 0.45rem 0.75rem;
     font-size: 0.76rem;
@@ -3654,7 +3655,7 @@ section {
     width: 6px;
     height: 6px;
     border-radius: 50%;
-    background: #ff7a00;
+    background: #f9b233;
     display: inline-block;
     flex-shrink: 0;
 }
@@ -3732,8 +3733,8 @@ section {
 
 .calc-input:focus {
     outline: none;
-    border-color: #ff7a00;
-    box-shadow: 0 0 0 3px rgba(255, 122, 0, 0.15);
+    border-color: #f9b233;
+    box-shadow: 0 0 0 3px rgba(249, 178, 51, 0.22);
 }
 
 .calc-plz-city {
@@ -3741,8 +3742,8 @@ section {
     right: 0.75rem;
     font-size: 0.8rem;
     font-weight: 600;
-    color: #ea580c;
-    background: #fff7ed;
+    color: #e95e24;
+    background: #fff9eb;
     padding: 0.2rem 0.6rem;
     border-radius: 6px;
     pointer-events: none;
@@ -3782,9 +3783,9 @@ section {
 }
 
 .household-btn.active {
-    background: #fff7ed;
-    border-color: #ff7a00;
-    color: #9a3412;
+    background: linear-gradient(135deg, #f9b233 0%, #f99239 55%, #e95e24 100%);
+    border-color: #f99239;
+    color: #ffffff;
 }
 
 .household-btn-label {
@@ -3799,13 +3800,13 @@ section {
 }
 
 .household-btn.active .household-btn-sub {
-    color: #ea580c;
+    color: #ffffff;
     font-weight: 600;
 }
 
 /* Savings Box */
 .savings-banner-box {
-    background: linear-gradient(135deg, #ff7a00 0%, #ea580c 100%);
+    background: linear-gradient(135deg, #f9b233 0%, #f99239 55%, #e95e24 100%);
     color: #ffffff;
     border-radius: 12px;
     padding: 1rem 1.25rem;
@@ -3813,7 +3814,7 @@ section {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    box-shadow: 0 8px 20px -4px rgba(255, 122, 0, 0.35);
+    box-shadow: 0 8px 20px -4px rgba(249, 146, 57, 0.38);
 }
 
 .savings-label {
@@ -3832,7 +3833,7 @@ section {
 .calc-submit-btn {
     width: 100%;
     padding: 0.95rem;
-    background: linear-gradient(135deg, #ff7a00 0%, #ea580c 100%) !important;
+    background: linear-gradient(135deg, #f9b233 0%, #f99239 55%, #e95e24 100%) !important;
     color: #ffffff !important;
     border: none !important;
     border-radius: 10px;
@@ -3844,14 +3845,14 @@ section {
     align-items: center;
     justify-content: center;
     gap: 0.5rem;
-    box-shadow: 0 6px 20px rgba(255, 122, 0, 0.4);
+    box-shadow: 0 6px 20px rgba(249, 146, 57, 0.42);
     transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .calc-submit-btn:hover {
-    background: linear-gradient(135deg, #ff8c00 0%, #f97316 100%) !important;
+    background: linear-gradient(135deg, #f99239 0%, #e95e24 100%) !important;
     transform: translateY(-2px);
-    box-shadow: 0 10px 25px rgba(255, 122, 0, 0.55);
+    box-shadow: 0 10px 25px rgba(233, 94, 36, 0.52);
 }
 
 .calc-guarantee-note {
@@ -3927,8 +3928,8 @@ section {
 }
 
 .versorger-tariff-card.bestseller {
-    border: 2px solid #ff7a00;
-    box-shadow: 0 15px 35px -8px rgba(255, 122, 0, 0.18);
+    border: 2px solid #f9b233;
+    box-shadow: 0 15px 35px -8px rgba(249, 146, 57, 0.24);
     overflow: visible !important;
 }
 
@@ -3942,14 +3943,14 @@ section {
     left: 50%;
     transform: translateX(-50%);
     z-index: 25;
-    background: linear-gradient(135deg, #ff7a00 0%, #ea580c 100%);
+    background: linear-gradient(90deg, #f9b233 0%, #f99239 55%, #e95e24 100%);
     color: #ffffff;
     font-size: 0.78rem;
     font-weight: 700;
     padding: 0.35rem 1.1rem;
     border-radius: 9999px;
     white-space: nowrap;
-    box-shadow: 0 4px 14px rgba(255, 122, 0, 0.4);
+    box-shadow: 0 4px 14px rgba(249, 146, 57, 0.42);
     display: inline-flex;
     align-items: center;
     gap: 0.4rem;
@@ -4008,13 +4009,13 @@ section {
 .tariff-bonus-pill {
     display: inline-block;
     margin-top: 0.5rem;
-    background: #fff7ed;
+    background: #fff9eb;
     color: #9a3412;
     font-size: 0.75rem;
     font-weight: 700;
     padding: 0.25rem 0.65rem;
     border-radius: 9999px;
-    border: 1px solid rgba(255, 122, 0, 0.25);
+    border: 1px solid rgba(249, 178, 51, 0.45);
 }
 
 .tariff-price-details {
@@ -4031,8 +4032,8 @@ section {
 }
 
 .versorger-tariff-card.bestseller .tariff-price-details {
-    border-top-color: #fed7aa;
-    color: #c2410c;
+    border-top-color: #fde8bd;
+    color: #e95e24;
 }
 
 .tariff-feature-list {
@@ -4052,7 +4053,7 @@ section {
 }
 
 .tariff-feature-item svg {
-    color: #ff7a00;
+    color: #f99239;
     flex-shrink: 0;
     margin-top: 2px;
 }
@@ -4061,9 +4062,9 @@ section {
     width: 100%;
     padding: 0.85rem;
     border-radius: 8px;
-    border: 2px solid #ff7a00;
-    background: #fff7ed;
-    color: #ea580c;
+    border: 2px solid #f9b233;
+    background: #fff9eb;
+    color: #e95e24;
     font-weight: 700;
     font-size: 0.95rem;
     font-family: var(--font-main);
@@ -4073,23 +4074,23 @@ section {
 }
 
 .tariff-action-btn:hover {
-    background: linear-gradient(135deg, #ff7a00 0%, #ea580c 100%);
-    border-color: #ff7a00;
+    background: linear-gradient(135deg, #f9b233 0%, #f99239 55%, #e95e24 100%);
+    border-color: #f99239;
     color: #ffffff;
-    box-shadow: 0 6px 20px rgba(255, 122, 0, 0.35);
+    box-shadow: 0 6px 20px rgba(249, 146, 57, 0.38);
     transform: translateY(-2px);
 }
 
 .versorger-tariff-card.bestseller .tariff-action-btn {
-    background: linear-gradient(135deg, #ff7a00 0%, #ea580c 100%);
-    border-color: #ff7a00;
+    background: linear-gradient(135deg, #f9b233 0%, #f99239 55%, #e95e24 100%);
+    border-color: #f99239;
     color: #ffffff;
-    box-shadow: 0 4px 15px rgba(255, 122, 0, 0.35);
+    box-shadow: 0 4px 15px rgba(249, 146, 57, 0.38);
 }
 
 .versorger-tariff-card.bestseller .tariff-action-btn:hover {
-    background: linear-gradient(135deg, #ff8c00 0%, #f97316 100%);
-    box-shadow: 0 8px 25px rgba(255, 122, 0, 0.5);
+    background: linear-gradient(135deg, #f99239 0%, #e95e24 100%);
+    box-shadow: 0 8px 25px rgba(233, 94, 36, 0.5);
     transform: translateY(-2px);
 }
 

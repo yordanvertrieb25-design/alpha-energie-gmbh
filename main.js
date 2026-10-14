@@ -748,17 +748,17 @@ document.addEventListener("DOMContentLoaded", async () => {
                 ]
             },
             'alpha-time': {
-                name: 'ALPHA TIME',
-                badge: 'Bestseller & Smart Energy',
+                name: 'ALPHA ÖKOSTROM PLUS',
+                badge: 'Bestseller & Spar-Vorteil',
                 workingPriceCt: 24.50,
                 basePriceEur: 12.00,
                 bonus: 0,
                 guaranteeMonths: 12,
                 features: [
-                    'Zeitvariabler dynamischer Smart-Tarif',
-                    'Optimiert für Smart Home & Batteriespeicher',
-                    'Bis zu 25% reduzierte Netzentgelte (§ 14a EnWG)',
-                    'Transparente App-Einsicht & Live-Steuerung'
+                    'Besonders günstiger Arbeitspreis (24,50 ct/kWh)',
+                    '12 Monate volle Preisgarantie ohne Preissprünge',
+                    '100 % zertifizierter Ökostrom (ok-power Siegel)',
+                    'Kostenloser Wechselservice inkl. Altvertrag-Kündigung'
                 ]
             },
             'alpha-premium': {
@@ -999,13 +999,13 @@ document.addEventListener("DOMContentLoaded", async () => {
             const presets = branch === 'gas' ? [
                 { label: 'Wohnung', sub: '5.000 kWh', kwh: 5000 },
                 { label: 'Reihenhaus', sub: '12.000 kWh', kwh: 12000 },
-                { label: 'Einfamilienhaus', sub: '18.000 kWh', kwh: 18000 },
+                { label: 'Haus', sub: '18.000 kWh', kwh: 18000 },
                 { label: 'Großes Haus', sub: '25.000 kWh', kwh: 25000 }
             ] : [
                 { label: '1 Person', sub: '1.500 kWh', kwh: 1500 },
-                { label: '2 Personen', sub: '2.500 kWh', kwh: 2500 },
-                { label: '3 Personen', sub: '3.500 kWh', kwh: 3500 },
-                { label: '4+ Personen', sub: '4.500 kWh', kwh: 4500 }
+                { label: '2 Pers.', sub: '2.500 kWh', kwh: 2500 },
+                { label: '3 Pers.', sub: '3.500 kWh', kwh: 3500 },
+                { label: '4+ Pers.', sub: '4.500 kWh', kwh: 4500 }
             ];
 
             const rawVal = (calcKwh && calcKwh.value) ? calcKwh.value.toString().replace(/\D/g, '').trim() : '';

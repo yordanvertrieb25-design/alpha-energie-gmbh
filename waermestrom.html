@@ -1,11 +1,10 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-    <meta name="robots" content="noindex, follow">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>§ 14a EnWG Wärmestrom deutschlandweit | Alpha Energie GmbH</title>
-    <meta name="description" content="Bis zu 25% reduzierte Netzentgelte für Wärmepumpen und Nachtspeicher gem. § 14a EnWG. Jetzt passenden Heizstromtarif bei Alpha Energie sichern!">
+    <title>§ 14a EnWG Wärmestrom für Wärmepumpen | Alpha Energie GmbH</title>
+    <meta name="description" content="§ 14a EnWG Wärmestrom für Wärmepumpen | Alpha Energie GmbH – 100 % Ökostrom & klimaneutrales Ökogas aus Dortmund.">
     <link rel="canonical" href="https://alpha-energie.de/waermestrom.html">
 
     <!-- Favicon for Google Search & Browsers (Glühbirne) -->
@@ -20,86 +19,2164 @@
     <!-- Open Graph -->
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://alpha-energie.de/waermestrom.html">
-    <meta property="og:title" content="§ 14a EnWG Wärmestrom deutschlandweit | Alpha Energie GmbH">
-    <meta property="og:description" content="Bis zu 25% reduzierte Netzentgelte für steuerbare Wärmepumpen und Heizstrom.">
+    <meta property="og:title" content="§ 14a EnWG Wärmestrom für Wärmepumpen | Alpha Energie GmbH">
+    <meta property="og:description" content="§ 14a EnWG Wärmestrom für Wärmepumpen | Alpha Energie GmbH – 100 % Ökostrom & klimaneutrales Ökogas aus Dortmund.">
     <meta property="og:image" content="https://alpha-energie.de/logo.png">
 
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
 
-    <!-- CSS & JS -->
+    <!-- Base Stylesheet & Scripts -->
     <link rel="stylesheet" href="style.css">
     <script src="main.js" defer></script>
-</head>
-<body>
-    <!-- Topbar -->
-    <div id="topbar" class="topbar">
-        <div class="topbar-left">
-            <span>Montag – Freitag 08:00 – 18:00 Uhr | Bundesweiter Service &amp; Kundencenter Dortmund</span>
-        </div>
-        <div class="topbar-right">
-            <a href="tel:023139989390" class="topbar-contact"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="display:inline-block;vertical-align:-1px;margin-right:5px;"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>0231 39989390</a>
-            <a href="mailto:info@alpha-energie.de" class="topbar-contact"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="display:inline-block;vertical-align:-1px;margin-right:5px;"><rect x="2" y="4" width="20" height="16" rx="2"></rect><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path></svg>info@alpha-energie.de</a>
-        </div>
-    </div>
 
-    <!-- Header Navigation -->
-    <header id="main-header" class="header">
-        <div class="container header-container">
-            <div class="logo">
-                <a href="/">
-                    <img src="logo.png" alt="Alpha Energie GmbH Logo" class="nav-logo">
-                </a>
+    <style>
+        :root {
+            --logo-orange: #f9b233;         /* Primary Logo Orange ("ALPHA ENERGIE") */
+            --logo-orange-mid: #f99239;     /* Logo Bulb Mid Vibrant Orange */
+            --logo-orange-deep: #e95e24;    /* Logo Bulb Deep Warm Orange */
+            --logo-gold-light: #f8e29f;     /* Logo Bulb Warm Gold Highlight */
+            --logo-gradient: linear-gradient(90deg, #f9b233 0%, #f99239 52%, #e95e24 100%);
+            --logo-gradient-135: linear-gradient(135deg, #f9b233 0%, #f99239 55%, #e95e24 100%);
+            --logo-gradient-hover: linear-gradient(135deg, #f99239 0%, #e95e24 100%);
+            --octo-bg-deep: #ffffff;        /* Pure White Page Base */
+            --octo-bg-mid: #ffffff;         /* Pure White Section Band */
+            --octo-bg-surface: #ffffff;     /* Crisp Pure White Card Surface */
+            --octo-bg-surface-hover: #ffffff;
+            --octo-border-orange: #f9b233;  /* Authentic Alpha Logo Orange Border */
+            --octo-cta-orange: #f9b233;     /* Authentic Logo Orange Primary CTA */
+            --octo-cta-orange-hover: #e95e24;
+            --octo-accent-amber: #e95e24;   /* Deep Logo Orange Headings & Accents */
+            --octo-pill-orange: #f9b233;    /* Active Pill / Secondary Button */
+            --octo-text-light: #1c1917;     /* Deep Warm Charcoal Primary Text */
+            --octo-text-muted: #57534e;     /* Warm Slate-Brown Secondary Text */
+            --octo-dark-ink: #ffffff;       /* Crisp White Text on Orange CTAs */
+        }
+
+        html,
+        body.octo-orange-body {
+            background-color: #ffffff !important;
+            background: #ffffff !important;
+            color: var(--octo-text-light) !important;
+            font-family: 'Sora', 'Manrope', -apple-system, BlinkMacSystemFont, sans-serif;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+        }
+
+        /* Wide Desktop Container Width */
+        .octo-container,
+        body.octo-orange-body .octo-container,
+        body.octo-orange-body .container {
+            max-width: 1460px !important;
+            width: 94% !important;
+            margin: 0 auto !important;
+            padding: 0 clamp(18px, 2vw, 28px) !important;
+            box-sizing: border-box !important;
+        }
+        @media (max-width: 768px) {
+            .octo-container,
+            body.octo-orange-body .octo-container,
+            body.octo-orange-body .container {
+                max-width: 96vw !important;
+                width: 96% !important;
+                padding: 0 16px !important;
+            }
+        }
+
+        /* 1. HEADER (Octopus Compact Sticky Pure White Header) */
+        body.octo-orange-body #main-header.octo-header {
+            background: rgba(255, 255, 255, 0.98) !important;
+            backdrop-filter: blur(12px);
+            border-bottom: 1.5px solid rgba(249, 178, 51, 0.38) !important;
+            box-shadow: 0 4px 20px rgba(249, 178, 51, 0.10) !important;
+            padding: 8px 0 !important;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .octo-header-inner {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+            min-height: 76px;
+        }
+
+        .octo-header-left {
+            display: flex;
+            align-items: center;
+            gap: 28px;
+        }
+
+        .octo-header .logo,
+        .octo-header .logo a {
+            background: transparent !important;
+            padding: 0 !important;
+            border: none !important;
+            box-shadow: none !important;
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .octo-header .nav-logo {
+            height: 72px !important;
+            max-height: 72px !important;
+            width: auto !important;
+            display: block;
+            background: transparent !important;
+            padding: 0 !important;
+            border: none !important;
+            border-radius: 0 !important;
+            box-shadow: none !important;
+            object-fit: contain;
+        }
+
+        .octo-header .nav-list {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        .octo-header .nav-item > a {
+            color: var(--octo-text-light) !important;
+            font-size: 0.92rem;
+            font-weight: 600;
+            padding: 10px 14px;
+            border-radius: 12px;
+            text-decoration: none;
+            transition: background 0.2s ease, color 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .octo-header .nav-item > a:hover {
+            background: rgba(249, 178, 51, 0.14);
+            color: var(--octo-accent-amber) !important;
+        }
+
+        .octo-header .dropdown {
+            background: #ffffff !important;
+            border: 1.6px solid var(--octo-border-orange) !important;
+            border-radius: 14px !important;
+            box-shadow: 0 16px 36px rgba(249, 178, 51, 0.22) !important;
+            padding: 8px !important;
+        }
+
+        .octo-header .dropdown li a {
+            color: var(--octo-text-light) !important;
+            border-radius: 10px;
+            padding: 9px 14px !important;
+            font-size: 0.88rem;
+        }
+
+        .octo-header .dropdown li a:hover {
+            background: rgba(249, 178, 51, 0.14) !important;
+            color: var(--octo-accent-amber) !important;
+        }
+
+        .octo-header-right {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .octo-login-link {
+            color: var(--octo-text-light);
+            background: #ffffff;
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 600;
+            padding: 10px 14px;
+            border-radius: 12px;
+            border: 1.6px solid rgba(249, 178, 51, 0.6);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            white-space: nowrap;
+            flex-shrink: 0;
+            transition: all 0.2s ease;
+        }
+
+        .octo-login-link:hover {
+            background: rgba(249, 178, 51, 0.12);
+            border-color: var(--octo-border-orange);
+            color: var(--octo-accent-amber);
+        }
+
+        .octo-header .lang-switcher-header {
+            display: flex;
+            gap: 4px;
+            background: #ffffff;
+            padding: 3px;
+            border-radius: 10px;
+            border: 1px solid rgba(249, 178, 51, 0.45);
+        }
+
+        .octo-header .lang-btn {
+            background: transparent;
+            color: var(--octo-text-muted);
+            border: none;
+            font-size: 0.75rem;
+            font-weight: 700;
+            padding: 4px 8px;
+            border-radius: 7px;
+            cursor: pointer;
+        }
+
+        .octo-header .lang-btn.active {
+            background: var(--logo-gradient-135);
+            color: #ffffff;
+        }
+
+        /* 2. PROMO RIBBON BAR (Authentic Logo Orange Gradient Ribbon) */
+        .octo-promo-bar {
+            background: linear-gradient(90deg, #f9b233 0%, #f99239 52%, #e95e24 100%);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.28);
+            padding: 9px 24px;
+            font-size: 0.92rem;
+            color: #ffffff;
+        }
+
+        .octo-promo-inner {
+            max-width: 1460px !important;
+            width: 94% !important;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            text-align: center;
+            flex-wrap: wrap;
+        }
+
+        .octo-promo-icon {
+            width: 28px;
+            height: 28px;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.22);
+            color: #ffffff;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .octo-promo-code {
+            color: #ffffff;
+            background: rgba(28, 18, 8, 0.22);
+            padding: 2px 8px;
+            border-radius: 6px;
+            font-weight: 800;
+            text-decoration: underline;
+            cursor: pointer;
+        }
+
+        /* 3. HERO SECTION WITH PURE WHITE BACKGROUND & HORIZONTAL CALCULATOR */
+        .octo-hero-section {
+            position: relative;
+            background: #ffffff !important;
+            padding: 48px 0 56px;
+            overflow: hidden;
+            border-bottom: 1px solid rgba(249, 178, 51, 0.35);
+        }
+
+        /* Decorative Bubbles disabled for crisp pure white background */
+        .octo-bubbles-bg,
+        .octo-bubbles-svg {
+            display: none !important;
+            background: none !important;
+        }
+
+        .octo-hero-wrapper {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 32px;
+        }
+
+        .octo-hero-top-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 44px;
+        }
+
+        .octo-hero-left {
+            flex: 1 1 58%;
+            max-width: 840px;
+        }
+
+        .octo-hero-pre {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: #9a3412;
+            margin: 0 0 6px 0;
+            display: block;
+        }
+
+        .octo-hero-h1 {
+            font-size: clamp(2.2rem, 3.6vw, 2.75rem);
+            font-weight: 800;
+            line-height: 1.15;
+            color: var(--octo-text-light);
+            margin: 0 0 22px 0;
+            letter-spacing: -0.02em;
+        }
+
+        .octo-hero-h1 .octo-highlight {
+            background: linear-gradient(90deg, #e95e24 0%, #f99239 52%, #d97706 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            color: var(--octo-accent-amber);
+        }
+
+        .octo-hero-trust-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin: 0;
+            padding: 0;
+            list-style: none;
+        }
+
+        .octo-hero-trust-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 1rem;
+            color: var(--octo-text-light);
+            font-weight: 500;
+        }
+
+        .octo-trust-icon {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: var(--logo-gradient-135);
+            color: #ffffff;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            box-shadow: 0 4px 10px rgba(249, 178, 51, 0.35);
+        }
+
+        .octo-hero-trust-item a {
+            color: #c2410c;
+            text-decoration: underline;
+            font-weight: 700;
+        }
+
+        /* Hero Right Stage Visual (expanded for wide desktop) */
+        .octo-hero-right {
+            flex: 0 0 540px;
+            max-width: 540px;
+        }
+
+        .octo-stage-visual-card {
+            position: relative;
+            border-radius: 20px;
+            overflow: hidden;
+            border: 2.5px solid var(--octo-border-orange);
+            background: var(--octo-bg-surface);
+            box-shadow: 0 18px 42px rgba(233, 94, 36, 0.18);
+            aspect-ratio: 408 / 331;
+        }
+
+        .octo-stage-visual-card img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .octo-stage-overlay-pill {
+            position: absolute;
+            left: 14px;
+            right: 14px;
+            bottom: 14px;
+            background: rgba(255, 252, 245, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1.5px solid var(--octo-border-orange);
+            border-radius: 14px;
+            padding: 12px 14px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            box-shadow: 0 8px 24px rgba(28, 25, 23, 0.15);
+        }
+
+        .octo-stage-badge-top {
+            position: absolute;
+            top: 14px;
+            right: 14px;
+            background: var(--logo-gradient-135);
+            color: #ffffff;
+            font-weight: 800;
+            font-size: 0.82rem;
+            padding: 6px 12px;
+            border-radius: 999px;
+            box-shadow: 0 6px 18px rgba(233, 94, 36, 0.32);
+        }
+
+        /* HORIZONTAL OCTOPUS TARIFRECHNER BAR */
+        .octo-calc-shell {
+            width: 100%;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 18px 46px rgba(233, 94, 36, 0.15);
+            border: 2px solid var(--octo-border-orange);
+            background: var(--octo-bg-surface);
+        }
+
+        /* 2 Folder Tabs at Top of Calculator (Ökostrom | Ökogas) */
+        .octo-calc-tabs {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            background: #fde8bd;
+        }
+
+        body.octo-orange-body .octo-calc-tab,
+        body.octo-orange-body .octo-calc-tab.calc-tab-btn {
+            background: #fde8bd !important;
+            color: #7c2d12 !important;
+            border: none !important;
+            border-bottom: 1.6px solid rgba(249, 178, 51, 0.48) !important;
+            border-radius: 0 !important;
+            padding: 15px 20px !important;
+            font-family: inherit !important;
+            font-size: 1.02rem !important;
+            font-weight: 700 !important;
+            cursor: pointer;
+            display: flex !important;
+            flex-direction: row !important;
+            align-items: center !important;
+            justify-content: center !important;
+            gap: 10px !important;
+            transition: all 0.2s ease;
+            box-shadow: none !important;
+        }
+
+        body.octo-orange-body .octo-calc-tab .calc-tab-title,
+        body.octo-orange-body .octo-calc-tab span {
+            color: inherit !important;
+            font-size: 1.02rem !important;
+            font-weight: 700 !important;
+            margin: 0 !important;
+        }
+
+        body.octo-orange-body .octo-calc-tab:first-child {
+            border-top-left-radius: 12px !important;
+        }
+
+        body.octo-orange-body .octo-calc-tab:last-child {
+            border-top-right-radius: 12px !important;
+        }
+
+        body.octo-orange-body .octo-calc-tab.active,
+        body.octo-orange-body .octo-calc-tab.calc-tab-btn.active {
+            background: var(--octo-bg-surface) !important;
+            color: var(--octo-accent-amber) !important;
+            border-bottom-color: transparent !important;
+            font-weight: 800 !important;
+        }
+
+        body.octo-orange-body .octo-calc-tab:hover:not(.active) {
+            background: #fbd996 !important;
+        }
+
+        /* Horizontal Calculator Body */
+        .octo-calc-body {
+            padding: 24px 28px 20px;
+            background: var(--octo-bg-surface);
+        }
+
+        .octo-calc-row {
+            display: grid;
+            grid-template-columns: 185px minmax(0, 1fr) 195px;
+            gap: 16px;
+            align-items: end;
+        }
+
+        .octo-calc-col-label {
+            display: block;
+            font-size: 0.92rem;
+            font-weight: 600;
+            color: var(--octo-text-light);
+            margin-bottom: 10px;
+        }
+
+        .octo-input-box {
+            position: relative;
+            background: var(--octo-bg-deep);
+            border: 1.6px solid var(--octo-border-orange);
+            border-radius: 14px;
+            height: 58px;
+            display: flex;
+            align-items: center;
+            padding: 0 14px;
+            box-sizing: border-box;
+            min-width: 0;
+        }
+
+        .octo-input-box:focus-within {
+            border-color: var(--octo-accent-amber);
+            box-shadow: 0 0 0 3px rgba(249, 178, 51, 0.32);
+        }
+
+        .octo-input-field {
+            width: 100%;
+            min-width: 0;
+            background: transparent;
+            border: none;
+            outline: none;
+            color: var(--octo-text-light);
+            font-family: inherit;
+            font-size: 0.98rem;
+            font-weight: 600;
+        }
+
+        .octo-input-field::placeholder {
+            color: var(--octo-text-muted);
+            font-weight: 500;
+        }
+
+        .octo-city-pill {
+            background: rgba(249, 178, 51, 0.28);
+            color: var(--octo-accent-amber);
+            font-size: 0.72rem;
+            font-weight: 700;
+            padding: 3px 7px;
+            border-radius: 999px;
+            white-space: nowrap;
+            margin-left: 4px;
+        }
+
+        /* Middle Column: Preset Pills + kWh/Jahr + Abschlag */
+        .octo-consumption-group {
+            display: grid;
+            grid-template-columns: minmax(320px, 1.75fr) minmax(160px, 0.95fr) minmax(175px, 1fr);
+            gap: 12px;
+            align-items: center;
+            min-width: 0;
+        }
+
+        .octo-preset-pills {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            align-items: center;
+            background: var(--octo-bg-deep);
+            border: 1.6px solid var(--octo-border-orange);
+            border-radius: 14px;
+            padding: 4px;
+            height: 58px;
+            box-sizing: border-box;
+            gap: 4px;
+            min-width: 0;
+            overflow: hidden;
+        }
+
+        body.octo-orange-body .octo-preset-btn,
+        body.octo-orange-body .octo-preset-btn.household-btn {
+            background: transparent !important;
+            color: var(--octo-text-light) !important;
+            border: none !important;
+            border-radius: 10px !important;
+            height: 100% !important;
+            min-width: 0 !important;
+            max-width: 100% !important;
+            overflow: hidden !important;
+            padding: 0 4px !important;
+            font-family: inherit !important;
+            font-size: 0.8rem !important;
+            font-weight: 700 !important;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex !important;
+            flex-direction: column !important;
+            align-items: center !important;
+            justify-content: center !important;
+            line-height: 1.15 !important;
+            white-space: nowrap;
+            box-shadow: none !important;
+        }
+
+        body.octo-orange-body .octo-preset-btn .household-btn-label {
+            color: inherit !important;
+            font-size: 0.8rem !important;
+            font-weight: 700 !important;
+            max-width: 100%;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        body.octo-orange-body .octo-preset-btn .household-btn-sub {
+            font-size: 0.64rem !important;
+            color: var(--octo-text-muted) !important;
+            font-weight: 500 !important;
+            max-width: 100%;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        body.octo-orange-body .octo-preset-btn.active,
+        body.octo-orange-body .octo-preset-btn.household-btn.active {
+            background: var(--logo-gradient-135) !important;
+            color: #ffffff !important;
+        }
+
+        body.octo-orange-body .octo-preset-btn.active .household-btn-sub {
+            color: rgba(255, 255, 255, 0.94) !important;
+        }
+
+        .octo-unit-tag {
+            color: var(--octo-text-muted);
+            font-size: 0.76rem;
+            font-weight: 600;
+            white-space: nowrap;
+            margin-left: 4px;
+            flex-shrink: 0;
+        }
+
+        /* Octopus CTA Button in Authentic Logo Orange Gradient (#f9b233 -> #f99239 -> #e95e24) */
+        .octo-btn-cta {
+            background: var(--logo-gradient-135);
+            color: var(--octo-dark-ink);
+            border: 1.6px solid var(--logo-orange);
+            border-radius: 12px;
+            height: 58px;
+            padding: 0 18px;
+            font-family: inherit;
+            font-size: 0.98rem;
+            font-weight: 700;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            white-space: nowrap;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            box-sizing: border-box;
+        }
+
+        .octo-btn-cta:hover {
+            background: var(--logo-gradient-hover);
+            border-color: var(--logo-orange-deep);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(249, 178, 51, 0.42);
+            color: var(--octo-dark-ink);
+        }
+
+        .octo-btn-outline {
+            background: transparent;
+            color: var(--octo-text-light);
+            border: 1.6px solid var(--octo-border-orange);
+            border-radius: 12px;
+            padding: 13px 22px;
+            font-family: inherit;
+            font-size: 0.95rem;
+            font-weight: 700;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            text-decoration: none;
+            transition: all 0.2s ease;
+        }
+
+        .octo-btn-outline:hover {
+            background: rgba(249, 178, 51, 0.22);
+            border-color: var(--octo-accent-amber);
+            color: var(--octo-accent-amber);
+            transform: translateY(-2px);
+        }
+
+        .octo-btn-solid-orange {
+            background: var(--logo-gradient-135);
+            color: #ffffff;
+            border: 1.6px solid var(--octo-border-orange);
+            border-radius: 12px;
+            padding: 13px 22px;
+            font-family: inherit;
+            font-size: 0.95rem;
+            font-weight: 700;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            text-decoration: none;
+            transition: all 0.2s ease;
+        }
+
+        .octo-btn-solid-orange:hover {
+            background: var(--logo-gradient-hover);
+            color: #ffffff;
+            transform: translateY(-2px);
+        }
+
+        .octo-calc-footer-bar {
+            margin-top: 14px;
+            padding-top: 12px;
+            border-top: 1px solid rgba(249, 178, 51, 0.35);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+            font-size: 0.86rem;
+            color: var(--octo-text-muted);
+        }
+
+        .octo-savings-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: linear-gradient(90deg, #fff8eb 0%, #fde8bd 100%);
+            border: 1.5px solid rgba(249, 178, 51, 0.65);
+            color: #9a3412;
+            padding: 5px 14px;
+            border-radius: 999px;
+            font-weight: 700;
+        }
+
+        /* 4. AWARDS & CERTIFICATES BAR (Octopus 4-Badge Row - Prominent Logos) */
+        .octo-awards-section {
+            background: var(--octo-bg-deep);
+            padding: 42px 0;
+        }
+
+        .octo-awards-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 18px;
+            align-items: stretch;
+        }
+
+        .octo-award-badge-card {
+            background: var(--octo-bg-surface);
+            border: 2px solid rgba(249, 178, 51, 0.58);
+            border-radius: 18px;
+            padding: 18px 20px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            text-decoration: none;
+            color: var(--octo-text-light);
+            box-shadow: 0 10px 28px rgba(249, 178, 51, 0.14);
+            transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .octo-award-badge-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--octo-border-orange);
+            box-shadow: 0 16px 36px rgba(233, 94, 36, 0.20);
+        }
+
+        .octo-award-icon-box {
+            width: 58px;
+            height: 58px;
+            border-radius: 14px;
+            background: linear-gradient(135deg, #fff9eb 0%, #fde8bd 100%);
+            border: 1.5px solid rgba(249, 178, 51, 0.6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            color: var(--octo-accent-amber);
+            overflow: hidden;
+        }
+
+        .octo-award-icon-box.octo-award-logo-box {
+            width: 92px;
+            height: 62px;
+            background: #ffffff !important;
+            padding: 6px 8px !important;
+            border: 1.5px solid rgba(249, 178, 51, 0.62);
+            box-shadow: 0 4px 14px rgba(249, 178, 51, 0.14);
+        }
+
+        .octo-award-icon-box img {
+            width: 100%;
+            height: 100%;
+            max-width: 78px;
+            max-height: 50px;
+            object-fit: contain;
+            display: block;
+        }
+
+        .octo-award-title {
+            font-size: 0.96rem;
+            font-weight: 800;
+            color: var(--octo-accent-amber);
+            margin-bottom: 4px;
+            line-height: 1.25;
+        }
+
+        .octo-award-sub {
+            font-size: 0.81rem;
+            color: var(--octo-text-muted);
+            line-height: 1.38;
+            font-weight: 500;
+        }
+
+        /* SECTION TYPOGRAPHY (Octopus Style) */
+        .octo-section-h2 {
+            font-size: clamp(1.85rem, 3vw, 2.25rem);
+            font-weight: 800;
+            color: var(--octo-accent-amber);
+            margin: 0 0 8px 0;
+            letter-spacing: -0.02em;
+        }
+
+        .octo-section-sub {
+            font-size: 1.05rem;
+            color: var(--octo-text-light);
+            margin: 0 0 28px 0;
+            font-weight: 500;
+        }
+
+        /* 5. LIVE TARIFE CARDS IN OCTOPUS LOGO-ORANGE STYLE */
+        .octo-tarife-section {
+            background: var(--octo-bg-deep);
+            padding: 24px 0 56px;
+        }
+
+        .octo-tariff-grid-3 {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+            align-items: stretch;
+        }
+
+        body.octo-orange-body .versorger-tariff-card {
+            background: var(--octo-bg-surface) !important;
+            border: 1.6px solid var(--octo-border-orange) !important;
+            border-radius: 16px !important;
+            padding: 28px 24px !important;
+            color: var(--octo-text-light) !important;
+            box-shadow: 0 12px 32px rgba(249, 178, 51, 0.14) !important;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+        }
+
+        body.octo-orange-body .versorger-tariff-card.bestseller {
+            background: #ffffff !important;
+            border: 2.5px solid var(--logo-orange) !important;
+            box-shadow: 0 18px 46px rgba(249, 178, 51, 0.25) !important;
+        }
+
+        body.octo-orange-body .versorger-tariff-card .tariff-badge {
+            background: linear-gradient(90deg, #fff9eb 0%, #fde8bd 100%) !important;
+            color: #9a3412 !important;
+            border: 1px solid rgba(249, 178, 51, 0.6);
+            font-weight: 700;
+        }
+
+        body.octo-orange-body .versorger-tariff-card .tariff-title {
+            color: var(--octo-text-light) !important;
+            font-size: 1.45rem !important;
+        }
+
+        body.octo-orange-body .versorger-tariff-card .tariff-card-price-box {
+            background: #ffffff !important;
+            border: 1.5px solid rgba(249, 178, 51, 0.58) !important;
+            border-radius: 14px !important;
+            padding: 18px !important;
+        }
+
+        body.octo-orange-body .versorger-tariff-card .tariff-price-monthly {
+            color: var(--octo-accent-amber) !important;
+        }
+
+        body.octo-orange-body .versorger-tariff-card .tariff-price-monthly span {
+            color: var(--octo-text-muted) !important;
+        }
+
+        body.octo-orange-body .versorger-tariff-card .tariff-kwh-subtext {
+            color: var(--octo-text-muted) !important;
+        }
+
+        body.octo-orange-body .versorger-tariff-card .tariff-feature-item {
+            color: var(--octo-text-light) !important;
+        }
+
+        body.octo-orange-body .versorger-tariff-card .tariff-feature-item svg {
+            stroke: var(--octo-accent-amber) !important;
+        }
+
+        body.octo-orange-body .versorger-tariff-card .tariff-action-btn {
+            background: var(--logo-gradient-135) !important;
+            color: #ffffff !important;
+            border: none !important;
+            border-radius: 12px !important;
+            font-weight: 800 !important;
+            padding: 14px 20px !important;
+        }
+
+        body.octo-orange-body .versorger-tariff-card .tariff-action-btn:hover {
+            background: var(--logo-gradient-hover) !important;
+            transform: translateY(-2px);
+        }
+
+        /* 6. BENTO GRIDS (Octopus 1/3 + 2/3 and 2/3 + 1/3 Layouts) */
+        .octo-band-mid {
+            background: #ffffff;
+            padding: 44px 0;
+        }
+
+        .octo-band-deep {
+            background: #ffffff;
+            padding: 48px 0;
+        }
+
+        .octo-band-surface {
+            background: #ffffff;
+            padding: 48px 0;
+        }
+
+        .octo-bento-1-2 {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 24px;
+        }
+
+        .octo-bento-2-1 {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 24px;
+        }
+
+        .octo-card {
+            background: var(--octo-bg-surface);
+            border: 1.6px solid var(--octo-border-orange);
+            border-radius: 16px;
+            padding: 28px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            gap: 18px;
+            position: relative;
+            overflow: hidden;
+            box-sizing: border-box;
+            box-shadow: 0 10px 28px rgba(249, 178, 51, 0.12);
+        }
+
+        .octo-card.bg-mid {
+            background: var(--octo-bg-mid);
+        }
+
+        .octo-card.bg-deep {
+            background: var(--octo-bg-deep);
+        }
+
+        .octo-card-h3 {
+            font-size: 1.38rem;
+            font-weight: 700;
+            color: var(--octo-text-light);
+            margin: 0 0 10px 0;
+            line-height: 1.3;
+        }
+
+        .octo-card-p {
+            font-size: 0.98rem;
+            color: var(--octo-text-muted);
+            line-height: 1.6;
+            margin: 0;
+        }
+
+        .octo-card-split {
+            display: grid;
+            grid-template-columns: 1.15fr 0.85fr;
+            gap: 24px;
+            align-items: center;
+            height: 100%;
+        }
+
+        .octo-card-visual {
+            border-radius: 14px;
+            overflow: hidden;
+            position: relative;
+            height: 100%;
+            min-height: 220px;
+            background: #ffffff;
+            border: 1px solid rgba(249, 178, 51, 0.42);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .octo-card-visual img:not(.octo-mascot-img) {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        /* Business Full-Width Card (Octopus Row 2 in Mehr Energie) */
+        .octo-business-banner {
+            margin-top: 24px;
+            background: var(--octo-bg-mid);
+            border: 1.6px solid var(--octo-border-orange);
+            border-radius: 16px;
+            padding: 32px;
+            display: grid;
+            grid-template-columns: 1.2fr 0.8fr;
+            gap: 32px;
+            align-items: center;
+        }
+
+        .octo-business-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: linear-gradient(90deg, #f9b233 0%, #f99239 55%, #e95e24 100%);
+            color: var(--octo-dark-ink);
+            font-weight: 800;
+            font-size: 1.1rem;
+            padding: 8px 18px;
+            border-radius: 10px;
+            margin-bottom: 18px;
+            letter-spacing: 0.02em;
+        }
+
+        .octo-check-list {
+            list-style: none;
+            padding: 0;
+            margin: 0 0 22px 0;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .octo-check-list li {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1rem;
+            color: var(--octo-text-light);
+            font-weight: 500;
+        }
+
+        .octo-check-dot {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: rgba(249, 178, 51, 0.28);
+            color: var(--octo-accent-amber);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        /* 4-Column Reviews & Smart Cards Grid (255px x 4) */
+        .octo-grid-4 {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 24px;
+            margin-top: 24px;
+        }
+
+        .octo-review-card {
+            background: var(--octo-bg-deep);
+            border: 1.6px solid var(--octo-border-orange);
+            border-radius: 16px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .octo-stars-row {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            color: var(--octo-cta-orange);
+            font-size: 1rem;
+        }
+
+        .octo-verified-tag {
+            font-size: 0.76rem;
+            color: var(--octo-accent-amber);
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        /* 3-Column Equal Cards Grid (348px x 3) */
+        .octo-grid-3 {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+        }
+
+        /* Horizontal Split Device Cards (Heizen, speichern, sparen) */
+        .octo-split-device-card {
+            background: var(--octo-bg-mid);
+            border: 1.6px solid var(--octo-border-orange);
+            border-radius: 16px;
+            overflow: hidden;
+            display: grid;
+            grid-template-columns: 46% 54%;
+            min-height: 340px;
+            margin-bottom: 24px;
+        }
+
+        .octo-split-device-card.reverse {
+            grid-template-columns: 54% 46%;
+        }
+
+        .octo-split-device-media {
+            position: relative;
+            min-height: 280px;
+            background: var(--octo-bg-deep);
+        }
+
+        .octo-split-device-media img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .octo-split-device-content {
+            padding: 32px 36px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 16px;
+        }
+
+        /* Über Uns 2-Column Split Layout: Video Left + 3 Stacked Text Cards Right */
+        .octo-about-grid {
+            display: grid;
+            grid-template-columns: 1.18fr 0.82fr;
+            gap: 32px;
+            align-items: stretch;
+        }
+
+        .octo-about-media-card {
+            border-radius: 20px;
+            overflow: hidden;
+            border: 2px solid var(--octo-border-orange);
+            position: relative;
+            background: #ffffff;
+            box-shadow: 0 14px 36px rgba(249, 178, 51, 0.16);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .octo-about-media-card video {
+            width: 100%;
+            height: auto;
+            aspect-ratio: 16 / 9;
+            object-fit: contain;
+            background: #0f0a06;
+            display: block;
+            flex: 1 1 auto;
+        }
+
+        .octo-about-stack {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            gap: 18px;
+        }
+
+        .octo-about-item {
+            background: var(--octo-bg-mid);
+            border: 1.6px solid rgba(249, 178, 51, 0.6);
+            border-radius: 16px;
+            padding: 20px 24px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            flex: 1 1 auto;
+            transition: border-color 0.2s ease, transform 0.2s ease;
+        }
+
+        .octo-about-item:hover {
+            border-color: var(--octo-accent-amber);
+            transform: translateY(-3px);
+        }
+
+        .octo-about-link {
+            color: var(--octo-accent-amber);
+            font-weight: 700;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: 8px;
+            font-size: 0.92rem;
+        }
+
+        /* Bottom Offer CTA Banner (Einmal wechseln, für immer faire Preise) */
+        .octo-bottom-offer-box {
+            background: var(--octo-bg-deep);
+            border: 1.6px solid var(--octo-border-orange);
+            border-radius: 16px;
+            padding: 32px 36px;
+            display: grid;
+            grid-template-columns: 1fr 1.15fr;
+            gap: 32px;
+            align-items: center;
+            box-shadow: 0 16px 40px rgba(249, 178, 51, 0.18);
+        }
+
+        .octo-bottom-offer-form {
+            display: flex;
+            align-items: stretch;
+            gap: 0;
+            background: var(--octo-bg-mid);
+            border: 1.6px solid var(--octo-border-orange);
+            border-radius: 12px;
+            overflow: hidden;
+            height: 56px;
+        }
+
+        .octo-bottom-offer-select {
+            background: var(--octo-bg-surface);
+            color: var(--octo-text-light);
+            border: none;
+            border-right: 1px solid rgba(249, 178, 51, 0.5);
+            padding: 0 14px;
+            font-family: inherit;
+            font-weight: 700;
+            font-size: 0.9rem;
+            outline: none;
+            cursor: pointer;
+        }
+
+        .octo-bottom-offer-input {
+            flex: 1;
+            min-width: 0;
+            background: transparent;
+            border: none;
+            color: var(--octo-text-light);
+            padding: 0 14px;
+            font-family: inherit;
+            font-size: 0.94rem;
+            font-weight: 600;
+            outline: none;
+        }
+
+        .octo-bottom-offer-btn {
+            background: var(--logo-gradient-135);
+            color: var(--octo-dark-ink);
+            border: none;
+            padding: 0 18px;
+            font-family: inherit;
+            font-weight: 800;
+            font-size: 0.94rem;
+            cursor: pointer;
+            white-space: nowrap;
+            flex-shrink: 0;
+            transition: background 0.2s ease;
+        }
+
+        .octo-bottom-offer-btn:hover {
+            background: var(--logo-gradient-hover);
+        }
+
+        /* 14. OCTOPUS FOOTER (2 Top Cards + Links & Legal) */
+        .octo-footer {
+            background: var(--octo-bg-deep);
+            padding: 48px 0 40px;
+            border-top: 1px solid rgba(249, 178, 51, 0.38);
+            color: var(--octo-text-light);
+        }
+
+        .octo-footer-cards-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-bottom: 48px;
+        }
+
+        .octo-footer-card {
+            background: var(--octo-bg-mid);
+            border: 1.6px solid rgba(249, 178, 51, 0.6);
+            border-radius: 16px;
+            padding: 32px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            gap: 20px;
+        }
+
+        .octo-contact-row {
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+        }
+
+        .octo-contact-icon {
+            width: 45px;
+            height: 45px;
+            border-radius: 12px;
+            background: rgba(249, 178, 51, 0.22);
+            border: 1px solid rgba(249, 146, 57, 0.48);
+            color: var(--octo-accent-amber);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .octo-contact-link {
+            color: var(--octo-accent-amber);
+            font-weight: 700;
+            font-size: 1.05rem;
+            text-decoration: none;
+            display: inline-block;
+            margin-top: 2px;
+        }
+
+        .octo-contact-link:hover {
+            text-decoration: underline;
+        }
+
+        .octo-newsletter-input {
+            width: 100%;
+            height: 52px;
+            background: var(--octo-bg-deep);
+            border: 1.6px solid var(--octo-border-orange);
+            border-radius: 12px;
+            padding: 0 16px;
+            color: var(--octo-text-light);
+            font-family: inherit;
+            font-size: 0.95rem;
+            margin-bottom: 12px;
+            box-sizing: border-box;
+        }
+
+        .octo-footer-links-cloud {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px 24px;
+            padding: 24px 0;
+            border-top: 1px solid rgba(249, 178, 51, 0.28);
+            border-bottom: 1px solid rgba(249, 178, 51, 0.28);
+            margin-bottom: 24px;
+        }
+
+        .octo-footer-links-cloud a,
+        .octo-footer-links-cloud button {
+            background: none;
+            border: none;
+            padding: 0;
+            font-family: inherit;
+            color: var(--octo-text-light);
+            font-size: 0.9rem;
+            font-weight: 500;
+            text-decoration: none;
+            cursor: pointer;
+            transition: color 0.2s ease;
+        }
+
+        .octo-footer-links-cloud a:hover,
+        .octo-footer-links-cloud button:hover {
+            color: var(--octo-accent-amber);
+            text-decoration: underline;
+        }
+
+        .octo-footer-bottom {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 20px;
+            font-size: 0.85rem;
+            color: var(--octo-text-muted);
+        }
+
+        /* Responsive Mobile & Tablet Adjustments */
+        @media (max-width: 1024px) {
+            .octo-hero-top-row {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .octo-hero-right {
+                flex: 1 1 auto;
+                max-width: 100%;
+            }
+            .octo-calc-row {
+                grid-template-columns: 1fr;
+            }
+            .octo-consumption-group {
+                grid-template-columns: 1fr;
+            }
+            .octo-awards-row,
+            .octo-grid-4 {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .octo-bento-1-2,
+            .octo-bento-2-1,
+            .octo-business-banner,
+            .octo-split-device-card,
+            .octo-split-device-card.reverse,
+            .octo-about-grid,
+            .octo-bottom-offer-box,
+            .octo-footer-cards-grid,
+            .octo-tariff-grid-3,
+            .octo-grid-3 {
+                grid-template-columns: 1fr;
+            }
+            .octo-card-split {
+                grid-template-columns: 1fr;
+            }
+            .octo-hero-mascot-col {
+                order: 2;
+                margin: 4px auto 0;
+            }
+            .octo-section-header-with-mascot {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 16px;
+            }
+            .octo-section-mascot-box {
+                align-self: flex-end;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .octo-calc-tabs {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .octo-awards-row,
+            .octo-grid-4 {
+                grid-template-columns: 1fr;
+            }
+            .octo-bottom-offer-form {
+                flex-direction: column;
+                height: auto;
+            }
+            .octo-bottom-offer-select,
+            .octo-bottom-offer-input,
+            .octo-bottom-offer-btn {
+                height: 48px;
+                width: 100%;
+            }
+            .octo-footer-contact-split {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .octo-footer-mascot-aside {
+                align-self: center;
+                margin-top: 8px;
+            }
+            .octo-section-mascot-box {
+                align-self: center;
+            }
+        }
+
+        /* ==========================================================================
+           ALPHA SPAR-FUCHS MASCOT SYSTEM (2D STATIC, 100% NON-OVERLAPPING & UNCROPPED)
+           ========================================================================== */
+        .octo-mascot-img,
+        img.octo-mascot-img,
+        .octo-card-visual img.octo-mascot-img,
+        .octo-hero-mascot-col img.octo-mascot-img,
+        .octo-section-mascot-box img.octo-mascot-img,
+        .octo-footer-mascot-aside img.octo-mascot-img {
+            display: block !important;
+            width: auto !important;
+            max-width: 100% !important;
+            object-fit: contain !important;
+            object-position: center center !important;
+            flex-shrink: 0 !important;
+            filter: none !important;
+            animation: none !important;
+            transform: none !important;
+            transition: none !important;
+            pointer-events: none;
+            user-select: none;
+        }
+
+        /* 1. Hero Peeking Wolf Mascot (peeks from behind left edge of .octo-stage-visual-card & grips frame) */
+        .octo-hero-top-row {
+            gap: 28px;
+        }
+
+        .octo-hero-left {
+            flex: 1 1 52%;
+            max-width: none !important;
+            min-width: 0;
+        }
+
+        .octo-hero-right {
+            flex: 0 1 480px;
+            max-width: 480px;
+            position: relative;
+            overflow: visible !important;
+        }
+
+        .octo-hero-right-with-peeking-wolf {
+            margin-left: 175px;
+        }
+
+        .octo-hero-peeking-wolf {
+            position: absolute;
+            top: 50%;
+            left: 2px;
+            transform: translate(-90%, -50%);
+            z-index: 6;
+            pointer-events: none;
+            overflow: visible !important;
+        }
+
+        .octo-peeking-wolf-img {
+            display: block !important;
+            height: 285px !important;
+            width: auto !important;
+            max-width: none !important;
+            object-fit: contain !important;
+            filter: drop-shadow(-6px 10px 16px rgba(180, 83, 9, 0.16)) !important;
+            pointer-events: none;
+            user-select: none;
+        }
+
+        .octo-peeking-wolf-pill {
+            position: absolute;
+            bottom: -30px;
+            left: 44%;
+            transform: translateX(-50%);
+        }
+
+        @media (max-width: 1180px) {
+            .octo-hero-right-with-peeking-wolf {
+                margin-left: 155px;
+            }
+            .octo-peeking-wolf-img {
+                height: 245px !important;
+            }
+        }
+
+        @media (max-width: 1024px) {
+            .octo-hero-right-with-peeking-wolf {
+                margin-left: 165px;
+                max-width: calc(100% - 165px);
+            }
+        }
+
+        @media (max-width: 640px) {
+            .octo-hero-right-with-peeking-wolf {
+                margin-left: 115px;
+                max-width: calc(100% - 115px);
+            }
+            .octo-peeking-wolf-img {
+                height: 185px !important;
+            }
+        }
+
+        .octo-mascot-pill {
+            background: linear-gradient(90deg, #fff9eb 0%, #fde8bd 100%);
+            border: 1.5px solid var(--logo-orange);
+            color: #9a3412;
+            font-size: 0.78rem;
+            font-weight: 800;
+            padding: 5px 12px;
+            border-radius: 999px;
+            white-space: nowrap;
+            box-shadow: 0 6px 16px rgba(249, 178, 51, 0.25);
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* 2. Section Header with Mascot Companion on Right (Flexbox space-between) */
+        .octo-section-header-with-mascot {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            gap: 28px;
+            margin-bottom: 28px;
+        }
+
+        .octo-section-header-text {
+            flex: 1 1 auto;
+            min-width: 0;
+        }
+
+        .octo-section-header-text .octo-section-sub {
+            margin-bottom: 0;
+        }
+
+        .octo-section-mascot-box {
+            flex: 0 0 auto;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            background: #ffffff;
+            border: 1.5px solid rgba(249, 178, 51, 0.65);
+            border-radius: 20px;
+            padding: 10px 18px;
+            overflow: visible !important;
+            box-shadow: 0 10px 26px rgba(249, 178, 51, 0.16);
+            pointer-events: none;
+        }
+
+        .octo-section-mascot-box .octo-mascot-img {
+            height: 132px !important;
+            width: auto !important;
+        }
+
+        .octo-mascot-speech {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+            max-width: 195px;
+        }
+
+        .octo-mascot-speech-tag {
+            font-size: 0.72rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--logo-orange-deep);
+        }
+
+        .octo-mascot-speech-text {
+            font-size: 0.88rem;
+            font-weight: 700;
+            color: var(--octo-text-light);
+            line-height: 1.3;
+        }
+
+        /* 3. Footer Contact Card Split with Service Headset Fox */
+        .octo-footer-contact-split {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+        }
+
+        .octo-footer-contact-list {
+            flex: 1 1 auto;
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+
+        .octo-footer-mascot-aside {
+            flex: 0 0 160px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            background: #ffffff;
+            border: 1.5px solid rgba(249, 178, 51, 0.55);
+            border-radius: 18px;
+            padding: 12px 10px;
+            overflow: visible !important;
+            pointer-events: none;
+        }
+
+        .octo-footer-mascot-aside .octo-mascot-img {
+            height: 148px !important;
+            width: auto !important;
+        }
+    
+        /* ==========================================================================
+           SUBPAGE OCTOPUS-ORANGE DESIGN SYSTEM EXTENSIONS (WIDE 92VW & INLINE CHECKS)
+           ========================================================================== */
+        body.octo-orange-body .octo-container,
+        body.octo-orange-body .octo-promo-inner,
+        body.octo-orange-body .container {
+            max-width: 1460px !important;
+            width: 94% !important;
+            margin-left: auto !important;
+            margin-right: auto !important;
+            padding-left: clamp(18px, 2vw, 28px) !important;
+            padding-right: clamp(18px, 2vw, 28px) !important;
+            box-sizing: border-box !important;
+        }
+        @media (max-width: 768px) {
+            body.octo-orange-body .octo-container,
+            body.octo-orange-body .octo-promo-inner,
+            body.octo-orange-body .container {
+                max-width: 96vw !important;
+                width: 96% !important;
+                padding-left: 16px !important;
+                padding-right: 16px !important;
+            }
+        }
+        .octo-section {
+            padding: 56px 0 !important;
+            width: 100% !important;
+            box-sizing: border-box !important;
+        }
+        .octo-section-cream {
+            background: #ffffff !important;
+        }
+        .octo-section-peach {
+            background: #ffffff !important;
+            border-top: 1.5px solid rgba(249, 178, 51, 0.38);
+            border-bottom: 1.5px solid rgba(249, 178, 51, 0.38);
+        }
+        .octo-pill-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: #ffffff;
+            border: 1.5px solid rgba(249, 178, 51, 0.65);
+            color: #9a3412;
+            font-size: 0.82rem;
+            font-weight: 800;
+            padding: 6px 14px;
+            border-radius: 999px;
+            margin-bottom: 12px;
+            letter-spacing: 0.01em;
+        }
+        .octo-h2 {
+            font-size: clamp(1.85rem, 3vw, 2.35rem);
+            font-weight: 800;
+            color: var(--octo-accent-amber, #e95e24);
+            margin: 0 0 12px 0;
+            line-height: 1.2;
+            letter-spacing: -0.02em;
+        }
+        .octo-lead {
+            font-size: 1.08rem;
+            color: var(--octo-text-light, #1c1917);
+            line-height: 1.6;
+            margin: 0 0 24px 0;
+            font-weight: 500;
+        }
+        .octo-hero-h1 .highlight {
+            background: linear-gradient(90deg, #e95e24 0%, #f99239 52%, #d97706 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            color: #e95e24;
+        }
+        .octo-hero-sub {
+            font-size: 1.08rem;
+            color: #292524;
+            line-height: 1.65;
+            font-weight: 500;
+        }
+        .octo-subpage-hero {
+            background: #ffffff !important;
+            padding: clamp(2.8rem, 4.5vw, 4rem) 0 clamp(2.6rem, 4vw, 3.6rem) 0 !important;
+            border-bottom: 1.5px solid rgba(249, 178, 51, 0.45);
+            position: relative;
+            overflow: hidden;
+            width: 100% !important;
+        }
+        .octo-subpage-hero-grid {
+            display: grid;
+            grid-template-columns: 1.32fr 0.68fr;
+            gap: clamp(2rem, 3.5vw, 3.5rem);
+            align-items: center;
+        }
+        @media (max-width: 960px) {
+            .octo-subpage-hero-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        /* Horizontal Flexbox layout + strict mascot image sizing */
+        .octo-mascot-inline-card {
+            display: flex !important;
+            flex-direction: row !important;
+            align-items: center !important;
+            justify-content: space-between !important;
+            gap: 20px !important;
+            background: #ffffff !important;
+            border: 2px solid rgba(249, 178, 51, 0.65) !important;
+            border-radius: 24px !important;
+            padding: 22px 26px !important;
+            box-shadow: 0 14px 34px rgba(180, 83, 9, 0.09) !important;
+            overflow: visible !important;
+        }
+        .octo-mascot-inline-card .octo-mascot-speech {
+            flex: 1 1 auto !important;
+            min-width: 0 !important;
+            max-width: none !important;
+            display: flex !important;
+            flex-direction: column !important;
+            align-items: flex-start !important;
+            gap: 10px !important;
+        }
+        .octo-mascot-inline-card .octo-mascot-speech-text {
+            font-size: 1.04rem !important;
+            font-weight: 700 !important;
+            color: #1c1917 !important;
+            line-height: 1.45 !important;
+        }
+        .octo-mascot-inline-card .octo-mascot-img,
+        img.octo-mascot-img {
+            height: 148px !important;
+            max-height: 165px !important;
+            width: auto !important;
+            max-width: 165px !important;
+            object-fit: contain !important;
+            flex: 0 0 auto !important;
+            margin: 0 !important;
+        }
+        .octo-subpage-hero .octo-mascot-inline-card .octo-mascot-img {
+            height: 165px !important;
+            max-height: 165px !important;
+            max-width: 175px !important;
+        }
+        .octo-bottom-cta-band {
+            background: #ffffff;
+            padding: 44px 0 56px 0;
+            border-top: 1.5px solid rgba(249, 178, 51, 0.42);
+        }
+        .octo-bottom-cta-header-row {
+            display: flex !important;
+            flex-direction: row !important;
+            align-items: center !important;
+            justify-content: space-between !important;
+            gap: 28px !important;
+            margin-bottom: 28px !important;
+        }
+        .octo-bottom-cta-header-row > div:first-child {
+            flex: 1 1 auto !important;
+            min-width: 0 !important;
+        }
+        .octo-bottom-cta-header-row .octo-mascot-inline-card {
+            flex: 0 0 auto !important;
+            max-width: 430px !important;
+            padding: 14px 20px !important;
+        }
+        .octo-bottom-cta-header-row .octo-mascot-inline-card .octo-mascot-img {
+            height: 132px !important;
+            max-height: 132px !important;
+        }
+        @media (max-width: 860px) {
+            .octo-bottom-cta-header-row {
+                flex-direction: column !important;
+                align-items: stretch !important;
+            }
+            .octo-bottom-cta-header-row .octo-mascot-inline-card {
+                max-width: 100% !important;
+            }
+        }
+        @media (max-width: 520px) {
+            .octo-mascot-inline-card {
+                flex-direction: column-reverse !important;
+                text-align: center !important;
+            }
+            .octo-mascot-inline-card .octo-mascot-speech {
+                align-items: center !important;
+            }
+        }
+        .octo-breadcrumb {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: #9a3412;
+            background: #ffffff;
+            border: 1.5px solid rgba(249, 178, 51, 0.55);
+            padding: 6px 14px;
+            border-radius: 999px;
+            margin-bottom: 18px;
+        }
+        .octo-breadcrumb a {
+            color: #e95e24;
+            text-decoration: none;
+        }
+        .octo-breadcrumb a:hover {
+            text-decoration: underline;
+        }
+        .octo-kpi-strip {
+            background: #ffffff;
+            border-bottom: 1.5px solid rgba(249, 178, 51, 0.38);
+            padding: 28px 0 !important;
+            box-shadow: 0 8px 24px rgba(180, 83, 9, 0.05);
+            width: 100% !important;
+        }
+        .octo-kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 24px;
+        }
+        @media (max-width: 860px) {
+            .octo-kpi-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        @media (max-width: 480px) {
+            .octo-kpi-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        .octo-kpi-box {
+            background: #ffffff;
+            border: 1.5px solid rgba(249, 178, 51, 0.45);
+            border-radius: 18px;
+            padding: 20px 24px;
+            text-align: center;
+        }
+        .octo-kpi-val {
+            font-family: var(--font-heading);
+            font-size: clamp(1.5rem, 2.5vw, 2.1rem);
+            font-weight: 800;
+            color: #e95e24;
+            line-height: 1.15;
+            margin-bottom: 4px;
+        }
+        .octo-kpi-label {
+            font-weight: 800;
+            font-size: 0.95rem;
+            color: #1c1917;
+        }
+        .octo-kpi-sub {
+            font-size: 0.82rem;
+            color: #57534e;
+            margin-top: 2px;
+        }
+        .octo-bento-grid-3 {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 28px;
+        }
+        .octo-bento-grid-2 {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 32px;
+        }
+        @media (max-width: 960px) {
+            .octo-bento-grid-3, .octo-bento-grid-2 {
+                grid-template-columns: 1fr;
+            }
+        }
+        .octo-bento-card {
+            background: #ffffff;
+            border: 1.5px solid rgba(249, 178, 51, 0.48);
+            border-radius: 24px;
+            padding: clamp(1.8rem, 2.8vw, 2.4rem);
+            box-shadow: 0 12px 32px rgba(180, 83, 9, 0.07);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: transform 0.22s ease, box-shadow 0.22s ease;
+        }
+        .octo-bento-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 18px 40px rgba(233, 94, 36, 0.13);
+        }
+        .octo-bento-card.featured {
+            background: #ffffff;
+            border: 2px solid #e95e24;
+            position: relative;
+        }
+        .octo-icon-badge {
+            width: 52px;
+            height: 52px;
+            border-radius: 16px;
+            background: #ffffff;
+            border: 1.5px solid rgba(249, 178, 51, 0.55);
+            color: #e95e24;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 18px;
+            flex-shrink: 0;
+        }
+        .octo-form-box {
+            background: #ffffff;
+            border: 2px solid rgba(249, 178, 51, 0.55);
+            border-radius: 26px;
+            padding: clamp(2rem, 3.2vw, 2.8rem);
+            box-shadow: 0 16px 44px rgba(180, 83, 9, 0.09);
+        }
+        .octo-form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 18px;
+        }
+        @media (max-width: 680px) {
+            .octo-form-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        .octo-field-label {
+            display: block;
+            font-weight: 700;
+            font-size: 0.9rem;
+            color: #1c1917;
+            margin-bottom: 6px;
+        }
+        .octo-field-input {
+            width: 100%;
+            padding: 13px 16px;
+            border-radius: 12px;
+            border: 1.5px solid rgba(249, 178, 51, 0.55);
+            background: #ffffff;
+            color: #1c1917;
+            font-family: var(--font-body);
+            font-size: 0.96rem;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            box-sizing: border-box;
+        }
+        .octo-field-input:focus {
+            outline: none;
+            border-color: #e95e24;
+            box-shadow: 0 0 0 3px rgba(233, 94, 36, 0.16);
+            background: #ffffff;
+        }
+        /* Fix inline <strong> inside .octo-check-list li so text never splits into flex columns */
+        .octo-check-list {
+            list-style: none;
+            padding: 0;
+            margin: 16px 0 22px 0;
+            display: flex;
+            flex-direction: column;
+            gap: 11px;
+        }
+        .octo-check-list li {
+            display: block !important;
+            position: relative !important;
+            padding-left: 34px !important;
+            font-size: 0.97rem;
+            color: #292524;
+            line-height: 1.55;
+        }
+        .octo-check-list li::before {
+            content: "✓";
+            position: absolute !important;
+            left: 0 !important;
+            top: 2px !important;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: rgba(233, 94, 36, 0.16);
+            color: #e95e24;
+            font-weight: 900;
+            font-size: 0.8rem;
+        }
+        /* Legacy subpage classes mapped to Octopus-Orange theme for legal & technical pages */
+        body.octo-orange-body .subpage-hero,
+        body.octo-orange-body .page-header {
+            background: #ffffff !important;
+            color: #1c1917 !important;
+            padding: 3.8rem 0 3rem 0 !important;
+            border-bottom: 1.5px solid rgba(249, 178, 51, 0.45) !important;
+        }
+        body.octo-orange-body .subpage-hero h1,
+        body.octo-orange-body .page-header h1,
+        body.octo-orange-body .subpage-hero-title {
+            color: #1c1917 !important;
+        }
+        body.octo-orange-body .subpage-hero p,
+        body.octo-orange-body .page-header p,
+        body.octo-orange-body .subpage-hero-lead {
+            color: #44403c !important;
+            opacity: 1 !important;
+            max-width: 1460px !important;
+        }
+        body.octo-orange-body .card,
+        body.octo-orange-body .subpage-feature-card,
+        body.octo-orange-body .feature-box {
+            background: #ffffff !important;
+            border: 1.5px solid rgba(249, 178, 51, 0.45) !important;
+            border-radius: 22px !important;
+            box-shadow: 0 12px 30px rgba(180, 83, 9, 0.06) !important;
+            color: #1c1917 !important;
+        }
+
+    </style>
+</head>
+<body class="octo-orange-body">
+
+    <!-- 1. OCTOPUS-STYLE STICKY HEADER -->
+    <header id="main-header" class="header octo-header">
+        <div class="octo-container octo-header-inner">
+            <div class="octo-header-left">
+                <div class="logo">
+                    <a href="versorger.html" aria-label="Alpha Energie Versorger Startseite">
+                        <img src="logo.png" alt="Alpha Energie GmbH Logo" class="nav-logo">
+                    </a>
+                </div>
+                <button class="hamburger" aria-label="Menü öffnen">
+                    <span class="hamburger-line" style="background:#f9b233;"></span>
+                    <span class="hamburger-line" style="background:#f9b233;"></span>
+                    <span class="hamburger-line" style="background:#f9b233;"></span>
+                </button>
+                <nav id="main-nav" class="nav">
+                    <ul class="nav-list">
+                        <li class="nav-item has-dropdown">
+                            <a href="oekostrom.html" style='color:#e95e24;font-weight:800;'>Ökostrom</a>
+                            <ul class="dropdown">
+                                <li><a href="oekostrom.html">100% Ökostrom (ok-power)</a></li>
+                                <li><a href="oekostrom.html#tarife">ALPHA BASIC (12M Garantie)</a></li>
+                                <li><a href="oekostrom.html#tarife">ALPHA ÖKOSTROM PLUS (Bestseller)</a></li>
+                                <li><a href="oekostrom.html#tarife">ALPHA PREMIUM (24M Garantie)</a></li>
+                                <li><a href="waermestrom.html">Wärmestrom (§ 14a EnWG)</a></li>
+                            </ul>
+                        </li>
+                        <li class="nav-item has-dropdown">
+                            <a href="oekogas.html" >Ökogas</a>
+                            <ul class="dropdown">
+                                <li><a href="oekogas.html">Klimaneutrales Ökogas</a></li>
+                                <li><a href="oekogas.html#gastarife">Ökogas Tarifübersicht</a></li>
+                                <li><a href="versorger.html#rechner">Ökogas Tarifrechner</a></li>
+                            </ul>
+                        </li>
+                        <li class="nav-item has-dropdown">
+                            <a href="gewerbekunden.html" >Gewerbe</a>
+                            <ul class="dropdown">
+                                <li><a href="gewerbekunden.html">Gewerbestrom &amp; Gewerbegastarife</a></li>
+                                <li><a href="nachhaltigkeit-co2.html">Energieaudits &amp; CO₂-Pfad</a></li>
+                                <li><a href="photovoltaik.html">Photovoltaik &amp; Speicher</a></li>
+                                <li><a href="sektorenkopplung.html">Sektorenkopplung</a></li>
+                            </ul>
+                        </li>
+                        <li class="nav-item has-dropdown">
+                            <a href="ueber-uns.html" >Über uns</a>
+                            <ul class="dropdown">
+                                <li><a href="ueber-uns.html">Wer wir sind</a></li>
+                                <li><a href="partner-werden.html">Vertriebspartner werden</a></li>
+                                <li><a href="karriere.html">Karriere &amp; Jobs</a></li>
+                            </ul>
+                        </li>
+                        <li class="nav-item has-dropdown">
+                            <a href="service.html" >Kontakt</a>
+                            <ul class="dropdown">
+                                <li><a href="service.html">Kundenservice &amp; Hilfe</a></li>
+                                <li><a href="service.html#zaehler">Zählerstand online melden</a></li>
+                                <li><a href="kontakt.html">Kundencenter Dortmund</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                </nav>
             </div>
-            <button class="hamburger" aria-label="Menü öffnen">
-                <span class="hamburger-line"></span>
-                <span class="hamburger-line"></span>
-                <span class="hamburger-line"></span>
-            </button>
-            <nav id="main-nav" class="nav">
-                <ul class="nav-list">
-                    <li class="nav-item has-dropdown">
-                        <a href="/#tarife">Strom &amp; Tarife</a>
-                        <ul class="dropdown">
-                            <li><a href="oekostrom.html">100% Ökostrom</a></li>
-                            <li><a href="waermestrom.html">Wärmestrom (§ 14a EnWG)</a></li>
-                            <li><a href="oekogas.html">Erdgas mit Klimaschutzbeitrag</a></li>
-                            <li><a href="gewerbekunden.html">Gewerbestrom &amp; KMU</a></li>
-                        </ul>
-                    </li>
-                    <li class="nav-item has-dropdown">
-                        <a href="sektorenkopplung.html">Energielösungen</a>
-                        <ul class="dropdown">
-                            <li><a href="photovoltaik.html">Photovoltaik &amp; Speicher</a></li>
-                            <li><a href="sektorenkopplung.html">Sektorenkopplung</a></li>
-                            <li><a href="nachhaltigkeit-co2.html">Energieaudits &amp; CO2-Pfad</a></li>
-                        </ul>
-                    </li>
-                    <li class="nav-item has-dropdown">
-                        <a href="service.html">Service &amp; Hilfe</a>
-                        <ul class="dropdown">
-                            <li><a href="/#rechner">Online-Tarifrechner</a></li>
-                            <li><a href="service.html">Kundenservice &amp; Portal</a></li>
-                            <li><a href="service.html#zaehler">Zählerstand online melden</a></li>
-                            <li><a href="service.html#umzug">Umzugsservice</a></li>
-                        </ul>
-                    </li>
-                    <li class="nav-item has-dropdown">
-                        <a href="ueber-uns.html">Unternehmen &amp; Partner</a>
-                        <ul class="dropdown">
-                            <li><a href="ueber-uns.html">Über Alpha Energie</a></li>
-                            <li><a href="partner-werden.html">Partner werden (Vertrieb)</a></li>
-                            <li><a href="karriere.html">Karriere</a></li>
-                            <li><a href="kontakt.html">Kontakt</a></li>
-                        </ul>
-                    </li>
-                </ul>
-            </nav>
-            <div class="header-actions">
-                <a href="/#rechner" class="btn btn-primary">Tarif berechnen</a>
-                <a href="https://vp.alpha-energie.de" class="btn btn-secondary">VP-Portal</a>
+
+            <div class="octo-header-right header-actions">
+                <a href="versorger.html#rechner" class="octo-login-link" style="background:rgba(249,178,51,0.22);border:1.5px solid rgba(233,94,36,0.45);padding:7px 14px;border-radius:999px;color:#e95e24;font-weight:800;">Tarif berechnen</a>
+                <a href="partner-werden.html" class="octo-login-link">Partner werden</a>
+                <a href="https://vp.alpha-energie.de" class="octo-login-link">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                    Log in
+                </a>
                 <div class="lang-switcher-header">
                     <button class="lang-btn active" data-lang="de">DE</button>
                     <button class="lang-btn" data-lang="en">EN</button>
@@ -109,7 +2186,22 @@
         </div>
     </header>
 
+    <!-- 2. TOP PROMO BAR -->
+    <div class="octo-promo-bar">
+        <div class="octo-promo-inner">
+            <span class="octo-promo-icon" aria-hidden="true">
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="20 12 20 22 4 22 4 12"></polyline><rect x="2" y="7" width="20" height="5"></rect><line x1="12" y1="22" x2="12" y2="7"></line><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"></path><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"></path></svg>
+            </span>
+            <span>
+                Sichere dir bis zu <strong>180 € Wechselvorteil</strong> bei Tarifabschluss &amp; <strong>50 € Prämie</strong> für jede erfolgreiche Weiterempfehlung!
+                <a href="versorger.html#rechner" class="octo-promo-link">Jetzt Tarif berechnen &rarr;</a>
+            </span>
+        </div>
+    </div>
+
+
     <main id="main-content">
+
         <!-- Subpage Hero -->
         <section class="subpage-hero">
             <div class="container">
@@ -117,7 +2209,7 @@
                 <h1 class="subpage-hero-title">Günstiger Wärmestrom für Wärmepumpen &amp; Speicher</h1>
                 <p class="subpage-hero-lead">Sparen Sie bis zu 25% bei den Netzentgelten für Ihre steuerbare Wärmepumpe oder Nachtspeicherheizung. Alpha Energie optimiert Ihre Heizstromkosten zukunftssicher.</p>
                 <div class="hero-buttons" style="justify-content: center; display: flex; gap: 1rem; flex-wrap: wrap;">
-                    <a href="/#rechner" class="btn btn-primary btn-large">Wärmestrom berechnen</a>
+                    <a href="versorger.html#rechner" class="btn btn-primary btn-large">Wärmestrom berechnen</a>
                     <a href="#messkonzepte" class="btn btn-secondary btn-large">Messkonzepte ansehen</a>
                 </div>
             </div>
@@ -225,7 +2317,7 @@
                 </div>
 
                 <div class="text-center" style="margin-top: 2rem;">
-                    <a href="/#rechner" class="btn btn-primary btn-large">Alpha Wärmestrom § 14a berechnen</a>
+                    <a href="versorger.html#rechner" class="btn btn-primary btn-large">Alpha Wärmestrom § 14a berechnen</a>
                 </div>
             </div>
         </section>
@@ -268,7 +2360,339 @@
                 </div>
             </div>
         </section>
+    
+
+        <!-- SHARED BOTTOM QUICK OFFER CTA BAND (Exact versorger.html Section 13 Layout) -->
+        <section class="octo-band-mid" style="padding-top:36px;padding-bottom:56px;">
+            <div class="octo-container">
+                <div class="octo-section-header-with-mascot">
+                    <div class="octo-section-header-text">
+                        <h2 class="octo-section-h2">Einmal wechseln, für immer faire Preise</h2>
+                        <p class="octo-section-sub">Wechsle jetzt in 3 Minuten zur Alpha Energie GmbH – ohne Papierkram und ohne Versorgungsunterbrechung</p>
+                    </div>
+                    <!-- Alpha-Wolf Thumbs-Up Companion in Bottom Quick-Offer Header -->
+                    <div class="octo-section-mascot-box" aria-hidden="true">
+                        <div class="octo-mascot-speech">
+                            <span class="octo-mascot-speech-tag">3-Minuten Wechsel</span>
+                            <span class="octo-mascot-speech-text">Wir übernehmen die Kündigung beim Altversorger kostenlos!</span>
+                        </div>
+                        <img src="wolf-mascot-thumbsup.png?v=wolf2" alt="Alpha-Wolf begleitet deinen schnellen Wechsel" class="octo-mascot-img" loading="eager">
+                    </div>
+                </div>
+
+                <div class="octo-bottom-offer-box">
+                    <div>
+                        <h3 class="octo-card-h3" style="font-size:1.55rem;margin-bottom:6px;">Hol' dir jetzt dein persönliches Tarifangebot</h3>
+                        <p class="octo-card-p">Gib deine Postleitzahl ein und wechsle direkt zum Live-Tarifrechner für Ökostrom oder Ökogas.</p>
+                    </div>
+
+                    <form id="subpageQuickOfferForm" class="octo-bottom-offer-form">
+                        <select id="subOfferBranch" class="octo-bottom-offer-select" aria-label="Sparte wählen">
+                            <option value="strom">Ökostrom</option>
+                            <option value="gas">Ökogas</option>
+                        </select>
+                        <input type="text" id="subOfferPlz" class="octo-bottom-offer-input" placeholder="Deine Postleitzahl (z.B. 44379)" maxlength="5" pattern="[0-9]{5}" required>
+                        <button type="submit" class="octo-bottom-offer-btn">Angebot berechnen</button>
+                    </form>
+                </div>
+            </div>
+        </section>
+
     </main>
+
+<!-- 14. OCTOPUS-STYLE FOOTER (2 Top Cards + Links Cloud + § 312k BGB) -->
+    <footer id="main-footer" class="octo-footer">
+        <div class="octo-container">
+            <!-- Top 2 Cards: Contact/Support Left + Newsletter Right -->
+            <div class="octo-footer-cards-grid">
+                <!-- Left Card: Contact & Support -->
+                <div class="octo-footer-card">
+                    <div>
+                        <h3 class="octo-card-h3" style="font-size:1.4rem;margin-bottom:22px;">Du hast Fragen zu deinem Strom- oder Gasvertrag?</h3>
+
+                        <div class="octo-footer-contact-split">
+                            <div class="octo-footer-contact-list">
+                                <div class="octo-contact-row">
+                                    <div class="octo-contact-icon" aria-hidden="true">
+                                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+                                    </div>
+                                    <div>
+                                        <div style="font-size:0.9rem;color:#57534e;">Ruf uns an • Montag bis Freitag, 08:00 bis 18:00 Uhr</div>
+                                        <a href="tel:023139989390" class="octo-contact-link">0231 39989390</a>
+                                    </div>
+                                </div>
+
+                                <div class="octo-contact-row">
+                                    <div class="octo-contact-icon" aria-hidden="true">
+                                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="2" y="4" width="20" height="16" rx="2"></rect><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path></svg>
+                                    </div>
+                                    <div>
+                                        <div style="font-size:0.9rem;color:#57534e;">Schreib uns jederzeit</div>
+                                        <a href="mailto:info@alpha-energie.de" class="octo-contact-link">info@alpha-energie.de</a>
+                                    </div>
+                                </div>
+
+                                <div class="octo-contact-row">
+                                    <div class="octo-contact-icon" aria-hidden="true">
+                                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+                                    </div>
+                                    <div>
+                                        <div style="font-size:0.9rem;color:#57534e;">Oft gestellte Fragen (FAQ) &amp; Kundenservice</div>
+                                        <a href="service.html" class="octo-contact-link">Zu den Antworten &rarr;</a>
+                                    </div>
+                                </div>
+
+                                <div class="octo-contact-row">
+                                    <div class="octo-contact-icon" aria-hidden="true">
+                                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="4" width="18" height="16" rx="2"></rect><line x1="7" y1="8" x2="17" y2="8"></line><line x1="7" y1="12" x2="17" y2="12"></line><line x1="7" y1="16" x2="12" y2="16"></line></svg>
+                                    </div>
+                                    <div>
+                                        <div style="font-size:0.9rem;color:#57534e;">Zählerstand für Strom oder Gas übermitteln?</div>
+                                        <a href="service.html#zaehler" id="btnOpenMeterModalFooter" class="octo-contact-link">Zählerstand online melden &rarr;</a>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Pose 5: Alpha-Wolf Customer Service Headset (Dedicated Right Aside) -->
+                            <div class="octo-footer-mascot-aside" aria-hidden="true">
+                                <img src="wolf-mascot-service.png?v=wolf2" alt="Alpha-Wolf Kundenservice mit Headset" class="octo-mascot-img" loading="eager">
+                                <span class="octo-mascot-pill" style="font-size:0.72rem;padding:4px 10px;">🎧 Team Dortmund</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <p style="font-size:0.84rem;color:#57534e;margin:0;border-top:1px solid rgba(249,178,51,0.32);padding-top:14px;">
+                        Persönlich vor Ort im Kundencenter Dortmund: <strong style="color:#e95e24;">Alter Hellweg 50, 44379 Dortmund</strong>
+                    </p>
+                </div>
+
+                <!-- Right Card: Positive Energie Newsletter -->
+                <div class="octo-footer-card">
+                    <div>
+                        <h3 class="octo-card-h3" style="font-size:1.4rem;margin-bottom:14px;">Positive Energie direkt in dein Postfach</h3>
+                        <p class="octo-card-p" style="margin-bottom:18px;">
+                            Sichere dir exklusive Tarif-Vorteile, Energiespartipps und Neuigkeiten rund um 100 % Ökostrom und klimaneutrales Ökogas der Alpha Energie GmbH.
+                        </p>
+
+                        <form id="octoNewsletterForm">
+                            <input type="email" id="octoNewsEmail" class="octo-newsletter-input" placeholder="Deine E-Mail-Adresse *" required>
+                            <input type="text" id="octoNewsName" class="octo-newsletter-input" placeholder="Dein Vorname (optional)">
+
+                            <label style="display:flex;align-items:flex-start;gap:10px;font-size:0.8rem;color:#57534e;line-height:1.5;margin:8px 0 18px 0;cursor:pointer;">
+                                <input type="checkbox" required style="margin-top:4px;accent-color:#f9b233;">
+                                <span>Ja, ich möchte gerne von der Alpha Energie GmbH spannende Infos zu Ökostrom- und Ökogas-Tarifen sowie Aktionen per E-Mail erhalten. Abmeldung jederzeit möglich. Weitere Infos in der <a href="datenschutz.html" style="color:#e95e24;text-decoration:underline;">Datenschutzerklärung</a>.</span>
+                            </label>
+
+                            <button type="submit" class="octo-btn-solid-orange" style="width:100%;">Jetzt anmelden</button>
+                            <div id="octoNewsSuccess" style="display:none;margin-top:12px;color:#e95e24;font-weight:700;font-size:0.88rem;">
+                                ✓ Vielen Dank! Deine Anmeldung für Alpha Energie Updates war erfolgreich.
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Octopus-Style Footer Links Cloud (incl. § 312k BGB Kündigen & Widerrufen) -->
+            <div class="octo-footer-links-cloud">
+                <a href="impressum.html">Impressum</a>
+                <a href="datenschutz.html">Datenschutzerklärung</a>
+                <a href="cookie-einstellungen.html">Cookie-Einstellungen</a>
+                <a href="cookie-richtlinie.html">Cookie-Richtlinie</a>
+                <button type="button" id="btnOpenCancelModal" style="color:#e95e24;font-weight:700;">Verträge hier kündigen (§ 312k BGB)</button>
+                <button type="button" id="btnOpenRevokeModal" style="color:#e95e24;font-weight:700;">Verträge hier widerrufen</button>
+                <a href="oekostrom.html">100% Ökostrom</a>
+                <a href="oekogas.html">Klimaneutrales Ökogas</a>
+                <a href="gewerbekunden.html">Gewerbekunden (B2B)</a>
+                <a href="versorger.html#rechner">Strom- &amp; Gasrechner</a>
+                <a href="nachhaltigkeit-co2.html">Energieaudits &amp; CO₂-Pfad</a>
+                <a href="ueber-uns.html">Wer wir sind</a>
+                <a href="partner-werden.html">Vertriebspartner werden</a>
+                <a href="karriere.html">Karriere</a>
+                <a href="service.html">Hilfe &amp; FAQ</a>
+                <a href="kontakt.html">Kontakt Dortmund</a>
+                <a href="https://vp.alpha-energie.de">VP-Portal Login</a>
+            </div>
+
+            <div class="octo-footer-bottom">
+                <div style="display:flex;align-items:center;gap:18px;flex-wrap:wrap;">
+                    <a href="versorger.html" style="background:transparent !important;padding:0 !important;display:inline-flex;align-items:center;"><img src="logo.png" alt="Alpha Energie GmbH" style="height:68px !important;max-height:68px !important;width:auto !important;background:transparent !important;padding:0 !important;border:none !important;border-radius:0 !important;box-shadow:none !important;object-fit:contain;"></a>
+                    <span>&copy; 2026 Alpha Energie GmbH, Alter Hellweg 50, 44379 Dortmund • Telefon: 0231 39989390</span>
+                </div>
+
+                <div style="display:flex;align-items:center;gap:16px;">
+                    <img src="ok-power-siegel.png" alt="ok-power Gütesiegel" style="height:62px;background:#fff;padding:8px 14px;border-radius:12px;border:1.5px solid rgba(249,178,51,0.52);box-shadow:0 4px 14px rgba(233,94,36,0.12);">
+                    <img src="bdeb-mitglied.png" alt="BDEB Mitglied" style="height:62px;background:#fff;padding:8px 14px;border-radius:12px;border:1.5px solid rgba(249,178,51,0.52);box-shadow:0 4px 14px rgba(233,94,36,0.12);">
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Digital Single-Page Order Modal -->
+    <div id="orderModal" class="digital-modal-backdrop">
+        <div class="digital-modal" style="color:#1e293b;">
+            <div class="modal-header-bar">
+                <h3 class="modal-header-title">Online-Auftrag &amp; Anbieterwechsel</h3>
+                <button type="button" class="btn-close-modal modal-close-btn" aria-label="Schließen">&times;</button>
+            </div>
+
+            <div class="modal-progress-bar">
+                <div class="progress-step active" id="progStep1">1. Tarif &amp; Termin</div>
+                <div class="progress-step" id="progStep2">2. Zähler &amp; Adresse</div>
+                <div class="progress-step" id="progStep3">3. Persönliche Daten</div>
+            </div>
+
+            <div class="modal-body">
+                <!-- Step 1: Tarif & Termin -->
+                <div class="modal-step active" id="modalStep1">
+                    <div style="background: #f8fafc; padding: 1.25rem; border-radius: 12px; margin-bottom: 1.5rem; border: 1px solid #e2e8f0;">
+                        <div style="font-size: 0.85rem; color: #64748b;">Ausgewählter Tarif:</div>
+                        <div id="orderSummaryTariffName" style="font-size: 1.25rem; font-weight: 800; color: #0a1f44;">ALPHA BASIC</div>
+                        <div style="display: flex; gap: 1.5rem; margin-top: 0.5rem; font-size: 0.9rem; color: #1e293b;">
+                            <div>Monatlicher Abschlag: <strong id="orderSummaryMonthly">70 € / Monat</strong></div>
+                            <div>Jahresverbrauch: <strong id="orderSummaryKwh">2.500 kWh</strong></div>
+                        </div>
+                        <div style="margin-top: 0.5rem; color: #e95e24; font-weight: 700; font-size: 0.85rem;" id="orderSummarySavings">
+                            Bis zu 300 € / Jahr sparen
+                        </div>
+                    </div>
+
+                    <div class="form-group" style="margin-bottom: 1.25rem;">
+                        <label for="orderStartDate" class="calc-label" style="color:#1e293b;">Gewünschter Lieferbeginn</label>
+                        <select id="orderStartDate" class="calc-input" style="color:#1e293b;background:#fff;">
+                            <option value="schnellstmoeglich">Schnellstmöglich (zum nächstzulässigen Termin)</option>
+                            <option value="ablauf">Zum Ablauf des aktuellen Vertrags beim Vorversorger</option>
+                            <option value="wunschtermin">Zu einem festen Wunschtermin (z. B. Einzug)</option>
+                        </select>
+                    </div>
+
+                    <button type="button" id="btnStep1Next" class="calc-submit-btn">Weiter zu Schritt 2: Zählerdaten &rarr;</button>
+                </div>
+
+                <!-- Step 2: Zähler & Adresse -->
+                <div class="modal-step" id="modalStep2">
+                    <div class="form-grid" style="margin-bottom: 1rem;">
+                        <div class="form-group">
+                            <label for="orderStreet" class="calc-label" style="color:#1e293b;">Straße *</label>
+                            <input type="text" id="orderStreet" class="calc-input" placeholder="z. B. Kampstraße" required style="color:#1e293b;background:#fff;">
+                        </div>
+                        <div class="form-group">
+                            <label for="orderHouseNr" class="calc-label" style="color:#1e293b;">Hausnummer *</label>
+                            <input type="text" id="orderHouseNr" class="calc-input" placeholder="z. B. 55" required style="color:#1e293b;background:#fff;">
+                        </div>
+                    </div>
+
+                    <div class="form-grid" style="margin-bottom: 1rem;">
+                        <div class="form-group">
+                            <label for="orderPlz" class="calc-label" style="color:#1e293b;">Postleitzahl *</label>
+                            <input type="text" id="orderPlz" class="calc-input" placeholder="z. B. 44379" required style="color:#1e293b;background:#fff;">
+                        </div>
+                        <div class="form-group">
+                            <label for="orderCity" class="calc-label" style="color:#1e293b;">Ort *</label>
+                            <input type="text" id="orderCity" class="calc-input" placeholder="z. B. Dortmund" required style="color:#1e293b;background:#fff;">
+                        </div>
+                    </div>
+
+                    <div class="form-group" style="margin-bottom: 1rem;">
+                        <label for="orderMeterNumber" class="calc-label" style="color:#1e293b;">Zählernummer * (am Strom- oder Gaszähler)</label>
+                        <input type="text" id="orderMeterNumber" class="calc-input" placeholder="z. B. 1EMH0012345678" required style="color:#1e293b;background:#fff;">
+                    </div>
+
+                    <div class="form-group" style="margin-bottom: 1rem;">
+                        <label for="orderPrevProvider" class="calc-label" style="color:#1e293b;">Bisheriger Energieversorger (optional)</label>
+                        <input type="text" id="orderPrevProvider" class="calc-input" placeholder="z. B. DEW21, E.ON, Vattenfall" style="color:#1e293b;background:#fff;">
+                    </div>
+
+                    <div style="margin-bottom: 1.5rem; display: flex; align-items: flex-start; gap: 0.6rem;">
+                        <input type="checkbox" id="orderCancelOld" checked style="margin-top: 4px;">
+                        <label for="orderCancelOld" style="font-size: 0.85rem; color: #475569;">
+                            Alpha Energie soll meinen bisherigen Versorger kostenlos und fristgerecht kündigen.
+                        </label>
+                    </div>
+
+                    <div style="display: flex; gap: 1rem;">
+                        <button type="button" id="btnStep2Back" class="btn btn-secondary" style="flex: 1;">&larr; Zurück</button>
+                        <button type="button" id="btnStep2Next" class="calc-submit-btn" style="flex: 2;">Weiter zu Schritt 3 &rarr;</button>
+                    </div>
+                </div>
+
+                <!-- Step 3: Persönliche Daten & Bankverbindung -->
+                <div class="modal-step" id="modalStep3">
+                    <div class="form-grid" style="margin-bottom: 1rem;">
+                        <div class="form-group">
+                            <label for="orderSalutation" class="calc-label" style="color:#1e293b;">Anrede</label>
+                            <select id="orderSalutation" class="calc-input" style="color:#1e293b;background:#fff;">
+                                <option value="Herr">Herr</option>
+                                <option value="Frau">Frau</option>
+                                <option value="Firma">Firma</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="orderBirthDate" class="calc-label" style="color:#1e293b;">Geburtsdatum (optional)</label>
+                            <input type="date" id="orderBirthDate" class="calc-input" style="color:#1e293b;background:#fff;">
+                        </div>
+                    </div>
+
+                    <div class="form-grid" style="margin-bottom: 1rem;">
+                        <div class="form-group">
+                            <label for="orderFirstName" class="calc-label" style="color:#1e293b;">Vorname *</label>
+                            <input type="text" id="orderFirstName" class="calc-input" placeholder="Max" required style="color:#1e293b;background:#fff;">
+                        </div>
+                        <div class="form-group">
+                            <label for="orderLastName" class="calc-label" style="color:#1e293b;">Nachname *</label>
+                            <input type="text" id="orderLastName" class="calc-input" placeholder="Mustermann" required style="color:#1e293b;background:#fff;">
+                        </div>
+                    </div>
+
+                    <div class="form-grid" style="margin-bottom: 1rem;">
+                        <div class="form-group">
+                            <label for="orderEmail" class="calc-label" style="color:#1e293b;">E-Mail-Adresse *</label>
+                            <input type="email" id="orderEmail" class="calc-input" placeholder="max@beispiel.de" required style="color:#1e293b;background:#fff;">
+                        </div>
+                        <div class="form-group">
+                            <label for="orderPhone" class="calc-label" style="color:#1e293b;">Telefonnummer *</label>
+                            <input type="tel" id="orderPhone" class="calc-input" placeholder="0171 1234567" required style="color:#1e293b;background:#fff;">
+                        </div>
+                    </div>
+
+                    <div class="form-group" style="margin-bottom: 1.25rem;">
+                        <label for="orderIban" class="calc-label" style="color:#1e293b;">IBAN für SEPA-Lastschrift *</label>
+                        <input type="text" id="orderIban" class="calc-input" placeholder="DE89 3704 0044 0532 0130 00" required style="color:#1e293b;background:#fff;">
+                    </div>
+
+                    <div style="margin-bottom: 1.5rem; display: flex; align-items: flex-start; gap: 0.6rem;">
+                        <input type="checkbox" id="orderAgb" required style="margin-top: 4px;">
+                        <label for="orderAgb" style="font-size: 0.85rem; color: #475569;">
+                            Ich stimme den <a href="datenschutz.html" target="_blank" style="text-decoration: underline; color: #e95e24;">Datenschutzbestimmungen</a> und der Übermittlung des Auftrags verbindlich zu.
+                        </label>
+                    </div>
+
+                    <div style="display: flex; gap: 1rem;">
+                        <button type="button" id="btnStep3Back" class="btn btn-secondary" style="flex: 1;">&larr; Zurück</button>
+                        <button type="button" id="btnStep3Submit" class="calc-submit-btn" style="flex: 2; background: linear-gradient(135deg, #f9b233 0%, #f99239 55%, #e95e24 100%);">Auftrag jetzt verbindlich abschließen</button>
+                    </div>
+                </div>
+
+                <!-- Step 4: Bestätigung -->
+                <div class="modal-step" id="modalStep4">
+                    <div style="text-align: center; padding: 2rem 1rem;">
+                        <div style="width: 72px; height: 72px; margin: 0 auto 1.25rem; border-radius: 50%; background: rgba(249, 178, 51, 0.22); color: #e95e24; display: flex; align-items: center; justify-content: center;" aria-hidden="true">
+                            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                        </div>
+                        <h3 style="font-size: 1.5rem; color: #e95e24; margin-bottom: 0.75rem;">Vielen Dank für Ihren Auftrag!</h3>
+                        <p style="color: #475569; font-size: 1rem; line-height: 1.6; max-width: 500px; margin: 0 auto 1.5rem auto;">
+                            Ihr Wechselauftrag wurde erfolgreich erfasst. Wir haben eine Bestätigung an Ihre E-Mail-Adresse gesendet.
+                        </p>
+                        <div style="background: #fff9eb; border: 1.5px solid #f9b233; border-radius: 8px; padding: 1rem; display: inline-block; font-weight: 700; color: #9a3412; margin-bottom: 1.5rem;">
+                            Auftragsnummer: <span id="confirmedOrderNumber">AE-2026-981245</span>
+                        </div>
+                        <div>
+                            <button type="button" class="btn btn-primary btn-close-modal">Fenster schließen</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- Floating Action Bar (FAB) -->
     <div class="floating-action-bar" aria-label="Schnellkontakt">
@@ -276,11 +2700,7 @@
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
             <span class="fab-tooltip">0231 39989390</span>
         </a>
-        <a href="https://wa.me/4923139989390" target="_blank" rel="noopener noreferrer" class="fab-btn fab-whatsapp" aria-label="WhatsApp Beratung">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
-            <span class="fab-tooltip">WhatsApp Beratung</span>
-        </a>
-        <a href="service.html#zaehler" class="fab-btn" aria-label="Zählerstand online melden">
+        <a href="service.html#zaehler" class="fab-btn" id="btnOpenMeterModal" aria-label="Zählerstand online melden">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"></rect><line x1="7" y1="8" x2="17" y2="8"></line><line x1="7" y1="12" x2="17" y2="12"></line><line x1="7" y1="16" x2="12" y2="16"></line></svg>
             <span class="fab-tooltip">Zählerstand melden</span>
         </a>
@@ -290,112 +2710,144 @@
         </a>
     </div>
 
-    <!-- Footer -->
-    <footer id="main-footer" class="footer">
-        <div class="container">
-            <div class="footer-top grid-4">
-                <div class="footer-widget brand-widget">
-                    <a href="/">
-                        <img src="logo.png" alt="Alpha Energie GmbH Logo" class="footer-logo">
-                    </a>
-                    <p class="footer-desc">Alpha Energie GmbH ist Ihr Partner für fairen Wärmestrom, 100% Ökostrom und ganzheitliche Sektorenkopplung.</p>
-                    <p class="footer-address" style="color: rgba(255,255,255,0.7); font-size: 0.9rem; margin-top: 0.5rem; margin-bottom: 1.5rem;">Alter Hellweg 50, 44379 Dortmund</p>
-                    <div class="social-links">
-                        <a href="https://facebook.com/alphaenergie" class="social-icon" aria-label="Facebook Kanal">Facebook</a>
-                        <a href="https://linkedin.com/company/alphaenergie" class="social-icon" aria-label="LinkedIn Kanal">LinkedIn</a>
-                        <a href="https://instagram.com/alphaenergie" class="social-icon" aria-label="Instagram Kanal">Instagram</a>
-                    </div>
-                    <div class="footer-trust-badges">
-                        <div class="trust-badge-item">
-                            <img src="/bdeb-mitglied.png" alt="BDEB Verbandsmitgliedschaft Alpha Energie" class="footer-badge-bdeb">
-                        </div>
-                        <div class="trust-badge-item">
-                            <img src="/ok-power-siegel.png" alt="ok-power Gütesiegel für 100 % erneuerbare Energien" class="footer-badge-okpower">
-                        </div>
-                    </div>
-                </div>
-
-                <div class="footer-widget links-widget">
-                    <h3 class="widget-title">Tarife &amp; Strom</h3>
-                    <ul class="footer-links">
-                        <li><a href="oekostrom.html">100% Ökostrom</a></li>
-                        <li><a href="waermestrom.html">Wärmestrom (§ 14a)</a></li>
-                        <li><a href="oekogas.html">Erdgas mit Klimaschutzbeitrag</a></li>
-                        <li><a href="gewerbekunden.html">Gewerbestrom</a></li>
-                        <li><a href="/#rechner">Tarifrechner</a></li>
-                    </ul>
-                </div>
-
-                <div class="footer-widget links-widget">
-                    <h3 class="widget-title">Service &amp; Lösungen</h3>
-                    <ul class="footer-links">
-                        <li><a href="service.html">Kundenservice</a></li>
-                        <li><a href="service.html#zaehler">Zählerstand online erfassen</a></li>
-                        <li><a href="sektorenkopplung.html">Sektorenkopplung PV+Wärme</a></li>
-                        <li><a href="photovoltaik.html">Photovoltaik</a></li>
-                        <li><a href="partner-werden.html">Partner werden</a></li>
-                    </ul>
-                </div>
-
-                <div class="footer-widget links-widget">
-                    <h3 class="widget-title">Rechtliches</h3>
-                    <ul class="footer-links">
-                        <li><a href="datenschutz.html">Datenschutz</a></li>
-                        <li><a href="impressum.html">Impressum</a></li>
-                        <li><a href="cookie-einstellungen.html">Cookie-Einstellungen</a></li>
-                        <li><a href="cookie-richtlinie.html">Cookie-Richtlinie</a></li>
-                        <li><a href="https://vp.alpha-energie.de">VP-Portal Login</a></li>
-                    </ul>
-                </div>
-            </div>
-
-            <!-- Legal Cancellation Box (§ 312k BGB) -->
-            <div class="legal-cancellation-box">
-                <div class="legal-cancel-text">
-                    <strong>Gesetzlicher Kündigungs- und Widerrufsservice (§ 312k BGB):</strong> Sie können Ihren bestehenden Vertrag oder Ihre Bestellung bei der Alpha Energie GmbH hier direkt online und ohne Registrierung kündigen oder widerrufen.
-                </div>
-                <div class="legal-cancel-buttons">
-                    <button type="button" id="btnOpenCancelModal" class="btn-legal-cancel">Vertrag online kündigen</button>
-                    <button type="button" id="btnOpenRevokeModal" class="btn-legal-cancel">Bestellung widerrufen</button>
-                </div>
-            </div>
-
-            <div class="footer-bottom flex-between">
-                <p class="copyright">&copy; Copyright 2026. Alle Rechte vorbehalten. Alpha Energie GmbH</p>
-            </div>
-        </div>
-    </footer>
-
-    <!-- Legal Cancellation Modal -->
+    <!-- Legal Cancellation Modal (§ 312k BGB) -->
     <div id="legalCancelModal" class="digital-modal-backdrop">
-        <div class="digital-modal">
+        <div class="digital-modal" style="color:#1e293b;">
             <div class="modal-header-bar">
-                <h3 class="modal-header-title">Vertrag kündigen (§ 312k BGB)</h3>
+                <h3 class="modal-header-title" id="cancelModalTitle">Vertrag kündigen (§ 312k BGB)</h3>
                 <button type="button" class="btn-close-modal modal-close-btn" aria-label="Schließen">&times;</button>
             </div>
             <div class="modal-body">
                 <form id="formLegalCancel">
                     <input type="hidden" id="cancelTypeInput" value="KUENDIGUNG">
                     <div class="form-group" style="margin-bottom: 1rem;">
-                        <label for="cancelContractNumber" class="calc-label">Vertrags- oder Kundennummer *</label>
-                        <input type="text" id="cancelContractNumber" class="calc-input" placeholder="z. B. AE-102938" required>
+                        <label for="cancelContractNumber" class="calc-label" style="color:#1e293b;">Vertrags- oder Kundennummer *</label>
+                        <input type="text" id="cancelContractNumber" class="calc-input" placeholder="z. B. AE-102938" required style="color:#1e293b;background:#fff;">
                     </div>
                     <div class="form-group" style="margin-bottom: 1rem;">
-                        <label for="cancelCustomerName" class="calc-label">Vor- und Nachname des Vertragspartners *</label>
-                        <input type="text" id="cancelCustomerName" class="calc-input" placeholder="Max Mustermann" required>
+                        <label for="cancelCustomerName" class="calc-label" style="color:#1e293b;">Vor- und Nachname des Vertragspartners *</label>
+                        <input type="text" id="cancelCustomerName" class="calc-input" placeholder="Max Mustermann" required style="color:#1e293b;background:#fff;">
                     </div>
                     <div class="form-group" style="margin-bottom: 1rem;">
-                        <label for="cancelEmail" class="calc-label">Ihre E-Mail-Adresse für die Bestätigung *</label>
-                        <input type="email" id="cancelEmail" class="calc-input" placeholder="name@beispiel.de" required>
+                        <label for="cancelEmail" class="calc-label" style="color:#1e293b;">Ihre E-Mail-Adresse für die Bestätigung *</label>
+                        <input type="email" id="cancelEmail" class="calc-input" placeholder="name@beispiel.de" required style="color:#1e293b;background:#fff;">
                     </div>
                     <div class="form-group" style="margin-bottom: 1.5rem;">
-                        <label for="cancelReason" class="calc-label">Grund (optional)</label>
-                        <textarea id="cancelReason" class="calc-input" rows="3" placeholder="Grund für Kündigung oder Widerruf..." style="height: auto;"></textarea>
+                        <label for="cancelReason" class="calc-label" style="color:#1e293b;">Grund (optional)</label>
+                        <textarea id="cancelReason" class="calc-input" rows="3" placeholder="Grund für Kündigung oder Widerruf..." style="height: auto;color:#1e293b;background:#fff;"></textarea>
                     </div>
                     <button type="submit" class="calc-submit-btn">Erklärung rechtsverbindlich absenden</button>
                 </form>
             </div>
         </div>
     </div>
+
+    <!-- Meter Reading Modal -->
+    <div id="meterModal" class="digital-modal-backdrop">
+        <div class="digital-modal" style="color:#1e293b;">
+            <div class="modal-header-bar">
+                <h3 class="modal-header-title">Zählerstand online melden</h3>
+                <button type="button" class="btn-close-modal modal-close-btn" aria-label="Schließen">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="formMeterReading">
+                    <div class="form-group" style="margin-bottom: 1rem;">
+                        <label for="meterNumberInput" class="calc-label" style="color:#1e293b;">Zählernummer *</label>
+                        <input type="text" id="meterNumberInput" class="calc-input" placeholder="z. B. 1EMH0012345678" required style="color:#1e293b;background:#fff;">
+                    </div>
+                    <div class="form-group" style="margin-bottom: 1rem;">
+                        <label for="meterReadingInput" class="calc-label" style="color:#1e293b;">Aktueller Zählerstand (kWh) *</label>
+                        <input type="number" step="0.1" id="meterReadingInput" class="calc-input" placeholder="z. B. 14250" required style="color:#1e293b;background:#fff;">
+                    </div>
+                    <div class="form-group" style="margin-bottom: 1rem;">
+                        <label for="meterNameInput" class="calc-label" style="color:#1e293b;">Ihr Vor- und Nachname *</label>
+                        <input type="text" id="meterNameInput" class="calc-input" placeholder="Max Mustermann" required style="color:#1e293b;background:#fff;">
+                    </div>
+                    <div class="form-group" style="margin-bottom: 1.5rem;">
+                        <label for="meterEmailInput" class="calc-label" style="color:#1e293b;">Ihre E-Mail-Adresse *</label>
+                        <input type="email" id="meterEmailInput" class="calc-input" placeholder="name@beispiel.de" required style="color:#1e293b;background:#fff;">
+                    </div>
+                    <button type="submit" class="calc-submit-btn">Zählerstand jetzt übermitteln</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Octopus Clone Interactive Enhancements (Bottom Offer Form + Footer Modal Triggers + Newsletter) -->
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // 1. Bottom Quick Offer Banner -> Syncs PLZ & Branch to Main Tarifrechner & Scrolls to #tarife
+        var bottomForm = document.getElementById('bottomQuickOfferForm');
+        if (bottomForm) {
+            bottomForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                var branchSel = document.getElementById('bottomOfferBranch');
+                var plzIn = document.getElementById('bottomOfferPlz');
+                var mainPlz = document.getElementById('calcPlz');
+                if (branchSel) {
+                    var targetTab = document.querySelector('.octo-calc-tab[data-branch="' + branchSel.value + '"]');
+                    if (targetTab) targetTab.click();
+                }
+                if (plzIn && mainPlz) {
+                    mainPlz.value = plzIn.value;
+                    mainPlz.dispatchEvent(new Event('input', { bubbles: true }));
+                }
+                if (typeof window.recalculateTariffs === 'function') {
+                    window.recalculateTariffs();
+                }
+                var tarifeSec = document.getElementById('tarife');
+                if (tarifeSec) {
+                    tarifeSec.scrollIntoView({ behavior: 'smooth' });
+                }
+            });
+        }
+
+        // 2. Footer Meter Reading Link -> Opens #meterModal
+        var footerMeterBtn = document.getElementById('btnOpenMeterModalFooter');
+        var meterModal = document.getElementById('meterModal');
+        if (footerMeterBtn && meterModal) {
+            footerMeterBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                meterModal.style.display = 'flex';
+                document.body.style.overflow = 'hidden';
+            });
+        }
+
+        // 3. Newsletter Form Feedback
+        var newsForm = document.getElementById('octoNewsletterForm');
+        var newsSuccess = document.getElementById('octoNewsSuccess');
+        if (newsForm && newsSuccess) {
+            newsForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                newsSuccess.style.display = 'block';
+                newsForm.reset();
+            });
+        }
+
+        // Subpage Quick Offer Form -> Redirects to versorger.html#tarife with PLZ
+        var subBottomForm = document.getElementById('subpageQuickOfferForm');
+        if (subBottomForm) {
+            subBottomForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                var plz = document.getElementById('subOfferPlz') ? document.getElementById('subOfferPlz').value : '';
+                var branch = document.getElementById('subOfferBranch') ? document.getElementById('subOfferBranch').value : 'strom';
+                window.location.href = 'versorger.html?branch=' + encodeURIComponent(branch) + '&plz=' + encodeURIComponent(plz) + '#tarife';
+            });
+        }
+        // Generic interactive form handler for subpage forms (Kontakt, Partner, Karriere, B2B, Service)
+        document.querySelectorAll('.octo-interactive-form').forEach(function(form) {
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                var successEl = form.querySelector('.octo-form-success');
+                if (successEl) {
+                    successEl.style.display = 'block';
+                }
+                form.reset();
+            });
+        });
+
+    });
+    </script>
 </body>
 </html>
+
