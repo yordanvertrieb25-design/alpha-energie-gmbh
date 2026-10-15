@@ -1347,12 +1347,8 @@ document.addEventListener("DOMContentLoaded", async () => {
                     } else if (calcKwh) {
                         calcKwh.placeholder = 'z. B. 12.000';
                     }
-                    if (hasUserAbschlag) {
-                        if (calcAbschlag.value === '95') {
-                            calcAbschlag.value = '115';
-                        }
-                    } else if (calcAbschlag) {
-                        calcAbschlag.placeholder = 'z. B. 115';
+                    if (calcAbschlag && !hasUserAbschlag) {
+                        calcAbschlag.placeholder = 'Abschlag';
                     }
                     updateHouseholdPresets('gas');
                     if (noticeText) {
@@ -1369,12 +1365,8 @@ document.addEventListener("DOMContentLoaded", async () => {
                     } else if (calcKwh) {
                         calcKwh.placeholder = 'z. B. 2.500';
                     }
-                    if (hasUserAbschlag) {
-                        if (calcAbschlag.value === '115') {
-                            calcAbschlag.value = '95';
-                        }
-                    } else if (calcAbschlag) {
-                        calcAbschlag.placeholder = 'z. B. 95';
+                    if (calcAbschlag && !hasUserAbschlag) {
+                        calcAbschlag.placeholder = 'Abschlag';
                     }
                     updateHouseholdPresets('strom');
                     if (noticeText) {
