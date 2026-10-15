@@ -51,7 +51,7 @@
             // Hero
             hero_tag: 'Nationwide Green Electricity & Energy Provider',
             hero_title: 'Simple. Transparent.<br><span class="text-orange-gradient">Guaranteed Affordable.</span>',
-            hero_desc: 'Switch in just 3 minutes to green electricity from 100% renewable energy, reliable § 14a heat pump power, or natural gas with voluntary climate contribution. Available nationwide with up to 24 months full price guarantee, new customer bonus, and personal customer service at the Dortmund headquarters.',
+            hero_desc: 'Switch in just 3 minutes to green electricity from 100% renewable energy, reliable § 14a heat pump power, or natural gas with voluntary climate contribution. Available nationwide with up to 24 months full price guarantee, up to €380 annual savings, and personal customer service at the Dortmund headquarters.',
             hero_badge_price: '24-Month Price Protection',
             hero_badge_eco: '100% Renewable Energy (ok-power)',
             hero_badge_switch: 'Free Switching Service',
@@ -400,7 +400,7 @@
             // Hero
             hero_tag: 'Almanya Genelinde %100 Yeşil Elektrik ve Enerji Sağlayıcısı',
             hero_title: 'Basit. Şeffaf.<br><span class="text-orange-gradient">Garantili Uygun Fiyat.</span>',
-            hero_desc: 'Sadece 3 dakikada %100 yenilenebilir enerjiden yeşil elektriğe, güvenilir § 14a ısı pompası elektriğine veya iklim katkılı doğal gaza geçin. 24 aya varan tam fiyat garantisi, yeni müşteri bonusu ve Dortmund merkezindeki kişisel müşteri hizmetleriyle tüm Almanya genelinde.',
+            hero_desc: 'Sadece 3 dakikada %100 yenilenebilir enerjiden yeşil elektriğe, güvenilir § 14a ısı pompası elektriğine veya iklim katkılı doğal gaza geçin. 24 aya varan tam fiyat garantisi, yılda 380 €\'ya varan tasarruf ve Dortmund merkezindeki kişisel müşteri hizmetleriyle tüm Almanya genelinde.',
             hero_badge_price: '24 Ay Fiyat Koruması',
             hero_badge_eco: '%100 Yenilenebilir Enerji (ok-power)',
             hero_badge_switch: 'Ücretsiz Geçiş Hizmeti',
