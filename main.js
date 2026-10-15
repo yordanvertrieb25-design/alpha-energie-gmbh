@@ -630,35 +630,55 @@ document.addEventListener("DOMContentLoaded", async () => {
         });
     }
 
-    // 6. Autoplay videos on scroll (always muted / no sound)
+    // 6. Autoplay videos on scroll (supports sound when data-with-sound="true")
     const scrollVideos = document.querySelectorAll('.autoplay-on-scroll');
     if (scrollVideos.length > 0) {
         const videoObserver = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
+                const video = entry.target;
+                const wantsSound = video.getAttribute('data-with-sound') === 'true' || video.id === 'intro-video';
                 if (entry.isIntersecting) {
-                    // Ensure video stays muted before playing
-                    entry.target.muted = true;
-                    entry.target.defaultMuted = true;
-                    entry.target.volume = 0;
-                    // Start playing if in view
-                    entry.target.play().catch(e => console.log("Video play blocked:", e));
+                    if (wantsSound) {
+                        if (video.dataset.userMuted !== 'true') {
+                            video.muted = false;
+                            video.defaultMuted = false;
+                            video.volume = 1.0;
+                        }
+                        video.play().catch(() => {
+                            // Browser blocked unmuted autoplay before first interaction: start playing and unmute on next click
+                            video.muted = true;
+                            video.play().catch(e => console.log("Video play blocked:", e));
+                        });
+                    } else {
+                        video.muted = true;
+                        video.defaultMuted = true;
+                        video.volume = 0;
+                        video.play().catch(e => console.log("Video play blocked:", e));
+                    }
                 } else {
                     // Pause if out of view
-                    entry.target.pause();
+                    video.pause();
                 }
             });
-        }, { threshold: 0.1 });
+        }, { threshold: 0.15 });
 
         scrollVideos.forEach(video => {
-            video.muted = true;
-            video.defaultMuted = true;
-            video.volume = 0;
-            video.addEventListener('volumechange', () => {
-                if (!video.muted || video.volume > 0) {
-                    video.muted = true;
-                    video.volume = 0;
-                }
-            });
+            const wantsSound = video.getAttribute('data-with-sound') === 'true' || video.id === 'intro-video';
+            if (!wantsSound) {
+                video.muted = true;
+                video.defaultMuted = true;
+                video.volume = 0;
+                video.addEventListener('volumechange', () => {
+                    if (!video.muted || video.volume > 0) {
+                        video.muted = true;
+                        video.volume = 0;
+                    }
+                });
+            } else {
+                video.muted = false;
+                video.defaultMuted = false;
+                video.volume = 1.0;
+            }
             videoObserver.observe(video);
         });
     }

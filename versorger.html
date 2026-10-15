@@ -90,7 +90,7 @@
     <!-- Base Styles & Scripts -->
     <link rel="stylesheet" href="style.css">
     <script src="i18n.js" defer></script>
-    <script src="main.js?v=20261015-fc3" defer></script>
+    <script src="main.js?v=20261015-fc4" defer></script>
 
     <!-- Octopus Energy Clone Architecture in Alpha Energie Orange Palette -->
     <style>
@@ -2754,12 +2754,19 @@
                 <p class="octo-section-sub">Erfahre mehr über deinen unabhängigen Ökostrom- &amp; Gasversorger aus Dortmund</p>
 
                 <div class="octo-about-grid">
-                    <!-- Top: Full-Width 16:9 Widescreen Video (Alpha-Wolf erklärt den Wechsel im Wohnzimmer) -->
-                    <div class="octo-about-media-card">
-                        <video id="intro-video" class="autoplay-on-scroll" autoplay loop muted playsinline disablePictureInPicture poster="public/images/wolf_livingroom_poster.jpg">
-                            <source src="public/versorger_wolf_wechsel.mp4?v=wolf20s" type="video/mp4">
-                            <source src="public/b2c_tarifberatung.mp4?v=wolf20s" type="video/mp4">
-                        </video>
+                    <!-- Top: Full-Width 16:9 Widescreen Video with Sound -->
+                    <div class="octo-about-media-card" style="position:relative;">
+                        <div style="position:relative;width:100%;">
+                            <video id="intro-video" class="autoplay-on-scroll" data-with-sound="true" autoplay loop controls playsinline disablePictureInPicture>
+                                <source src="public/versorger_wolf_wechsel.mp4?v=20261015-sound" type="video/mp4">
+                                <source src="versorger_wolf_wechsel.mp4?v=20261015-sound" type="video/mp4">
+                                <source src="public/b2c_tarifberatung.mp4?v=20261015-sound" type="video/mp4">
+                            </video>
+                            <button type="button" id="introVideoSoundBtn" aria-label="Ton ein- oder ausschalten" style="position:absolute;top:14px;right:14px;z-index:12;background:rgba(28,25,23,0.82);backdrop-filter:blur(8px);color:#ffffff;border:1.5px solid rgba(249,178,51,0.85);border-radius:999px;padding:7px 14px;font-size:0.8rem;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:6px;box-shadow:0 6px 18px rgba(0,0,0,0.28);transition:all 0.2s ease;">
+                                <span id="introVideoSoundIcon">🔊</span>
+                                <span id="introVideoSoundLabel">Ton an</span>
+                            </button>
+                        </div>
                         <div style="background:#fffdf9;border-top:1px solid rgba(249,178,51,0.38);padding:10px 20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;font-size:0.8rem;font-weight:700;color:#44403c;">
                             <span style="display:inline-flex;align-items:center;gap:6px;"><span style="background:#e95e24;color:#fff;width:20px;height:20px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:0.72rem;font-weight:800;">1</span> Tarif im Wohnzimmer wählen</span>
                             <span style="display:inline-flex;align-items:center;gap:6px;"><span style="background:#e95e24;color:#fff;width:20px;height:20px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:0.72rem;font-weight:800;">2</span> Alpha-Wolf übernimmt Kündigung</span>
@@ -3380,18 +3387,63 @@
             });
         }
 
-        // 4. Enforce permanent mute (zero sound) on Versorgerseite video
+        // 4. Enable sound on Versorgerseite bottom video (#intro-video)
         var introVid = document.getElementById('intro-video');
+        var soundBtn = document.getElementById('introVideoSoundBtn');
+        var soundIcon = document.getElementById('introVideoSoundIcon');
+        var soundLabel = document.getElementById('introVideoSoundLabel');
+
         if (introVid) {
-            introVid.muted = true;
-            introVid.defaultMuted = true;
-            introVid.volume = 0;
-            introVid.addEventListener('volumechange', function() {
-                if (!introVid.muted || introVid.volume > 0) {
-                    introVid.muted = true;
-                    introVid.volume = 0;
+            introVid.muted = false;
+            introVid.defaultMuted = false;
+            introVid.volume = 1.0;
+
+            function syncSoundUi() {
+                var isMuted = introVid.muted || introVid.volume === 0;
+                if (soundIcon) soundIcon.textContent = isMuted ? '🔇' : '🔊';
+                if (soundLabel) soundLabel.textContent = isMuted ? 'Ton aktivieren' : 'Ton an';
+                if (soundBtn) {
+                    soundBtn.style.background = isMuted
+                        ? 'linear-gradient(135deg, #f9b233 0%, #e95e24 100%)'
+                        : 'rgba(28,25,23,0.82)';
                 }
-            });
+            }
+
+            introVid.addEventListener('volumechange', syncSoundUi);
+            introVid.addEventListener('play', syncSoundUi);
+            syncSoundUi();
+
+            if (soundBtn) {
+                soundBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    if (introVid.muted || introVid.volume === 0) {
+                        introVid.dataset.userMuted = 'false';
+                        introVid.muted = false;
+                        introVid.volume = 1.0;
+                        introVid.play().catch(function(){});
+                    } else {
+                        introVid.dataset.userMuted = 'true';
+                        introVid.muted = true;
+                    }
+                    syncSoundUi();
+                });
+            }
+
+            // Automatically unmute on first user interaction if browser initially forced muted autoplay
+            var autoUnmuteOnInteraction = function() {
+                if (introVid.dataset.userMuted !== 'true' && introVid.muted) {
+                    introVid.muted = false;
+                    introVid.volume = 1.0;
+                    syncSoundUi();
+                }
+                document.removeEventListener('click', autoUnmuteOnInteraction);
+                document.removeEventListener('touchstart', autoUnmuteOnInteraction);
+                document.removeEventListener('keydown', autoUnmuteOnInteraction);
+            };
+            document.addEventListener('click', autoUnmuteOnInteraction, { passive: true });
+            document.addEventListener('touchstart', autoUnmuteOnInteraction, { passive: true });
+            document.addEventListener('keydown', autoUnmuteOnInteraction, { passive: true });
         }
     });
     </script>
