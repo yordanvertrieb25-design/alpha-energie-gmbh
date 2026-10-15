@@ -1220,7 +1220,7 @@
             display: block;
         }
 
-        /* Leichter Blaufilter für alle Bilder auf der Versorger-Seite */
+        /* Leichter Blaufilter für alle Bilder auf der Versorger-Seite (dezent) */
         .octo-photo-filter,
         .octo-stage-visual-card,
         .octo-split-device-media,
@@ -1233,7 +1233,7 @@
         .octo-stage-visual-card > img,
         .octo-split-device-media > img,
         .octo-card-visual > img:not(.octo-mascot-img) {
-            filter: saturate(0.88) contrast(1.04) brightness(0.97) hue-rotate(-6deg);
+            filter: saturate(0.96) contrast(1.02) brightness(0.99);
             transition: filter 0.35s ease, transform 0.35s ease;
         }
 
@@ -1244,7 +1244,7 @@
             content: "";
             position: absolute;
             inset: 0;
-            background: rgba(29, 78, 216, 0.18);
+            background: rgba(37, 99, 235, 0.05);
             mix-blend-mode: color;
             pointer-events: none;
             z-index: 1;
@@ -1257,7 +1257,7 @@
             content: "";
             position: absolute;
             inset: 0;
-            background: linear-gradient(135deg, rgba(10, 37, 88, 0.16) 0%, rgba(37, 99, 235, 0.14) 55%, rgba(56, 189, 248, 0.11) 100%);
+            background: linear-gradient(135deg, rgba(14, 58, 138, 0.06) 0%, rgba(37, 99, 235, 0.05) 55%, rgba(56, 189, 248, 0.04) 100%);
             pointer-events: none;
             z-index: 2;
         }
