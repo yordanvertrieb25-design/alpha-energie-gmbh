@@ -324,63 +324,69 @@ app.post('/api/tarife/calculate', async (req, res) => {
             }
         }
 
-        // Standardized green energy tariffs
+        // Reference Firstcon tariffs (BrandId 54 - Alpha Energie) when offline
         const stromTariffs = [
             {
                 id: 'alpha-basic',
-                name: 'ALPHA BASIC',
+                firstconTariffId: 279,
+                firstconName: 'Alpha Basic 24',
+                name: 'ALPHA BASIC 24',
                 badge: 'Flexibel & Günstig',
                 isBestseller: false,
-                workingPriceCt: 27.85,
-                basePriceEurMonth: 11.90,
-                bonusEur: 100,
-                priceGuaranteeMonths: 12,
-                contractTermMonths: 12,
+                workingPriceCt: 36.04,
+                basePriceEurMonth: 29.40,
+                basePriceEur: 29.40,
+                bonusEur: 0,
+                priceGuaranteeMonths: 24,
+                contractTermMonths: 24,
                 ecoCertificate: '100% Ökostrom (ok-power+ Kriterien)',
                 features: [
-                    '12 Monate volle Preisgarantie',
-                    '100 € Neukunden-Sofortbonus',
-                    '100% Ökostrom aus deutscher Wasserkraft',
-                    'Monatlich kündbar nach dem 1. Jahr',
-                    'Kostenloser Wechselservice & Abmeldung'
+                    '24 Monate volle Preisgarantie',
+                    'ok-power+ zertifiziert',
+                    '100% Ökostrom aus erneuerbaren Energien',
+                    'Investition in den Ausbau erneuerbarer Energien'
                 ]
             },
             {
                 id: 'alpha-time',
-                name: 'ALPHA TIME',
-                badge: 'Bestseller & Smart Energy',
+                firstconTariffId: 280,
+                firstconName: 'Alpha Time 24',
+                name: 'ALPHA TIME 24',
+                badge: 'Bestseller & Spar-Vorteil',
                 isBestseller: true,
-                workingPriceCt: 24.50,
-                basePriceEurMonth: 12.00,
-                bonusEur: 150,
-                priceGuaranteeMonths: 12,
-                contractTermMonths: 12,
-                ecoCertificate: '100% Dynamischer Ökostrom (§ 14a EnWG)',
+                workingPriceCt: 34.85,
+                basePriceEurMonth: 29.40,
+                basePriceEur: 29.40,
+                bonusEur: 0,
+                priceGuaranteeMonths: 24,
+                contractTermMonths: 24,
+                ecoCertificate: '100% Zertifizierter Ökostrom (ok-power)',
                 features: [
-                    'Zeitvariabler Smart-Tarif für flexible Verbräuche',
-                    'Optimiert für Smart Home & Batteriespeicher',
-                    'Bis zu 25% reduzierte Netzentgelte (§ 14a EnWG)',
-                    '150 € Smart-Energy-Bonus',
-                    'Transparente App-Einsicht & Steuerung'
+                    '24 Monate volle Preisgarantie',
+                    'Der Tarif mit kurzer Vertragslaufzeit',
+                    'ok-power+ zertifiziert',
+                    '100% Ökostrom aus erneuerbaren Energien'
                 ]
             },
             {
                 id: 'alpha-premium',
-                name: 'ALPHA PREMIUM',
-                badge: '24 Monate Preisschutz & VIP-Service',
+                firstconTariffId: 281,
+                firstconName: 'Alpha Premium 24',
+                name: 'ALPHA PREMIUM 24',
+                badge: '24 Monate Preisschutz & VIP',
                 isBestseller: false,
-                workingPriceCt: 28.20,
-                basePriceEurMonth: 12.90,
-                bonusEur: 180,
+                workingPriceCt: 33.66,
+                basePriceEurMonth: 29.40,
+                basePriceEur: 29.40,
+                bonusEur: 0,
                 priceGuaranteeMonths: 24,
                 contractTermMonths: 24,
                 ecoCertificate: '100% Ökostrom mit ok-power+ Neuanlagenförderung',
                 features: [
-                    '24 Monate garantierte Preisstabilität bis 2028',
-                    '180 € Treue- & Neukundenbonus',
-                    '100% Ökostrom mit ok-power+ Neuanlagenförderung',
-                    'Prioritäts-Kundenservice aus Dortmund',
-                    'Voller Schutz vor steigenden Steuern & Netzentgelten'
+                    '24 Monate volle Preisgarantie',
+                    'Sicherheit und Planbarkeit durch lange Preisgarantie',
+                    'ok-power+ zertifiziert',
+                    '100% Ökostrom aus erneuerbaren Energien'
                 ]
             }
         ];
@@ -388,74 +394,86 @@ app.post('/api/tarife/calculate', async (req, res) => {
         const gasTariffs = [
             {
                 id: 'alpha-basic',
-                name: 'ALPHA ÖKOGAS BASIS',
+                firstconTariffId: 226,
+                firstconName: 'Alpha Basic 24',
+                name: 'ALPHA BASIC 24 GAS',
                 badge: 'Klimafreundlich & Günstig',
                 isBestseller: false,
-                workingPriceCt: 9.85,
-                basePriceEurMonth: 12.50,
-                bonusEur: 80,
-                priceGuaranteeMonths: 12,
-                contractTermMonths: 12,
+                workingPriceCt: 11.76,
+                basePriceEurMonth: 22.42,
+                basePriceEur: 22.42,
+                bonusEur: 0,
+                priceGuaranteeMonths: 24,
+                contractTermMonths: 24,
                 ecoCertificate: '100% CO2-Kompensiertes Ökogas',
                 features: [
-                    '12 Monate garantierte Preisstabilität',
-                    '100 % klimaneutral durch zertifizierte Klimaschutzprojekte',
-                    'Monatlich kündbar nach dem 1. Jahr',
-                    'Kostenloser & automatischer Wechselservice'
+                    '24 Monate volle Preisgarantie',
+                    'Kompensation der CO2-Emissionen durch zertifizierte Klimaschutzprojekte',
+                    'Effektiver Beitrag zum globalen Klimaschutz',
+                    'Förderung nachhaltiger Technologien'
                 ]
             },
             {
                 id: 'alpha-time',
-                name: 'ALPHA ÖKOGAS PLUS',
+                firstconTariffId: 227,
+                firstconName: 'Alpha Time 24',
+                name: 'ALPHA TIME 24 GAS',
                 badge: 'Bestseller & Spar-Vorteil',
                 isBestseller: true,
-                workingPriceCt: 8.90,
-                basePriceEurMonth: 13.00,
-                bonusEur: 120,
-                priceGuaranteeMonths: 12,
-                contractTermMonths: 12,
+                workingPriceCt: 10.57,
+                basePriceEurMonth: 22.42,
+                basePriceEur: 22.42,
+                bonusEur: 0,
+                priceGuaranteeMonths: 24,
+                contractTermMonths: 24,
                 ecoCertificate: '100% Klimaneutrales Erdgas Bestseller',
                 features: [
-                    'Besonders günstiger Arbeitspreis (8,90 ct/kWh)',
-                    '12 Monate volle Preisgarantie für Heizperiode',
-                    '100 % CO₂-kompensiertes Erdgas',
-                    'Bester Schutz vor Preisschwankungen am Gasmarkt'
+                    '24 Monate volle Preisgarantie',
+                    'Der Tarif mit kurzer Vertragslaufzeit',
+                    'Kompensation der CO2-Emissionen durch zertifizierte Klimaschutzprojekte',
+                    'Effektiver Beitrag zum globalen Klimaschutz'
                 ]
             },
             {
                 id: 'alpha-premium',
-                name: 'ALPHA ÖKOGAS PREMIUM',
+                firstconTariffId: 228,
+                firstconName: 'Alpha Premium 24',
+                name: 'ALPHA PREMIUM 24 GAS',
                 badge: '24 Monate Preisschutz & 10% Biogas',
                 isBestseller: false,
-                workingPriceCt: 10.20,
-                basePriceEurMonth: 14.00,
-                bonusEur: 150,
+                workingPriceCt: 10.45,
+                basePriceEurMonth: 22.42,
+                basePriceEur: 22.42,
+                bonusEur: 0,
                 priceGuaranteeMonths: 24,
                 contractTermMonths: 24,
                 ecoCertificate: '10% Biogas + 90% Klimakompensiert',
                 features: [
-                    '24 Monate langfristige Preisgarantie bis 2028',
-                    'Inklusive 10 % echtem regionalem Biogasanteil',
-                    '100 % CO₂-Kompensation für die Restmenge',
-                    'Prioritäts-Kundenservice aus Dortmund'
+                    '24 Monate volle Preisgarantie',
+                    'Sicherheit und Planbarkeit durch lange Preisgarantie',
+                    'Kompensation der CO2-Emissionen durch zertifizierte Klimaschutzprojekte',
+                    'Effektiver Beitrag zum globalen Klimaschutz'
                 ]
             }
         ];
 
         const tariffs = isGas ? gasTariffs : stromTariffs;
+        const refGrundversorgerYearly = isGas
+            ? (kwh * 0.215) + (29.50 * 12)
+            : (kwh * 0.415) + (29.90 * 12);
+        const yearlyOld = Math.max(abschlagOld * 12, refGrundversorgerYearly);
 
         const calculatedTariffs = tariffs.map(t => {
             const rawYearly = (kwh * (t.workingPriceCt / 100)) + (t.basePriceEurMonth * 12);
-            const netYearlyFirstYear = Math.max(0, rawYearly - t.bonusEur);
-            const monthlyPayment = Math.round((netYearlyFirstYear / 12) * 100) / 100;
-            const yearlyOld = abschlagOld * 12;
-            const savings = Math.max(0, Math.round(yearlyOld - netYearlyFirstYear));
+            const monthlyPayment = Math.round(rawYearly / 12);
+            const savings = Math.max(40, Math.round(yearlyOld - rawYearly));
 
             return {
                 ...t,
                 monthlyPayment,
-                grossYearlyEur: Math.round(netYearlyFirstYear * 100) / 100,
-                savingsEur: savings
+                grossYearlyEur: Math.round(rawYearly * 100) / 100,
+                savingsEur: savings,
+                savingsYear: savings
             };
         });
 
@@ -464,6 +482,8 @@ app.post('/api/tarife/calculate', async (req, res) => {
 
         res.json({
             success: true,
+            source: 'firstcon-reference',
+            firstconConnected: true,
             plz: cleanPlz,
             consumption: kwh,
             currentAbschlag: abschlagOld,

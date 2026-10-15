@@ -151,11 +151,44 @@ async function findEnergyGrid(plz, branch = 'strom', token) {
 
     const grids = res.data;
     const primary = grids[0];
+    let resolvedGridNo = primary.EnergyGridNumber || '';
+    const resolvedZip = primary.ZipCode || cleanPlz;
+    const resolvedCity = primary.City || '';
+
+    // When CountOfGrids > 1 (e.g., Berlin 10115, Köln 50667, München 80331), FindEnergyGrid returns EnergyGridNumber: null.
+    // Resolve the primary EnergyGridNumber via /Tariff/GetStreets.
+    if (!resolvedGridNo && resolvedCity) {
+        const streetsRes = await firstconRequest('POST', '/Tariff/GetStreets', {
+            token,
+            data: {
+                EnergyCategoryId: energyCategoryId,
+                ZipCode: resolvedZip,
+                City: resolvedCity
+            }
+        });
+        if (streetsRes.status === 200 && Array.isArray(streetsRes.data) && streetsRes.data.length > 0) {
+            const firstWithGrid = streetsRes.data.find(s => s && s.EnergyGridNumber);
+            if (firstWithGrid) {
+                resolvedGridNo = firstWithGrid.EnergyGridNumber;
+            }
+            const namedStreets = streetsRes.data
+                .map(item => item && item.Street ? String(item.Street).trim() : '')
+                .filter(Boolean);
+            if (namedStreets.length > 0 && resolvedGridNo) {
+                const uniqueStreets = [...new Set(namedStreets)];
+                streetsCache.set(`${energyCategoryId}:${resolvedZip}:${resolvedGridNo}`, {
+                    data: uniqueStreets,
+                    expiresAt: now + 60 * 60 * 1000
+                });
+            }
+        }
+    }
+
     const result = {
         energyCategoryId,
-        zipCode: primary.ZipCode || cleanPlz,
-        city: primary.City || '',
-        energyGridNumber: primary.EnergyGridNumber || '',
+        zipCode: resolvedZip,
+        city: resolvedCity,
+        energyGridNumber: resolvedGridNo,
         countOfGrids: primary.CountOfGrids || grids.length,
         grids
     };
@@ -279,10 +312,14 @@ async function calculateLiveTariffs({ plz, consumption, currentAbschlag, branch 
     const cleanPlz = String(plz || '44379').replace(/\D/g, '').slice(0, 5) || '44379';
 
     // 1. Resolve grid and tariffs in parallel
-    const [gridInfo, fcTariffs] = await Promise.all([
+    let [gridInfo, fcTariffs] = await Promise.all([
         findEnergyGrid(cleanPlz, branch, token),
         getFirstconTariffs(branch, token)
     ]);
+
+    if ((!gridInfo || !gridInfo.energyGridNumber) && cleanPlz !== '44379') {
+        gridInfo = await findEnergyGrid('44379', branch, token);
+    }
 
     if (!gridInfo || !gridInfo.energyGridNumber || !fcTariffs || fcTariffs.length === 0) {
         return null;
@@ -321,39 +358,39 @@ async function calculateLiveTariffs({ plz, consumption, currentAbschlag, branch 
 
     const slotMetadata = isGas ? {
         'alpha-basic': {
-            name: 'ALPHA ÖKOGAS BASIS',
+            name: 'ALPHA BASIC 24 GAS',
             badge: 'Klimafreundlich & Günstig',
             isBestseller: false,
             ecoCertificate: '100% CO2-Kompensiertes Ökogas'
         },
         'alpha-time': {
-            name: 'ALPHA ÖKOGAS PLUS',
+            name: 'ALPHA TIME 24 GAS',
             badge: 'Bestseller & Spar-Vorteil',
             isBestseller: true,
             ecoCertificate: '100% Klimaneutrales Erdgas Bestseller'
         },
         'alpha-premium': {
-            name: 'ALPHA ÖKOGAS PREMIUM',
+            name: 'ALPHA PREMIUM 24 GAS',
             badge: '24 Monate Preisschutz & 10% Biogas',
             isBestseller: false,
             ecoCertificate: '10% Biogas + 90% Klimakompensiert'
         }
     } : {
         'alpha-basic': {
-            name: 'ALPHA BASIC',
+            name: 'ALPHA BASIC 24',
             badge: 'Flexibel & Günstig',
             isBestseller: false,
             ecoCertificate: '100% Ökostrom (ok-power+ Kriterien)'
         },
         'alpha-time': {
-            name: 'ALPHA ÖKOSTROM PLUS',
+            name: 'ALPHA TIME 24',
             badge: 'Bestseller & Spar-Vorteil',
             isBestseller: true,
             ecoCertificate: '100% Zertifizierter Ökostrom (ok-power)'
         },
         'alpha-premium': {
-            name: 'ALPHA PREMIUM',
-            badge: '24 Monate Preisschutz & VIP-Service',
+            name: 'ALPHA PREMIUM 24',
+            badge: '24 Monate Preisschutz & VIP',
             isBestseller: false,
             ecoCertificate: '100% Ökostrom mit ok-power+ Neuanlagenförderung'
         }
@@ -416,6 +453,7 @@ async function calculateLiveTariffs({ plz, consumption, currentAbschlag, branch 
             workingPriceCt,
             workingPriceNetCt: Number(price.PricePerUnitNet) || 0,
             basePriceEurMonth,
+            basePriceEur: basePriceEurMonth,
             basePriceYearGross: Number(price.PriceBasicPerYearGross) || 0,
             bonusEur: Number(fcTariff.BonusAmount) || 0,
             priceGuaranteeMonths: Number(fcTariff.PriceGuaranteeDuration) || 24,
@@ -426,7 +464,8 @@ async function calculateLiveTariffs({ plz, consumption, currentAbschlag, branch 
             totalPricePerMonthGross: Number(price.TotalPricePerMonthGross) || monthlyPayment,
             grossYearlyEur: Math.round(grossYearlyEur * 100) / 100,
             netYearlyEur: Number(price.TotalPricePerYearNet) || 0,
-            savingsEur
+            savingsEur,
+            savingsYear: savingsEur
         });
     }
 
