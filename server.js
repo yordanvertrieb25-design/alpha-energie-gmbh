@@ -31,6 +31,9 @@ const {
     calculateRlmTariffs,
     resolveDeliveryAddress,
     getRlmPortalOptions,
+    createVpPortalOffer,
+    generateVpOrderDocuments,
+    getVpPortalOrders,
     ensureFreshVpSession,
     saveCookiesToDisk
 } = require('./services/rlmTariffService');
@@ -535,76 +538,212 @@ app.get('/api/b2b/rlm-tarife/options', async (req, res) => {
     }
 });
 
-// Submit / Return selected B2B/RLM tariff & customer data from external portal back to Alpha Energie
+// Submit / Create Offer ("Bei Angebotserstellung" & "Tarifabschluss"):
+// Automatically calculates RLM/SLP tariffs & Abschläge in vp.alpha-energie.de, creates the offer in the RLM portal,
+// plays all customer & tariff data back to Alpha Energie, and returns the complete offer package + PDFs.
 async function handleRlmLeadSubmit(req, res) {
+    const startTime = Date.now();
     try {
         const body = req.body || {};
+        const isOfferRoute = req.path.includes('offer') || req.path.includes('angebot');
+        const isOffer = body.isOffer !== undefined ? Boolean(body.isOffer) : (isOfferRoute || body.mode === 'offer' || body.type === 'offer' || true);
 
-        // If external portal didn't pre-calculate the tariff or wants live verification, calculate on the fly
+        // 1. Live Tariff Calculation & Selection in the RLM Portal (if not pre-calculated or to get all runtime variants)
         let matchedTariff = body.selectedTariff || null;
-        if (!matchedTariff && (body.plz || body.zip) && (body.consumption || body.verbrauch)) {
+        let allCalculatedTariffs = [];
+        let drittkostenOverview = null;
+        let resolvedQuery = null;
+
+        if (!matchedTariff || body.recalculate !== false) {
             try {
-                const calcResult = await calculateRlmTariffs(body);
+                const calcResult = await calculateRlmTariffs({
+                    ...body,
+                    plz: body.plz || body.zip || (body.deliveryAddress && (body.deliveryAddress.plz || body.deliveryAddress.zip)) || '44379',
+                    city: body.city || body.ort || (body.deliveryAddress && body.deliveryAddress.city),
+                    street: body.street || body.strasse || (body.deliveryAddress && body.deliveryAddress.street),
+                    houseNumber: body.houseNr || body.houseNumber || body.hausnummer || (body.deliveryAddress && (body.deliveryAddress.houseNr || body.deliveryAddress.houseNumber)) || '1',
+                    consumption: body.consumption || body.verbrauch || body.jahresverbrauch || 100000
+                });
                 if (calcResult && Array.isArray(calcResult.tariffs) && calcResult.tariffs.length > 0) {
-                    matchedTariff = calcResult.tariffs.find(t =>
-                        (body.tariffId && (t.id === body.tariffId || t.tariffId === body.tariffId)) ||
-                        (body.contractDurationMonths && Number(t.contractDurationMonths) === Number(body.contractDurationMonths))
-                    ) || calcResult.tariffs[0];
+                    allCalculatedTariffs = calcResult.tariffs;
+                    drittkostenOverview = calcResult.drittkostenOverview || null;
+                    resolvedQuery = calcResult.query || null;
+                    if (!matchedTariff) {
+                        matchedTariff = calcResult.tariffs.find(t =>
+                            (body.tariffId && (t.id === body.tariffId || t.tariffId === body.tariffId)) ||
+                            (body.contractDurationMonths && Number(t.contractDurationMonths) === Number(body.contractDurationMonths)) ||
+                            (body.laufzeit && Number(t.contractDurationMonths) === Number(body.laufzeit))
+                        ) || calcResult.tariffs.find(t => t.isRecommended) || calcResult.tariffs[0];
+                    }
                 }
             } catch (calcErr) {
-                console.warn('[RLM-API] Could not auto-enrich tariff on submit:', calcErr.message);
+                console.warn('[RLM-API] Could not auto-calculate tariff during offer/submit:', calcErr.message);
             }
         }
 
-        const orderNumber = 'RLM-' + new Date().getFullYear() + '-' + Math.floor(100000 + Math.random() * 900000);
+        const randDigits = Math.floor(100000 + Math.random() * 900000);
+        const yearStr = new Date().getFullYear();
+        const offerNumber = `ANG-${yearStr}-${randDigits}`;
+        const orderNumber = `RLM-${yearStr}-${randDigits}`;
+
         const branch = String(body.branch || body.sparte || (matchedTariff && matchedTariff.branch) || 'strom').toLowerCase();
         const measurement = String(body.measurement || body.messung || (matchedTariff && matchedTariff.measurement) || 'RLM').toUpperCase();
         const consumption = parseInt(body.consumption || body.verbrauch || body.jahresverbrauch || 100000, 10) || 100000;
-        const peakLoad = parseInt(body.peakLoad || body.leistungKw || body.jahreshoechstleistung || 0, 10) || null;
-        const usageHours = parseInt(body.usageHours || body.benutzungsstunden || 0, 10) || null;
+        const peakLoad = parseInt(body.peakLoad || body.leistungKw || body.jahreshoechstleistung || (resolvedQuery && resolvedQuery.peakLoad) || 0, 10) || null;
+        const usageHours = parseInt(body.usageHours || body.benutzungsstunden || (resolvedQuery && resolvedQuery.usageHours) || 0, 10) || null;
         const gridLayer = body.gridLayer || body.netzebene || body.druckstufe || (matchedTariff && matchedTariff.gridLayer) || 'LOW';
-        const deliveryStart = body.deliveryStart || body.lieferbeginn || (matchedTariff && matchedTariff.deliveryFrom) || null;
+        const deliveryStart = body.deliveryStart || body.lieferbeginn || (matchedTariff && matchedTariff.deliveryFrom) || '2027-01-01';
+        const deliveryTo = (matchedTariff && matchedTariff.deliveryTo) || null;
 
         const tariffId = body.tariffId || (matchedTariff && matchedTariff.id) || 'rlm-custom';
+        const productId = body.productId || (matchedTariff && matchedTariff.productId) || (branch === 'gas' ? 1574 : 1573);
         const tariffName = body.tariffName || (matchedTariff && matchedTariff.name) || 'B2B RLM Sondertarif';
         const providerName = body.providerName || (matchedTariff && matchedTariff.providerName) || 'Alpha Energie Partner';
-        const contractDurationMonths = parseInt(body.contractDurationMonths || (matchedTariff && matchedTariff.contractDurationMonths) || 12, 10);
+        const contractDurationMonths = parseInt(body.contractDurationMonths || body.laufzeit || (matchedTariff && matchedTariff.contractDurationMonths) || 12, 10);
 
+        const workingPriceEnergyBaseCtNetto = parseFloat(body.workingPriceEnergyBaseCtNetto ?? (matchedTariff && matchedTariff.workingPriceEnergyBaseCtNetto) ?? 0);
+        const surchargeCt = parseFloat(body.surchargeCt ?? body.aufschlagCt ?? (matchedTariff && matchedTariff.surchargeCtNetto) ?? 0);
         const workingPriceEnergyCtNetto = parseFloat(body.workingPriceEnergyCtNetto ?? body.workingPriceCt ?? (matchedTariff && matchedTariff.workingPriceEnergyCtNetto) ?? 0);
+        const workingPriceDrittkostenCtNetto = parseFloat(body.workingPriceDrittkostenCtNetto ?? (matchedTariff && matchedTariff.workingPriceDrittkostenCtNetto) ?? 0);
         const workingPriceTotalCtNetto = parseFloat(body.workingPriceTotalCtNetto ?? (matchedTariff && matchedTariff.workingPriceTotalCtNetto) ?? workingPriceEnergyCtNetto);
+        const workingPriceTotalCtBrutto = parseFloat(body.workingPriceTotalCtBrutto ?? (matchedTariff && matchedTariff.workingPriceTotalCtBrutto) ?? Math.round(workingPriceTotalCtNetto * 1.19 * 10000) / 10000);
         const basePriceMonthlyNetto = parseFloat(body.basePriceEnergyMonthlyNetto ?? body.basePriceEurMonth ?? (matchedTariff && matchedTariff.basePriceEnergyMonthlyNetto) ?? 0);
+        const drittkostenYearlyNetto = parseFloat(body.drittkostenYearlyNetto ?? (matchedTariff && matchedTariff.drittkostenYearlyNetto) ?? 0);
 
         const totalYearlyNetto = parseFloat(body.totalYearlyNetto ?? body.netYearlyEur ?? (matchedTariff && matchedTariff.totalYearlyNetto) ?? 0);
         const totalYearlyBrutto = parseFloat(body.totalYearlyBrutto ?? body.grossYearlyEur ?? (matchedTariff && matchedTariff.totalYearlyBrutto) ?? 0);
 
         const abschlagMonthlyNetto = parseFloat(body.abschlagMonthlyNetto ?? body.monthlyPaymentNetto ?? body.monthlyPayment ?? (matchedTariff && matchedTariff.abschlagMonthlyNetto) ?? 0);
         const abschlagMonthlyBrutto = parseFloat(body.abschlagMonthlyBrutto ?? body.monthlyPaymentBrutto ?? (matchedTariff && matchedTariff.abschlagMonthlyBrutto) ?? Math.round(abschlagMonthlyNetto * 1.19 * 100) / 100);
+        const abschlag11MonthlyNetto = parseFloat(body.abschlag11MonthlyNetto ?? (matchedTariff && matchedTariff.abschlag11MonthlyNetto) ?? (totalYearlyNetto ? Math.round((totalYearlyNetto / 11) * 100) / 100 : 0));
+        const abschlag11MonthlyBrutto = parseFloat(body.abschlag11MonthlyBrutto ?? (matchedTariff && matchedTariff.abschlag11MonthlyBrutto) ?? Math.round(abschlag11MonthlyNetto * 1.19 * 100) / 100);
         const savingsYearlyNetto = parseFloat(body.savingsYearlyNetto ?? body.savings ?? (matchedTariff && matchedTariff.savingsYearlyNetto) ?? 0);
 
         // Customer & Company fields
         const companyName = String(body.companyName || body.firma || body.unternehmen || '').trim();
-        const legalForm = String(body.legalForm || body.rechtsform || '').trim();
-        const salutation = String(body.salutation || body.anrede || '').trim();
+        const legalForm = String(body.legalForm || body.rechtsform || 'GmbH').trim();
+        const salutation = String(body.salutation || body.anrede || 'Herr').trim();
         const firstName = String(body.firstName || body.vorname || (body.contactName ? String(body.contactName).split(' ')[0] : '') || companyName || 'Gewerbekunde').trim();
         const lastName = String(body.lastName || body.nachname || (body.contactName ? String(body.contactName).split(' ').slice(1).join(' ') : '') || companyName || 'B2B').trim();
         const email = String(body.email || body.mail || '').trim();
         const phone = String(body.phone || body.telefon || body.tel || '').trim();
-        const street = String(body.street || body.strasse || '').trim();
-        const houseNr = String(body.houseNr || body.houseNumber || body.hausnummer || '').trim();
-        const plz = String(body.plz || body.zip || '').trim();
-        const city = String(body.city || body.ort || '').trim();
+        const plz = String(body.plz || body.zip || (resolvedQuery && resolvedQuery.address && resolvedQuery.address.zip) || '44379').trim();
+        const city = String(body.city || body.ort || (resolvedQuery && resolvedQuery.address && resolvedQuery.address.city) || '').trim();
+        const street = String(body.street || body.strasse || (resolvedQuery && resolvedQuery.address && resolvedQuery.address.street) || '').trim();
+        const houseNr = String(body.houseNr || body.houseNumber || body.hausnummer || (resolvedQuery && resolvedQuery.address && resolvedQuery.address.houseNumber) || '1').trim();
         const meterNumber = String(body.meterNumber || body.zaehlernummer || body.maloId || 'B2B-ANFRAGE').trim();
         const maloId = String(body.maloId || body.marktlokationsId || '').trim();
         const currentProvider = String(body.currentProvider || body.vorversorger || '').trim();
         const iban = String(body.iban || 'AUF-ANFRAGE').trim();
         const portalSource = String(body.portalSource || body.source || req.headers.origin || 'External B2B Portal').trim();
-        const partnerCode = String(body.partnerCode || body.affiliateCode || body.vermittler || '').trim();
+        const partnerCode = String(body.partnerCode || body.affiliateCode || body.vermittler || '10011').trim();
         const notes = String(body.notes || body.bemerkung || body.message || '').trim();
 
-        const leadRecord = {
+        // 2. Create Offer / Documents in RLM Portal (`vp.alpha-energie.de`) if enabled
+        let vpPortalResult = { vpOrderId: null, vpOrderNumber: null, documents: [], vpPortalError: null };
+        const shouldGenerateDocs = body.generateDocuments !== undefined ? Boolean(body.generateDocuments) : Boolean(body.includePdf || body.withDocuments);
+        if (body.syncToVpPortal !== false) {
+            try {
+                vpPortalResult = await createVpPortalOffer(
+                    {
+                        ...body,
+                        companyName: companyName || `${firstName} ${lastName}`,
+                        legalForm,
+                        salutation,
+                        firstName,
+                        lastName,
+                        email: email || 'b2b@alpha-energie.de',
+                        phone,
+                        plz,
+                        city,
+                        street,
+                        houseNumber: houseNr,
+                        branch,
+                        measurement,
+                        consumption,
+                        peakLoad,
+                        usageHours,
+                        gridLayer,
+                        deliveryStart,
+                        contractDurationMonths,
+                        productId,
+                        surchargeCt,
+                        meterNumber: meterNumber !== 'B2B-ANFRAGE' ? meterNumber : '',
+                        maloId,
+                        isOffer: true,
+                        generateDocuments: shouldGenerateDocs
+                    },
+                    matchedTariff
+                );
+            } catch (vpErr) {
+                console.warn('[RLM-API] VP portal offer creation warning:', vpErr.message);
+            }
+        }
+
+        const finalCity = city || (vpPortalResult.resolvedAddress && vpPortalResult.resolvedAddress.city) || '';
+        const finalStreet = street || (vpPortalResult.resolvedAddress && vpPortalResult.resolvedAddress.street) || '';
+        const validUntil = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
+
+        const offerSummary = {
+            offerNumber,
             orderNumber,
+            vpOrderId: vpPortalResult.vpOrderId,
+            vpOrderNumber: vpPortalResult.vpOrderNumber,
             createdAt: new Date().toISOString(),
-            status: 'RECEIVED',
+            validUntil,
+            type: isOffer ? 'ANGEBOT' : 'AUFTRAG',
+            customer: {
+                companyName: companyName || `${firstName} ${lastName}`,
+                legalForm,
+                contactPerson: `${salutation} ${firstName} ${lastName}`.trim(),
+                email,
+                phone,
+                deliveryAddress: `${finalStreet} ${houseNr}, ${plz} ${finalCity}`.trim()
+            },
+            supplyData: {
+                branch: branch.toUpperCase(),
+                measurement,
+                gridLayer,
+                consumptionKwh: consumption,
+                peakLoadKw: peakLoad,
+                usageHours,
+                deliveryStart,
+                deliveryTo,
+                contractDurationMonths,
+                meterNumber: meterNumber !== 'B2B-ANFRAGE' ? meterNumber : null,
+                maloId: maloId || null
+            },
+            pricing: {
+                tariffId,
+                tariffName,
+                providerName,
+                workingPriceEnergyBaseCtNetto,
+                surchargeCtNetto: surchargeCt,
+                workingPriceEnergyCtNetto,
+                workingPriceDrittkostenCtNetto,
+                workingPriceTotalCtNetto,
+                workingPriceTotalCtBrutto,
+                basePriceMonthlyNetto,
+                drittkostenYearlyNetto,
+                totalYearlyNetto,
+                totalYearlyBrutto,
+                abschlagMonthlyNetto,
+                abschlagMonthlyBrutto,
+                abschlag11MonthlyNetto,
+                abschlag11MonthlyBrutto,
+                savingsYearlyNetto
+            }
+        };
+
+        const leadRecord = {
+            offerNumber,
+            orderNumber,
+            vpOrderId: vpPortalResult.vpOrderId,
+            vpOrderNumber: vpPortalResult.vpOrderNumber,
+            createdAt: new Date().toISOString(),
+            validUntil,
+            recordType: isOffer ? 'OFFER' : 'ORDER',
+            status: isOffer ? 'OFFER_CREATED' : 'RECEIVED',
             portalSource,
             partnerCode,
             company: {
@@ -618,10 +757,10 @@ async function handleRlmLeadSubmit(req, res) {
                 iban
             },
             deliveryAddress: {
-                street,
+                street: finalStreet,
                 houseNr,
                 plz,
-                city
+                city: finalCity
             },
             technicalData: {
                 branch,
@@ -631,30 +770,39 @@ async function handleRlmLeadSubmit(req, res) {
                 usageHours,
                 gridLayer,
                 deliveryStart,
+                deliveryTo,
                 meterNumber,
                 maloId,
                 currentProvider
             },
             tariffSelection: {
                 tariffId,
+                productId,
                 tariffName,
                 providerName,
                 contractDurationMonths,
+                workingPriceEnergyBaseCtNetto,
+                surchargeCt,
                 workingPriceEnergyCtNetto,
+                workingPriceDrittkostenCtNetto,
                 workingPriceTotalCtNetto,
+                workingPriceTotalCtBrutto,
                 basePriceMonthlyNetto,
+                drittkostenYearlyNetto,
                 totalYearlyNetto,
                 totalYearlyBrutto,
                 abschlagMonthlyNetto,
                 abschlagMonthlyBrutto,
-                savingsYearlyNetto,
-                surchargeCt: parseFloat(body.surchargeCt ?? body.aufschlagCt ?? (matchedTariff && matchedTariff.surchargeCtNetto) ?? 0)
+                abschlag11MonthlyNetto,
+                abschlag11MonthlyBrutto,
+                savingsYearlyNetto
             },
+            documents: vpPortalResult.documents || [],
             notes,
             rawMatchedTariff: matchedTariff
         };
 
-        // 1. Persist complete record in data/b2b_rlm_leads.json
+        // 3. Persist complete record in data/b2b_rlm_leads.json and data/b2b_rlm_offers.json
         try {
             const leadsFile = path.join(__dirname, 'data', 'b2b_rlm_leads.json');
             fs.mkdirSync(path.dirname(leadsFile), { recursive: true });
@@ -663,26 +811,33 @@ async function handleRlmLeadSubmit(req, res) {
                 : [];
             existingLeads.unshift(leadRecord);
             fs.writeFileSync(leadsFile, JSON.stringify(existingLeads, null, 2), 'utf8');
+
+            const offersFile = path.join(__dirname, 'data', 'b2b_rlm_offers.json');
+            const existingOffers = fs.existsSync(offersFile)
+                ? JSON.parse(fs.readFileSync(offersFile, 'utf8') || '[]')
+                : [];
+            existingOffers.unshift(leadRecord);
+            fs.writeFileSync(offersFile, JSON.stringify(existingOffers, null, 2), 'utf8');
         } catch (fileErr) {
-            console.warn('[RLM-API] Could not write to b2b_rlm_leads.json:', fileErr.message);
+            console.warn('[RLM-API] Could not write to b2b_rlm_leads/offers.json:', fileErr.message);
         }
 
-        // 2. Save in Prisma EnergyOrder + ContactRequest so it appears in the Admin Dashboard
+        // 4. Save in Prisma EnergyOrder + ContactRequest so it appears immediately in the Alpha Energie Admin Dashboard
         let dbOrder = null;
         try {
             dbOrder = await prisma.energyOrder.create({
                 data: {
-                    orderNumber,
+                    orderNumber: isOffer ? offerNumber : orderNumber,
                     tariffId,
-                    tariffName: companyName ? `${tariffName} (${companyName})` : tariffName,
+                    tariffName: companyName ? `[ANGEBOT] ${tariffName} (${companyName})` : `[ANGEBOT] ${tariffName}`,
                     branch,
                     consumption,
                     monthlyPayment: abschlagMonthlyNetto || 0,
                     savings: savingsYearlyNetto || null,
-                    street: street || '-',
+                    street: finalStreet || '-',
                     houseNr: houseNr || '-',
                     plz: plz || '-',
-                    city: city || '-',
+                    city: finalCity || '-',
                     meterNumber,
                     currentProvider: currentProvider || null,
                     cancelOldContract: body.cancelOldContract !== false,
@@ -693,7 +848,7 @@ async function handleRlmLeadSubmit(req, res) {
                     email: email || 'b2b@alpha-energie.de',
                     phone: phone || '-',
                     iban,
-                    status: 'RECEIVED'
+                    status: isOffer ? 'OFFER_CREATED' : 'RECEIVED'
                 }
             });
 
@@ -702,15 +857,17 @@ async function handleRlmLeadSubmit(req, res) {
                     name: companyName ? `${companyName} (${firstName} ${lastName})` : `${firstName} ${lastName}`,
                     phone: phone || '',
                     email: email || 'b2b@alpha-energie.de',
-                    subject: `B2B/RLM Tarifabschluss [${orderNumber}] – ${tariffName} (${consumption.toLocaleString('de-DE')} kWh)`,
+                    subject: `B2B/RLM Angebotserstellung [${offerNumber}] – ${tariffName} (${consumption.toLocaleString('de-DE')} kWh)`,
                     message: `Quelle: ${portalSource}${partnerCode ? ` | Partner: ${partnerCode}` : ''}\n` +
+                        `Angebots-Nr.: ${offerNumber}${vpPortalResult.vpOrderNumber ? ` | RLM-Portal-Nr.: ${vpPortalResult.vpOrderNumber}` : ''}\n` +
                         `Sparte: ${branch.toUpperCase()} (${measurement}) | Verbrauch: ${consumption.toLocaleString('de-DE')} kWh${peakLoad ? ` | Leistung: ${peakLoad} kW` : ''}\n` +
                         `Tarif: ${tariffName} (${providerName}, ${contractDurationMonths}M)\n` +
                         `Arbeitspreis Energie: ${workingPriceEnergyCtNetto} ct/kWh (Gesamt inkl. Netz/Umlagen: ${workingPriceTotalCtNetto} ct/kWh)\n` +
                         `Grundpreis: ${basePriceMonthlyNetto} €/Monat\n` +
-                        `Monatlicher Abschlag: ${abschlagMonthlyNetto} € Netto (${abschlagMonthlyBrutto} € Brutto)\n` +
+                        `Monatlicher Abschlag (12x): ${abschlagMonthlyNetto} € Netto (${abschlagMonthlyBrutto} € Brutto)\n` +
+                        `Monatlicher Abschlag (11x): ${abschlag11MonthlyNetto} € Netto (${abschlag11MonthlyBrutto} € Brutto)\n` +
                         `Jahresgesamtkosten: ${totalYearlyNetto} € Netto (${totalYearlyBrutto} € Brutto)\n` +
-                        `Lieferadresse: ${street} ${houseNr}, ${plz} ${city}\n` +
+                        `Lieferadresse: ${finalStreet} ${houseNr}, ${plz} ${finalCity}\n` +
                         `Zähler/MaLo: ${meterNumber}${maloId ? ` / ${maloId}` : ''}\n` +
                         (notes ? `Notiz: ${notes}` : '')
                 }
@@ -719,26 +876,26 @@ async function handleRlmLeadSubmit(req, res) {
             console.warn('[RLM-API] Database save warning:', dbErr.message);
         }
 
-        // 3. Send notification email to Alpha Energie & confirmation to customer
+        // 5. Send notification email to Alpha Energie & confirmation to customer
         try {
             const transporter = typeof getMailTransporter === 'function' ? getMailTransporter() : null;
             if (transporter) {
                 const adminEmail = process.env.NOTIFICATION_EMAIL || 'info@alpha-energie.de';
                 const summaryHtml = `
                     <div style="font-family: Arial, sans-serif; color: #1e293b; max-width: 650px; margin: 0 auto; padding: 24px; border: 1px solid #e2e8f0; border-radius: 10px;">
-                        <h2 style="color: #0a1f44; margin-top: 0;">Neuer B2B / RLM Tarifabschluss (${orderNumber})</h2>
-                        <p>Über das externe B2B-Tarifrechner-Portal (<strong>${escapeHtml(portalSource)}</strong>) wurde ein neuer Tarif ausgewählt und übermittelt.</p>
+                        <h2 style="color: #0a1f44; margin-top: 0;">Neue B2B / RLM Angebotserstellung (${offerNumber})</h2>
+                        <p>Über das B2B-Tarifrechner-Portal (<strong>${escapeHtml(portalSource)}</strong>) wurde ein neues Angebot erstellt und an Alpha Energie zurückgespielt.</p>
                         <div style="background: #f8fafc; border-left: 4px solid #ff7a00; padding: 16px; margin: 20px 0;">
-                            <h3 style="margin: 0 0 10px 0; color: #0a1f44;">Gewählter Tarif & Abschläge</h3>
-                            <p style="margin: 4px 0;"><strong>Auftrags-Nr.:</strong> ${orderNumber}</p>
+                            <h3 style="margin: 0 0 10px 0; color: #0a1f44;">Berechneter Tarif & Abschläge</h3>
+                            <p style="margin: 4px 0;"><strong>Angebots-Nr.:</strong> ${offerNumber} (Auftrags-Ref: ${orderNumber})</p>
                             <p style="margin: 4px 0;"><strong>Tarif:</strong> ${escapeHtml(tariffName)} (${escapeHtml(providerName)})</p>
                             <p style="margin: 4px 0;"><strong>Laufzeit:</strong> ${contractDurationMonths} Monate${deliveryStart ? ` (Lieferbeginn: ${escapeHtml(deliveryStart)})` : ''}</p>
                             <p style="margin: 4px 0;"><strong>Sparte / Messung:</strong> ${escapeHtml(branch.toUpperCase())} / ${escapeHtml(measurement)} (Netzebene: ${escapeHtml(gridLayer)})</p>
                             <p style="margin: 4px 0;"><strong>Jahresverbrauch:</strong> ${consumption.toLocaleString('de-DE')} kWh${peakLoad ? ` | Spitzenlast: ${peakLoad} kW` : ''}</p>
                             <p style="margin: 4px 0;"><strong>Arbeitspreis Energie (Netto):</strong> ${workingPriceEnergyCtNetto} ct/kWh (All-In inkl. Netz/Abgaben: ${workingPriceTotalCtNetto} ct/kWh)</p>
                             <p style="margin: 4px 0;"><strong>Grundpreis (Netto):</strong> ${basePriceMonthlyNetto} €/Monat</p>
-                            <p style="margin: 8px 0 4px 0; font-size: 1.05rem; color: #0f172a;"><strong>Monatlicher Abschlag (Netto):</strong> ${abschlagMonthlyNetto.toLocaleString('de-DE', { minimumFractionDigits: 2 })} € / Monat</p>
-                            <p style="margin: 4px 0; font-size: 1.05rem; color: #0f172a;"><strong>Monatlicher Abschlag (Brutto inkl. 19% MwSt.):</strong> ${abschlagMonthlyBrutto.toLocaleString('de-DE', { minimumFractionDigits: 2 })} € / Monat</p>
+                            <p style="margin: 8px 0 4px 0; font-size: 1.05rem; color: #0f172a;"><strong>Monatlicher Abschlag (12x Netto):</strong> ${abschlagMonthlyNetto.toLocaleString('de-DE', { minimumFractionDigits: 2 })} € / Monat</p>
+                            <p style="margin: 4px 0; font-size: 1.05rem; color: #0f172a;"><strong>Monatlicher Abschlag (12x Brutto inkl. 19% MwSt.):</strong> ${abschlagMonthlyBrutto.toLocaleString('de-DE', { minimumFractionDigits: 2 })} € / Monat</p>
                             <p style="margin: 4px 0;"><strong>Jahresgesamtkosten:</strong> ${totalYearlyNetto.toLocaleString('de-DE', { minimumFractionDigits: 2 })} € Netto (${totalYearlyBrutto.toLocaleString('de-DE', { minimumFractionDigits: 2 })} € Brutto)</p>
                         </div>
                         <div style="background: #f1f5f9; padding: 16px; border-radius: 8px; margin: 20px 0;">
@@ -746,7 +903,7 @@ async function handleRlmLeadSubmit(req, res) {
                             ${companyName ? `<p style="margin: 4px 0;"><strong>Unternehmen:</strong> ${escapeHtml(companyName)} ${escapeHtml(legalForm)}</p>` : ''}
                             <p style="margin: 4px 0;"><strong>Ansprechpartner:</strong> ${escapeHtml(salutation)} ${escapeHtml(firstName)} ${escapeHtml(lastName)}</p>
                             <p style="margin: 4px 0;"><strong>E-Mail / Telefon:</strong> ${escapeHtml(email)} | ${escapeHtml(phone)}</p>
-                            <p style="margin: 4px 0;"><strong>Lieferadresse:</strong> ${escapeHtml(street)} ${escapeHtml(houseNr)}, ${escapeHtml(plz)} ${escapeHtml(city)}</p>
+                            <p style="margin: 4px 0;"><strong>Lieferadresse:</strong> ${escapeHtml(finalStreet)} ${escapeHtml(houseNr)}, ${escapeHtml(plz)} ${escapeHtml(finalCity)}</p>
                             <p style="margin: 4px 0;"><strong>Zählernummer / MaLo-ID:</strong> ${escapeHtml(meterNumber)} ${maloId ? `/ ${escapeHtml(maloId)}` : ''}</p>
                             ${partnerCode ? `<p style="margin: 4px 0;"><strong>Vertriebspartner-Code:</strong> ${escapeHtml(partnerCode)}</p>` : ''}
                             ${notes ? `<p style="margin: 4px 0;"><strong>Bemerkung:</strong> ${escapeHtml(notes)}</p>` : ''}
@@ -757,15 +914,15 @@ async function handleRlmLeadSubmit(req, res) {
                 transporter.sendMail({
                     from: getSenderEmail(),
                     to: adminEmail,
-                    subject: `B2B/RLM Tarifauswahl [${orderNumber}] – ${companyName || (firstName + ' ' + lastName)} (${consumption.toLocaleString('de-DE')} kWh)`,
+                    subject: `B2B/RLM Angebot [${offerNumber}] – ${companyName || (firstName + ' ' + lastName)} (${consumption.toLocaleString('de-DE')} kWh)`,
                     html: summaryHtml
                 }).catch(err => console.warn('[RLM-API] Admin notification email error:', err.message));
 
-                if (email && email.includes('@')) {
+                if (email && email.includes('@') && body.sendCustomerEmail !== false) {
                     transporter.sendMail({
                         from: getSenderEmail(),
                         to: email,
-                        subject: `Ihre B2B-Tarifzusammenfassung bei Alpha Energie (${orderNumber})`,
+                        subject: `Ihr B2B-Energieangebot von Alpha Energie (${offerNumber})`,
                         html: summaryHtml
                     }).catch(err => console.warn('[RLM-API] Customer confirmation email error:', err.message));
                 }
@@ -774,28 +931,88 @@ async function handleRlmLeadSubmit(req, res) {
             console.warn('[RLM-API] Email dispatch warning:', mailErr.message);
         }
 
+        // Optional callbackUrl/webhookUrl forwarding
+        const callbackUrl = body.callbackUrl || body.webhookUrl;
+        if (callbackUrl && typeof callbackUrl === 'string' && callbackUrl.startsWith('http')) {
+            fetch(callbackUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    event: 'rlm_offer_created',
+                    offerNumber,
+                    orderNumber,
+                    offerSummary,
+                    selectedTariff: matchedTariff || leadRecord.tariffSelection,
+                    tariffs: allCalculatedTariffs,
+                    documents: vpPortalResult.documents || [],
+                    lead: leadRecord
+                })
+            }).catch(err => console.warn('[RLM-API] Optional callbackUrl error:', err.message));
+        }
+
         res.status(201).json({
             success: true,
+            responseTimeMs: Date.now() - startTime,
+            offerNumber,
             orderNumber,
-            message: 'B2B/RLM Tarifauswahl und Kundendaten wurden erfolgreich an Alpha Energie übermittelt.',
+            vpOrderId: vpPortalResult.vpOrderId,
+            vpOrderNumber: vpPortalResult.vpOrderNumber,
+            validUntil,
+            message: 'B2B/RLM Angebot inkl. Tarifauswahl und Abschlägen erfolgreich erstellt und an Alpha Energie zurückgespielt.',
+            offerSummary,
+            selectedTariff: matchedTariff || leadRecord.tariffSelection,
+            tariffs: allCalculatedTariffs,
+            drittkostenOverview,
+            documents: vpPortalResult.documents || [],
+            offer: leadRecord,
             lead: leadRecord,
             dbOrderId: dbOrder ? dbOrder.id : null
         });
     } catch (error) {
-        console.error('[RLM-API] Lead submission error:', error);
+        console.error('[RLM-API] Offer/Lead submission error:', error);
         res.status(500).json({
             success: false,
-            error: 'Fehler bei der Übermittlung der B2B-Tarifauswahl: ' + error.message
+            error: 'Fehler bei der B2B/RLM-Angebotserstellung: ' + error.message
         });
     }
 }
+
+// Primary endpoints for Offer Creation ("Bei Angebotserstellung") & Lead/Order Submission
+app.post('/api/b2b/rlm-tarife/offer', handleRlmLeadSubmit);
+app.post('/api/b2b/rlm-tarife/angebot', handleRlmLeadSubmit);
+app.post('/api/b2b/rlm-tarife/create-offer', handleRlmLeadSubmit);
+app.post('/api/b2b/tarife/offer', handleRlmLeadSubmit);
+app.post('/api/rlm/offer', handleRlmLeadSubmit);
 
 app.post('/api/b2b/rlm-tarife/submit', handleRlmLeadSubmit);
 app.post('/api/b2b/rlm-tarife/lead', handleRlmLeadSubmit);
 app.post('/api/b2b/order/submit', handleRlmLeadSubmit);
 app.post('/api/rlm/submit', handleRlmLeadSubmit);
 
-// Retrieve submitted B2B/RLM leads
+// Generate official RLM Portal PDF documents ("Angebot.pdf" & "Auftragsformular.pdf") on demand
+app.post('/api/b2b/rlm-tarife/documents', async (req, res) => {
+    try {
+        const docs = await generateVpOrderDocuments(req.body || {});
+        res.json({ success: true, count: docs.length, documents: docs });
+    } catch (error) {
+        console.error('[RLM-API] Documents generation error:', error);
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+// Retrieve created B2B/RLM offers & leads
+app.get('/api/b2b/rlm-tarife/offers', async (req, res) => {
+    try {
+        const offersFile = path.join(__dirname, 'data', 'b2b_rlm_offers.json');
+        const offers = fs.existsSync(offersFile)
+            ? JSON.parse(fs.readFileSync(offersFile, 'utf8') || '[]')
+            : [];
+        res.json({ success: true, count: offers.length, offers });
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
 app.get('/api/b2b/rlm-tarife/leads', async (req, res) => {
     try {
         const leadsFile = path.join(__dirname, 'data', 'b2b_rlm_leads.json');
@@ -803,6 +1020,16 @@ app.get('/api/b2b/rlm-tarife/leads', async (req, res) => {
             ? JSON.parse(fs.readFileSync(leadsFile, 'utf8') || '[]')
             : [];
         res.json({ success: true, count: leads.length, leads });
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+// Retrieve live orders/offers directly from vp.alpha-energie.de
+app.get('/api/b2b/rlm-tarife/vp-orders', async (req, res) => {
+    try {
+        const orders = await getVpPortalOrders(req.query.limit || 20);
+        res.json({ success: true, ...orders });
     } catch (error) {
         res.status(500).json({ success: false, error: error.message });
     }

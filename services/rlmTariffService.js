@@ -1052,12 +1052,445 @@ async function getRlmPortalOptions(branch = 'strom') {
     return result;
 }
 
+/**
+ * Generate official RLM Portal PDF documents ("Angebot" & "Auftragsformular")
+ * via InvokeWorkflowAction(actionKey: "get-all-order-files").
+ */
+async function generateVpOrderDocuments({
+    orderId = '124',
+    productId = 1573,
+    salesNumber = 10011,
+    branch = 'strom',
+    businessSector = '36',
+    consumption = 100000,
+    contractOrderType = 'NEW',
+    deliveryStart = '2027-01-01',
+    loadProfile = '25',
+    loadProfileName = 'Standard',
+    companyName = 'Gewerbekunde',
+    legalForm = 'GmbH',
+    salutation = 'Herr',
+    firstName = 'Max',
+    lastName = 'Mustermann',
+    zip = '44379',
+    city = 'Dortmund',
+    street = 'Abboweg',
+    houseNumber = '11',
+    meterNumber = '',
+    maloId = ''
+} = {}) {
+    const isGas = String(branch).toLowerCase() === 'gas';
+    const productType = isGas ? 'SPECIAL_CONTRACT_GAS' : 'SPECIAL_CONTRACT_ELECTRICITY';
+    const cleanSalutation = ['Herr', 'Frau', 'Divers'].includes(salutation) ? salutation : 'Herr';
+
+    const input = {
+        productId: Number(productId) || (isGas ? 1574 : 1573),
+        orderId: String(orderId || '124'),
+        salesNumber: Number(salesNumber) || 10011,
+        productType,
+        productTypeFilter: {
+            businessSector: String(businessSector || (isGas ? '35' : '36')),
+            consumption: Number(consumption) || 100000,
+            contractOrderType: contractOrderType || 'NEW',
+            deliveryStart: String(deliveryStart || '2027-01-01').slice(0, 10),
+            loadProfile: String(loadProfile || (isGas ? '6' : '25')),
+            loadProfileName: String(loadProfileName || 'Standard'),
+            meterId: '',
+            meterSize: '',
+            meterTariff: '',
+            meterType: ''
+        },
+        contractDate: new Date().toISOString().slice(0, 10),
+        billingAddress: {
+            zip: String(zip || '44379'),
+            city: String(city || 'Dortmund'),
+            street: String(street || 'Abboweg'),
+            houseNumber: String(houseNumber || '11'),
+            receiver: {
+                company: String(companyName || 'Gewerbekunde'),
+                salutation: cleanSalutation,
+                firstName: String(firstName || 'Max'),
+                lastName: String(lastName || 'Mustermann'),
+                academicTitle: ''
+            }
+        },
+        deliveryAddress: {
+            zip: String(zip || '44379'),
+            city: String(city || 'Dortmund'),
+            street: String(street || 'Abboweg'),
+            houseNumber: String(houseNumber || '11'),
+            streetAndHouseNumber: `${street || 'Abboweg'} ${houseNumber || '11'}`.trim(),
+            zipAndCity: `${zip || '44379'} ${city || 'Dortmund'}`.trim()
+        },
+        company: {
+            legalForm: String(legalForm || 'GmbH'),
+            companyName: String(companyName || 'Gewerbekunde')
+        },
+        contactPerson: {
+            salutation: cleanSalutation,
+            firstName: String(firstName || 'Max'),
+            lastName: String(lastName || 'Mustermann'),
+            academicTitle: '',
+            fullName: `${firstName || 'Max'} ${lastName || 'Mustermann'}`.trim(),
+            dateOfBirth: ''
+        },
+        orderProductData: {
+            meterNumber: String(meterNumber || ''),
+            contractEnd: '',
+            marketLocationId: String(maloId || ''),
+            currentContractId: '',
+            ownerType: '',
+            reasonType: ''
+        }
+    };
+
+    const startRes = await vpGraphql(
+        'InvokeWorkflowAction',
+        `mutation InvokeWorkflowAction($actionKey: String!, $input: JSON, $mode: WorkflowActionInvocationMode) {
+            invokeWorkflowAction(actionKey: $actionKey, input: $input, mode: $mode) {
+                accepted
+                executionId
+                status
+                pollAfterMs
+                resultAvailable
+                pollToken
+            }
+        }`,
+        { actionKey: 'get-all-order-files', input }
+    );
+
+    const wf = startRes.data && startRes.data.invokeWorkflowAction;
+    if (!wf || (!wf.executionId && !wf.pollToken)) {
+        return [];
+    }
+
+    const pollDelay = Math.max(Number(wf.pollAfterMs) || 650, 400);
+    for (let attempt = 0; attempt < 15; attempt++) {
+        await new Promise(r => setTimeout(r, pollDelay));
+        const pollRes = await vpGraphql(
+            'WorkflowActionStatus',
+            `query WorkflowActionStatus($pollToken: String, $executionId: ID) {
+                workflowActionStatus(pollToken: $pollToken, executionId: $executionId) {
+                    executionId
+                    status
+                    errorMessage
+                    result
+                    pollAfterMs
+                }
+            }`,
+            { pollToken: wf.pollToken || null, executionId: wf.executionId || null }
+        );
+        const st = pollRes.data && pollRes.data.workflowActionStatus;
+        if (!st) continue;
+        if (st.status === 'COMPLETED' && st.result && Array.isArray(st.result.uploadedFiles)) {
+            return st.result.uploadedFiles.map(f => ({
+                id: f.objectId,
+                name: f.originalFilename || 'Dokument',
+                filename: (f.originalFilename || 'Dokument').endsWith('.pdf')
+                    ? f.originalFilename
+                    : `${f.originalFilename || 'Dokument'}.pdf`,
+                signedUrl: f.signedUrl && f.signedUrl.startsWith('http')
+                    ? f.signedUrl
+                    : `https://vp.alpha-energie.de${f.signedUrl || ''}`,
+                expiresInSeconds: f.expiresIn || 3600
+            }));
+        }
+        if (st.status === 'FAILED' || st.status === 'CANCELLED' || st.errorMessage) {
+            break;
+        }
+    }
+    return [];
+}
+
+/**
+ * Submit an official Offer ("Angebotserstellung", isOffer: true) or Order to the RLM Portal (`vp.alpha-energie.de`)
+ * via GraphQL mutation `AddOrderByProductOffer`.
+ */
+async function createVpPortalOffer(params = {}, matchedTariff = null) {
+    const isGas = String(params.branch || params.sparte || (matchedTariff && matchedTariff.branch) || 'strom').toLowerCase() === 'gas';
+    const productType = isGas ? 'SPECIAL_CONTRACT_GAS' : 'SPECIAL_CONTRACT_ELECTRICITY';
+    const measurement = String(params.measurement || params.messung || (matchedTariff && matchedTariff.measurement) || 'RLM').toUpperCase() === 'SLP' ? 'SLP' : 'RLM';
+    const consumption = parseInt(params.consumption || params.verbrauch || params.jahresverbrauch || 100000, 10) || 100000;
+    const peakLoad = measurement === 'RLM' ? (parseInt(params.peakLoad || params.leistungKw || params.jahreshoechstleistung || 32, 10) || 32) : null;
+    const usageHours = measurement === 'RLM'
+        ? (parseInt(params.usageHours || params.benutzungsstunden, 10) || Math.round(consumption / peakLoad))
+        : null;
+    const gridLayer = String(params.gridLayer || params.netzebene || params.druckstufe || (matchedTariff && matchedTariff.gridLayer) || 'LOW').toUpperCase();
+    const deliveryStart = String(params.deliveryStart || params.lieferbeginn || (matchedTariff && matchedTariff.deliveryFrom) || `${new Date().getFullYear() + 1}-01-01`).slice(0, 10);
+    const deliveryEnd = String((matchedTariff && matchedTariff.deliveryTo) || `${parseInt(deliveryStart.slice(0, 4), 10)}-12-31`).slice(0, 10);
+    const durationMonths = parseInt(params.contractDurationMonths || (matchedTariff && matchedTariff.contractDurationMonths) || 12, 10) || 12;
+    const productId = parseInt(params.productId || (matchedTariff && matchedTariff.productId) || (isGas ? 1574 : 1573), 10);
+    const surchargeCt = parseFloat(params.surchargeCt ?? params.aufschlagCt ?? (matchedTariff && matchedTariff.surchargeCtNetto) ?? 0) || 0;
+    const businessSector = String(params.businessSector || params.brancheId || (isGas ? '35' : '36'));
+    const loadProfile = String(params.loadProfile || params.lastprofilId || (isGas ? '6' : '25'));
+    const salesNumber = parseInt(params.salesNumber || 10011, 10) || 10011;
+
+    // Resolve address
+    const address = await resolveDeliveryAddress({
+        plz: params.plz || params.zip || '44379',
+        city: params.city || params.ort,
+        street: params.street || params.strasse,
+        houseNumber: params.houseNr || params.houseNumber || params.hausnummer || '1'
+    });
+
+    const companyName = String(params.companyName || params.firma || params.unternehmen || 'Gewerbekunde').trim();
+    const legalForm = String(params.legalForm || params.rechtsform || 'GmbH').trim();
+    const rawSalutation = String(params.salutation || params.anrede || 'Herr').trim();
+    const salutation = ['Herr', 'Frau', 'Divers'].includes(rawSalutation) ? rawSalutation : 'Herr';
+    const firstName = String(params.firstName || params.vorname || 'Max').trim();
+    const lastName = String(params.lastName || params.nachname || 'Mustermann').trim();
+    const email = String(params.email || params.mail || 'b2b@alpha-energie.de').trim();
+    const phone = String(params.phone || params.telefon || '').trim();
+    const meterNumber = String(params.meterNumber || params.zaehlernummer || '').trim();
+    const maloId = String(params.maloId || params.marktlokationsId || '').trim();
+    const contractOrderType = params.contractOrderType || (params.currentProvider || params.vorversorger ? 'CHANGE_PROVIDER' : 'NEW');
+    const isOffer = params.isOffer !== false;
+    const isDraft = Boolean(params.isDraft);
+
+    const contactMediumList = [{ contactType: 'EMAIL', contactValue: email }];
+    if (phone) {
+        contactMediumList.push({ contactType: 'PHONE', contactValue: phone });
+    }
+
+    const contractOrderData = {
+        ...(meterNumber.length >= 5 ? { meterNumber } : {}),
+        ...(/^[0-9]{11}$/.test(maloId) ? { marketLocationId: maloId } : {}),
+        contractTimeframe: {
+            timeSeries: durationMonths,
+            timeSeriesType: 'MONTH',
+            contractDurationMonths: durationMonths,
+            deliveryStart,
+            deliveryEnd
+        },
+        contractDuration: durationMonths,
+        readableContractDuration: `${durationMonths} Monate`,
+        loadProfile,
+        loadProfileName: 'Standard',
+        deliveryStart,
+        gridLayer,
+        measurement,
+        measurementMethod: measurement,
+        businessSector,
+        businessSectorName: params.businessSectorName || 'Gewerbe',
+        ...(measurement === 'RLM' ? { peakLoad, usageHours } : {})
+    };
+
+    if (contractOrderType === 'CHANGE_PROVIDER' && (params.currentProvider || params.vorversorger)) {
+        contractOrderData.previousProvider = {
+            id: Number(params.previousProviderId) || 1,
+            name: String(params.currentProvider || params.vorversorger)
+        };
+        contractOrderData.deliveryASAP = true;
+    }
+
+    const orderInput = {
+        orderBaseData: {
+            contractHolder: {
+                personType: 'COMMERCIAL',
+                contactPersonIsDifferent: false,
+                personType_COMMERCIAL: {
+                    companyName,
+                    legalForm
+                }
+            },
+            deliveryAddress: {
+                country: 'DE',
+                zip: address.zip,
+                city: address.city,
+                street: address.street,
+                houseNumber: address.houseNumber
+            },
+            contactPersonList: [
+                {
+                    salutation,
+                    firstName: firstName.length >= 2 ? firstName : 'Max',
+                    lastName: lastName.length >= 2 ? lastName : 'Mustermann',
+                    academicTitle: '',
+                    dateOfBirth: null
+                }
+            ],
+            contactMediumList,
+            productPayment: params.iban && String(params.iban).length > 10
+                ? {
+                    paymentType: 'DEBIT_CHARGE',
+                    paymentType_DEBIT_CHARGE: {
+                        bankAccount: { iban: String(params.iban).replace(/\s+/g, '') },
+                        bankAccountHolderIsDifferent: false
+                    }
+                }
+                : {
+                    paymentType: 'INVOICE',
+                    paymentType_INVOICE: {}
+                },
+            customerConfirmation: {},
+            onlyOnlineCustomerCommunication: false
+        },
+        productTypeFilter: [
+            {
+                type: productType,
+                consumption,
+                loadProfile,
+                deliveryStart,
+                businessSector: Number(businessSector) || 36,
+                measurement
+            }
+        ],
+        productList: [
+            {
+                isDraft,
+                isActionRequired: false,
+                isOffer,
+                productFinderId: productId,
+                selected: [],
+                orderBaseData: {
+                    signatureList: [],
+                    advertisingConsent: {},
+                    couponCodes: []
+                },
+                orderProductData: {
+                    [`productType_${productType}`]: {
+                        contractOrderType,
+                        consumption,
+                        surcharge: surchargeCt > 0 ? [{ priceType: 'WORK_PRICE', surcharge: surchargeCt }] : [],
+                        additionalData: { pairList: [] },
+                        [`contractOrderType_${contractOrderType}`]: contractOrderData
+                    }
+                },
+                optionList: []
+            }
+        ],
+        salesNumber
+    };
+
+    let vpPortalResponse = null;
+    let vpOrderId = null;
+    let vpOrderNumber = null;
+    let vpPortalError = null;
+
+    if (params.syncToVpPortal !== false) {
+        try {
+            const gqlRes = await vpGraphql(
+                'AddOrderByProductOffer',
+                `mutation AddOrderByProductOffer($order: AddOrderByProductOfferOrderInput!) {
+                    addOrderByProductOffer(order: $order)
+                }`,
+                { order: orderInput }
+            );
+            if (gqlRes.errors && gqlRes.errors.length > 0) {
+                vpPortalError = gqlRes.errors[0].message;
+            } else if (gqlRes.data && gqlRes.data.addOrderByProductOffer) {
+                vpPortalResponse = gqlRes.data.addOrderByProductOffer;
+                vpOrderId = vpPortalResponse.id || vpPortalResponse._id || (vpPortalResponse.order && (vpPortalResponse.order.id || vpPortalResponse.order._id)) || null;
+                vpOrderNumber = vpPortalResponse.orderNumber || (vpPortalResponse.order && vpPortalResponse.order.orderNumber) || null;
+            }
+        } catch (err) {
+            vpPortalError = err.message;
+        }
+    }
+
+    // Generate official PDF documents ("Angebot.pdf" & "Auftragsformular.pdf") if requested or by default on offer creation
+    let documents = [];
+    if (params.generateDocuments !== false) {
+        try {
+            documents = await generateVpOrderDocuments({
+                orderId: vpOrderId || '124',
+                productId,
+                salesNumber,
+                branch: isGas ? 'gas' : 'strom',
+                businessSector,
+                consumption,
+                contractOrderType,
+                deliveryStart,
+                loadProfile,
+                companyName,
+                legalForm,
+                salutation,
+                firstName,
+                lastName,
+                zip: address.zip,
+                city: address.city,
+                street: address.street,
+                houseNumber: address.houseNumber,
+                meterNumber,
+                maloId
+            });
+        } catch (docErr) {
+            console.warn('[RLM-API] Document generation warning:', docErr.message);
+        }
+    }
+
+    return {
+        vpOrderId,
+        vpOrderNumber,
+        vpPortalResponse,
+        vpPortalError,
+        documents,
+        resolvedAddress: address
+    };
+}
+
+/**
+ * Fetch recent offers/orders directly from `vp.alpha-energie.de/api/graphql`.
+ */
+async function getVpPortalOrders(limit = 20) {
+    const res = await vpGraphql(
+        'RecordService_getOrderList',
+        `query RecordService_getOrderList($search: OrderListSearchInput, $pagination: PaginationInput, $sorting: String) {
+            getOrderList(search: $search, pagination: $pagination, sorting: $sorting) {
+                meta { total limit page pages }
+                data {
+                    id
+                    orderNumber
+                    salesNumber
+                    createdAt
+                    productList {
+                        id
+                        orderProductNumber
+                        status { id statusCode statusText statusDescription }
+                        contractHolder {
+                            ... on RecordService_CrmCommercialPerson {
+                                companyName
+                                legalForm
+                            }
+                            ... on RecordService_CrmPrivatePerson {
+                                salutation
+                                firstName
+                                lastName
+                            }
+                        }
+                        deliveryAddress {
+                            ... on RecordService_CrmBuildingAddress {
+                                zip
+                                city
+                                street
+                                houseNumber
+                            }
+                        }
+                        orderProductData {
+                            product { id name productType }
+                        }
+                    }
+                }
+            }
+        }`,
+        {
+            pagination: { skip: 0, limit: Math.min(Number(limit) || 20, 100) },
+            sorting: JSON.stringify({ field: 'createdAt', direction: 'desc' })
+        }
+    );
+    return (res.data && res.data.getOrderList) || { meta: { total: 0 }, data: [] };
+}
+
 module.exports = {
     calculateRlmTariffs,
     resolveDeliveryAddress,
     getRlmPortalOptions,
+    createVpPortalOffer,
+    generateVpOrderDocuments,
+    getVpPortalOrders,
     ensureFreshVpSession,
     refreshVpSessionViaHttp,
     refreshVpSessionViaPlaywright,
     saveCookiesToDisk
 };
+
