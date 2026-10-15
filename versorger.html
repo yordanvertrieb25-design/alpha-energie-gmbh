@@ -56,12 +56,12 @@
 
             if (isLiveActivated && validToken) {
                 var headScript = document.createElement('script');
-                headScript.src = 'https://cdn.firstcon.de/static/js/firstcon.bestellstrasse.head.js';
+                headScript.src = 'https://cdn.dev01.firstcon.de/static/js/firstcon.bestellstrasse.head.js';
                 document.head.appendChild(headScript);
 
                 var injectBodyScript = function() {
                     var bodyScript = document.createElement('script');
-                    bodyScript.src = 'https://cdn.firstcon.de/static/js/firstcon.bestellstrasse.body.js';
+                    bodyScript.src = 'https://cdn.dev01.firstcon.de/static/js/firstcon.bestellstrasse.body.js';
                     document.body.appendChild(bodyScript);
                 };
 
@@ -3123,7 +3123,8 @@
                     <div class="form-grid" style="margin-bottom: 1rem;">
                         <div class="form-group">
                             <label for="orderStreet" class="calc-label" style="color:#1e293b;">Straße *</label>
-                            <input type="text" id="orderStreet" class="calc-input" placeholder="z. B. Kampstraße" required style="color:#1e293b;background:#fff;">
+                            <input type="text" id="orderStreet" list="orderStreetList" class="calc-input" placeholder="z. B. Kampstraße" required style="color:#1e293b;background:#fff;">
+                            <datalist id="orderStreetList"></datalist>
                         </div>
                         <div class="form-group">
                             <label for="orderHouseNr" class="calc-label" style="color:#1e293b;">Hausnummer *</label>

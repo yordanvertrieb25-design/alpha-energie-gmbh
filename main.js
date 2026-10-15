@@ -959,6 +959,202 @@ document.addEventListener("DOMContentLoaded", async () => {
         // Export recalculateTariffs globally for i18n reactive updates
         window.recalculateTariffs = recalculateTariffs;
 
+        // --- Live Firstcon API v2 Synchronization ---
+        const livePlzCityCache = {};
+        const liveStreetsCache = {};
+        let liveCalcRequestSeq = 0;
+
+        // Verify live Firstcon API connection status on load
+        (async function checkFirstconStatus() {
+            try {
+                const tokenParam = encodeURIComponent(window.__FIRSTCON_TOKEN__ || '1994e155-ce1c-47a7-83c8-21660f0857a7');
+                const res = await fetch(`/api/firstcon/status?token=${tokenParam}`);
+                if (res.ok) {
+                    const statusData = await res.json();
+                    window.__FIRSTCON_STATUS__ = statusData;
+                    window.__FIRSTCON_CONNECTED__ = Boolean(statusData && statusData.connected);
+                }
+            } catch (e) {}
+        })();
+
+        async function populateStreetDatalist(plz, branch) {
+            if (!/^\d{5}$/.test(plz)) return;
+            const cacheKey = `${branch}:${plz}`;
+            const datalist = document.getElementById('orderStreetList');
+            if (!datalist) return;
+
+            let streets = liveStreetsCache[cacheKey];
+            if (!streets) {
+                try {
+                    const tokenParam = encodeURIComponent(window.__FIRSTCON_TOKEN__ || '1994e155-ce1c-47a7-83c8-21660f0857a7');
+                    const res = await fetch(`/api/firstcon/grid?plz=${plz}&branch=${branch}&streets=1&token=${tokenParam}`);
+                    if (res.ok) {
+                        const gridData = await res.json();
+                        if (gridData && gridData.found) {
+                            if (gridData.city) {
+                                livePlzCityCache[plz] = gridData.city;
+                            }
+                            if (Array.isArray(gridData.streets) && gridData.streets.length > 0) {
+                                streets = gridData.streets;
+                                liveStreetsCache[cacheKey] = streets;
+                            }
+                        }
+                    }
+                } catch (e) {}
+            }
+
+            if (Array.isArray(streets) && streets.length > 0) {
+                datalist.innerHTML = streets.slice(0, 400).map(s => `<option value="${String(s).replace(/"/g, '&quot;')}"></option>`).join('');
+            }
+        }
+
+        async function syncLiveFirstconCalculation(plzOverride, kwhOverride, branchOverride) {
+            const activeBranch = branchOverride || currentBranch || 'strom';
+            const rawPlz = plzOverride !== undefined
+                ? String(plzOverride).replace(/\D/g, '').slice(0, 5)
+                : ((calcPlz && calcPlz.value) ? calcPlz.value.replace(/\D/g, '').slice(0, 5) : '');
+
+            if (!/^\d{5}$/.test(rawPlz)) return null;
+
+            const defaultKwh = activeBranch === 'gas' ? 12000 : 2500;
+            const defaultAbschlag = activeBranch === 'gas' ? 115 : 95;
+            const rawKwh = kwhOverride !== undefined
+                ? String(kwhOverride).replace(/\D/g, '').trim()
+                : ((calcKwh && calcKwh.value) ? calcKwh.value.toString().replace(/\D/g, '').trim() : '');
+            const parsedKwh = rawKwh ? parseInt(rawKwh, 10) : NaN;
+            const kwh = (!isNaN(parsedKwh) && parsedKwh >= 500) ? parsedKwh : defaultKwh;
+
+            const rawAbschlag = (calcAbschlag && calcAbschlag.value) ? calcAbschlag.value.toString().replace(',', '.').trim() : '';
+            const parsedAbschlag = rawAbschlag ? parseFloat(rawAbschlag) : NaN;
+            const currentMonthlyEuro = (!isNaN(parsedAbschlag) && parsedAbschlag > 0) ? parsedAbschlag : defaultAbschlag;
+
+            const reqId = ++liveCalcRequestSeq;
+            populateStreetDatalist(rawPlz, activeBranch);
+
+            try {
+                const res = await fetch('/api/tarife/calculate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        plz: rawPlz,
+                        consumption: kwh,
+                        currentMonthlyEuro,
+                        branch: activeBranch,
+                        orderflowToken: window.__FIRSTCON_TOKEN__ || '1994e155-ce1c-47a7-83c8-21660f0857a7'
+                    })
+                });
+                if (!res.ok) return null;
+                const data = await res.json();
+                if (reqId !== liveCalcRequestSeq || !data || !data.success) return data;
+
+                window.__FIRSTCON_LAST_CALC__ = data;
+                window.__FIRSTCON_CONNECTED__ = Boolean(data.firstconConnected);
+
+                if (data.city) {
+                    livePlzCityCache[rawPlz] = data.city;
+                    if (calcPlz && calcPlz.value === rawPlz && calcCityBadge) {
+                        calcCityBadge.textContent = data.city;
+                        calcCityBadge.style.display = 'inline-block';
+                    }
+                    const mPlz = document.getElementById('modalCalcPlz');
+                    const mBadge = document.getElementById('modalCalcCityBadge');
+                    if (mPlz && mPlz.value === rawPlz && mBadge) {
+                        mBadge.textContent = data.city;
+                        mBadge.style.display = 'inline-block';
+                    }
+                    const oPlz = document.getElementById('orderPlz');
+                    const oCity = document.getElementById('orderCity');
+                    if (oPlz && oPlz.value === rawPlz && oCity) {
+                        oCity.value = data.city;
+                    }
+                }
+
+                if (Array.isArray(data.tariffs)) {
+                    const activeSpecs = getActiveSpecs(activeBranch);
+                    let maxLiveSavings = 0;
+
+                    data.tariffs.forEach(t => {
+                        const spec = activeSpecs[t.id];
+                        if (spec) {
+                            spec.firstconTariffId = t.firstconTariffId || spec.firstconTariffId;
+                            spec.energyGridNumber = t.energyGridNumber || data.energyGridNumber || spec.energyGridNumber;
+                            spec.liveWorkingPriceCt = t.workingPriceCt;
+                            spec.liveBasePriceEur = t.basePriceEur;
+                        }
+                        if (t.savingsYear > maxLiveSavings) {
+                            maxLiveSavings = t.savingsYear;
+                        }
+
+                        // Only update main cards if main calculator currently holds this 5-digit PLZ
+                        if (calcPlz && calcPlz.value === rawPlz && currentBranch === activeBranch) {
+                            const priceEl = document.getElementById(`price-${t.id}`);
+                            const savingsEl = document.getElementById(`savings-${t.id}`);
+                            const kwhEl = document.getElementById(`kwh-desc-${t.id}`);
+                            if (priceEl) {
+                                if (window.i18n && typeof window.i18n.formatMonthlyPrice === 'function') {
+                                    priceEl.innerHTML = window.i18n.formatMonthlyPrice(t.monthlyPayment);
+                                } else {
+                                    priceEl.innerHTML = `${t.monthlyPayment} €<span> / Monat</span>`;
+                                }
+                            }
+                            if (savingsEl) {
+                                const gMonths = spec ? spec.guaranteeMonths : 12;
+                                if (window.i18n && typeof window.i18n.formatSavings === 'function') {
+                                    savingsEl.textContent = t.savingsYear > 0
+                                        ? window.i18n.formatSavings(t.savingsYear)
+                                        : window.i18n.formatGuarantee(gMonths);
+                                } else {
+                                    savingsEl.textContent = t.savingsYear > 0
+                                        ? `Bis zu ${t.savingsYear} € / Jahr sparen`
+                                        : `Faire ${gMonths} Monate Preisgarantie`;
+                                }
+                            }
+                            if (kwhEl && typeof t.workingPriceCt === 'number') {
+                                if (window.i18n && typeof window.i18n.formatKwhDesc === 'function') {
+                                    kwhEl.textContent = window.i18n.formatKwhDesc(kwh, t.workingPriceCt);
+                                } else {
+                                    kwhEl.textContent = `${kwh.toLocaleString('de-DE')} kWh/Jahr • ${t.workingPriceCt.toFixed(2).replace('.', ',')} ct/kWh`;
+                                }
+                            }
+                        }
+
+                        document.querySelectorAll(`[data-select-tariff="${t.id}"]`).forEach(btn => {
+                            btn.setAttribute('data-monthly', t.monthlyPayment);
+                            btn.setAttribute('data-kwh', kwh);
+                            btn.setAttribute('data-savings', t.savingsYear);
+                            if (t.firstconTariffId) btn.setAttribute('data-firstcon-tariff-id', t.firstconTariffId);
+                            if (t.energyGridNumber || data.energyGridNumber) {
+                                btn.setAttribute('data-energy-grid', t.energyGridNumber || data.energyGridNumber);
+                            }
+                        });
+                    });
+
+                    if (calcPlz && calcPlz.value === rawPlz && calcSavingsValue && maxLiveSavings > 0) {
+                        if (window.i18n && typeof window.i18n.formatMaxSavings === 'function') {
+                            calcSavingsValue.textContent = window.i18n.formatMaxSavings(maxLiveSavings);
+                        } else {
+                            calcSavingsValue.textContent = `Bis zu ${maxLiveSavings} € / Jahr!`;
+                        }
+                    }
+
+                    // Keep selectedOrderData synced with live Firstcon metadata
+                    if (selectedOrderData && selectedOrderData.tariffId) {
+                        const matched = data.tariffs.find(t => t.id === selectedOrderData.tariffId);
+                        if (matched) {
+                            selectedOrderData.firstconTariffId = matched.firstconTariffId || selectedOrderData.firstconTariffId;
+                            selectedOrderData.energyGridNumber = matched.energyGridNumber || data.energyGridNumber || selectedOrderData.energyGridNumber;
+                        }
+                    }
+                }
+
+                return data;
+            } catch (e) {
+                return null;
+            }
+        }
+
+        window.syncLiveFirstconCalculation = syncLiveFirstconCalculation;
+
         // Event listeners for calculator
         if (calcPlz) {
             calcPlz.addEventListener('input', () => {
@@ -967,12 +1163,17 @@ document.addEventListener("DOMContentLoaded", async () => {
                 if (calcCityBadge) {
                     if (val.length >= 2) {
                         const prefix = val.slice(0, 2);
-                        const city = cityMap[prefix] || (val.startsWith('4') || val.startsWith('5') ? 'NRW' : 'Deutschland');
+                        const city = livePlzCityCache[val] || cityMap[prefix] || (val.startsWith('4') || val.startsWith('5') ? 'NRW' : 'Deutschland');
                         calcCityBadge.textContent = city;
                         calcCityBadge.style.display = 'inline-block';
                     } else {
                         calcCityBadge.style.display = 'none';
                     }
+                }
+                if (val.length === 5) {
+                    syncLiveFirstconCalculation(val, undefined, currentBranch);
+                } else {
+                    recalculateTariffs();
                 }
             });
         }
@@ -990,6 +1191,9 @@ document.addEventListener("DOMContentLoaded", async () => {
                 const defaultKwh = currentBranch === 'gas' ? 12000 : 2500;
                 const kwh = (typedKwh && typedKwh > 0) ? Math.max(500, typedKwh) : defaultKwh;
                 sync3DSceneConsumption(kwh);
+                if (calcPlz && /^\d{5}$/.test(calcPlz.value)) {
+                    syncLiveFirstconCalculation(calcPlz.value, kwh, currentBranch);
+                }
             });
         }
 
@@ -997,6 +1201,9 @@ document.addEventListener("DOMContentLoaded", async () => {
             calcAbschlag.addEventListener('input', () => {
                 userHasEnteredKwh = true;
                 recalculateTariffs();
+                if (calcPlz && /^\d{5}$/.test(calcPlz.value)) {
+                    syncLiveFirstconCalculation(calcPlz.value, undefined, currentBranch);
+                }
             });
         }
 
@@ -1012,6 +1219,9 @@ document.addEventListener("DOMContentLoaded", async () => {
                     calcKwh.value = kwh;
                     recalculateTariffs();
                     sync3DSceneConsumption(parseInt(kwh, 10));
+                    if (calcPlz && /^\d{5}$/.test(calcPlz.value)) {
+                        syncLiveFirstconCalculation(calcPlz.value, parseInt(kwh, 10), currentBranch);
+                    }
                 }
             });
         });
@@ -1107,6 +1317,9 @@ document.addEventListener("DOMContentLoaded", async () => {
                 sync3DSceneMode(currentBranch);
                 const currentKwhVal = Math.max(500, parseInt(calcKwh && calcKwh.value ? calcKwh.value : (currentBranch === 'gas' ? 12000 : 2500), 10) || 2500);
                 sync3DSceneConsumption(currentKwhVal);
+                if (calcPlz && /^\d{5}$/.test(calcPlz.value)) {
+                    syncLiveFirstconCalculation(calcPlz.value, currentKwhVal, currentBranch);
+                }
             });
         });
 
@@ -1236,6 +1449,9 @@ document.addEventListener("DOMContentLoaded", async () => {
                 e.preventDefault();
                 userHasEnteredKwh = true;
                 recalculateTariffs();
+                if (calcPlz && /^\d{5}$/.test(calcPlz.value)) {
+                    syncLiveFirstconCalculation(calcPlz.value, undefined, currentBranch);
+                }
                 const tarifeSection = document.getElementById('tarife');
                 if (tarifeSection) {
                     tarifeSection.scrollIntoView({ behavior: 'smooth' });
@@ -1351,6 +1567,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         function resolveCityFromPlz(plzStr) {
             if (!plzStr || plzStr.length < 2) return '';
+            if (livePlzCityCache[plzStr]) return livePlzCityCache[plzStr];
             const prefix = plzStr.slice(0, 2);
             return cityMap[prefix] || (plzStr.startsWith('4') || plzStr.startsWith('5') ? 'NRW' : 'Deutschland');
         }
@@ -1437,6 +1654,10 @@ document.addEventListener("DOMContentLoaded", async () => {
             const isKwhValid = !isNaN(parsedKwh) && parsedKwh >= 500;
             const isPlzValid = /^\d{5}$/.test(plzVal);
 
+            if (isPlzValid) {
+                syncLiveFirstconCalculation(plzVal, isKwhValid ? parsedKwh : undefined, branch);
+            }
+
             // Highlight matching preset button
             modalPresetBtns.forEach(btn => {
                 const btnKwh = parseInt(btn.getAttribute('data-modal-kwh'), 10);
@@ -1444,10 +1665,12 @@ document.addEventListener("DOMContentLoaded", async () => {
             });
 
             const curLang = (window.i18n && typeof window.i18n.getLanguage === 'function') ? window.i18n.getLanguage() : 'de';
+            const activeWorkCt = (isPlzValid && typeof spec.liveWorkingPriceCt === 'number') ? spec.liveWorkingPriceCt : spec.workingPriceCt;
+            const activeBaseEur = (isPlzValid && typeof spec.liveBasePriceEur === 'number') ? spec.liveBasePriceEur : spec.basePriceEur;
 
             if (isKwhValid) {
-                const annualWorkingCost = parsedKwh * (spec.workingPriceCt / 100);
-                const annualBaseCost = spec.basePriceEur * 12;
+                const annualWorkingCost = parsedKwh * (activeWorkCt / 100);
+                const annualBaseCost = activeBaseEur * 12;
                 const rawYearly = annualWorkingCost + annualBaseCost;
                 const monthlyPayment = Math.round(rawYearly / 12);
 
@@ -1460,6 +1683,8 @@ document.addEventListener("DOMContentLoaded", async () => {
                 selectedOrderData.monthlyPayment = String(monthlyPayment);
                 selectedOrderData.savings = String(savings);
                 selectedOrderData.userEnteredModalKwh = parsedKwh;
+                if (spec.firstconTariffId) selectedOrderData.firstconTariffId = spec.firstconTariffId;
+                if (spec.energyGridNumber) selectedOrderData.energyGridNumber = spec.energyGridNumber;
 
                 if (monthlyEl) {
                     const suffix = curLang === 'en' ? ' / month' : (curLang === 'tr' ? ' / ay' : ' / Monat');
@@ -1474,8 +1699,8 @@ document.addEventListener("DOMContentLoaded", async () => {
                     kwhEl.style.color = '#0a1f44';
                 }
                 if (savingsEl) {
-                    const rateFormatted = spec.workingPriceCt.toFixed(2).replace('.', ',');
-                    const baseFormatted = spec.basePriceEur.toFixed(2).replace('.', ',');
+                    const rateFormatted = activeWorkCt.toFixed(2).replace('.', ',');
+                    const baseFormatted = activeBaseEur.toFixed(2).replace('.', ',');
                     if (curLang === 'en') {
                         savingsEl.textContent = `Save up to €${savings} / year (${rateFormatted} ct/kWh • €${baseFormatted}/mo base)`;
                     } else if (curLang === 'tr') {
@@ -1505,8 +1730,8 @@ document.addEventListener("DOMContentLoaded", async () => {
                     kwhEl.style.color = '#ea580c';
                 }
                 if (savingsEl) {
-                    const rateFormatted = spec.workingPriceCt.toFixed(2).replace('.', ',');
-                    const baseFormatted = spec.basePriceEur.toFixed(2).replace('.', ',');
+                    const rateFormatted = activeWorkCt.toFixed(2).replace('.', ',');
+                    const baseFormatted = activeBaseEur.toFixed(2).replace('.', ',');
                     savingsEl.textContent = `⚡ Konditionen: ${rateFormatted} ct/kWh • ${baseFormatted} €/Monat Grundpreis – bitte unten Verbrauch angeben`;
                 }
             }
@@ -1588,7 +1813,9 @@ document.addEventListener("DOMContentLoaded", async () => {
                 monthlyPayment: '',
                 savings: '',
                 plz: mainPlz,
-                userEnteredModalKwh: prefilledKwh
+                userEnteredModalKwh: prefilledKwh,
+                firstconTariffId: (btnElement && btnElement.getAttribute('data-firstcon-tariff-id')) || spec.firstconTariffId || null,
+                energyGridNumber: (btnElement && btnElement.getAttribute('data-energy-grid')) || spec.energyGridNumber || null
             };
 
             updateModalPresetsForBranch(branch);
@@ -1628,8 +1855,11 @@ document.addEventListener("DOMContentLoaded", async () => {
                 const modalCityInput = document.getElementById('orderCity');
                 if (val.length >= 2 && modalCityInput && !modalCityInput.value) {
                     const prefix = val.slice(0, 2);
-                    const city = cityMap[prefix] || (val.startsWith('4') || val.startsWith('5') ? 'NRW' : 'Deutschland');
+                    const city = livePlzCityCache[val] || cityMap[prefix] || (val.startsWith('4') || val.startsWith('5') ? 'NRW' : 'Deutschland');
                     modalCityInput.value = city;
+                }
+                if (val.length === 5) {
+                    populateStreetDatalist(val, selectedOrderData.branch || currentBranch || 'strom');
                 }
             });
         }
@@ -1741,6 +1971,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                 const salutation = document.getElementById('orderSalutation');
                 const firstName = document.getElementById('orderFirstName');
                 const lastName = document.getElementById('orderLastName');
+                const birthDate = document.getElementById('orderBirthDate');
                 const email = document.getElementById('orderEmail');
                 const phone = document.getElementById('orderPhone');
                 const iban = document.getElementById('orderIban');
@@ -1766,6 +1997,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                     salutation: salutation ? salutation.value : 'Herr/Frau',
                     firstName: firstName.value.trim(),
                     lastName: lastName.value.trim(),
+                    birthDate: birthDate && birthDate.value ? birthDate.value.trim() : null,
                     email: email.value.trim(),
                     phone: phone.value.trim(),
                     iban: iban.value.trim().replace(/\s/g, '').toUpperCase()
@@ -1778,6 +2010,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                         body: JSON.stringify(payload)
                     });
                     const data = await res.json();
+                    window.__FIRSTCON_LAST_ORDER__ = data.firstcon || null;
                     if (data.success) {
                         const orderNumEl = document.getElementById('orderSuccessNumber') || document.getElementById('confirmedOrderNumber');
                         const orderEmailEl = document.getElementById('orderSuccessEmail');

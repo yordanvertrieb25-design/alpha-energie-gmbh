@@ -34,6 +34,7 @@ const {
     ensureFreshVpSession,
     saveCookiesToDisk
 } = require('./services/rlmTariffService');
+const firstconService = require('./services/firstconService');
 
 const prisma = new PrismaClient();
 const app = express();
@@ -232,9 +233,56 @@ app.post('/api/contact', async (req, res) => {
     }
 });
 
-// --- VERSORGER TARIFRECHNER & ORDER ROUTES ---
+// --- VERSORGER TARIFRECHNER & ORDER ROUTES (FIRSTCON API V2 CONNECTED) ---
 
-// 1.1 Calculate Tariffs dynamically
+// 1.0 Firstcon Live Connection Status & Grid/Street Lookup
+app.get('/api/firstcon/status', async (req, res) => {
+    try {
+        const token = req.query.token || process.env.FIRSTCON_ORDERFLOW_TOKEN || firstconService.DEFAULT_FIRSTCON_TOKEN;
+        const auth = await firstconService.authenticateOrderflow(token);
+        res.json({
+            success: true,
+            connected: true,
+            user: auth.payload?.unique_name || 'alpha-energie-dev',
+            brandId: auth.payload?.BrandId || 54,
+            brandName: 'Alpha Energie',
+            tokenPrefix: String(auth.integrationKey || '').slice(0, 8) + '...',
+            apiBase: firstconService.FIRSTCON_API_BASE
+        });
+    } catch (error) {
+        res.status(200).json({
+            success: false,
+            connected: false,
+            error: error.message
+        });
+    }
+});
+
+app.get('/api/firstcon/grid', async (req, res) => {
+    try {
+        const plz = req.query.plz || req.query.zip || '44379';
+        const branch = req.query.branch || 'strom';
+        const token = req.query.token || process.env.FIRSTCON_ORDERFLOW_TOKEN;
+        const gridInfo = await firstconService.findEnergyGrid(plz, branch, token);
+        if (!gridInfo) {
+            return res.json({ success: false, found: false, plz });
+        }
+        let streets = [];
+        if (req.query.streets === '1' || req.query.streets === 'true') {
+            streets = await firstconService.getStreets(gridInfo.zipCode, gridInfo.city, gridInfo.energyGridNumber, branch, token);
+        }
+        res.json({
+            success: true,
+            found: true,
+            ...gridInfo,
+            streets
+        });
+    } catch (error) {
+        res.status(200).json({ success: false, found: false, error: error.message });
+    }
+});
+
+// 1.1 Calculate Tariffs dynamically (Firstcon Live API v2 + Fallback)
 app.post('/api/tarife/calculate', async (req, res) => {
     try {
         // If caller requests B2B / RLM calculation via /api/tarife/calculate, delegate to live RLM portal service
@@ -243,13 +291,35 @@ app.post('/api/tarife/calculate', async (req, res) => {
             return res.json(rlmResult);
         }
 
-        const { plz, consumption, currentAbschlag, branch = 'strom' } = req.body;
+        const { plz, consumption, currentAbschlag, branch = 'strom', orderflowToken, useFallbackOnly } = req.body;
         const isGas = branch === 'gas';
         const defaultKwh = isGas ? 12000 : 2500;
         const defaultAbschlag = isGas ? 115 : 95;
         const kwh = Math.max(500, parseInt(consumption, 10) || defaultKwh);
         const abschlagOld = parseFloat(currentAbschlag) || defaultAbschlag;
         const cleanPlz = String(plz || '44379').replace(/\D/g, '').slice(0, 5);
+
+        // Attempt live Firstcon API v2 calculation first
+        if (!useFallbackOnly && /^\d{5}$/.test(cleanPlz)) {
+            try {
+                const liveFirstcon = await firstconService.calculateLiveTariffs({
+                    plz: cleanPlz,
+                    consumption: kwh,
+                    currentAbschlag: abschlagOld,
+                    branch: isGas ? 'gas' : 'strom',
+                    token: orderflowToken
+                });
+                if (liveFirstcon && Array.isArray(liveFirstcon.tariffs) && liveFirstcon.tariffs.length > 0) {
+                    return res.json({
+                        success: true,
+                        ...liveFirstcon,
+                        currentAbschlag: abschlagOld
+                    });
+                }
+            } catch (fcErr) {
+                console.warn('[Firstcon API] Fallback to local tariff calculation:', fcErr.message);
+            }
+        }
 
         // Standardized green energy tariffs
         const stromTariffs = [
@@ -818,6 +888,22 @@ app.post('/api/order/submit', async (req, res) => {
             }
         });
 
+        // Forward order to Firstcon Orderflow API v2 (Validation & Contract submission)
+        let firstconResult = null;
+        try {
+            firstconResult = await firstconService.submitOrderToFirstcon({
+                ...req.body,
+                orderNumber
+            });
+        } catch (fcOrderErr) {
+            console.warn("[Firstcon Orderflow] Order forwarding warning:", fcOrderErr.message);
+            firstconResult = {
+                firstconConnected: false,
+                validated: false,
+                error: fcOrderErr.message
+            };
+        }
+
         // Send confirmation email asynchronously if transporter is configured
         try {
             const transporter = getMailTransporter();
@@ -861,6 +947,7 @@ app.post('/api/order/submit', async (req, res) => {
         res.status(201).json({
             success: true,
             orderNumber,
+            firstcon: firstconResult,
             message: 'Ihr Auftrag wurde erfolgreich erfasst! Wir kümmern uns um den reibungslosen Wechsel.'
         });
     } catch (error) {
