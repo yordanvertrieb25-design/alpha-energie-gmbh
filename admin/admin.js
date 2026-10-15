@@ -253,7 +253,10 @@ if (document.querySelector('.dashboard-container')) {
             return `
             <tr class="partner-row">
                 <td>${new Date(a.createdAt).toLocaleString('de-DE')}</td>
-                <td>${a.fullName}</td>
+                <td>
+                    <strong>${a.fullName}</strong>
+                    ${a.companyName ? `<br><span style="color: #64748b; font-size: 0.8rem;"><i class="fa-solid fa-building" style="font-size: 0.72rem;"></i> ${a.companyName}</span>` : ''}
+                </td>
                 <td><a href="mailto:${a.email}">${a.email}</a></td>
                 <td><a href="tel:${a.phone}">${a.phone}</a></td>
                 <td>${affiliateBadge}</td>

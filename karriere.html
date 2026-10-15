@@ -2992,10 +2992,49 @@
                 window.location.href = 'versorger.html?branch=' + encodeURIComponent(branch) + '&plz=' + encodeURIComponent(plz) + '#tarife';
             });
         }
-        // Generic interactive form handler for subpage forms (Kontakt, Partner, Karriere, B2B, Service)
+        // Karriere Form -> Sends to /api/contact & /api/partner-application so applications land in /admin
         document.querySelectorAll('.octo-interactive-form').forEach(function(form) {
             form.addEventListener('submit', function(e) {
                 e.preventDefault();
+                var inputs = form.querySelectorAll('input.octo-field-input');
+                var selectEl = form.querySelector('select.octo-field-input');
+                var textareaEl = form.querySelector('textarea.octo-field-input');
+                var nameVal = inputs[0] ? inputs[0].value.trim() : 'Unbekannt';
+                var phoneVal = inputs[1] ? inputs[1].value.trim() : '';
+                var emailVal = inputs[2] ? inputs[2].value.trim() : '';
+                var positionVal = selectEl ? selectEl.value.trim() : 'Schnellbewerbung';
+                var notesVal = textareaEl ? textareaEl.value.trim() : '';
+
+                var isLocalDev = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') && window.location.port !== '3000';
+                var isFileProtocol = window.location.protocol === 'file:';
+                var baseUrl = (isLocalDev || isFileProtocol) ? 'http://localhost:3000' : '';
+
+                fetch(baseUrl + '/api/contact', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        name: nameVal,
+                        phone: phoneVal,
+                        email: emailVal,
+                        subject: 'Karriere-Bewerbung: ' + positionVal,
+                        message: notesVal || ('Bewerbung auf: ' + positionVal)
+                    })
+                }).catch(function(err) { console.error(err); });
+
+                if (positionVal.indexOf('Vertriebspartner') !== -1 || positionVal.indexOf('Energieberater') !== -1) {
+                    fetch(baseUrl + '/api/partner-application', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            fullName: nameVal,
+                            email: emailVal,
+                            phone: phoneVal,
+                            experience: positionVal,
+                            notes: notesVal
+                        })
+                    }).catch(function(err) { console.error(err); });
+                }
+
                 var successEl = form.querySelector('.octo-form-success');
                 if (successEl) {
                     successEl.style.display = 'block';

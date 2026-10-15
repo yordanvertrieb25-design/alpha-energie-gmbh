@@ -2945,10 +2945,65 @@
                 window.location.href = 'versorger.html?branch=' + encodeURIComponent(branch) + '&plz=' + encodeURIComponent(plz) + '#tarife';
             });
         }
-        // Generic interactive form handler for subpage forms (Kontakt, Partner, Karriere, B2B, Service)
+        // Service Forms (Zählerstand & Umzug) -> Send to /api/zaehlerstand/submit & /api/contact so they land in /admin
         document.querySelectorAll('.octo-interactive-form').forEach(function(form) {
             form.addEventListener('submit', function(e) {
                 e.preventDefault();
+                var inputs = form.querySelectorAll('input.octo-field-input');
+                var isUmzug = form.closest('#umzug') !== null;
+                var isLocalDev = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') && window.location.port !== '3000';
+                var isFileProtocol = window.location.protocol === 'file:';
+                var baseUrl = (isLocalDev || isFileProtocol) ? 'http://localhost:3000' : '';
+
+                if (isUmzug) {
+                    var uName = inputs[0] ? inputs[0].value.trim() : 'Kunde';
+                    var uCustNo = inputs[1] ? inputs[1].value.trim() : '';
+                    var uAddress = inputs[2] ? inputs[2].value.trim() : '';
+                    var uDate = inputs[3] ? inputs[3].value.trim() : '';
+                    var uMeter = inputs[4] ? inputs[4].value.trim() : '';
+                    var uEmail = inputs[5] ? inputs[5].value.trim() : '';
+                    fetch(baseUrl + '/api/contact', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            name: uName,
+                            phone: '',
+                            email: uEmail,
+                            subject: 'Umzugsmeldung' + (uCustNo ? ' (' + uCustNo + ')' : ''),
+                            message: 'Neue Anschrift: ' + uAddress + ' | Einzugsdatum: ' + uDate + ' | Zählernr.: ' + (uMeter || 'wird nachgereicht')
+                        })
+                    }).catch(function(err) { console.error(err); });
+                } else {
+                    var mContract = inputs[0] ? inputs[0].value.trim() : '';
+                    var mMeter = inputs[1] ? inputs[1].value.trim() : '';
+                    var mReading = inputs[2] ? inputs[2].value.trim() : '0';
+                    var mDate = inputs[3] ? inputs[3].value.trim() : '';
+                    var mEmail = inputs[4] ? inputs[4].value.trim() : '';
+                    fetch(baseUrl + '/api/zaehlerstand/submit', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            meterNumber: mMeter,
+                            reading: mReading,
+                            readingDate: mDate,
+                            customerName: mContract || 'Online-Meldung',
+                            email: mEmail,
+                            notes: 'Vertragsnr.: ' + mContract
+                        })
+                    }).catch(function(err) { console.error(err); });
+                    fetch(baseUrl + '/api/contact', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            name: 'Vertrag ' + (mContract || mMeter),
+                            phone: '',
+                            email: mEmail,
+                            subject: 'Zählerstand: ' + mMeter,
+                            message: 'Zählernr.: ' + mMeter + ' | Stand: ' + mReading + ' kWh | Ablesedatum: ' + mDate + ' | Vertragsnr.: ' + mContract
+                        })
+                    }).catch(function(err) { console.error(err); });
+                }
+
                 var successEl = form.querySelector('.octo-form-success');
                 if (successEl) {
                     successEl.style.display = 'block';

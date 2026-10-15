@@ -2395,43 +2395,43 @@
 
                     <div class="octo-form-box">
                         <h3 class="octo-card-h3" style="font-size:1.45rem;margin-bottom:18px;">Partner-Anfrage absenden</h3>
-                        <form class="octo-interactive-form">
+                        <form id="partnerApplicationForm" class="octo-interactive-form">
                             <div class="octo-form-grid" style="margin-bottom:14px;">
                                 <div>
-                                    <label class="octo-field-label">Vor- und Nachname *</label>
-                                    <input type="text" class="octo-field-input" placeholder="Max Mustermann" required>
+                                    <label class="octo-field-label" for="partnerFullName">Vor- und Nachname *</label>
+                                    <input type="text" id="partnerFullName" name="fullName" class="octo-field-input" placeholder="Max Mustermann" required>
                                 </div>
                                 <div>
-                                    <label class="octo-field-label">Firma / Agentur (optional)</label>
-                                    <input type="text" class="octo-field-input" placeholder="Deine Agentur / Firma">
+                                    <label class="octo-field-label" for="partnerCompany">Firma / Agentur (optional)</label>
+                                    <input type="text" id="partnerCompany" name="companyName" class="octo-field-input" placeholder="Deine Agentur / Firma">
                                 </div>
                             </div>
                             <div class="octo-form-grid" style="margin-bottom:14px;">
                                 <div>
-                                    <label class="octo-field-label">E-Mail-Adresse *</label>
-                                    <input type="email" class="octo-field-input" placeholder="partner@beispiel.de" required>
+                                    <label class="octo-field-label" for="partnerEmail">E-Mail-Adresse *</label>
+                                    <input type="email" id="partnerEmail" name="email" class="octo-field-input" placeholder="partner@beispiel.de" required>
                                 </div>
                                 <div>
-                                    <label class="octo-field-label">Telefonnummer *</label>
-                                    <input type="tel" class="octo-field-input" placeholder="0171 1234567" required>
+                                    <label class="octo-field-label" for="partnerPhone">Telefonnummer *</label>
+                                    <input type="tel" id="partnerPhone" name="phone" class="octo-field-input" placeholder="0171 1234567" required>
                                 </div>
                             </div>
                             <div style="margin-bottom:14px;">
-                                <label class="octo-field-label">Gewünschtes Partnermodell</label>
-                                <select class="octo-field-input">
-                                    <option>Selbstständiger Vertriebspartner (B2C / B2B)</option>
-                                    <option>Vertriebsagentur / Teamleiter mit eigenem Team</option>
-                                    <option>Energieberater / Immobilienmakler / Hausverwaltung</option>
-                                    <option>Kunden-werben-Kunden Empfehlungsprogramm</option>
+                                <label class="octo-field-label" for="partnerModel">Gewünschtes Partnermodell</label>
+                                <select id="partnerModel" name="experience" class="octo-field-input">
+                                    <option value="Selbstständiger Vertriebspartner (B2C / B2B)">Selbstständiger Vertriebspartner (B2C / B2B)</option>
+                                    <option value="Vertriebsagentur / Teamleiter mit eigenem Team">Vertriebsagentur / Teamleiter mit eigenem Team</option>
+                                    <option value="Energieberater / Immobilienmakler / Hausverwaltung">Energieberater / Immobilienmakler / Hausverwaltung</option>
+                                    <option value="Kunden-werben-Kunden Empfehlungsprogramm">Kunden-werben-Kunden Empfehlungsprogramm</option>
                                 </select>
                             </div>
                             <div style="margin-bottom:18px;">
-                                <label class="octo-field-label">Deine Nachricht (optional)</label>
-                                <textarea class="octo-field-input" rows="3" placeholder="Erzähl uns kurz von deiner Erfahrung oder deinen Fragen..."></textarea>
+                                <label class="octo-field-label" for="partnerMessage">Deine Nachricht (optional)</label>
+                                <textarea id="partnerMessage" name="notes" class="octo-field-input" rows="3" placeholder="Erzähl uns kurz von deiner Erfahrung oder deinen Fragen..."></textarea>
                             </div>
-                            <button type="submit" class="octo-btn-solid-orange" style="width:100%;">Jetzt unverbindlich als Partner bewerben &rarr;</button>
+                            <button type="submit" id="partnerSubmitBtn" class="octo-btn-solid-orange" style="width:100%;">Jetzt unverbindlich als Partner bewerben &rarr;</button>
                             <div class="octo-form-success" style="display:none;margin-top:14px;padding:12px 16px;background:#fff9eb;border:1.5px solid #e95e24;border-radius:12px;color:#9a3412;font-weight:700;font-size:0.9rem;">
-                                ✓ Vielen Dank! Deine Partner-Anfrage wurde erfolgreich übermittelt. Unser Dortmunder Partner-Team meldet sich kurzfristig bei dir.
+                                ✓ Vielen Dank! Deine Partner-Anfrage wurde erfolgreich übermittelt. Du wirst jetzt zur Terminbuchung weitergeleitet...
                             </div>
                         </form>
                     </div>
@@ -2971,15 +2971,69 @@
                 window.location.href = 'versorger.html?branch=' + encodeURIComponent(branch) + '&plz=' + encodeURIComponent(plz) + '#tarife';
             });
         }
-        // Generic interactive form handler for subpage forms (Kontakt, Partner, Karriere, B2B, Service)
+        // Partner Application Form -> Sends to /api/partner-application & lands in /admin (Partner-Bewerbungen)
         document.querySelectorAll('.octo-interactive-form').forEach(function(form) {
             form.addEventListener('submit', function(e) {
                 e.preventDefault();
-                var successEl = form.querySelector('.octo-form-success');
-                if (successEl) {
-                    successEl.style.display = 'block';
+                var submitBtn = form.querySelector('button[type="submit"]');
+                var originalBtnText = submitBtn ? submitBtn.innerHTML : '';
+                if (submitBtn) {
+                    submitBtn.disabled = true;
+                    submitBtn.textContent = 'Wird übermittelt...';
                 }
-                form.reset();
+
+                var fullName = (document.getElementById('partnerFullName') ? document.getElementById('partnerFullName').value : '').trim();
+                var companyName = (document.getElementById('partnerCompany') ? document.getElementById('partnerCompany').value : '').trim();
+                var email = (document.getElementById('partnerEmail') ? document.getElementById('partnerEmail').value : '').trim();
+                var phone = (document.getElementById('partnerPhone') ? document.getElementById('partnerPhone').value : '').trim();
+                var experience = (document.getElementById('partnerModel') ? document.getElementById('partnerModel').value : 'Selbstständiger Vertriebspartner (B2C / B2B)').trim();
+                var notes = (document.getElementById('partnerMessage') ? document.getElementById('partnerMessage').value : '').trim();
+
+                var urlParams = new URLSearchParams(window.location.search);
+                var refCode = urlParams.get('ref') || urlParams.get('partner') || urlParams.get('refCode') || urlParams.get('aff') || sessionStorage.getItem('affiliate_ref') || localStorage.getItem('affiliate_ref') || null;
+
+                var isLocalDev = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') && window.location.port !== '3000';
+                var isFileProtocol = window.location.protocol === 'file:';
+                var apiUrl = (isLocalDev || isFileProtocol) ? 'http://localhost:3000/api/partner-application' : '/api/partner-application';
+
+                fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        fullName: fullName,
+                        companyName: companyName,
+                        email: email,
+                        phone: phone,
+                        experience: experience,
+                        notes: notes,
+                        refCode: refCode
+                    })
+                }).then(function(res) {
+                    if (!res.ok) throw new Error('API Error');
+                    return res.json();
+                }).then(function() {
+                    try {
+                        localStorage.setItem('partnerName', fullName);
+                        localStorage.setItem('partnerEmail', email);
+                        localStorage.setItem('partnerPhone', phone);
+                    } catch (err) {}
+
+                    var successEl = form.querySelector('.octo-form-success');
+                    if (successEl) {
+                        successEl.style.display = 'block';
+                    }
+                    form.reset();
+                    setTimeout(function() {
+                        window.location.href = 'onboarding.html';
+                    }, 900);
+                }).catch(function(err) {
+                    console.error('Partner application submission error:', err);
+                    alert('Beim Übermitteln deiner Partner-Anfrage ist ein Fehler aufgetreten. Bitte versuche es erneut oder rufe uns unter 0231 39989390 an.');
+                    if (submitBtn) {
+                        submitBtn.disabled = false;
+                        submitBtn.innerHTML = originalBtnText;
+                    }
+                });
             });
         });
 

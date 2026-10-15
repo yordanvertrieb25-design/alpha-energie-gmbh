@@ -867,12 +867,17 @@ function getAppointmentConfirmationHtml(name, email, phone, dateFormatted, time)
 // 2. Submit Partner Application Form
 app.post('/api/partner-application', async (req, res) => {
     try {
-        const { fullName, email, phone, experience, refCode } = req.body;
+        const { fullName, email, phone, experience, refCode, companyName, notes } = req.body;
         
         let affiliateLinkId = null;
         if (refCode) {
-            const affiliate = await prisma.affiliateLink.findUnique({
-                where: { code: refCode }
+            const affiliate = await prisma.affiliateLink.findFirst({
+                where: {
+                    OR: [
+                        { code: refCode },
+                        { name: { equals: refCode } }
+                    ]
+                }
             });
             if (affiliate) {
                 affiliateLinkId = affiliate.id;
@@ -880,7 +885,15 @@ app.post('/api/partner-application', async (req, res) => {
         }
 
         const newApp = await prisma.partnerApplication.create({
-            data: { fullName, email, phone, experience, affiliateLinkId }
+            data: {
+                fullName: fullName || 'Unbekannt',
+                email: email || '',
+                phone: phone || '',
+                experience: experience || 'Partner-Anfrage',
+                companyName: companyName ? String(companyName).trim() : null,
+                notes: notes ? String(notes).trim() : null,
+                affiliateLinkId
+            }
         });
 
         // 1. Send confirmation email to applicant & 2. notification to backoffice asynchronously (non-blocking)
@@ -914,8 +927,8 @@ app.post('/api/partner-application', async (req, res) => {
                     await transporter.sendMail({
                         from: sender,
                         to: 'bewerbung@alpha-energie.de',
-                        subject: `Neue Registrierung (Agentur/VP): ${fullName}`,
-                        text: `Eine neue Partner-Registrierung ist eingegangen:\n\nName: ${fullName}\nE-Mail: ${email}\nTelefon: ${phone || 'Nicht angegeben'}\nErfahrung: ${experience || 'Nicht angegeben'}\n\nBitte im Admin-Panel prüfen.`
+                        subject: `Neue Registrierung (Agentur/VP): ${fullName}${companyName ? ` (${companyName})` : ''}`,
+                        text: `Eine neue Partner-Registrierung ist eingegangen:\n\nName: ${fullName}\nFirma / Agentur: ${companyName || 'Nicht angegeben'}\nE-Mail: ${email}\nTelefon: ${phone || 'Nicht angegeben'}\nPartnermodell / Erfahrung: ${experience || 'Nicht angegeben'}\nNachricht: ${notes || 'Keine'}\n\nBitte im Admin-Panel prüfen.`
                     });
                     console.log(`Notification email successfully sent to bewerbung@alpha-energie.de for ${fullName}`);
                 } catch (backofficeMailErr) {

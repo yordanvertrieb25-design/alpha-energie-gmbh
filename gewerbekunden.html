@@ -2976,10 +2976,37 @@
                 window.location.href = 'versorger.html?branch=' + encodeURIComponent(branch) + '&plz=' + encodeURIComponent(plz) + '#tarife';
             });
         }
-        // Generic interactive form handler for subpage forms (Kontakt, Partner, Karriere, B2B, Service)
+        // B2B Inquiry Form -> Sends to /api/contact & lands in /admin (Kontaktanfragen)
         document.querySelectorAll('.octo-interactive-form').forEach(function(form) {
             form.addEventListener('submit', function(e) {
                 e.preventDefault();
+                var inputs = form.querySelectorAll('input.octo-field-input');
+                var selectEl = form.querySelector('select.octo-field-input');
+                var textareaEl = form.querySelector('textarea.octo-field-input');
+                var companyVal = inputs[0] ? inputs[0].value.trim() : '';
+                var contactVal = inputs[1] ? inputs[1].value.trim() : 'Unbekannt';
+                var emailVal = inputs[2] ? inputs[2].value.trim() : '';
+                var phoneVal = inputs[3] ? inputs[3].value.trim() : '';
+                var kwhVal = inputs[4] ? inputs[4].value.trim() : '';
+                var sparteVal = selectEl ? selectEl.value.trim() : 'Gewerbe-Anfrage';
+                var notesVal = textareaEl ? textareaEl.value.trim() : '';
+
+                var isLocalDev = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') && window.location.port !== '3000';
+                var isFileProtocol = window.location.protocol === 'file:';
+                var baseUrl = (isLocalDev || isFileProtocol) ? 'http://localhost:3000' : '';
+
+                fetch(baseUrl + '/api/contact', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        name: companyVal ? (contactVal + ' (' + companyVal + ')') : contactVal,
+                        phone: phoneVal,
+                        email: emailVal,
+                        subject: 'B2B-Angebot: ' + sparteVal,
+                        message: 'Jahresverbrauch: ' + (kwhVal || 'k.A.') + ' | Details: ' + (notesVal || 'Keine')
+                    })
+                }).catch(function(err) { console.error(err); });
+
                 var successEl = form.querySelector('.octo-form-success');
                 if (successEl) {
                     successEl.style.display = 'block';

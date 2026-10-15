@@ -2916,10 +2916,53 @@
                 window.location.href = 'versorger.html?branch=' + encodeURIComponent(branch) + '&plz=' + encodeURIComponent(plz) + '#tarife';
             });
         }
-        // Generic interactive form handler for subpage forms (Kontakt, Partner, Karriere, B2B, Service)
+        // Contact Form -> Sends to /api/contact & lands in /admin (Kontaktanfragen)
         document.querySelectorAll('.octo-interactive-form').forEach(function(form) {
             form.addEventListener('submit', function(e) {
                 e.preventDefault();
+                var inputs = form.querySelectorAll('input.octo-field-input');
+                var selectEl = form.querySelector('select.octo-field-input');
+                var textareaEl = form.querySelector('textarea.octo-field-input');
+                var nameVal = inputs[0] ? inputs[0].value.trim() : 'Unbekannt';
+                var phoneVal = inputs[1] ? inputs[1].value.trim() : '';
+                var emailVal = inputs[2] ? inputs[2].value.trim() : '';
+                var custNoVal = inputs[3] ? inputs[3].value.trim() : '';
+                var subjectVal = selectEl ? selectEl.value.trim() : 'Kontaktanfrage';
+                var msgVal = textareaEl ? textareaEl.value.trim() : '';
+                if (custNoVal) {
+                    msgVal = '[Kunden-/Auftragsnr.: ' + custNoVal + '] ' + msgVal;
+                }
+
+                var isLocalDev = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') && window.location.port !== '3000';
+                var isFileProtocol = window.location.protocol === 'file:';
+                var baseUrl = (isLocalDev || isFileProtocol) ? 'http://localhost:3000' : '';
+
+                fetch(baseUrl + '/api/contact', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        name: nameVal,
+                        phone: phoneVal,
+                        email: emailVal,
+                        subject: subjectVal,
+                        message: msgVal || subjectVal
+                    })
+                }).catch(function(err) { console.error(err); });
+
+                if (subjectVal.indexOf('Vertriebspartnerschaft') !== -1) {
+                    fetch(baseUrl + '/api/partner-application', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            fullName: nameVal,
+                            email: emailVal,
+                            phone: phoneVal,
+                            experience: subjectVal,
+                            notes: msgVal
+                        })
+                    }).catch(function(err) { console.error(err); });
+                }
+
                 var successEl = form.querySelector('.octo-form-success');
                 if (successEl) {
                     successEl.style.display = 'block';
