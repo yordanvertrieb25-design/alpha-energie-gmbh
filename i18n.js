@@ -1,6 +1,6 @@
 /**
  * Alpha Energie GmbH - Multi-Language Translation System (i18n)
- * Supports: German (DE), English (EN), Turkish (TR)
+ * Supports: German (DE), English (EN), Turkish (TR), Arabic (AR)
  * Idiomatic utility & renewable energy terminology.
  * Lossless roundtrip restoration to German via dataset.i18nOriginal.
  * 0 Emojis, 100% Vector SVGs, 0 Firstcon visible frontend mentions.
@@ -362,7 +362,46 @@
             kwh_year: 'kWh/year',
             savings_format: 'Save up to €{val} / year',
             guarantee_format: 'Fair {val} months price guarantee',
-            max_savings_format: 'Up to €{val} / year!'
+            max_savings_format: 'Up to €{val} / year!',
+
+            // Octopus-Style Sections (versorger.html)
+            octo_promo_bar: '<strong>Up to €380 annual savings</strong> compared to basic supply &amp; up to <strong>24 months full price guarantee</strong>. <a href="#rechner" class="octo-promo-code">Calculate savings now &rarr;</a>',
+            octo_hero_pre: 'Switch now to',
+            octo_hero_trust_1: '<strong>4.9 out of 5 stars</strong> in <a href="#bewertungen">customer reviews</a> • 100% ok-power green electricity &amp; eco-gas',
+            octo_hero_trust_2: '<a href="#tarife">Alpha Switching Guarantee</a> – Up to 24 months full price protection',
+            octo_hero_trust_3: 'Personal phone service from Dortmund: <strong>0231 39989390</strong>',
+            octo_wolf_pill: '⚡ Your Alpha-Wolf',
+            octo_stage_badge_top: 'Save up to €380 / year',
+            octo_calc_kwh_label: 'Annual Consumption',
+            octo_award1_title: 'Alpha Switching Guarantee',
+            octo_award1_sub: 'Never without power (§ 20 EnWG) & €0 switching costs',
+            octo_award2_title: 'Top Service Germany',
+            octo_award2_sub: 'Personal customer center on site in Dortmund',
+            octo_award3_title: 'ok-power Certified',
+            octo_award3_sub: '100% genuine green electricity in the UBA HKNR register',
+            octo_award4_title: 'Best Value Winner',
+            octo_award4_sub: 'Official BDEB member & up to 24M price protection',
+            octo_mascot_tarife_tag: 'Alpha-Wolf Tip',
+            octo_mascot_tarife_text: 'Lock in your preferred tariff with price guarantee right here!',
+            octo_bento1_h3: 'Find out which tariff fits you best!',
+            octo_bento1_p: 'Tell us how you use energy – we find the right Alpha Energie tariff for your home in seconds.',
+            octo_bento1_btn: 'Find Tariff',
+            octo_bento2_h3: 'Save permanently – with zero hidden costs',
+            octo_bento2_p: 'We rely on permanently low working and base prices instead of short-term teaser offers. Secure <strong>up to €380 annual savings</strong> compared to basic supply and <strong>up to 24 months full price guarantee</strong>.',
+            octo_bento2_btn: 'Calculate Savings Now',
+            octo_mehr_h2: 'More energy for your money.',
+            octo_mehr_sub: 'Secure affordable green electricity & gas tariffs for yourself or your business',
+            octo_smart_h2: '100% green electricity & climate-neutral eco-gas for your home.',
+            octo_smart_sub: 'Whether affordable green power for your home or reliable eco-gas for your heating – find the tariff that fits you perfectly',
+            octo_heizen_h2: 'Green Electricity & Eco-Gas – Switch easily, save permanently',
+            octo_heizen_sub: 'Transparent conditions, legally guaranteed supply security, and €0 switching costs.',
+            octo_inno_h2: 'Clean Energy. Fair Prices. Genuine Service.',
+            octo_inno_sub: 'Become part of the energy transition with Alpha Energie GmbH',
+            octo_alpha_h2: 'Highlights & Insights from the Alphaverse',
+            octo_alpha_sub: 'Dive into our world – from digital customer service and partner stories to career opportunities',
+            octo_footer_q_h3: 'Do you have questions about your electricity or gas contract?',
+            octo_footer_news_h3: 'Positive energy straight to your inbox',
+            octo_footer_news_p: 'Secure exclusive tariff benefits, energy-saving tips, and news about 100% green electricity and climate-neutral eco-gas from Alpha Energie GmbH.'
         },
 
         tr: {
@@ -711,7 +750,434 @@
             kwh_year: 'kWh/yıl',
             savings_format: 'Yılda {val} €\'ya varan tasarruf',
             guarantee_format: 'Adil {val} ay sabit fiyat garantisi',
-            max_savings_format: 'Yılda {val} €\'ya varan!'
+            max_savings_format: 'Yılda {val} €\'ya varan!',
+
+            // Octopus-Style Sections (versorger.html)
+            octo_promo_bar: 'Temel tedariğe kıyasla <strong>yılda 380 €\'ya varan tasarruf</strong> &amp; <strong>24 aya varan tam fiyat garantisi</strong>. <a href="#rechner" class="octo-promo-code">Şimdi tasarrufu hesapla &rarr;</a>',
+            octo_hero_pre: 'Şimdi geçin:',
+            octo_hero_trust_1: '<a href="#bewertungen">Müşteri değerlendirmelerinde</a> <strong>5 üzerinden 4.9 yıldız</strong> • %100 ok-power yeşil elektrik &amp; eko-gaz',
+            octo_hero_trust_2: '<a href="#tarife">Alpha Geçiş Garantisi</a> – 24 aya varan tam fiyat koruması',
+            octo_hero_trust_3: 'Dortmund\'dan kişisel telefon hizmeti: <strong>0231 39989390</strong>',
+            octo_wolf_pill: '⚡ Senin Alpha-Kurdu',
+            octo_stage_badge_top: 'Yılda 380 €\'ya varan tasarruf',
+            octo_calc_kwh_label: 'Yıllık Tüketim',
+            octo_award1_title: 'Alpha Geçiş Garantisi',
+            octo_award1_sub: 'Kesintisiz elektrik (§ 20 EnWG) & 0 € geçiş ücreti',
+            octo_award2_title: 'Almanya En İyi Hizmet',
+            octo_award2_sub: 'Dortmund\'da yerinde kişisel müşteri merkezi',
+            octo_award3_title: 'ok-power Sertifikalı',
+            octo_award3_sub: 'Federal Çevre Ajansı HKNR sicilinde %100 gerçek yeşil elektrik',
+            octo_award4_title: 'Fiyat-Performans Lideri',
+            octo_award4_sub: 'Resmi BDEB üyesi & 24 aya varan fiyat koruması',
+            octo_mascot_tarife_tag: 'Alpha-Kurdu İpucu',
+            octo_mascot_tarife_text: 'Fiyat garantili tarifenizi hemen buradan güvence altına alın!',
+            octo_bento1_h3: 'Size en uygun tarifeyi hemen keşfedin!',
+            octo_bento1_p: 'Enerjiyi nasıl kullandığınızı söyleyin – eviniz için en uygun Alpha Energie tarifesini saniyeler içinde bulalım.',
+            octo_bento1_btn: 'Tarife Bul',
+            octo_bento2_h3: 'Gizli maliyet olmadan kalıcı tasarruf edin',
+            octo_bento2_p: 'Kısa vadeli kampanyalar yerine kalıcı olarak uygun birim ve sabit fiyatlar sunuyoruz. Temel tedariğe kıyasla <strong>yılda 380 €\'ya varan tasarruf</strong> ve <strong>24 aya varan tam fiyat garantisi</strong> elde edin.',
+            octo_bento2_btn: 'Şimdi Tasarrufu Hesapla',
+            octo_mehr_h2: 'Paranızın karşılığında daha fazla enerji.',
+            octo_mehr_sub: 'Kendiniz veya işletmeniz için uygun fiyatlı yeşil elektrik ve gaz tarifelerini güvenceye alın',
+            octo_smart_h2: 'Eviniz için %100 yeşil elektrik ve iklim nötr eko-gaz.',
+            octo_smart_sub: 'İster eviniz için uygun fiyatlı yeşil elektrik ister ısıtmanız için güvenilir eko-gaz – size en uygun tarifeyi bulun',
+            octo_heizen_h2: 'Yeşil Elektrik & Eko-Gaz – Kolayca geçin, kalıcı tasarruf edin',
+            octo_heizen_sub: 'Şeffaf koşullar, yasal garantili tedarik güvenliği ve 0 € geçiş maliyeti.',
+            octo_inno_h2: 'Temiz Enerji. Adil Fiyatlar. Gerçek Hizmet.',
+            octo_inno_sub: 'Alpha Energie GmbH ile enerji dönüşümünün bir parçası olun',
+            octo_alpha_h2: 'Alphaversum\'dan Öne Çıkanlar & İçgörüler',
+            octo_alpha_sub: 'Dijital müşteri hizmetlerinden iş ortağı hikayelerine ve kariyer fırsatlarına kadar dünyamızı keşfedin',
+            octo_footer_q_h3: 'Elektrik veya gaz sözleşmeniz hakkında sorularınız mı var?',
+            octo_footer_news_h3: 'Pozitif enerji doğrudan e-posta kutunuzda',
+            octo_footer_news_p: 'Alpha Energie GmbH\'nin %100 yeşil elektrik ve iklim nötr eko-gaz tarifeleri, enerji tasarrufu ipuçları ve özel avantajlarından haberdar olun.'
+        },
+
+        ar: {
+            page_title: 'Alpha Energie | كهرباء خضراء 100% وتعريفات غاز في جميع أنحاء ألمانيا',
+
+            // Toast
+            toast_text: '<strong>مرحباً بكم!</strong> كهرباء خضراء نظيفة 100% في جميع أنحاء ألمانيا. وفّر <strong>حتى 380 € سنوياً</strong> مع طاقة ok-power المعتمدة.',
+
+            // Topbar
+            topbar_hours: 'الإثنين – الجمعة 08:00 – 18:00 | خدمة في جميع أنحاء ألمانيا ومركز خدمة العملاء في دورتموند',
+
+            // Navigation
+            nav_tariffs: 'الكهرباء والتعريفات',
+            nav_oekostrom: 'كهرباء خضراء 100%',
+            nav_waermestrom: 'كهرباء المضخات الحرارية (§ 14a EnWG)',
+            nav_oekogas: 'غاز طبيعي مع مساهمة مناخية',
+            nav_gewerbe: 'كهرباء تجارية وللشركات',
+            nav_solutions: 'حلول الطاقة',
+            nav_photovoltaik: 'الطاقة الشمسية والتخزين',
+            nav_sektorenkopplung: 'الربط القطاعي للطاقة',
+            nav_co2_audits: 'تدقيق الطاقة ومسار CO2',
+            nav_service: 'الخدمة والمساعدة',
+            nav_calculator: 'حاسبة التعريفات عبر الإنترنت',
+            nav_customer_service: 'خدمة العملاء والبوابة',
+            nav_meter_report: 'إبلاغ قراءة العداد عبر الإنترنت',
+            nav_relocation: 'خدمة الانتقال وتغيير السكن',
+            nav_company: 'الشركة والشركاء',
+            nav_about: 'عن Alpha Energie',
+            nav_partner: 'كن شريكاً (المبيعات)',
+            nav_careers: 'الوظائف',
+            nav_contact: 'اتصل بنا',
+            nav_btn_calc: 'احسب التعريفة',
+            nav_btn_partner: 'كن شريكاً',
+
+            // Hero
+            hero_tag: 'مزود الكهرباء الخضراء والطاقة في جميع أنحاء ألمانيا',
+            hero_title: 'بسيط. شفاف.<br><span class="text-orange-gradient">مضمون بأفضل الأسعار.</span>',
+            hero_desc: 'انتقل في 3 دقائق فقط إلى كهرباء خضراء من مصادر متجددة بنسبة 100%، أو كهرباء مضخات حرارية موثوقة وفق § 14a، أو غاز طبيعي مع مساهمة طوعية في حماية المناخ. متاح في جميع أنحاء ألمانيا مع ضمان سعر كامل يصل إلى 24 شهراً، ومكافأة للعملاء الجدد، وخدمة عملاء شخصية في المقر الرئيسي في دورتموند.',
+            hero_badge_price: 'حماية السعر لمدة 24 شهراً',
+            hero_badge_eco: 'طاقة متجددة 100% (ok-power)',
+            hero_badge_switch: 'خدمة انتقال مجانية',
+
+            // Hero Floating Badges
+            hero_float_badge1_title: 'كهرباء 100% من مصادر متجددة',
+            hero_float_badge1_sub: 'معتمدة وفق معايير ok-power',
+            hero_float_badge2_title: 'توفير يصل إلى 380 € / سنة',
+            hero_float_badge2_sub: 'مقارنة بالتعريفة الأساسية',
+            hero_float_badge3_title: 'خدمة عملاء محلية في دورتموند',
+            hero_float_badge3_sub: 'Alter Hellweg 50 • 0231 39989390',
+
+            // Rechner
+            calc_title: 'حاسبة التعريفات المباشرة',
+            calc_subtitle: 'قارن تعريفاتنا لرمزك البريدي في الوقت الفعلي:',
+            calc_tab_strom_title: 'كهرباء خضراء',
+            calc_tab_strom_sub: '100% متجددة',
+            calc_tab_waerme_title: 'كهرباء تدفئة',
+            calc_tab_waerme_sub: '§ 14a EnWG',
+            calc_tab_gas_title: 'غاز طبيعي',
+            calc_tab_gas_sub: 'مساهمة مناخية',
+
+            // Rechner Dynamic Notices
+            notice_strom: 'كهرباء خضراء من مصادر متجددة 100% • معتمدة وفق معايير ok-power',
+            notice_waerme: 'كهرباء المضخات الحرارية (§ 14a EnWG) • خصم يصل إلى 25% على رسوم الشبكة للمضخات الحرارية',
+            notice_gas: 'غاز طبيعي مع مساهمة طوعية في حماية المناخ • تعويض معتمد لانبعاثات CO2',
+
+            // Rechner Form
+            calc_plz_label: 'الرمز البريدي الخاص بك',
+            calc_household_label: 'حجم الأسرة / الاستهلاك القياسي',
+            calc_1pers: 'شخص واحد',
+            calc_2pers: 'شخصان',
+            calc_3pers: '3 أشخاص',
+            calc_4pers: '4+ أشخاص',
+            calc_kwh_unit: 'ك.و.س / سنة',
+            calc_abschlag_label: 'الدفعة الشهرية الحالية (€ / شهر)',
+            calc_savings_label: 'إمكانية التوفير المحسوبة لك:',
+            calc_savings_text: 'حتى 320 € / سنة!',
+            calc_submit_btn: 'احسب وقارن التعريفات ↓',
+            calc_guarantee_note: 'انتقال مجاني، غير ملزم ومعتمد',
+
+            // Bento Metric Cards
+            bento_pill_eco: 'ok-power',
+            bento_card1_label: 'كهرباء خضراء من طاقة متجددة 100%',
+            bento_card1_desc: 'طاقة مائية ورياح معتمدة ومفحوصة وفق معايير ok-power الصارمة، خالية تماماً من الطاقة النووية والفحم.',
+            bento_pill_savings: 'التوفير',
+            bento_card2_number: 'حتى 380 €',
+            bento_card2_label: 'توفير سنوي',
+            bento_card2_desc: 'متوسط ميزة التوفير السنوي مقارنة بتعريفات المزود الأساسي المحلي.',
+            bento_pill_guarantee: 'الضمان',
+            bento_card3_number: '24 شهراً',
+            bento_card3_label: 'ضمان سعر ثابت',
+            bento_card3_desc: 'أمان كامل في التكاليف وحماية طويلة الأمد ضد ارتفاع الضرائب والرسوم وتكاليف الشبكة.',
+            bento_pill_service: 'مجاناً',
+            bento_card4_label: 'خدمة انتقال رقمية سلسة',
+            bento_card4_desc: 'نقوم بإلغاء عقدك القديم لدى مزودك السابق تلقائياً – انتقال مضمون وسلس دون أي انقطاع في التيار.',
+
+            // Tariff Cards
+            tariffs_tag: 'نظرة عامة على تعريفاتنا',
+            tariffs_title: 'تعريفات كهرباء شفافة للمنزل والشركات',
+            tariffs_subtitle: 'كهرباء خضراء من مصادر متجددة 100%، ضمان سعر كامل وخدمة انتقال مجانية بدون تعقيدات إدارية.',
+
+            tariff_basic_badge: 'مرن واقتصادي',
+            tariff_basic_savings: 'وفّر حتى 300 € / سنة',
+            tariff_basic_b1: 'ضمان سعر كامل لمدة 12 شهراً',
+            tariff_basic_b2: 'كهرباء خضراء من مصادر متجددة 100% (طاقة مائية)',
+            tariff_basic_b3: 'قابل للإلغاء شهرياً بعد السنة الأولى',
+            tariff_basic_b4: 'خدمة انتقال مجانية وإلغاء العقد السابق',
+            tariff_basic_btn: 'اختر التعريفة ←',
+
+            tariff_time_ribbon: 'الأكثر مبيعاً وطاقة ذكية',
+            tariff_time_badge: 'طاقة ذكية و § 14a',
+            tariff_time_savings: 'وفّر حتى 380 € / سنة',
+            tariff_time_b1: 'تعريفة ذكية ديناميكية متغيرة حسب الوقت',
+            tariff_time_b2: 'محسّنة للمضخات الحرارية، شواحن السيارات والتخزين',
+            tariff_time_b3: 'خصم يصل إلى 25% على رسوم الشبكة (§ 14a EnWG)',
+            tariff_time_b4: 'متابعة شفافة عبر التطبيق وتحكم مباشر',
+            tariff_time_btn: 'اختر الأكثر مبيعاً ←',
+
+            tariff_premium_badge: 'حماية سعر 24 شهراً وخدمة VIP',
+            tariff_premium_savings: 'وفّر حتى 280 € / سنة',
+            tariff_premium_b1: 'استقرار كامل في السعر لمدة 24 شهراً حتى 2028',
+            tariff_premium_b2: 'كهرباء خضراء من مصادر متجددة 100% (ok-power)',
+            tariff_premium_b3: 'خدمة عملاء ذات أولوية من دورتموند',
+            tariff_premium_b4: 'حماية ضد ارتفاع الضرائب ورسوم الشبكة',
+            tariff_premium_btn: 'اختر التعريفة ←',
+
+            // Advantages Section (Warum wir)
+            vorteile_tag: 'مزاياك التي لا تقبل المنافسة',
+            vorteile_title: 'لماذا نحن الأفضل: 5 مزايا حاسمة مقارنة بالتعريفة الأساسية',
+            vorteile_subtitle: 'وفّر أموالاً حقيقية مع أمان إمداد 100% في جميع أنحاء ألمانيا، وضمان سعر شفاف، وخدمة شخصية في دورتموند.',
+
+            vorteil1_title: 'سعر الاستهلاك والسعر الأساسي: عادل واقتصادي دائماً',
+            vorteil1_desc: 'وفّر حتى <strong>380 € سنوياً</strong> مقارنة بالتعريفة الأساسية التي غالباً ما تكون أغلى بنسبة 30–45%. لا توجد تكاليف خفية، بل شروط شفافة وعادلة منذ اليوم الأول.',
+            vorteil2_title: 'ضمان السعر: قابلية تخطيط كاملة تصل إلى 24 شهراً',
+            vorteil2_desc: 'بينما يمكن للمزود الأساسي رفع الأسعار بإشعار مدته 6 أسابيع فقط، تحميك ضمانات الأسعار الثابتة لدينا لمدة <strong>12 إلى 24 شهراً</strong> بشكل موثوق من تقلبات السوق.',
+            vorteil3_title: 'مصدر الطاقة: كهرباء خضراء من مصادر متجددة 100%',
+            vorteil3_desc: 'معتمدة بصرامة وفق <strong>معايير ok-power</strong> ومسجلة في سجل ضمانات المنشأ بالهيئة الفيدرالية للبيئة (HKNR) – بدلاً من مزيج الكهرباء الرمادي غير الشفاف.',
+            vorteil4_title: 'إمداد في جميع أنحاء ألمانيا وخدمة عملاء محلية',
+            vorteil4_desc: 'إمداد بالطاقة في كافة أنحاء ألمانيا مع خدمة عملاء شخصية: بدون تحويلات مراكز الاتصال أو فترات انتظار طويلة. مستشارون محليون في مركز عملاء دورتموند (Alter Hellweg 50) بخدمتكم هاتفياً وشخصياً.',
+            vorteil5_title: 'خدمة انتقال رقمية 100%: تلقائية وسلسة',
+            vorteil5_desc: 'نقوم بإلغاء عقدك لدى مزودك السابق بالكامل بدون أوراق وفي الوقت المحدد. استمرار إمداد الكهرباء دون انقطاع مضمون قانونياً وفق § 20 EnWG – يتم الانتقال في 3 دقائق فقط.',
+
+            // ok-power Explainer
+            ok_power_sub: 'ختم الجودة',
+            ok_power_title: 'ختم الجودة الأصلي ok-power: الركائز الأربع لتحول مضمون في الطاقة',
+            ok_power_desc: 'يدعم ختم الجودة المستقل الرائد ok-power جمعية <strong>EnergieVision e.V.</strong>، التي تأسست بشكل مشترك من قبل <strong>مركز حماية المستهلك NRW</strong> ومعهد <strong>Öko-Institut e.V.</strong> المرموق. وهو يضمن أن تعريفتك تقدم قيمة مضافة حقيقية ومثبتة لتوسيع الطاقة المتجددة.',
+            ok_power_p1: '<strong>تسجيل منشأ 100% لدى الهيئة الفيدرالية للبيئة:</strong> إلغاء جميع الشهادات في السجل الألماني الرسمي لضمانات المنشأ.',
+            ok_power_p2: '<strong>دعم ثابت للمحطات الجديدة:</strong> مبالغ محددة بالسنت لكل كيلوواط ساعة تتدفق مباشرة لبناء محطات توليد حديثة.',
+            ok_power_p3: '<strong>عدم الارتباط بشركات الفحم أو الطاقة النووية:</strong> استبعاد صارم للمزودين الذين يمتلكون حصصاً في محطات الفحم أو الطاقة النووية.',
+            ok_power_p4: '<strong>تدقيق سنوي مستقل:</strong> فحص منتظم لجميع كميات الكهرباء من قبل مدققين مستقلين معتمدين.',
+
+            // Comparison Matrix
+            matrix_tag: 'مقارنة شفافة للتعريفات',
+            matrix_title: 'Alpha Energie مقابل المزود الأساسي المحلي',
+            matrix_subtitle: 'شاهد بنظرة سريعة كيف يعود الانتقال من التعريفة الأساسية إلى Alpha Energie بالنفع المباشر عليك.',
+            matrix_th_feature: 'ميزة الأداء والمعيار',
+            matrix_th_alpha_badge: 'موصى به',
+            matrix_th_alpha_title: 'Alpha Energie GmbH',
+            matrix_th_alpha_sub: 'تعريفات معتمدة',
+            matrix_th_standard_title: 'المزود الأساسي المحلي',
+            matrix_th_standard_sub: 'التعريفة القياسية',
+
+            matrix_r1_feature: 'مصدر الكهرباء والاعتماد',
+            matrix_r1_hint: 'شهادات المنشأ والمعايير',
+            matrix_r1_alpha: '<strong>طاقة متجددة 100%</strong> (معايير ok-power، سجل HKNR UBA)',
+            matrix_r1_standard: 'مزيج كهرباء رمادي تقليدي (يشمل الفحم والطاقة النووية)',
+
+            matrix_r2_feature: 'استقرار السعر وحمايته',
+            matrix_r2_hint: 'أمان التخطيط التعاقدي',
+            matrix_r2_alpha: '<strong>حماية سعر تصل إلى 24 شهراً</strong> على تكاليف الطاقة والشبكة',
+            matrix_r2_standard: 'أسعار متغيرة، زيادات متكررة في الأسعار بعد بضعة أشهر',
+
+            matrix_r3_feature: 'التوفير والتعريفات العادلة',
+            matrix_r3_hint: 'الدفعة الشهرية والشروط',
+            matrix_r3_alpha: '<strong>توفير يصل إلى 380 € / سنة</strong> من خلال شروط عادلة وشفافة',
+            matrix_r3_standard: 'تعريفة أساسية مرتفعة بشكل ملحوظ، بدون أي توفير',
+
+            matrix_r4_feature: 'رسوم الشبكة § 14a EnWG',
+            matrix_r4_hint: 'خصم المضخة الحرارية وشاحن السيارة',
+            matrix_r4_alpha: '<strong>خصم يصل إلى 25% على رسوم الشبكة</strong> محسّن عبر ALPHA TIME',
+            matrix_r4_standard: 'تعريفة قياسية بدون تخفيض تلقائي لرسوم الشبكة § 14a',
+
+            matrix_r5_feature: 'خدمة العملاء والاستشارة',
+            matrix_r5_hint: 'التواجد المحلي',
+            matrix_r5_alpha: '<strong>شخصياً في دورتموند</strong> (0231 39989390، واتساب و Alter Hellweg 50)',
+            matrix_r5_standard: 'فترات انتظار طويلة في مراكز اتصال خارجية',
+
+            matrix_r6_feature: 'خدمة الانتقال والإجراءات',
+            matrix_r6_hint: 'إلغاء العقد لدى المزود السابق',
+            matrix_r6_alpha: '<strong>مجانية 100% وبدون انقطاع</strong> (شاملة إلغاء العقد القديم)',
+            matrix_r6_standard: 'لا يوجد دعم عند الانتقال إلى تعريفات أرخص',
+
+            matrix_cta_btn: 'احسب التوفير وانتقل الآن ←',
+
+            // Sektorenkopplung
+            sektor_tag: 'ميزة Alpha Energie الفريدة',
+            sektor_title: 'الربط القطاعي: الطاقة الشمسية + المضخة الحرارية + شاحن السيارة',
+            sektor_subtitle: 'اربط الكهرباء والتدفئة والتنقل الكهربائي في نظام ذكي متكامل، وخفّض تكاليف الطاقة بنسبة تصل إلى 80%.',
+            sektor1_title: 'الطاقة الشمسية والتخزين',
+            sektor1_desc: 'ولّد كهرباءك الخضراء من سطح منزلك وخزّنها مباشرة في بطاريات LFP الحديثة لتحقيق أقصى قدر من الاستقلالية.',
+            sektor1_btn: 'اكتشف الطاقة الشمسية',
+            sektor2_title: 'كهرباء المضخات الحرارية § 14a',
+            sektor2_desc: 'تدفئة برسوم شبكة مخفضة حكومياً. يحول التحكم الذكي SG-Ready فائض الطاقة الشمسية إلى حرارة.',
+            sektor2_btn: 'عرض كهرباء التدفئة',
+            sektor3_title: 'شاحن الحائط والتنقل الكهربائي',
+            sektor3_desc: 'شحن ذكي بفائض الطاقة للسيارات الكهربائية. استفد من كهرباء الأوقات المنخفضة أو الطاقة الشمسية بنسبة 100%.',
+            sektor3_btn: 'استكشف الربط القطاعي',
+
+            // Solutions
+            sol_b2b_tag: 'التجارة والصناعة',
+            sol_b2b_title: 'للعملاء التجاريين والشركات (B2B)',
+            sol_b2b_desc: 'احمِ شركتك من تقلبات الأسعار. من خلال تدقيق الطاقة وفق DIN EN 16247-1، والتزود الذاتي بالطاقة الشمسية، وتقليل ذروة الأحمال، نخفض تكاليف التشغيل بشكل مستدام ونضمن توافق ESG.',
+            sol_b2b_btn: 'إلى حلول الشركات B2B',
+            sol_vp_tag: 'المبيعات والوكالات',
+            sol_vp_title: 'لشركاء المبيعات',
+            sol_vp_desc: 'استخدم بوابة الشركاء الرقمية للكهرباء والغاز والاتصالات. استفد من أعلى العمولات، والدفعات الأسبوعية، والتتبع الفوري، والدعم الشخصي.',
+            sol_vp_btn: 'كن شريك مبيعات',
+
+            // Mission
+            mission_ai_badge: 'مُولّد بالذكاء الاصطناعي',
+            mission_tag: 'مهمتنا',
+            mission_title: 'إمداد الطاقة برؤية جديدة',
+            mission_desc: 'في شركة Alpha Energie GmbH في دورتموند، نجمع بين عقود من الخبرة في قطاع الطاقة والبنية التحتية الرقمية الحديثة. كمزود طاقة عادل، نركز على الشفافية، وجودة الكهرباء الخضراء المعتمدة، والدعم الشخصي المباشر.',
+            mission_btn: 'تعرّف على المزيد عنا',
+
+            // Timeline
+            timeline_tag: 'تاريخنا',
+            timeline_title: 'رحلتنا في لمحة سريعة',
+            timeline_subtitle: 'من رائد للطاقة في دورتموند إلى شريك رائد لحلول الطاقة المتجددة بنسبة 100%.',
+            milestone_2021_title: '2021 – التأسيس في دورتموند',
+            milestone_2021_desc: 'تأسيس شركة Alpha Energie GmbH في دورتموند (Alter Hellweg 50) بخبرة إدارية تزيد عن 15 عاماً في سوق الطاقة الألماني للجمع بين الكهرباء الخضراء الحقيقية وخدمة العملاء الشفافة.',
+            milestone_2023_title: '2023 – التوسع وتقنية البوابات الرقمية',
+            milestone_2023_desc: 'بناء شبكة على مستوى ألمانيا وإطلاق بوابات رقمية بالكامل للعملاء والشركاء لتغيير المزود بسرعة وبدون أوراق.',
+            milestone_2024_title: '2024 – الربط القطاعي و § 14a EnWG',
+            milestone_2024_desc: 'التوسع في أجهزة الاستهلاك القابلة للتحكم: كهرباء المضخات الحرارية وفق § 14a EnWG بخصم يصل إلى 25% على رسوم الشبكة، وأنظمة تخزين الطاقة الشمسية، وحلول الشحن الذكية.',
+            milestone_2026_title: '2026 – مبادرة الطاقة الخضراء الجديدة',
+            milestone_2026_desc: 'الاعتماد وفق معايير ok-power الصارمة، وتسجيل ضمانات المنشأ بنسبة 100% لدى الهيئة الفيدرالية للبيئة (HKNR)، وإطلاق تعريفات ALPHA BASIC و ALPHA TIME و ALPHA PREMIUM.',
+
+            // FAQ
+            faq_tag: 'أسئلة وأجوبة',
+            faq_title: 'الأسئلة الشائعة',
+            faq_subtitle: 'كل ما تحتاج معرفته حول الانتقال، وضمان السعر، والفوترة.',
+            faq_q1: 'كيف يتم الانتقال في الكهرباء إلى Alpha Energie؟',
+            faq_a1: 'في 3 خطوات بسيطة: 1. اختر التعريفة في الحاسبة. 2. أدخل رقم العداد والعنوان. 3. استرخِ – نحن نلغي عقدك القديم ونضمن استمرار الإمداد دون انقطاع.',
+            faq_q2: 'هل إمداد الكهرباء مضمون أثناء عملية الانتقال؟',
+            faq_a2: 'نعم، بنسبة 100%. بموجب القانون الألماني، لا ينقطع التيار الكهربائي أبداً. تتم عملية الانتقال إدارياً بالكامل في الخلفية.',
+            faq_q3: 'ماذا يعني ضمان السعر لمدة 24 شهراً؟',
+            faq_a3: 'مع ضمان السعر الكامل لدينا، تثبّت سعر الطاقة الخاص بك ضد أي تقلبات في السوق أو زيادات في الأسعار لمدة 24 شهراً كاملة.',
+
+            // Order Modal
+            modal_order_title: 'الطلب عبر الإنترنت وتغيير المزود',
+            modal_step1_prog: '1. التعريفة والتاريخ',
+            modal_step2_prog: '2. العداد والعنوان',
+            modal_step3_prog: '3. البيانات الشخصية',
+            modal_order_selected_label: 'التعريفة المختارة:',
+            modal_order_monthly_label: 'الدفعة الشهرية:',
+            modal_order_kwh_label: 'الاستهلاك السنوي:',
+            modal_order_savings_prefix: 'وفّر حتى ',
+            modal_order_savings_suffix: ' € / سنة',
+            modal_order_start_label: 'تاريخ البدء المطلوب',
+            modal_order_opt_soon: 'في أقرب وقت ممكن (أقرب موعد متاح)',
+            modal_order_opt_expire: 'عند انتهاء العقد الحالي مع المزود السابق',
+            modal_order_opt_date: 'في تاريخ محدد مطلوب (مثل الانتقال لسكن جديد)',
+            modal_order_btn_to_step2: 'المتابعة إلى الخطوة 2: بيانات العداد ←',
+
+            modal_order_street: 'الشارع *',
+            modal_order_house_nr: 'رقم المبنى *',
+            modal_order_plz: 'الرمز البريدي *',
+            modal_order_city: 'المدينة *',
+            modal_order_meter_number: 'رقم العداد * (على عداد الكهرباء أو الغاز)',
+            modal_order_prev_provider: 'مزود الطاقة السابق (اختياري)',
+            modal_order_cancel_checkbox: 'تفويض Alpha Energie بإلغاء عقدي لدى مزودي السابق مجاناً وفي الوقت المحدد.',
+            modal_order_btn_back: '→ رجوع',
+            modal_order_btn_to_step3: 'المتابعة إلى الخطوة 3 ←',
+
+            modal_order_salutation: 'اللقب',
+            modal_order_salutation_mr: 'السيد',
+            modal_order_salutation_ms: 'السيدة',
+            modal_order_salutation_company: 'شركة',
+            modal_order_birthdate: 'تاريخ الميلاد (اختياري)',
+            modal_order_first_name: 'الاسم الأول *',
+            modal_order_last_name: 'اسم العائلة *',
+            modal_order_email: 'البريد الإلكتروني *',
+            modal_order_phone: 'رقم الهاتف *',
+            modal_order_iban: 'رقم الآيبان (IBAN) للخصم المباشر SEPA *',
+            modal_order_agb_checkbox: 'أوافق على <a href="datenschutz.html" target="_blank" style="text-decoration: underline; color: #ff7a00;">سياسة الخصوصية</a> وإرسال الطلب بشكل ملزم.',
+            modal_order_btn_submit: 'إتمام الطلب الملزم الآن',
+
+            modal_order_success_title: 'شكراً لطلبك!',
+            modal_order_success_desc: 'تم تسجيل طلب الانتقال الخاص بك بنجاح. لقد أرسلنا تأكيداً إلى بريدك الإلكتروني.',
+            modal_order_number_label: 'رقم الطلب: ',
+            modal_order_btn_close: 'إغلاق النافذة',
+
+            // Meter Modal
+            modal_meter_title: 'إبلاغ قراءة العداد عبر الإنترنت',
+            modal_meter_number: 'رقم العداد *',
+            modal_meter_reading: 'قراءة العداد الحالية (kWh) *',
+            modal_meter_name: 'الاسم الكامل *',
+            modal_meter_email: 'بريدك الإلكتروني *',
+            modal_meter_btn_submit: 'إرسال قراءة العداد الآن',
+
+            // Legal Cancellation Modal
+            modal_cancel_title: 'إلغاء العقد (§ 312k BGB)',
+            modal_cancel_title_revoke: 'التراجع عن الطلب (حق الإلغاء)',
+            modal_cancel_contract_nr: 'رقم العقد أو رقم العميل *',
+            modal_cancel_name: 'الاسم الكامل لصاحب العقد *',
+            modal_cancel_email: 'بريدك الإلكتروني للتأكيد *',
+            modal_cancel_reason: 'السبب (اختياري)',
+            modal_cancel_btn_submit: 'إرسال الإقرار الملزم قانونياً',
+
+            // Floating Action Bar (FAB)
+            fab_whatsapp: 'استشارة عبر واتساب',
+            fab_meter: 'إبلاغ قراءة العداد',
+            fab_faq: 'الأسئلة والمساعدة',
+
+            // Footer
+            footer_desc: 'تقدم شركة Alpha Energie GmbH حلول طاقة شفافة في جميع أنحاء ألمانيا: كهرباء خضراء من مصادر متجددة 100%، وكهرباء مضخات حرارية وفق § 14a EnWG، وغاز طبيعي مع مساهمة طوعية في حماية المناخ.',
+            footer_address: 'Alter Hellweg 50, 44379 Dortmund',
+            footer_title_tariffs: 'التعريفات والكهرباء',
+            footer_title_service: 'الخدمة والحلول',
+            footer_title_legal: 'معلومات قانونية',
+
+            footer_link_oekostrom: 'كهرباء خضراء 100%',
+            footer_link_waermestrom: 'كهرباء المضخات الحرارية (§ 14a)',
+            footer_link_oekogas: 'غاز طبيعي مع مساهمة مناخية',
+            footer_link_gewerbestrom: 'كهرباء تجارية',
+            footer_link_rechner: 'حاسبة التعريفات',
+            footer_link_kundenservice: 'خدمة العملاء',
+            footer_link_zaehler: 'إبلاغ قراءة العداد عبر الإنترنت',
+            footer_link_sektorenkopplung: 'الربط القطاعي طاقة شمسية+تدفئة',
+            footer_link_pv: 'الطاقة الشمسية',
+            footer_link_partner: 'كن شريكاً',
+            footer_link_datenschutz: 'سياسة الخصوصية',
+            footer_link_impressum: 'بيانات النشر',
+            footer_link_cookie_settings: 'إعدادات ملفات تعريف الارتباط',
+            footer_link_cookie_policy: 'سياسة ملفات تعريف الارتباط',
+            footer_link_vp_portal: 'دخول بوابة الشركاء',
+
+            footer_legal_cancel_text: '<strong>خدمة الإلغاء والتراجع القانونية (§ 312k BGB):</strong> يمكنك إلغاء عقدك الحالي أو التراجع عن طلبك لدى Alpha Energie GmbH مباشرة عبر الإنترنت هنا دون الحاجة إلى تسجيل.',
+            footer_btn_cancel: 'إلغاء العقد عبر الإنترنت',
+            footer_btn_revoke: 'التراجع عن الطلب',
+            footer_copyright: '© حقوق النشر 2026. جميع الحقوق محفوظة. Alpha Energie GmbH',
+            footer_cookie_manage: 'إدارة إعدادات ملفات تعريف الارتباط',
+
+            // Dynamic format helpers
+            per_month: '/ شهر',
+            kwh_year: 'ك.و.س/سنة',
+            savings_format: 'وفّر حتى {val} € / سنة',
+            guarantee_format: 'ضمان سعر ثابت وعادل لمدة {val} شهراً',
+            max_savings_format: 'حتى {val} € / سنة!',
+
+            // Octopus-Style Sections (versorger.html)
+            octo_promo_bar: '<strong>توفير سنوي يصل إلى 380 €</strong> مقارنة بالتعريفة الأساسية و<strong>ضمان سعر كامل حتى 24 شهراً</strong>. <a href="#rechner" class="octo-promo-code">احسب التوفير الآن &larr;</a>',
+            octo_hero_pre: 'انتقل الآن إلى',
+            octo_hero_trust_1: '<strong>4.9 من 5 نجوم</strong> في <a href="#bewertungen">تقييمات العملاء</a> • كهرباء خضراء وغاز بيئي 100% بمعيار ok-power',
+            octo_hero_trust_2: '<a href="#tarife">ضمان الانتقال من Alpha</a> – حماية كاملة للسعر تصل إلى 24 شهراً',
+            octo_hero_trust_3: 'خدمة هاتفية شخصية من دورتموند: <strong>0231 39989390</strong>',
+            octo_wolf_pill: '⚡ ذئب ألفا الخاص بك',
+            octo_stage_badge_top: 'وفّر حتى 380 € / سنة',
+            octo_calc_kwh_label: 'الاستهلاك السنوي',
+            octo_award1_title: 'ضمان الانتقال من Alpha',
+            octo_award1_sub: 'كهرباء دون انقطاع (§ 20 EnWG) و 0 € رسوم انتقال',
+            octo_award2_title: 'أفضل خدمة في ألمانيا',
+            octo_award2_sub: 'مركز خدمة عملاء شخصي في دورتموند',
+            octo_award3_title: 'معتمد بختم ok-power',
+            octo_award3_sub: 'كهرباء خضراء حقيقية 100% في سجل الهيئة الفيدرالية للبيئة HKNR',
+            octo_award4_title: 'الفائز بأفضل قيمة مقابل السعر',
+            octo_award4_sub: 'عضو رسمي في BDEB وحماية سعر حتى 24 شهراً',
+            octo_mascot_tarife_tag: 'نصيحة ذئب ألفا',
+            octo_mascot_tarife_text: 'احصل على تعريفتك المفضلة مع ضمان السعر مباشرة من هنا!',
+            octo_bento1_h3: 'اكتشف التعريفة الأنسب لك!',
+            octo_bento1_p: 'أخبرنا كيف تستهلك الطاقة – وسنجد لك تعريفة Alpha Energie المناسبة لمنزلك في ثوانٍ.',
+            octo_bento1_btn: 'ابحث عن التعريفة',
+            octo_bento2_h3: 'وفّر بشكل دائم – بدون أي تكاليف خفية',
+            octo_bento2_p: 'نعتمد على أسعار استهلاك وأسعار أساسية منخفضة بشكل دائم بدلاً من العروض المؤقتة. احصل على <strong>توفير سنوي يصل إلى 380 €</strong> مقارنة بالتعريفة الأساسية و<strong>ضمان سعر كامل حتى 24 شهراً</strong>.',
+            octo_bento2_btn: 'احسب التوفير الآن',
+            octo_mehr_h2: 'طاقة أكبر مقابل أموالك.',
+            octo_mehr_sub: 'احصل على تعريفات كهرباء خضراء وغاز بأسعار مناسبة لك أو لشركتك',
+            octo_smart_h2: 'كهرباء خضراء 100% وغاز بيئي محايد مناخياً لمنزلك.',
+            octo_smart_sub: 'سواء كنت تبحث عن كهرباء خضراء اقتصادية لمنزلك أو غاز بيئي موثوق للتدفئة – اعثر على التعريفة المثالية لك',
+            octo_heizen_h2: 'كهرباء خضراء وغاز بيئي – انتقل بسهولة ووفّر دائماً',
+            octo_heizen_sub: 'شروط شفافة، أمان إمداد مضمون قانونياً، و 0 € تكاليف انتقال.',
+            octo_inno_h2: 'طاقة نظيفة. أسعار عادلة. خدمة حقيقية.',
+            octo_inno_sub: 'كن جزءاً من تحول الطاقة مع شركة Alpha Energie GmbH',
+            octo_alpha_h2: 'أبرز المزايا واللمحات من عالم ألفا',
+            octo_alpha_sub: 'اكتشف عالمنا – من خدمة العملاء الرقمية وقصص الشركاء إلى فرص العمل',
+            octo_footer_q_h3: 'هل لديك أسئلة حول عقد الكهرباء أو الغاز الخاص بك؟',
+            octo_footer_news_h3: 'طاقة إيجابية مباشرة إلى بريدك الإلكتروني',
+            octo_footer_news_p: 'احصل على مزايا التعريفات الحصرية ونصائح توفير الطاقة وأخبار الكهرباء الخضراء 100% والغاز البيئي من Alpha Energie GmbH.'
         }
     };
 
@@ -732,7 +1198,7 @@
         { selector: '#main-nav .dropdown a[href="sektorenkopplung.html"]', key: 'nav_sektorenkopplung' },
         { selector: '#main-nav .dropdown a[href="nachhaltigkeit-co2.html"]', key: 'nav_co2_audits' },
         { selector: '#main-nav .nav-list > li:nth-child(3) > a', key: 'nav_service' },
-        { selector: '#main-nav .dropdown a[href="#rechner"]', key: 'nav_calculator' },
+        { selector: '#main-nav .dropdown a[href="#rechner"], #main-nav .dropdown a[href="/#rechner"]', key: 'nav_calculator' },
         { selector: '#main-nav .dropdown a[href="service.html"]', key: 'nav_customer_service' },
         { selector: '#main-nav .dropdown a[href="service.html#zaehler"]', key: 'nav_meter_report' },
         { selector: '#main-nav .dropdown a[href="service.html#umzug"]', key: 'nav_relocation' },
@@ -741,7 +1207,7 @@
         { selector: '#main-nav .dropdown a[href="partner-werden.html"]', key: 'nav_partner' },
         { selector: '#main-nav .dropdown a[href="karriere.html"]', key: 'nav_careers' },
         { selector: '#main-nav .dropdown a[href="kontakt.html"]', key: 'nav_contact' },
-        { selector: '.header-actions a[href="#rechner"]', key: 'nav_btn_calc' },
+        { selector: '.header-actions a[href="#rechner"], .header-actions a[href="/#rechner"]', key: 'nav_btn_calc' },
         { selector: '.header-actions a[href="partner-werden.html"], .header-actions a[href="/"]', key: 'nav_btn_partner' },
 
         // Hero
@@ -983,6 +1449,46 @@
         { selector: '#btnStep3Back', key: 'modal_order_btn_back', isHtml: true },
         { selector: '#btnStep3Submit', key: 'modal_order_btn_submit' },
 
+        // Octopus-Style Sections (versorger.html)
+        { selector: '.octo-promo-inner > span:nth-child(2)', key: 'octo_promo_bar', isHtml: true },
+        { selector: '.octo-hero-pre', key: 'octo_hero_pre' },
+        { selector: '.octo-hero-trust-list .octo-hero-trust-item:nth-child(1) > span:last-child', key: 'octo_hero_trust_1', isHtml: true },
+        { selector: '.octo-hero-trust-list .octo-hero-trust-item:nth-child(2) > span:last-child', key: 'octo_hero_trust_2', isHtml: true },
+        { selector: '.octo-hero-trust-list .octo-hero-trust-item:nth-child(3) > span:last-child', key: 'octo_hero_trust_3', isHtml: true },
+        { selector: '.octo-peeking-wolf-pill', key: 'octo_wolf_pill' },
+        { selector: '.octo-stage-badge-top', key: 'octo_stage_badge_top' },
+        { selector: 'label.octo-calc-col-label[for="calcKwh"]', key: 'octo_calc_kwh_label' },
+        { selector: '.octo-savings-pill > span', key: 'calc_savings_label' },
+        { selector: '.octo-awards-row .octo-award-badge-card:nth-child(1) .octo-award-title', key: 'octo_award1_title' },
+        { selector: '.octo-awards-row .octo-award-badge-card:nth-child(1) .octo-award-sub', key: 'octo_award1_sub' },
+        { selector: '.octo-awards-row .octo-award-badge-card:nth-child(2) .octo-award-title', key: 'octo_award2_title' },
+        { selector: '.octo-awards-row .octo-award-badge-card:nth-child(2) .octo-award-sub', key: 'octo_award2_sub' },
+        { selector: '.octo-awards-row .octo-award-badge-card:nth-child(3) .octo-award-title', key: 'octo_award3_title' },
+        { selector: '.octo-awards-row .octo-award-badge-card:nth-child(3) .octo-award-sub', key: 'octo_award3_sub' },
+        { selector: '.octo-awards-row .octo-award-badge-card:nth-child(4) .octo-award-title', key: 'octo_award4_title' },
+        { selector: '.octo-awards-row .octo-award-badge-card:nth-child(4) .octo-award-sub', key: 'octo_award4_sub' },
+        { selector: '#tarife .octo-mascot-speech-tag', key: 'octo_mascot_tarife_tag' },
+        { selector: '#tarife .octo-mascot-speech-text', key: 'octo_mascot_tarife_text' },
+        { selector: '.octo-bento-1-2 > .octo-card:nth-child(1) .octo-card-h3', key: 'octo_bento1_h3' },
+        { selector: '.octo-bento-1-2 > .octo-card:nth-child(1) .octo-card-p', key: 'octo_bento1_p' },
+        { selector: '.octo-bento-1-2 > .octo-card:nth-child(1) .octo-btn-cta', key: 'octo_bento1_btn' },
+        { selector: '.octo-bento-1-2 > .octo-card:nth-child(2) .octo-card-h3', key: 'octo_bento2_h3' },
+        { selector: '.octo-bento-1-2 > .octo-card:nth-child(2) .octo-card-p', key: 'octo_bento2_p', isHtml: true },
+        { selector: '.octo-bento-1-2 > .octo-card:nth-child(2) .octo-btn-cta', key: 'octo_bento2_btn' },
+        { selector: '#mehr-energie > .octo-container > .octo-section-h2', key: 'octo_mehr_h2' },
+        { selector: '#mehr-energie > .octo-container > .octo-section-sub', key: 'octo_mehr_sub' },
+        { selector: '#smarte-tarife .octo-section-h2', key: 'octo_smart_h2' },
+        { selector: '#smarte-tarife .octo-section-sub', key: 'octo_smart_sub' },
+        { selector: '#heizen-speichern .octo-section-h2', key: 'octo_heizen_h2' },
+        { selector: '#heizen-speichern .octo-section-sub', key: 'octo_heizen_sub' },
+        { selector: '#innovation .octo-section-h2', key: 'octo_inno_h2' },
+        { selector: '#innovation .octo-section-sub', key: 'octo_inno_sub' },
+        { selector: '#alphaversum .octo-section-h2', key: 'octo_alpha_h2' },
+        { selector: '#alphaversum .octo-section-sub', key: 'octo_alpha_sub' },
+        { selector: '#main-footer .octo-footer-card:nth-child(1) .octo-card-h3', key: 'octo_footer_q_h3' },
+        { selector: '#main-footer .octo-footer-card:nth-child(2) .octo-card-h3', key: 'octo_footer_news_h3' },
+        { selector: '#main-footer .octo-footer-card:nth-child(2) .octo-card-p', key: 'octo_footer_news_p' },
+
         { selector: '#modalStep4 h3', key: 'modal_order_success_title' },
         { selector: '#modalStep4 p', key: 'modal_order_success_desc' },
         { selector: '#modalStep4 button', key: 'modal_order_btn_close' },
@@ -1068,10 +1574,10 @@
 
     /**
      * Set language across the entire application
-     * @param {string} lang - 'de', 'en', or 'tr'
+     * @param {string} lang - 'de', 'en', 'tr', or 'ar'
      */
     function setLanguage(lang) {
-        if (!['de', 'en', 'tr'].includes(lang)) {
+        if (!['de', 'en', 'tr', 'ar'].includes(lang)) {
             lang = 'de';
         }
         currentLang = lang;
@@ -1185,6 +1691,10 @@
                 card2Number.setAttribute('data-counter-prefix', '');
                 card2Number.setAttribute('data-counter-suffix', " €'ya varan");
                 card2Number.textContent = "380 €'ya varan";
+            } else if (lang === 'ar') {
+                card2Number.setAttribute('data-counter-prefix', 'حتى ');
+                card2Number.setAttribute('data-counter-suffix', ' €');
+                card2Number.textContent = 'حتى 380 €';
             }
         }
 
@@ -1202,6 +1712,9 @@
             } else if (lang === 'tr') {
                 card3Number.setAttribute('data-counter-suffix', ' Ay');
                 card3Number.textContent = '24 Ay';
+            } else if (lang === 'ar') {
+                card3Number.setAttribute('data-counter-suffix', ' شهراً');
+                card3Number.textContent = '24 شهراً';
             }
         }
     }
@@ -1259,6 +1772,7 @@
         const l = lang || currentLang;
         if (l === 'de') return `${amount} €<span> / Monat</span>`;
         if (l === 'tr') return `${amount} €<span> / ay</span>`;
+        if (l === 'ar') return `${amount} €<span> / شهر</span>`;
         return `€${amount}<span> / month</span>`;
     }
 
@@ -1269,6 +1783,7 @@
         const l = lang || currentLang;
         if (l === 'de') return `Bis zu ${amount} € / Jahr sparen`;
         if (l === 'tr') return `Yılda ${amount} €'ya varan tasarruf`;
+        if (l === 'ar') return `وفّر حتى ${amount} € / سنة`;
         return `Save up to €${amount} / year`;
     }
 
@@ -1279,6 +1794,7 @@
         const l = lang || currentLang;
         if (l === 'de') return `Faire ${months} Monate Preisgarantie`;
         if (l === 'tr') return `Adil ${months} ay sabit fiyat garantisi`;
+        if (l === 'ar') return `ضمان سعر ثابت وعادل لمدة ${months} شهراً`;
         return `Fair ${months} months price guarantee`;
     }
 
@@ -1289,6 +1805,7 @@
         const l = lang || currentLang;
         if (l === 'de') return `Bis zu ${amount} € / Jahr!`;
         if (l === 'tr') return `Yılda ${amount} €'ya varan!`;
+        if (l === 'ar') return `حتى ${amount} € / سنة!`;
         return `Up to €${amount} / year!`;
     }
 
@@ -1300,7 +1817,7 @@
         const locale = l === 'en' ? 'en-US' : (l === 'tr' ? 'tr-TR' : 'de-DE');
         const kwhFormatted = Number(kwh).toLocaleString(locale);
         const ctFormatted = l === 'en' ? ctPerKwh.toFixed(2) : ctPerKwh.toFixed(2).replace('.', ',');
-        const unit = l === 'en' ? 'kWh/year' : (l === 'tr' ? 'kWh/yıl' : 'kWh/Jahr');
+        const unit = l === 'en' ? 'kWh/year' : (l === 'tr' ? 'kWh/yıl' : (l === 'ar' ? 'ك.و.س/سنة' : 'kWh/Jahr'));
         return `${kwhFormatted} ${unit} • ${ctFormatted} ct/kWh`;
     }
 
@@ -1322,11 +1839,11 @@
         try {
             const urlParams = new URLSearchParams(window.location.search);
             const queryLang = urlParams.get('lang');
-            if (queryLang && ['de', 'en', 'tr'].includes(queryLang.toLowerCase())) {
+            if (queryLang && ['de', 'en', 'tr', 'ar'].includes(queryLang.toLowerCase())) {
                 initialLang = queryLang.toLowerCase();
             } else {
                 const storedLang = localStorage.getItem('alpha_lang');
-                if (storedLang && ['de', 'en', 'tr'].includes(storedLang.toLowerCase())) {
+                if (storedLang && ['de', 'en', 'tr', 'ar'].includes(storedLang.toLowerCase())) {
                     initialLang = storedLang.toLowerCase();
                 }
             }
@@ -1350,7 +1867,7 @@
             if (el) cacheOriginal(el, mapping.hasSvgPrefix);
         });
 
-        // If stored language is EN or TR, switch now!
+        // If stored language is EN, TR, or AR, switch now!
         if (initialLang !== 'de') {
             setLanguage(initialLang);
         }

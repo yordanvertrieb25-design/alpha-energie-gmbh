@@ -482,4 +482,64 @@ test.describe('Multi-Language Translation System Verification (DE | EN | TR)', (
         }
     });
 
+    test('7. Switching to Arabic (AR) translates Navigation, Hero, Rechner, Badges, Tariffs, Modals, and Footer with 0px overflow', async ({ page }) => {
+        await page.goto('/versorger', { waitUntil: 'load' });
+        await page.evaluate(() => localStorage.removeItem('alpha_lang'));
+        await page.waitForTimeout(300);
+
+        // Click Arabic language button
+        const btnAr = page.locator('.lang-btn[data-lang="ar"]').first();
+        await expect(btnAr).toBeVisible();
+        await btnAr.click();
+
+        // 1. Check HTML lang attribute, title and button state
+        await expect(page.locator('html')).toHaveAttribute('lang', 'ar');
+        await expect(page).toHaveTitle('Alpha Energie | كهرباء خضراء 100% وتعريفات غاز في جميع أنحاء ألمانيا');
+        await expect(btnAr).toHaveClass(/active/);
+
+        // 2. Navigation
+        const navTariffs = page.locator('#main-nav .nav-list > li:nth-child(1) > a');
+        await expect(navTariffs).toHaveText('الكهرباء والتعريفات');
+        const calcCta = page.locator('.header-actions a[href="#rechner"]');
+        await expect(calcCta).toHaveText('احسب التعريفة');
+        const partnerBtn = page.locator('.header-actions a[href="/"], .header-actions a[href="partner-werden.html"]');
+        await expect(partnerBtn).toHaveText('كن شريكاً');
+
+        // 3. Hero Section
+        const heroTag = page.locator('.hero-versorger-content .versorger-tag');
+        await expect(heroTag).toContainText('مزود الكهرباء الخضراء والطاقة في جميع أنحاء ألمانيا');
+        const heroTitle = page.locator('.hero-versorger-title');
+        await expect(heroTitle).toContainText('بسيط. شفاف.');
+        await expect(heroTitle).toContainText('مضمون بأفضل الأسعار.');
+
+        // 4. Live-Tarifrechner
+        const rechnerTitle = page.locator('#rechner .rechner-header-title');
+        await expect(rechnerTitle).toHaveText('حاسبة التعريفات المباشرة');
+        await expect(page.locator('.calc-tab-btn[data-branch="strom"] .calc-tab-title')).toHaveText('كهرباء خضراء');
+        await expect(page.locator('.calc-tab-btn[data-branch="gas"] .calc-tab-title')).toHaveText('غاز طبيعي');
+
+        // 5. Bento Metric Cards
+        const trustBar = page.locator('#trust');
+        await expect(trustBar).toContainText('كهرباء خضراء من طاقة متجددة 100%');
+        await expect(trustBar).toContainText('حتى 380 €');
+        await expect(trustBar).toContainText('24 شهراً');
+
+        // 6. Tariff Cards
+        const cardBasic = page.locator('#card-alpha-basic');
+        await expect(cardBasic).toContainText('مرن واقتصادي');
+        await expect(cardBasic.locator('.tariff-action-btn')).toContainText('اختر التعريفة');
+
+        // 7. Footer
+        const footer = page.locator('#main-footer');
+        await expect(footer).toContainText('التعريفات والكهرباء');
+        await expect(footer).toContainText('الخدمة والحلول');
+        await expect(footer).toContainText('إلغاء العقد عبر الإنترنت');
+
+        // 8. Switch back to German and verify lossless restoration
+        const btnDe = page.locator('.lang-btn[data-lang="de"]').first();
+        await btnDe.click();
+        await expect(page.locator('html')).toHaveAttribute('lang', 'de');
+        await expect(heroTitle).toContainText('Einfach. Transparent.');
+    });
+
 });

@@ -1752,7 +1752,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                 if (spec.energyGridNumber) selectedOrderData.energyGridNumber = spec.energyGridNumber;
 
                 if (monthlyEl) {
-                    const suffix = curLang === 'en' ? ' / month' : (curLang === 'tr' ? ' / ay' : ' / Monat');
+                    const suffix = curLang === 'en' ? ' / month' : (curLang === 'tr' ? ' / ay' : (curLang === 'ar' ? ' / شهر' : ' / Monat'));
                     const prefix = curLang === 'en' ? '€' : '';
                     const post = curLang === 'en' ? '' : ' €';
                     monthlyEl.textContent = `${prefix}${monthlyPayment}${post}${suffix}`;
@@ -1760,7 +1760,8 @@ document.addEventListener("DOMContentLoaded", async () => {
                 }
                 if (kwhEl) {
                     const locale = curLang === 'en' ? 'en-US' : (curLang === 'tr' ? 'tr-TR' : 'de-DE');
-                    kwhEl.textContent = `${parsedKwh.toLocaleString(locale)} kWh / Jahr`;
+                    const kwhUnit = curLang === 'en' ? 'kWh / year' : (curLang === 'tr' ? 'kWh / yıl' : (curLang === 'ar' ? 'ك.و.س / سنة' : 'kWh / Jahr'));
+                    kwhEl.textContent = `${parsedKwh.toLocaleString(locale)} ${kwhUnit}`;
                     kwhEl.style.color = '#0a1f44';
                 }
                 if (savingsEl) {
@@ -1770,6 +1771,8 @@ document.addEventListener("DOMContentLoaded", async () => {
                         savingsEl.textContent = `Save up to €${savings} / year (${rateFormatted} ct/kWh • €${baseFormatted}/mo base)`;
                     } else if (curLang === 'tr') {
                         savingsEl.textContent = `Yılda ${savings} €'ya varan tasarruf (${rateFormatted} ct/kWh)`;
+                    } else if (curLang === 'ar') {
+                        savingsEl.textContent = `وفّر حتى ${savings} € / سنة (${rateFormatted} ct/kWh)`;
                     } else {
                         savingsEl.textContent = `Bis zu ${savings.toLocaleString('de-DE')} € / Jahr sparen (${rateFormatted} ct/kWh • ${baseFormatted} € Grundpreis)`;
                     }

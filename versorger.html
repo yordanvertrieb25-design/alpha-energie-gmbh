@@ -23,8 +23,8 @@
         try {
             var urlParams = new URLSearchParams(window.location.search);
             var qLang = urlParams.get('lang');
-            var savedLang = (qLang && (qLang === 'de' || qLang === 'en' || qLang === 'tr')) ? qLang : localStorage.getItem('alpha_lang');
-            if (savedLang && (savedLang === 'de' || savedLang === 'en' || savedLang === 'tr')) {
+            var savedLang = (qLang && (qLang === 'de' || qLang === 'en' || qLang === 'tr' || qLang === 'ar')) ? qLang : localStorage.getItem('alpha_lang');
+            if (savedLang && (savedLang === 'de' || savedLang === 'en' || savedLang === 'tr' || savedLang === 'ar')) {
                 document.documentElement.lang = savedLang;
             }
         } catch(e) {}
@@ -1889,6 +1889,13 @@
         "@type": "Country",
         "name": "Deutschland"
       },
+      "contactPoint": {
+        "@type": "ContactPoint",
+        "contactType": "customer service",
+        "telephone": "0231 39989390",
+        "email": "info@alpha-energie.de",
+        "availableLanguage": ["Deutsch", "Englisch", "Türkisch", "Arabisch"]
+      },
       "address": {
         "@type": "PostalAddress",
         "streetAddress": "Alter Hellweg 50",
@@ -1975,6 +1982,7 @@
                     <button class="lang-btn active" data-lang="de">DE</button>
                     <button class="lang-btn" data-lang="en">EN</button>
                     <button class="lang-btn" data-lang="tr">TR</button>
+                    <button class="lang-btn" data-lang="ar">AR</button>
                 </div>
             </div>
         </div>
