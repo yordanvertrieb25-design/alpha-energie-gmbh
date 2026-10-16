@@ -712,8 +712,8 @@
 
         .octo-calc-row {
             display: grid;
-            grid-template-columns: minmax(225px, 250px) minmax(0, 1fr) 195px;
-            gap: 16px;
+            grid-template-columns: minmax(195px, 215px) minmax(0, 1fr) 172px;
+            gap: 12px;
             align-items: end;
         }
 
@@ -797,16 +797,16 @@
         /* Middle Column: Preset Pills + kWh/Jahr + Abschlag */
         .octo-consumption-group {
             display: grid;
-            grid-template-columns: minmax(280px, 1.75fr) minmax(150px, 0.95fr) minmax(160px, 1fr);
-            gap: 12px;
+            grid-template-columns: minmax(410px, 2.5fr) minmax(128px, 0.7fr) minmax(134px, 0.75fr);
+            gap: 10px;
             align-items: center;
             min-width: 0;
         }
 
         .octo-preset-pills {
-            display: grid;
-            grid-template-columns: repeat(4, minmax(0, 1fr));
+            display: flex;
             align-items: center;
+            justify-content: space-between;
             background: var(--octo-bg-deep);
             border: 1.6px solid var(--octo-border-orange);
             border-radius: 14px;
@@ -815,7 +815,6 @@
             box-sizing: border-box;
             gap: 4px;
             min-width: 0;
-            overflow: hidden;
         }
 
         body.octo-orange-body .octo-preset-btn,
@@ -825,12 +824,11 @@
             border: none !important;
             border-radius: 10px !important;
             height: 100% !important;
-            min-width: 0 !important;
-            max-width: 100% !important;
-            overflow: hidden !important;
-            padding: 0 4px !important;
+            flex: 1 0 auto !important;
+            min-width: max-content !important;
+            padding: 0 8px !important;
             font-family: inherit !important;
-            font-size: 0.8rem !important;
+            font-size: 0.78rem !important;
             font-weight: 700 !important;
             cursor: pointer;
             transition: all 0.2s ease;
@@ -845,20 +843,20 @@
 
         body.octo-orange-body .octo-preset-btn .household-btn-label {
             color: inherit !important;
-            font-size: 0.8rem !important;
+            font-size: 0.78rem !important;
             font-weight: 700 !important;
-            max-width: 100%;
-            overflow: hidden;
-            text-overflow: ellipsis;
+            white-space: nowrap;
+            overflow: visible !important;
+            text-overflow: clip !important;
         }
 
         body.octo-orange-body .octo-preset-btn .household-btn-sub {
             font-size: 0.64rem !important;
             color: var(--octo-text-muted) !important;
             font-weight: 500 !important;
-            max-width: 100%;
-            overflow: hidden;
-            text-overflow: ellipsis;
+            white-space: nowrap;
+            overflow: visible !important;
+            text-overflow: clip !important;
         }
 
         body.octo-orange-body .octo-preset-btn.active,
