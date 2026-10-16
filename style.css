@@ -8498,8 +8498,9 @@ html.swal2-height-auto:not(.alpha-modal-open) {
 }
 
 .ai-media-info-btn--hero-photo {
-    top: 12px;
-    right: 12px;
+    top: 14px;
+    left: 14px;
+    right: auto;
 }
 
 .ai-media-info-btn--video {
@@ -8511,8 +8512,9 @@ html.swal2-height-auto:not(.alpha-modal-open) {
 }
 
 .ai-media-info-btn--mascot {
-    top: 7px;
-    right: 7px;
+    bottom: 8px;
+    right: 8px;
+    top: auto;
     height: 22px;
     padding: 0 7px;
     font-size: 0.65rem;
@@ -8523,11 +8525,17 @@ html.swal2-height-auto:not(.alpha-modal-open) {
 }
 
 .ai-media-info-btn--inline-pill {
-    position: static;
+    position: relative !important;
+    top: auto !important;
+    right: auto !important;
+    bottom: auto !important;
+    left: auto !important;
+    display: inline-flex;
+    vertical-align: middle;
     height: 20px;
     padding: 0 6px;
-    font-size: 0.65rem;
-    margin-left: 4px;
+    font-size: 0.64rem;
+    margin-left: 5px;
     background: rgba(233, 94, 36, 0.14);
     color: #9a3412;
     border: 1px solid rgba(233, 94, 36, 0.55);

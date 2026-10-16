@@ -892,20 +892,96 @@ document.addEventListener("DOMContentLoaded", async () => {
 
             let maxSavings = 0;
 
-            const isDe = !window.i18n || typeof window.i18n.getLanguage !== 'function' || window.i18n.getLanguage() === 'de';
+            const curLang = (window.i18n && typeof window.i18n.getLanguage === 'function') ? window.i18n.getLanguage() : 'de';
+            const isDe = curLang === 'de';
 
-            // Dynamically update section header for #tarife
-            const secTitle = document.querySelector('#tarife .section-title');
-            const secSub = document.querySelector('#tarife .section-subtitle');
-            if (secTitle && secSub && isDe) {
-                if (currentBranch === 'gas') {
-                    secTitle.innerHTML = 'Transparente Erdgastarife für Ihr Zuhause &amp; Gewerbe';
-                    secSub.textContent = 'Erdgas mit freiwilligem Klimaschutzbeitrag, 24 Monaten voller Preisgarantie und automatischem Wechselservice ohne Unterbrechung.';
-                } else {
-                    secTitle.innerHTML = 'Transparente Stromtarife für Ihr Zuhause &amp; Gewerbe';
-                    secSub.textContent = 'Ökostrom aus 100 % erneuerbaren Energien, 24 Monate volle Preisgarantie und kostenloser Wechselservice ohne bürokratischen Aufwand.';
+            const TARIFF_FEATURE_I18N = {
+                '12 Monate volle Preisgarantie': {
+                    en: '12 months full price guarantee',
+                    tr: '12 ay tam fiyat garantisi',
+                    ar: 'ضمان سعر كامل لمدة 12 شهراً'
+                },
+                '24 Monate volle Preisgarantie': {
+                    en: '24 months full price guarantee',
+                    tr: '24 ay tam fiyat garantisi',
+                    ar: 'ضمان سعر كامل لمدة 24 شهراً'
+                },
+                'Ökostrom aus 100 % erneuerbaren Energien (ok-power)': {
+                    en: 'Green electricity from 100% renewable energy (ok-power)',
+                    tr: '%100 yenilenebilir enerjiden yeşil elektrik (ok-power)',
+                    ar: 'كهرباء خضراء من طاقة متجددة 100% (ok-power)'
+                },
+                'Ökostrom aus 100 % erneuerbaren Energien': {
+                    en: 'Green electricity from 100% renewable energy',
+                    tr: '%100 yenilenebilir enerjiden yeşil elektrik',
+                    ar: 'كهرباء خضراء من طاقة متجددة 100%'
+                },
+                'Attraktives Preis-Leistungs-Verhältnis mit 24 Monaten Planungssicherheit': {
+                    en: 'Attractive value for money with 24 months planning security',
+                    tr: '24 ay planlama güvencesiyle cazip fiyat-performans oranı',
+                    ar: 'قيمة ممتازة مقابل السعر مع أمان تخطيطي لمدة 24 شهراً'
+                },
+                'Sicherheit und Planbarkeit durch lange Preisgarantie': {
+                    en: 'Maximum security and predictability with long price guarantee',
+                    tr: 'Uzun fiyat garantisiyle maksimum güvenlik ve öngörülebilirlik',
+                    ar: 'أقصى درجات الأمان والتخطيط بفضل ضمان السعر الطويل'
+                },
+                'Erdgas mit freiwilligem Klimaschutzbeitrag': {
+                    en: 'Natural gas with voluntary climate protection contribution',
+                    tr: 'Gönüllü iklim koruma katkılı doğal gaz',
+                    ar: 'غاز طبيعي مع مساهمة طوعية في حماية المناخ'
+                },
+                'Förderung ausgewählter Klimaschutzprojekte': {
+                    en: 'Support for certified climate protection projects',
+                    tr: 'Seçilmiş iklim koruma projelerinin desteklenmesi',
+                    ar: 'دعم مشاريع معتمدة لحماية المناخ'
+                },
+                'Kostenloser & automatischer Wechselservice': {
+                    en: 'Free & automatic provider switching service',
+                    tr: 'Ücretsiz & otomatik tedarikçi geçiş hizmeti',
+                    ar: 'خدمة انتقال مجانية وتلقائية بالكامل'
+                },
+                'Persönlicher Kundenservice in Dortmund': {
+                    en: 'Personal customer service in Dortmund',
+                    tr: 'Dortmund\'da kişisel müşteri hizmetleri',
+                    ar: 'خدمة عملاء شخصية في دورتموند'
+                },
+                'Keine Vorauskasse & keine versteckten Kosten': {
+                    en: 'No prepayment & no hidden costs',
+                    tr: 'Ön ödeme yok & gizli maliyet yok',
+                    ar: 'بدون دفع مسبق وبدون تكاليف خفية'
+                },
+                'Bevorzugter VIP-Kundenservice': {
+                    en: 'Priority VIP customer service',
+                    tr: 'Öncelikli VIP müşteri hizmetleri',
+                    ar: 'خدمة عملاء VIP ذات أولوية'
                 }
+            };
+
+            const TARIFF_BADGE_BY_CARD = {
+                strom: {
+                    'alpha-basic': { de: 'Flexibel & Günstig', en: 'Flexible & Affordable', tr: 'Esnek & Uygun Fiyatlı', ar: 'مرن واقتصادي' },
+                    'alpha-time': { de: '24 Monate volle Preisgarantie', en: '24 Months Full Price Guarantee', tr: '24 Ay Tam Fiyat Garantisi', ar: 'ضمان سعر كامل لمدة 24 شهراً' },
+                    'alpha-premium': { de: '24 Monate Preisschutz & VIP', en: '24-Month Price Protection & VIP', tr: '24 Ay Fiyat Koruması & VIP', ar: 'حماية السعر لمدة 24 شهراً وخدمة VIP' }
+                },
+                gas: {
+                    'alpha-basic': { de: 'Fair & Preisstabil', en: 'Fair & Price-Stable', tr: 'Adil & Fiyat İstikrarlı', ar: 'عادل ومستقر السعر' },
+                    'alpha-time': { de: 'Bestseller & Spar-Vorteil', en: 'Bestseller & Savings Advantage', tr: 'Çok Satan & Tasarruf Avantajı', ar: 'الأكثر مبيعاً وميزة التوفير' },
+                    'alpha-premium': { de: '24 Monate Preisschutz & Komfort', en: '24-Month Price Protection & Comfort', tr: '24 Ay Fiyat Koruması & Konfor', ar: 'حماية السعر لمدة 24 شهراً وراحة تامة' }
+                }
+            };
+
+            function translateFeatureItem(fText, lang) {
+                if (!fText || lang === 'de') return fText;
+                const trimmed = String(fText).trim();
+                if (TARIFF_FEATURE_I18N[trimmed] && TARIFF_FEATURE_I18N[trimmed][lang]) {
+                    return TARIFF_FEATURE_I18N[trimmed][lang];
+                }
+                return trimmed;
             }
+
+            window.__translateTariffFeature = translateFeatureItem;
+            window.__TARIFF_BADGE_BY_CARD = TARIFF_BADGE_BY_CARD;
 
             for (const [id, spec] of Object.entries(currentSpecs)) {
                 const activeWorkCt = (typeof spec.liveWorkingPriceCt === 'number') ? spec.liveWorkingPriceCt : spec.workingPriceCt;
@@ -921,23 +997,34 @@ document.addEventListener("DOMContentLoaded", async () => {
                     maxSavings = savings;
                 }
 
-                // Update Tariff Card displays (title, badge, features)
+                // Update Tariff Card displays (title, badge, features) in-place for all languages
                 const cardEl = document.getElementById(`card-${id}`);
-                if (cardEl && isDe) {
+                if (cardEl) {
                     const titleEl = cardEl.querySelector('.tariff-title');
                     if (titleEl) titleEl.textContent = spec.name;
 
                     const badgeEl = cardEl.querySelector('.tariff-badge');
-                    if (badgeEl) badgeEl.textContent = spec.badge;
+                    if (badgeEl) {
+                        const branchBadges = TARIFF_BADGE_BY_CARD[currentBranch === 'gas' ? 'gas' : 'strom'];
+                        const mappedBadge = branchBadges && branchBadges[id] ? branchBadges[id][curLang] : null;
+                        badgeEl.textContent = mappedBadge || spec.badge;
+                    }
 
                     const featList = cardEl.querySelector('.tariff-feature-list');
-                    if (featList && spec.features) {
-                        featList.innerHTML = spec.features.map(f => `
-                            <div class="tariff-feature-item">
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                                <span>${f}</span>
-                            </div>
-                        `).join('');
+                    if (featList && Array.isArray(spec.features)) {
+                        const existingSpans = featList.querySelectorAll('.tariff-feature-item span');
+                        if (existingSpans.length === spec.features.length) {
+                            spec.features.forEach((f, idx) => {
+                                existingSpans[idx].textContent = translateFeatureItem(f, curLang);
+                            });
+                        } else {
+                            featList.innerHTML = spec.features.map(f => `
+                                <div class="tariff-feature-item">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                                    <span>${translateFeatureItem(f, curLang)}</span>
+                                </div>
+                            `).join('');
+                        }
                     }
                 }
 
@@ -3464,7 +3551,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                 ctx.textBaseline = 'middle';
                 ctx.fillText('%', cx, cy + 1 * s);
 
-                // Legend below Donut
+                // Legend below Donut (clean single-label rows matching Firstcon graphic without right-side overlap)
                 let ly = legendStartY;
                 slices.forEach((slice) => {
                     // Color square/pill
@@ -3479,18 +3566,12 @@ document.addEventListener("DOMContentLoaded", async () => {
                     ctx.textBaseline = 'middle';
                     ctx.fillText(slice.label, legendX + 18 * s, ly);
 
-                    // Value right-aligned in legend
-                    ctx.fillStyle = '#0f172a';
-                    ctx.font = `800 ${Math.round(11.5 * s)}px 'Sora', system-ui, sans-serif`;
-                    ctx.textAlign = 'right';
-                    ctx.fillText(slice.valText, legendX + legendW, ly);
-
                     ly += 21 * s;
                 });
 
                 // For Alpha Energie (Right Chart), show CO2 & Radioactive Waste 0 g/kWh highlight box
                 if (chartKey === 'alpha') {
-                    const boxY = ly + 4 * s;
+                    const boxY = ly + 6 * s;
                     drawRoundedRect(ctx, legendX, boxY, legendW, 44 * s, 8 * s);
                     ctx.fillStyle = '#f0fdf4';
                     ctx.fill();
@@ -3865,8 +3946,9 @@ document.addEventListener("DOMContentLoaded", async () => {
                 right: 10px;
             }
             .ai-media-info-btn--hero-photo {
-                top: 12px;
-                right: 12px;
+                top: 14px;
+                left: 14px;
+                right: auto;
             }
             .ai-media-info-btn--video {
                 top: 14px;
@@ -3876,8 +3958,9 @@ document.addEventListener("DOMContentLoaded", async () => {
                 font-size: 0.76rem;
             }
             .ai-media-info-btn--mascot {
-                top: 7px;
-                right: 7px;
+                bottom: 8px;
+                right: 8px;
+                top: auto;
                 height: 22px;
                 padding: 0 7px;
                 font-size: 0.65rem;
@@ -3887,11 +3970,17 @@ document.addEventListener("DOMContentLoaded", async () => {
                 box-shadow: 0 3px 10px rgba(233, 94, 36, 0.16);
             }
             .ai-media-info-btn--inline-pill {
-                position: static;
+                position: relative !important;
+                top: auto !important;
+                right: auto !important;
+                bottom: auto !important;
+                left: auto !important;
+                display: inline-flex;
+                vertical-align: middle;
                 height: 20px;
                 padding: 0 6px;
                 font-size: 0.64rem;
-                margin-left: 4px;
+                margin-left: 5px;
                 background: rgba(233, 94, 36, 0.15);
                 color: #9a3412;
                 border: 1px solid rgba(233, 94, 36, 0.55);
@@ -4123,7 +4212,9 @@ document.addEventListener("DOMContentLoaded", async () => {
         if (src.includes('logo') || src.includes('ok-power') || src.includes('bdeb') || src.includes('favicon') || src.includes('apple-touch')) {
             return false;
         }
-        if (img.dataset.aiGenerated === 'true') return true;
+        if (img.dataset.aiGenerated === 'true') {
+            return (src.includes('wolf-mascot') || img.classList.contains('octo-mascot-img') || img.classList.contains('octo-peeking-wolf-img')) ? 'mascot' : 'image';
+        }
         if (src.includes('wolf-mascot') || img.classList.contains('octo-mascot-img') || img.classList.contains('octo-peeking-wolf-img')) {
             return 'mascot';
         }
@@ -4163,7 +4254,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             const aiKind = isAiGeneratedImage(img);
             if (!aiKind) return;
 
-            // Case A: Peeking Wolf in Hero
+            // Case A: Peeking Wolf in Hero -> place inline inside .octo-peeking-wolf-pill
             const peekingWrap = img.closest('.octo-hero-peeking-wolf');
             if (peekingWrap) {
                 peekingWrap.removeAttribute('aria-hidden');
@@ -4177,17 +4268,25 @@ document.addEventListener("DOMContentLoaded", async () => {
             }
 
             // Case B: Mascot Box / Footer Mascot Aside / Inline Mascot Card
+            // Place inline inside the speech-tag or mascot-pill so it NEVER covers the Wolf image!
             const mascotBox = img.closest('.octo-section-mascot-box, .octo-footer-mascot-aside, .octo-mascot-inline-card');
             if (mascotBox) {
                 mascotBox.removeAttribute('aria-hidden');
                 if (!mascotBox.querySelector('.ai-media-info-btn')) {
-                    const btn = createInfoButton('mascot', 'ai-media-info-btn--mascot', 'KI');
-                    mascotBox.appendChild(btn);
+                    const inlineTarget = mascotBox.querySelector('.octo-mascot-speech-tag, .octo-mascot-pill');
+                    if (inlineTarget) {
+                        inlineTarget.style.pointerEvents = 'auto';
+                        const btn = createInfoButton('mascot', 'ai-media-info-btn--inline-pill', 'KI');
+                        inlineTarget.appendChild(btn);
+                    } else {
+                        const btn = createInfoButton('mascot', 'ai-media-info-btn--mascot', 'KI');
+                        mascotBox.appendChild(btn);
+                    }
                 }
                 return;
             }
 
-            // Case C: Hero Stage Visual Card
+            // Case C: Hero Stage Visual Card -> top-left so it never covers .octo-stage-badge-top at top-right
             const heroStageCard = img.closest('.octo-stage-visual-card');
             if (heroStageCard) {
                 if (!heroStageCard.querySelector('.ai-media-info-btn')) {
@@ -4200,6 +4299,14 @@ document.addEventListener("DOMContentLoaded", async () => {
             // Case D: Card Visual / Split Device Media / General Wrapper
             const mediaWrap = img.closest('.octo-card-visual, .octo-split-device-media') || img.parentElement;
             if (mediaWrap && !mediaWrap.querySelector('.ai-media-info-btn')) {
+                // If it's the Sitting Wolf card with a caption div right after the img, append inline to caption so top badges are never covered
+                const nextCaption = img.nextElementSibling;
+                if (aiKind === 'mascot' && nextCaption && nextCaption.tagName === 'DIV') {
+                    nextCaption.style.pointerEvents = 'auto';
+                    const btn = createInfoButton('mascot', 'ai-media-info-btn--inline-pill', 'KI');
+                    nextCaption.appendChild(btn);
+                    return;
+                }
                 const computedPos = window.getComputedStyle(mediaWrap).position;
                 if (computedPos === 'static') mediaWrap.style.position = 'relative';
                 const variant = aiKind === 'mascot' ? 'ai-media-info-btn--mascot' : 'ai-media-info-btn--photo';
@@ -4217,6 +4324,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         initAiMediaInfoBadges();
     }
 })();
+
 
 
 
