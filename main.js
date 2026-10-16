@@ -3234,3 +3234,548 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 })();
 
+// ==========================================================================
+// Alpha Energie - Official § 42 EnWG Stromkennzeichnung HiDPI Canvas Renderer
+// Renders "STROMMIX IM VERGLEICH (Stand 03/2026)" as a crisp interactive Canvas
+// ==========================================================================
+(function() {
+    'use strict';
+
+    const DE_SLICES = [
+        { label: 'Erneuerbare Energien, gefördert nach EEG', value: 62.20, valText: '62,20 %', color: '#4d9c2d', hoverColor: '#3d8420' },
+        { label: 'Kohle', value: 23.50, valText: '23,50 %', color: '#c85a17', hoverColor: '#b04b0e' },
+        { label: 'Erdgas', value: 11.90, valText: '11,90 %', color: '#e5a93c', hoverColor: '#d49526' },
+        { label: 'Mineralöl und sonstige', value: 2.40, valText: '2,40 %', color: '#23406e', hoverColor: '#172d50' }
+    ];
+
+    const ALPHA_SLICES = [
+        { label: 'Erneuerbare Energien mit Herkunftsnachweis', value: 100.0, valText: '100 %', color: '#3b7a1e', hoverColor: '#2f6515' }
+    ];
+
+    const ORIGIN_ROWS = [
+        { country: 'Schweden', share: '5,5 %', source: 'Windkraft' },
+        { country: 'Norwegen', share: '94,5 %', source: 'Wasserkraft' }
+    ];
+
+    function drawRoundedRect(ctx, x, y, w, h, r) {
+        const radius = Math.min(r, w / 2, h / 2);
+        ctx.beginPath();
+        ctx.moveTo(x + radius, y);
+        ctx.arcTo(x + w, y, x + w, y + h, radius);
+        ctx.arcTo(x + w, y + h, x, y + h, radius);
+        ctx.arcTo(x, y + h, x, y, radius);
+        ctx.arcTo(x, y, x + w, y, radius);
+        ctx.closePath();
+    }
+
+    function setupStrommixCanvas(canvas) {
+        if (!canvas || canvas.dataset.strommixInitialized === 'true') return;
+        canvas.dataset.strommixInitialized = 'true';
+
+        let animProgress = 0;
+        let hoveredItem = null; // { chart: 'de'|'alpha', index: number, x, y }
+        let hitRegions = [];
+
+        function render(progress) {
+            const dpr = Math.min(window.devicePixelRatio || 1, 3);
+            const parentWidth = canvas.parentElement ? canvas.parentElement.clientWidth : 760;
+            const logicalW = Math.max(320, Math.min(860, parentWidth || 760));
+            const isCompact = logicalW < 560;
+            const scale = logicalW / 780;
+
+            const logicalH = isCompact ? Math.round(980 * (logicalW / 460)) : Math.round(690 * scale);
+
+            if (canvas.width !== Math.round(logicalW * dpr) || canvas.height !== Math.round(logicalH * dpr)) {
+                canvas.width = Math.round(logicalW * dpr);
+                canvas.height = Math.round(logicalH * dpr);
+                canvas.style.width = logicalW + 'px';
+                canvas.style.height = logicalH + 'px';
+            }
+
+            const ctx = canvas.getContext('2d');
+            ctx.save();
+            ctx.scale(dpr, dpr);
+
+            const W = logicalW;
+            const H = logicalH;
+            const s = isCompact ? (W / 460) : (W / 780);
+
+            hitRegions = [];
+
+            // 1. Background Card Surface
+            ctx.clearRect(0, 0, W, H);
+            const bgGrad = ctx.createLinearGradient(0, 0, 0, H);
+            bgGrad.addColorStop(0, '#ffffff');
+            bgGrad.addColorStop(1, '#fffdf9');
+            drawRoundedRect(ctx, 0, 0, W, H, 14 * s);
+            ctx.fillStyle = bgGrad;
+            ctx.fill();
+
+            // Top Accent Bar
+            drawRoundedRect(ctx, 18 * s, 16 * s, W - 36 * s, 44 * s, 10 * s);
+            const titleBg = ctx.createLinearGradient(18 * s, 16 * s, W - 18 * s, 16 * s);
+            titleBg.addColorStop(0, '#fff7ed');
+            titleBg.addColorStop(0.5, '#ffedd5');
+            titleBg.addColorStop(1, '#fff7ed');
+            ctx.fillStyle = titleBg;
+            ctx.fill();
+            ctx.strokeStyle = 'rgba(249, 178, 51, 0.55)';
+            ctx.lineWidth = 1.2 * s;
+            ctx.stroke();
+
+            // Main Heading: STROMMIX IM VERGLEICH
+            ctx.fillStyle = '#1c1917';
+            ctx.font = `800 ${Math.round(19 * s)}px 'Sora', 'Plus Jakarta Sans', system-ui, sans-serif`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('STROMMIX IM VERGLEICH', W / 2, 38 * s);
+
+            // Helper to draw a Donut Chart with Callouts & Legend
+            function drawDonutChart(cx, cy, outerR, innerR, title, slices, chartKey, legendStartY, legendX, legendW) {
+                // Chart Title
+                ctx.fillStyle = '#1c1917';
+                ctx.font = `800 ${Math.round(16 * s)}px 'Sora', system-ui, sans-serif`;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'bottom';
+                ctx.fillText(title, cx, cy - outerR - 26 * s);
+
+                // Subtle Shadow Ring behind Donut
+                ctx.save();
+                ctx.beginPath();
+                ctx.arc(cx, cy, outerR + 2 * s, 0, Math.PI * 2);
+                ctx.shadowColor = 'rgba(15, 23, 42, 0.10)';
+                ctx.shadowBlur = 14 * s;
+                ctx.shadowOffsetY = 4 * s;
+                ctx.fillStyle = '#ffffff';
+                ctx.fill();
+                ctx.restore();
+
+                let startAngle = -Math.PI / 2;
+                const totalSweep = Math.PI * 2 * progress;
+
+                slices.forEach((slice, idx) => {
+                    const sliceAngle = (slice.value / 100) * totalSweep;
+                    const endAngle = startAngle + sliceAngle;
+                    const midAngle = startAngle + sliceAngle / 2;
+                    const isHovered = hoveredItem && hoveredItem.chart === chartKey && hoveredItem.index === idx;
+                    const rOut = isHovered ? outerR + 4 * s : outerR;
+
+                    // Draw Donut Segment
+                    ctx.beginPath();
+                    ctx.arc(cx, cy, rOut, startAngle, endAngle, false);
+                    ctx.arc(cx, cy, innerR, endAngle, startAngle, true);
+                    ctx.closePath();
+                    ctx.fillStyle = isHovered ? slice.hoverColor : slice.color;
+                    ctx.fill();
+
+                    // Crisp white separator line if multiple slices
+                    if (slices.length > 1) {
+                        ctx.strokeStyle = '#ffffff';
+                        ctx.lineWidth = 2 * s;
+                        ctx.stroke();
+                    }
+
+                    // Store hit region
+                    hitRegions.push({
+                        chart: chartKey,
+                        index: idx,
+                        cx,
+                        cy,
+                        innerR,
+                        outerR: outerR + 6 * s,
+                        startAngle,
+                        endAngle,
+                        slice
+                    });
+
+                    // Draw Callout Line & Percentage Label once animation is mostly complete
+                    if (progress > 0.75) {
+                        const alpha = Math.min(1, (progress - 0.75) / 0.25);
+                        ctx.save();
+                        ctx.globalAlpha = alpha;
+
+                        let calloutAngle = midAngle;
+                        // Fine-tune small slice angle so labels never overlap
+                        if (chartKey === 'de' && idx === 3) {
+                            calloutAngle = -Math.PI / 2 - 0.08;
+                        } else if (chartKey === 'de' && idx === 2) {
+                            calloutAngle = midAngle - 0.06;
+                        } else if (chartKey === 'alpha') {
+                            calloutAngle = -Math.PI / 4;
+                        }
+
+                        const p1r = (outerR + innerR) / 2;
+                        const p2r = outerR + 13 * s;
+                        const x1 = cx + Math.cos(calloutAngle) * p1r;
+                        const y1 = cy + Math.sin(calloutAngle) * p1r;
+                        const x2 = cx + Math.cos(calloutAngle) * p2r;
+                        const y2 = cy + Math.sin(calloutAngle) * p2r;
+
+                        const isRight = Math.cos(calloutAngle) >= 0;
+                        const horizLen = (chartKey === 'de' && idx === 3) ? -22 * s : (isRight ? 16 * s : -16 * s);
+                        const x3 = x2 + horizLen;
+                        const y3 = y2;
+
+                        ctx.beginPath();
+                        ctx.moveTo(x1, y1);
+                        ctx.lineTo(x2, y2);
+                        ctx.lineTo(x3, y3);
+                        ctx.strokeStyle = '#64748b';
+                        ctx.lineWidth = 1.25 * s;
+                        ctx.stroke();
+
+                        // Small dot on segment
+                        ctx.beginPath();
+                        ctx.arc(x1, y1, 2.2 * s, 0, Math.PI * 2);
+                        ctx.fillStyle = '#ffffff';
+                        ctx.fill();
+
+                        // Percentage text
+                        ctx.fillStyle = '#1e293b';
+                        ctx.font = `700 ${Math.round(11.5 * s)}px 'Sora', system-ui, sans-serif`;
+                        const alignRight = horizLen >= 0;
+                        ctx.textAlign = alignRight ? 'left' : 'right';
+                        ctx.textBaseline = 'middle';
+                        ctx.fillText(slice.valText, x3 + (alignRight ? 4 * s : -4 * s), y3);
+
+                        ctx.restore();
+                    }
+
+                    startAngle = endAngle;
+                });
+
+                // Inner White Hole & Subtle Gray Ring with "%" Badge (matching Firstcon original)
+                ctx.beginPath();
+                ctx.arc(cx, cy, innerR, 0, Math.PI * 2);
+                ctx.fillStyle = '#ffffff';
+                ctx.fill();
+
+                ctx.beginPath();
+                ctx.arc(cx, cy, innerR * 0.62, 0, Math.PI * 2);
+                ctx.fillStyle = '#f1f5f9';
+                ctx.fill();
+                ctx.strokeStyle = '#e2e8f0';
+                ctx.lineWidth = 1.2 * s;
+                ctx.stroke();
+
+                ctx.fillStyle = '#334155';
+                ctx.font = `800 ${Math.round(21 * s)}px 'Sora', system-ui, sans-serif`;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText('%', cx, cy + 1 * s);
+
+                // Legend below Donut
+                let ly = legendStartY;
+                slices.forEach((slice) => {
+                    // Color square/pill
+                    drawRoundedRect(ctx, legendX, ly - 6 * s, 12 * s, 12 * s, 3 * s);
+                    ctx.fillStyle = slice.color;
+                    ctx.fill();
+
+                    // Label text
+                    ctx.fillStyle = '#1e293b';
+                    ctx.font = `600 ${Math.round(11.5 * s)}px 'Plus Jakarta Sans', 'Sora', system-ui, sans-serif`;
+                    ctx.textAlign = 'left';
+                    ctx.textBaseline = 'middle';
+                    ctx.fillText(slice.label, legendX + 18 * s, ly);
+
+                    // Value right-aligned in legend
+                    ctx.fillStyle = '#0f172a';
+                    ctx.font = `800 ${Math.round(11.5 * s)}px 'Sora', system-ui, sans-serif`;
+                    ctx.textAlign = 'right';
+                    ctx.fillText(slice.valText, legendX + legendW, ly);
+
+                    ly += 21 * s;
+                });
+
+                // For Alpha Energie (Right Chart), show CO2 & Radioactive Waste 0 g/kWh highlight box
+                if (chartKey === 'alpha') {
+                    const boxY = ly + 4 * s;
+                    drawRoundedRect(ctx, legendX, boxY, legendW, 44 * s, 8 * s);
+                    ctx.fillStyle = '#f0fdf4';
+                    ctx.fill();
+                    ctx.strokeStyle = '#bbf7d0';
+                    ctx.lineWidth = 1.2 * s;
+                    ctx.stroke();
+
+                    ctx.fillStyle = '#15803d';
+                    ctx.font = `800 ${Math.round(11 * s)}px 'Sora', system-ui, sans-serif`;
+                    ctx.textAlign = 'left';
+                    ctx.fillText('✓ CO₂-Emissionen: 0 g/kWh', legendX + 10 * s, boxY + 15 * s);
+                    ctx.fillText('✓ Radioaktiver Abfall: 0,0000 g/kWh', legendX + 10 * s, boxY + 31 * s);
+                }
+            }
+
+            let legalY;
+            if (!isCompact) {
+                // Desktop / Tablet 2-Column Layout
+                const outerR = 82 * s;
+                const innerR = 46 * s;
+                const cy = 198 * s;
+                const leftCx = W * 0.27;
+                const rightCx = W * 0.74;
+
+                // Vertical Divider between charts
+                ctx.beginPath();
+                ctx.moveTo(W * 0.515, 82 * s);
+                ctx.lineTo(W * 0.515, 395 * s);
+                ctx.strokeStyle = 'rgba(226, 232, 240, 0.9)';
+                ctx.lineWidth = 1.2 * s;
+                ctx.stroke();
+
+                drawDonutChart(leftCx, cy, outerR, innerR, 'Deutschland', DE_SLICES, 'de', 318 * s, 30 * s, W * 0.45);
+                drawDonutChart(rightCx, cy, outerR, innerR, 'Alpha Energie', ALPHA_SLICES, 'alpha', 318 * s, W * 0.545, W * 0.415);
+
+                legalY = 428 * s;
+            } else {
+                // Mobile Stacked Layout
+                const outerR = 76 * s;
+                const innerR = 42 * s;
+
+                drawDonutChart(W / 2, 185 * s, outerR, innerR, 'Deutschland', DE_SLICES, 'de', 295 * s, 26 * s, W - 52 * s);
+
+                // Horizontal Divider
+                ctx.beginPath();
+                ctx.moveTo(26 * s, 390 * s);
+                ctx.lineTo(W - 26 * s, 390 * s);
+                ctx.strokeStyle = '#e2e8f0';
+                ctx.lineWidth = 1.2 * s;
+                ctx.stroke();
+
+                drawDonutChart(W / 2, 520 * s, outerR, innerR, 'Alpha Energie', ALPHA_SLICES, 'alpha', 630 * s, 26 * s, W - 52 * s);
+
+                legalY = 720 * s;
+            }
+
+            // 3. Legal Subtitle & Source Note (exact text from Firstcon Stromkennzeichnung)
+            ctx.fillStyle = '#1e293b';
+            ctx.font = `700 ${Math.round(13 * s)}px 'Plus Jakarta Sans', 'Sora', system-ui, sans-serif`;
+            ctx.textAlign = 'left';
+            ctx.textBaseline = 'top';
+            ctx.fillText('Stromkennzeichnung gemäß § 42 des Energiewirtschaftsgesetzes', 28 * s, legalY);
+
+            ctx.fillStyle = '#475569';
+            ctx.font = `500 ${Math.round(11.5 * s)}px 'Plus Jakarta Sans', 'Sora', system-ui, sans-serif`;
+            ctx.fillText('Quelle: eigene Darstellung nach AG Energiebilanzen und Fraunhofer ISE, Stand 03/2026', 28 * s, legalY + 20 * s);
+
+            // 4. Bottom Table: "Lieferländer der Herkunftsnachweise"
+            const tableX = 28 * s;
+            const tableY = legalY + 52 * s;
+            const tableW = W - 56 * s;
+            const headerH = 38 * s;
+            const rowH = 36 * s;
+            const totalTableH = headerH + ORIGIN_ROWS.length * rowH;
+
+            // Table Outer Frame
+            drawRoundedRect(ctx, tableX, tableY, tableW, totalTableH, 10 * s);
+            ctx.fillStyle = '#ffffff';
+            ctx.fill();
+
+            // Header Background (Warm Orange/Gold like Firstcon chart)
+            ctx.save();
+            drawRoundedRect(ctx, tableX, tableY, tableW, totalTableH, 10 * s);
+            ctx.clip();
+
+            const thGrad = ctx.createLinearGradient(tableX, tableY, tableX + tableW, tableY);
+            thGrad.addColorStop(0, '#f59e0b');
+            thGrad.addColorStop(0.6, '#f99239');
+            thGrad.addColorStop(1, '#e95e24');
+            ctx.fillStyle = thGrad;
+            ctx.fillRect(tableX, tableY, tableW, headerH);
+
+            const col1W = tableW * 0.44;
+            const col2W = tableW * 0.22;
+            const col3W = tableW * 0.34;
+
+            // Header Labels
+            ctx.fillStyle = '#ffffff';
+            ctx.font = `800 ${Math.round(12 * s)}px 'Sora', system-ui, sans-serif`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('Lieferländer der Herkunftsnachweise', tableX + col1W / 2, tableY + headerH / 2);
+            ctx.fillText('Anteil', tableX + col1W + col2W / 2, tableY + headerH / 2);
+            ctx.fillText('Stromerzeugung durch', tableX + col1W + col2W + col3W / 2, tableY + headerH / 2);
+
+            // Rows
+            ORIGIN_ROWS.forEach((row, rIdx) => {
+                const ry = tableY + headerH + rIdx * rowH;
+                ctx.fillStyle = rIdx % 2 === 0 ? '#ffffff' : '#fffdf7';
+                ctx.fillRect(tableX, ry, tableW, rowH);
+
+                // Row horizontal border
+                ctx.beginPath();
+                ctx.moveTo(tableX, ry);
+                ctx.lineTo(tableX + tableW, ry);
+                ctx.strokeStyle = 'rgba(245, 158, 11, 0.45)';
+                ctx.lineWidth = 1.1 * s;
+                ctx.stroke();
+
+                ctx.fillStyle = '#1e293b';
+                ctx.font = `600 ${Math.round(12.5 * s)}px 'Plus Jakarta Sans', 'Sora', system-ui, sans-serif`;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(row.country, tableX + col1W / 2, ry + rowH / 2);
+
+                ctx.font = `800 ${Math.round(12.5 * s)}px 'Sora', system-ui, sans-serif`;
+                ctx.fillStyle = '#c2410c';
+                ctx.fillText(row.share, tableX + col1W + col2W / 2, ry + rowH / 2);
+
+                ctx.font = `600 ${Math.round(12.5 * s)}px 'Plus Jakarta Sans', 'Sora', system-ui, sans-serif`;
+                ctx.fillStyle = '#15803d';
+                ctx.fillText(row.source, tableX + col1W + col2W + col3W / 2, ry + rowH / 2);
+            });
+
+            // Column vertical dividers
+            [tableX + col1W, tableX + col1W + col2W].forEach((vx) => {
+                ctx.beginPath();
+                ctx.moveTo(vx, tableY);
+                ctx.lineTo(vx, tableY + totalTableH);
+                ctx.strokeStyle = 'rgba(245, 158, 11, 0.55)';
+                ctx.lineWidth = 1.1 * s;
+                ctx.stroke();
+            });
+
+            ctx.restore();
+
+            // Outer Table Border
+            drawRoundedRect(ctx, tableX, tableY, tableW, totalTableH, 10 * s);
+            ctx.strokeStyle = '#f59e0b';
+            ctx.lineWidth = 1.5 * s;
+            ctx.stroke();
+
+            // 5. Tooltip on Hover
+            if (hoveredItem && hoveredItem.slice) {
+                const tipText = `${hoveredItem.slice.label}: ${hoveredItem.slice.valText}`;
+                ctx.font = `700 ${Math.round(11.5 * s)}px 'Sora', system-ui, sans-serif`;
+                const tw = ctx.measureText(tipText).width + 20 * s;
+                const th = 28 * s;
+                const tx = Math.max(10 * s, Math.min(W - tw - 10 * s, hoveredItem.x - tw / 2));
+                const ty = Math.max(10 * s, hoveredItem.y - th - 12 * s);
+
+                drawRoundedRect(ctx, tx, ty, tw, th, 7 * s);
+                ctx.fillStyle = 'rgba(15, 23, 42, 0.92)';
+                ctx.fill();
+
+                ctx.fillStyle = '#ffffff';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(tipText, tx + tw / 2, ty + th / 2);
+            }
+
+            ctx.restore();
+        }
+
+        // Smooth Entry Animation when visible
+        let hasAnimated = false;
+        function startAnimation() {
+            if (hasAnimated) return;
+            hasAnimated = true;
+            const startTime = performance.now();
+            const duration = 850;
+
+            function frame(now) {
+                const t = Math.min(1, (now - startTime) / duration);
+                // EaseOutCubic
+                animProgress = 1 - Math.pow(1 - t, 3);
+                render(animProgress);
+                if (t < 1) {
+                    requestAnimationFrame(frame);
+                }
+            }
+            requestAnimationFrame(frame);
+        }
+
+        if ('IntersectionObserver' in window) {
+            const io = new IntersectionObserver((entries) => {
+                entries.forEach((entry) => {
+                    if (entry.isIntersecting) {
+                        startAnimation();
+                        io.disconnect();
+                    }
+                });
+            }, { threshold: 0.12 });
+            io.observe(canvas);
+        } else {
+            animProgress = 1;
+            render(1);
+        }
+
+        // Initial static draw so canvas is never blank before scroll
+        animProgress = 1;
+        render(1);
+
+        // Interactive Mouse Hover
+        canvas.addEventListener('mousemove', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            const mx = e.clientX - rect.left;
+            const my = e.clientY - rect.top;
+            let found = null;
+
+            for (const reg of hitRegions) {
+                const dx = mx - reg.cx;
+                const dy = my - reg.cy;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+                if (dist >= reg.innerR && dist <= reg.outerR) {
+                    let ang = Math.atan2(dy, dx);
+                    if (ang < -Math.PI / 2) ang += Math.PI * 2;
+                    if (ang >= reg.startAngle && ang <= reg.endAngle) {
+                        found = { chart: reg.chart, index: reg.index, slice: reg.slice, x: mx, y: my };
+                        break;
+                    }
+                }
+            }
+
+            const changed = (found?.chart !== hoveredItem?.chart) || (found?.index !== hoveredItem?.index) || Boolean(found);
+            hoveredItem = found;
+            canvas.style.cursor = found ? 'pointer' : 'default';
+            if (changed) render(animProgress || 1);
+        });
+
+        canvas.addEventListener('mouseleave', () => {
+            if (hoveredItem) {
+                hoveredItem = null;
+                canvas.style.cursor = 'default';
+                render(animProgress || 1);
+            }
+        });
+
+        window.addEventListener('resize', () => {
+            render(animProgress || 1);
+        }, { passive: true });
+    }
+
+    function initAllStrommixCanvases() {
+        document.querySelectorAll('canvas[data-stromkennzeichnung-canvas], #strommixCanvas').forEach(setupStrommixCanvas);
+    }
+
+    window.initStromkennzeichnungCanvas = initAllStrommixCanvases;
+    window.openStromkennzeichnungCanvasPng = function(canvasId) {
+        const c = document.getElementById(canvasId || 'strommixCanvas') || document.querySelector('canvas[data-stromkennzeichnung-canvas]');
+        if (!c) return;
+        try {
+            const dataUrl = c.toDataURL('image/png');
+            const win = window.open('', '_blank');
+            if (win) {
+                win.document.write(
+                    '<!DOCTYPE html><html lang="de"><head><meta charset="UTF-8"><title>Stromkennzeichnung § 42 EnWG – Alpha Energie (Stand 03/2026)</title>' +
+                    '<style>body{margin:0;padding:24px;background:#0f172a;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;font-family:system-ui,sans-serif;color:#fff;}' +
+                    'img{max-width:96vw;height:auto;border-radius:16px;box-shadow:0 20px 50px rgba(0,0,0,0.5);background:#fff;}' +
+                    'a.dl{margin-top:16px;background:linear-gradient(135deg,#f9b233,#e95e24);color:#fff;text-decoration:none;font-weight:700;padding:10px 20px;border-radius:999px;}</style></head>' +
+                    '<body><img src="' + dataUrl + '" alt="Strommix im Vergleich – Alpha Energie">' +
+                    '<a class="dl" href="' + dataUrl + '" download="Stromkennzeichnung-Alpha-Energie-03-2026.png">Als hochauflösendes PNG herunterladen</a></body></html>'
+                );
+                win.document.close();
+            }
+        } catch (err) {
+            console.error(err);
+        }
+    };
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initAllStrommixCanvases);
+    } else {
+        initAllStrommixCanvases();
+    }
+})();
+
+

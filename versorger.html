@@ -89,8 +89,8 @@
 
     <!-- Base Styles & Scripts -->
     <link rel="stylesheet" href="style.css">
-    <script src="i18n.js?v=20261016-fc6" defer></script>
-    <script src="main.js?v=20261016-fc6" defer></script>
+    <script src="i18n.js?v=20261016-canvas1" defer></script>
+    <script src="main.js?v=20261016-canvas1" defer></script>
 
     <!-- Octopus Energy Clone Architecture in Alpha Energie Orange Palette -->
     <style>
@@ -2802,31 +2802,33 @@
                     <span style="display:inline-block;background:#fff7ed;color:#c2410c;border:1px solid #fdba74;border-radius:999px;padding:4px 14px;font-size:0.78rem;font-weight:800;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:10px;">Gesetzliche Pflichtangabe nach § 42 EnWG</span>
                     <h2 class="octo-section-h2" style="margin-bottom:10px;">Stromkennzeichnung &amp; Strommix im Vergleich</h2>
                     <p class="octo-section-sub" style="margin-bottom:0;">
-                        Transparenter Nachweis unseres Energieträgermixes und der Umweltauswirkungen gemäß § 42 Energiewirtschaftsgesetz (EnWG) für <strong>Alpha Energie – Eine Marke der Firstcon GmbH</strong> (Stand: 03/2026, Datenbasis 2024).
+                        Transparenter Nachweis unseres Energieträgermixes und der Herkunftsnachweise gemäß § 42 Energiewirtschaftsgesetz (EnWG) für <strong>Alpha Energie – Eine Marke der Firstcon GmbH</strong> (Stand: 03/2026).
                     </p>
                 </div>
 
-                <div style="display:grid;grid-template-columns:1.35fr 1fr;gap:28px;align-items:stretch;" class="octo-bento-2-1">
-                    <!-- Left: Official Stromkennzeichnung Graphic (Stand 03/2026) -->
+                <div style="display:grid;grid-template-columns:1.38fr 1fr;gap:28px;align-items:stretch;" class="octo-bento-2-1">
+                    <!-- Left: Interactive HiDPI HTML5 Canvas Stromkennzeichnung (Stand 03/2026) -->
                     <div class="octo-card" style="padding:20px;display:flex;flex-direction:column;justify-content:space-between;background:#ffffff;">
                         <div>
                             <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:14px;">
                                 <h3 class="octo-card-h3" style="font-size:1.22rem;margin:0;">Offizielle Stromkennzeichnung (Stand 03/2026)</h3>
-                                <a href="stromkennzeichnung-alpha-energie.jpg" target="_blank" rel="noopener" style="font-size:0.82rem;font-weight:700;color:#e95e24;text-decoration:underline;">Grafik in Originalgröße öffnen &nearr;</a>
+                                <button type="button" onclick="if(window.openStromkennzeichnungCanvasPng) window.openStromkennzeichnungCanvasPng('strommixCanvas');" style="background:none;border:none;padding:0;cursor:pointer;font-size:0.82rem;font-weight:700;color:#e95e24;text-decoration:underline;font-family:inherit;">
+                                    Grafik in Originalgröße öffnen / PNG &nearr;
+                                </button>
                             </div>
-                            <div style="border-radius:14px;overflow:hidden;border:1.5px solid rgba(249,178,51,0.45);background:#f8fafc;">
-                                <img src="stromkennzeichnung-alpha-energie.jpg" alt="Strommix im Vergleich – Alpha Energie (Eine Marke der Firstcon GmbH), Stand 03/2026: 65,0 % Erneuerbare Energien mit Herkunftsnachweisen, 35,0 % Erneuerbare Energien nach EEG, 0 g/kWh CO2-Emissionen, 0,0000 g/kWh radioaktiver Abfall" style="width:100%;height:auto;display:block;object-fit:contain;" loading="lazy">
+                            <div style="border-radius:14px;overflow:hidden;border:1.5px solid rgba(249,178,51,0.45);background:#ffffff;padding:4px;">
+                                <canvas id="strommixCanvas" data-stromkennzeichnung-canvas="true" role="img" aria-label="Strommix im Vergleich – Deutschland (62,20 % Erneuerbare Energien gefördert nach EEG, 23,50 % Kohle, 11,90 % Erdgas, 2,40 % Mineralöl und sonstige) vs. Alpha Energie (100 % Erneuerbare Energien mit Herkunftsnachweis: 94,5 % Wasserkraft aus Norwegen, 5,5 % Windkraft aus Schweden), Stand 03/2026" style="width:100%;display:block;"></canvas>
                             </div>
                         </div>
                         <p style="font-size:0.78rem;color:#64748b;margin:12px 0 0 0;line-height:1.45;">
-                            Stromkennzeichnung gemäß § 42 Energiewirtschaftsgesetz vom 07. Juli 2005, geändert 2021. Angaben auf der Basis vorläufiger Daten für das Jahr 2024 bzw. 2023 • Quellen: BDEW, Stand 08/2025 • Stand der Information 03/2026.
+                            Stromkennzeichnung gemäß § 42 des Energiewirtschaftsgesetzes • Quelle: eigene Darstellung nach AG Energiebilanzen und Fraunhofer ISE, Stand 03/2026.
                         </p>
                     </div>
 
                     <!-- Right: Tabular Summary & Voluntary Climate Contribution Info -->
                     <div style="display:flex;flex-direction:column;gap:20px;">
                         <div class="octo-card" style="padding:22px;background:#ffffff;">
-                            <h3 class="octo-card-h3" style="font-size:1.18rem;margin-bottom:12px;">Energieträgermix &amp; Umweltauswirkungen im Überblick</h3>
+                            <h3 class="octo-card-h3" style="font-size:1.18rem;margin-bottom:12px;">Energieträgermix &amp; Herkunftsnachweise im Überblick</h3>
                             <div style="overflow-x:auto;">
                                 <table style="width:100%;border-collapse:collapse;font-size:0.84rem;color:#1e293b;">
                                     <thead>
@@ -2838,19 +2840,29 @@
                                     </thead>
                                     <tbody>
                                         <tr style="border-bottom:1px solid #f1f5f9;">
-                                            <td style="padding:7px 6px;font-weight:600;">Erneuerbare Energien mit Herkunftsnachweisen</td>
-                                            <td style="padding:7px 6px;font-weight:800;color:#15803d;">65,0 %</td>
-                                            <td style="padding:7px 6px;color:#64748b;">11,6 %</td>
+                                            <td style="padding:7px 6px;font-weight:600;">Erneuerbare Energien mit Herkunftsnachweis</td>
+                                            <td style="padding:7px 6px;font-weight:800;color:#15803d;">100,0 %</td>
+                                            <td style="padding:7px 6px;color:#64748b;">0,0 %</td>
                                         </tr>
                                         <tr style="border-bottom:1px solid #f1f5f9;">
-                                            <td style="padding:7px 6px;font-weight:600;">Erneuerbare Energien (finanziert aus EEG-Umlage / nach EEG)</td>
-                                            <td style="padding:7px 6px;font-weight:800;color:#15803d;">35,0 %</td>
-                                            <td style="padding:7px 6px;color:#64748b;">44,6 %</td>
+                                            <td style="padding:7px 6px;font-weight:600;">Erneuerbare Energien, gefördert nach EEG</td>
+                                            <td style="padding:7px 6px;font-weight:700;color:#15803d;">0,0 %</td>
+                                            <td style="padding:7px 6px;color:#64748b;">62,20 %</td>
                                         </tr>
                                         <tr style="border-bottom:1px solid #f1f5f9;">
-                                            <td style="padding:7px 6px;">Kohle / Erdgas / Kernkraft / Sonstige fossile Energieträger</td>
+                                            <td style="padding:7px 6px;">Kohle</td>
                                             <td style="padding:7px 6px;font-weight:700;">0,0 %</td>
-                                            <td style="padding:7px 6px;color:#64748b;">43,8 %</td>
+                                            <td style="padding:7px 6px;color:#64748b;">23,50 %</td>
+                                        </tr>
+                                        <tr style="border-bottom:1px solid #f1f5f9;">
+                                            <td style="padding:7px 6px;">Erdgas</td>
+                                            <td style="padding:7px 6px;font-weight:700;">0,0 %</td>
+                                            <td style="padding:7px 6px;color:#64748b;">11,90 %</td>
+                                        </tr>
+                                        <tr style="border-bottom:1px solid #f1f5f9;">
+                                            <td style="padding:7px 6px;">Mineralöl und sonstige</td>
+                                            <td style="padding:7px 6px;font-weight:700;">0,0 %</td>
+                                            <td style="padding:7px 6px;color:#64748b;">2,40 %</td>
                                         </tr>
                                         <tr style="border-bottom:1px solid #f1f5f9;background:#fff7ed;">
                                             <td style="padding:7px 6px;font-weight:700;">CO₂-Emissionen</td>
@@ -2865,8 +2877,13 @@
                                     </tbody>
                                 </table>
                             </div>
-                            <p style="font-size:0.75rem;color:#64748b;margin:10px 0 0 0;">
-                                * Ökostromprodukt &amp; Gesamtenergieträgermix von Alpha Energie – Eine Marke der Firstcon GmbH (100 % erneuerbare Energien). ** Durchschnittswerte der Stromerzeugung in Deutschland.
+                            <div style="margin-top:12px;padding:10px 12px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;font-size:0.78rem;color:#334155;">
+                                <strong>Lieferländer der Herkunftsnachweise (Alpha Energie):</strong><br>
+                                • <strong>Norwegen:</strong> 94,5 % (Stromerzeugung durch Wasserkraft)<br>
+                                • <strong>Schweden:</strong> 5,5 % (Stromerzeugung durch Windkraft)
+                            </div>
+                            <p style="font-size:0.74rem;color:#64748b;margin:8px 0 0 0;">
+                                * Strommix Alpha Energie – Eine Marke der Firstcon GmbH (100 % Erneuerbare Energien mit Herkunftsnachweis). ** Strommix Deutschland nach AG Energiebilanzen und Fraunhofer ISE, Stand 03/2026.
                             </p>
                         </div>
 
