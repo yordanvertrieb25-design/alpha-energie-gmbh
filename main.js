@@ -770,7 +770,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                 firstconTariffId: 279,
                 name: 'ALPHA BASIC 24',
                 badge: 'Flexibel & Günstig',
-                workingPriceCt: 36.04,
+                workingPriceCt: 33.66,
                 basePriceEur: 29.40,
                 bonus: 0,
                 guaranteeMonths: 24,
@@ -800,7 +800,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                 firstconTariffId: 281,
                 name: 'ALPHA PREMIUM 24',
                 badge: '24 Monate Preisschutz & VIP',
-                workingPriceCt: 33.66,
+                workingPriceCt: 36.04,
                 basePriceEur: 29.40,
                 bonus: 0,
                 guaranteeMonths: 24,
@@ -818,8 +818,8 @@ document.addEventListener("DOMContentLoaded", async () => {
                 firstconTariffId: 226,
                 name: 'ALPHA BASIC 24 GAS',
                 badge: 'Fair & Preisstabil',
-                workingPriceCt: 11.76,
-                basePriceEur: 22.42,
+                workingPriceCt: 16.52,
+                basePriceEur: 28.25,
                 bonus: 0,
                 guaranteeMonths: 24,
                 features: [
@@ -833,8 +833,8 @@ document.addEventListener("DOMContentLoaded", async () => {
                 firstconTariffId: 227,
                 name: 'ALPHA TIME 24 GAS',
                 badge: 'Bestseller & Spar-Vorteil',
-                workingPriceCt: 10.57,
-                basePriceEur: 22.42,
+                workingPriceCt: 17.71,
+                basePriceEur: 28.25,
                 bonus: 0,
                 guaranteeMonths: 24,
                 features: [
@@ -848,8 +848,8 @@ document.addEventListener("DOMContentLoaded", async () => {
                 firstconTariffId: 228,
                 name: 'ALPHA PREMIUM 24 GAS',
                 badge: '24 Monate Preisschutz & Komfort',
-                workingPriceCt: 10.45,
-                basePriceEur: 22.42,
+                workingPriceCt: 18.90,
+                basePriceEur: 28.25,
                 bonus: 0,
                 guaranteeMonths: 24,
                 features: [
@@ -1754,10 +1754,10 @@ document.addEventListener("DOMContentLoaded", async () => {
                 const rawYearly = annualWorkingCost + annualBaseCost;
                 const monthlyPayment = Math.round(rawYearly / 12);
 
-                const refRateCt = branch === 'gas' ? 13.20 : 38.50;
-                const refBaseYear = branch === 'gas' ? 180 : 168;
-                const refYearly = (parsedKwh * (refRateCt / 100)) + refBaseYear;
-                const savings = Math.max(50, Math.round(refYearly - rawYearly));
+                const refYearly = branch === 'gas'
+                    ? (parsedKwh * 0.215) + (29.50 * 12)
+                    : (parsedKwh * 0.415) + (29.90 * 12);
+                const savings = Math.max(40, Math.round(refYearly - rawYearly));
 
                 selectedOrderData.consumption = String(parsedKwh);
                 selectedOrderData.monthlyPayment = String(monthlyPayment);

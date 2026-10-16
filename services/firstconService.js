@@ -344,8 +344,22 @@ async function calculateLiveTariffs({ plz, consumption, currentAbschlag, branch 
 
     const priceByTariffId = new Map();
     for (const p of pricesRes.data) {
-        priceByTariffId.set(p.TariffId, p);
+        if (p && p.TariffId) {
+            priceByTariffId.set(p.TariffId, p);
+        }
     }
+
+    // Sort returned price tiers ascending by yearly gross cost so that:
+    // index 0 (cheapest) -> alpha-basic
+    // index 1 (middle)   -> alpha-time
+    // index 2 (highest)  -> alpha-premium
+    const sortedPrices = pricesRes.data
+        .filter(p => p && (Number(p.TotalPricePerYearGross) > 0 || Number(p.PricePerUnitGross) > 0))
+        .sort((a, b) => {
+            const totalA = Number(a.TotalPricePerYearGross) || ((kwh * ((Number(a.PricePerUnitGross) || 0) / 100)) + ((Number(a.PriceBasicPerMonthGross) || 0) * 12));
+            const totalB = Number(b.TotalPricePerYearGross) || ((kwh * ((Number(b.PricePerUnitGross) || 0) / 100)) + ((Number(b.PriceBasicPerMonthGross) || 0) * 12));
+            return totalA - totalB;
+        });
 
     // Reference Grundversorger benchmark when user has not entered a custom higher Abschlag
     const parsedAbschlag = parseFloat(currentAbschlag);
@@ -396,9 +410,18 @@ async function calculateLiveTariffs({ plz, consumption, currentAbschlag, branch 
         }
     };
 
+    // Order tariffs consistently first: alpha-basic (0), alpha-time (1), alpha-premium (2)
+    const orderRank = { 'alpha-basic': 1, 'alpha-time': 2, 'alpha-premium': 3 };
+    const orderedFcTariffs = [...fcTariffs].sort((a, b) => {
+        const slotA = mapFirstconTariffToSlotId(a);
+        const slotB = mapFirstconTariffToSlotId(b);
+        return (orderRank[slotA] || 99) - (orderRank[slotB] || 99);
+    });
+
     const mappedTariffs = [];
-    for (const fcTariff of fcTariffs) {
-        const price = priceByTariffId.get(fcTariff.TariffId);
+    for (let idx = 0; idx < orderedFcTariffs.length; idx++) {
+        const fcTariff = orderedFcTariffs[idx];
+        const price = sortedPrices[idx] || priceByTariffId.get(fcTariff.TariffId);
         if (!price) continue;
 
         const slotId = mapFirstconTariffToSlotId(fcTariff);
@@ -406,9 +429,10 @@ async function calculateLiveTariffs({ plz, consumption, currentAbschlag, branch 
 
         const workingPriceCt = Number(price.PricePerUnitGross) || 0;
         const basePriceEurMonth = Number(price.PriceBasicPerMonthGross) || 0;
-        const grossYearlyEur = Number(price.TotalPricePerYearGross) || ((kwh * (workingPriceCt / 100)) + (basePriceEurMonth * 12));
-        const monthlyPayment = Number(price.MonthlyAdvancePaymentGross) || Math.round(Number(price.TotalPricePerMonthGross) || (grossYearlyEur / 12));
-        const savingsEur = Math.max(40, Math.round(userYearlyOld - grossYearlyEur));
+        const computedYearlyEur = (kwh * (workingPriceCt / 100)) + (basePriceEurMonth * 12);
+        const grossYearlyEur = computedYearlyEur || Number(price.TotalPricePerYearGross);
+        const monthlyPayment = Math.round(computedYearlyEur / 12) || Math.round(Number(price.TotalPricePerMonthGross) || (grossYearlyEur / 12));
+        const savingsEur = Math.max(40, Math.round(userYearlyOld - computedYearlyEur));
 
         const defaultFeatures = isGas ? [
             `${fcTariff.PriceGuaranteeDuration || 24} Monate volle Preisgarantie`,
@@ -482,8 +506,6 @@ async function calculateLiveTariffs({ plz, consumption, currentAbschlag, branch 
         });
     }
 
-    // Order consistently: alpha-basic, alpha-time, alpha-premium
-    const orderRank = { 'alpha-basic': 1, 'alpha-time': 2, 'alpha-premium': 3 };
     mappedTariffs.sort((a, b) => (orderRank[a.id] || 99) - (orderRank[b.id] || 99));
 
     const maxSavings = Math.max(...mappedTariffs.map(t => t.savingsEur), 0);
