@@ -88,9 +88,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
     <!-- Base Styles & Scripts -->
-    <link rel="stylesheet" href="style.css?v=20261016-ai3">
-    <script src="i18n.js?v=20261016-ai3" defer></script>
-    <script src="main.js?v=20261016-ai3" defer></script>
+    <link rel="stylesheet" href="style.css?v=20261016-ai4">
+    <script src="i18n.js?v=20261016-ai4" defer></script>
+    <script src="main.js?v=20261016-ai4" defer></script>
 
     <!-- Octopus Energy Clone Architecture in Alpha Energie Orange Palette -->
     <style>
@@ -2099,7 +2099,7 @@
                         <div class="octo-stage-visual-card octo-photo-filter">
                             <img src="clean_energy_home.jpg" alt="Alpha Energie – Ökostrom aus 100 % erneuerbaren Energien &amp; Erdgas für Ihr Zuhause" data-ai-generated="true" loading="eager" fetchpriority="high">
                             <div class="octo-stage-badge-top">Bis zu 380 € / Jahr sparen</div>
-                            <button type="button" class="ai-media-info-btn ai-media-info-btn--hero-photo" data-ai-type="image" style="top:14px;left:14px;right:auto;" aria-label="Info: KI-generiertes Bild – Klicken für Details" title="KI-generiertes Bild – Klicken für Info">
+                            <button type="button" class="ai-media-info-btn ai-media-info-btn--hero-photo" data-ai-type="image" style="bottom:80px;right:14px;top:auto;left:auto;" aria-label="Info: KI-generiertes Bild – Klicken für Details" title="KI-generiertes Bild – Klicken für Info">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
                                 <span>KI</span>
                             </button>
@@ -3728,8 +3728,11 @@
 
             function syncSoundUi() {
                 var isMuted = introVid.muted || introVid.volume === 0;
+                var curLang = (window.i18n && typeof window.i18n.getLanguage === 'function') ? window.i18n.getLanguage() : 'de';
+                var labelMuted = curLang === 'en' ? 'Enable sound' : (curLang === 'tr' ? 'Sesi aç' : (curLang === 'ar' ? 'تفعيل الصوت' : 'Ton aktivieren'));
+                var labelOn = curLang === 'en' ? 'Sound on' : (curLang === 'tr' ? 'Ses açık' : (curLang === 'ar' ? 'الصوت قيد التشغيل' : 'Ton an'));
                 if (soundIcon) soundIcon.textContent = isMuted ? '🔇' : '🔊';
-                if (soundLabel) soundLabel.textContent = isMuted ? 'Ton aktivieren' : 'Ton an';
+                if (soundLabel) soundLabel.textContent = isMuted ? labelMuted : labelOn;
                 if (soundBtn) {
                     soundBtn.style.background = isMuted
                         ? 'linear-gradient(135deg, #f9b233 0%, #e95e24 100%)'
@@ -3739,6 +3742,7 @@
 
             introVid.addEventListener('volumechange', syncSoundUi);
             introVid.addEventListener('play', syncSoundUi);
+            window.addEventListener('languageChanged', syncSoundUi);
             syncSoundUi();
 
             if (soundBtn) {

@@ -145,6 +145,7 @@ app.get('/ok-power-siegel.png', (req, res) => {
 
 // Dedicated route for /versorger
 app.get('/versorger', (req, res) => {
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
     res.sendFile(path.join(__dirname, 'versorger.html'));
 });
 

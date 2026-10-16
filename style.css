@@ -8498,9 +8498,10 @@ html.swal2-height-auto:not(.alpha-modal-open) {
 }
 
 .ai-media-info-btn--hero-photo {
-    top: 14px;
-    left: 14px;
-    right: auto;
+    bottom: 80px !important;
+    right: 14px !important;
+    top: auto !important;
+    left: auto !important;
 }
 
 .ai-media-info-btn--video {

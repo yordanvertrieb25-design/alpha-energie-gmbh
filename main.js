@@ -1197,7 +1197,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                 if (Array.isArray(data.tariffs)) {
                     const activeSpecs = getActiveSpecs(activeBranch);
                     let maxLiveSavings = 0;
-                    const isDe = !window.i18n || typeof window.i18n.getLanguage !== 'function' || window.i18n.getLanguage() === 'de';
+                    const curLang = (window.i18n && typeof window.i18n.getLanguage === 'function') ? window.i18n.getLanguage() : 'de';
 
                     data.tariffs.forEach(t => {
                         const spec = activeSpecs[t.id];
@@ -1239,24 +1239,34 @@ document.addEventListener("DOMContentLoaded", async () => {
 
                         if (currentBranch === activeBranch) {
                             const cardEl = document.getElementById(`card-${t.id}`);
-                            if (cardEl && isDe) {
+                            if (cardEl) {
                                 const titleEl = cardEl.querySelector('.tariff-title');
                                 if (titleEl && (t.name || (spec && spec.name))) {
                                     titleEl.textContent = t.name || spec.name;
                                 }
                                 const badgeEl = cardEl.querySelector('.tariff-badge');
-                                if (badgeEl && (t.badge || (spec && spec.badge))) {
-                                    badgeEl.textContent = t.badge || spec.badge;
+                                if (badgeEl) {
+                                    const badgeMap = window.__TARIFF_BADGE_BY_CARD && window.__TARIFF_BADGE_BY_CARD[activeBranch === 'gas' ? 'gas' : 'strom'];
+                                    const mappedBadge = badgeMap && badgeMap[t.id] ? badgeMap[t.id][curLang] : null;
+                                    badgeEl.textContent = mappedBadge || t.badge || (spec && spec.badge) || '';
                                 }
                                 const featList = cardEl.querySelector('.tariff-feature-list');
                                 const feats = (sanitizedLiveFeatures && sanitizedLiveFeatures.length > 0) ? sanitizedLiveFeatures : (spec ? spec.features : null);
-                                if (featList && feats) {
-                                    featList.innerHTML = feats.map(f => `
-                                        <div class="tariff-feature-item">
-                                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                                            <span>${f}</span>
-                                        </div>
-                                    `).join('');
+                                const trFn = window.__translateTariffFeature || ((x) => x);
+                                if (featList && Array.isArray(feats)) {
+                                    const existingSpans = featList.querySelectorAll('.tariff-feature-item span');
+                                    if (existingSpans.length === feats.length) {
+                                        feats.forEach((f, idx) => {
+                                            existingSpans[idx].textContent = trFn(f, curLang);
+                                        });
+                                    } else {
+                                        featList.innerHTML = feats.map(f => `
+                                            <div class="tariff-feature-item">
+                                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                                                <span>${trFn(f, curLang)}</span>
+                                            </div>
+                                        `).join('');
+                                    }
                                 }
                             }
 
@@ -1400,18 +1410,75 @@ document.addEventListener("DOMContentLoaded", async () => {
             });
         });
 
-        function updateHouseholdPresets(branch) {
-            const presets = branch === 'gas' ? [
-                { label: 'Wohnung', sub: '5.000 kWh', kwh: 5000 },
-                { label: 'Reihenhaus', sub: '12.000 kWh', kwh: 12000 },
-                { label: 'Haus', sub: '18.000 kWh', kwh: 18000 },
-                { label: 'Großes Haus', sub: '25.000 kWh', kwh: 25000 }
-            ] : [
+        function getPresetLabelsForBranch(branch, lang) {
+            const l = lang || ((window.i18n && typeof window.i18n.getLanguage === 'function') ? window.i18n.getLanguage() : 'de');
+            if (branch === 'gas') {
+                if (l === 'en') {
+                    return [
+                        { label: 'Apartment', sub: '5,000 kWh', kwh: 5000 },
+                        { label: 'Townhouse', sub: '12,000 kWh', kwh: 12000 },
+                        { label: 'Detached House', sub: '18,000 kWh', kwh: 18000 },
+                        { label: 'Large House', sub: '25,000 kWh', kwh: 25000 }
+                    ];
+                }
+                if (l === 'tr') {
+                    return [
+                        { label: 'Daire', sub: '5.000 kWh', kwh: 5000 },
+                        { label: 'Sıra Ev', sub: '12.000 kWh', kwh: 12000 },
+                        { label: 'Müstakil Ev', sub: '18.000 kWh', kwh: 18000 },
+                        { label: 'Büyük Ev', sub: '25.000 kWh', kwh: 25000 }
+                    ];
+                }
+                if (l === 'ar') {
+                    return [
+                        { label: 'شقة سكنية', sub: '5.000 ك.و.س', kwh: 5000 },
+                        { label: 'منزل متلاصق', sub: '12.000 ك.و.س', kwh: 12000 },
+                        { label: 'منزل مستقل', sub: '18.000 ك.و.س', kwh: 18000 },
+                        { label: 'منزل كبير', sub: '25.000 ك.و.س', kwh: 25000 }
+                    ];
+                }
+                return [
+                    { label: 'Wohnung', sub: '5.000 kWh', kwh: 5000 },
+                    { label: 'Reihenhaus', sub: '12.000 kWh', kwh: 12000 },
+                    { label: 'Haus', sub: '18.000 kWh', kwh: 18000 },
+                    { label: 'Großes Haus', sub: '25.000 kWh', kwh: 25000 }
+                ];
+            }
+            if (l === 'en') {
+                return [
+                    { label: '1 Person', sub: '1,500 kWh', kwh: 1500 },
+                    { label: '2 Persons', sub: '2,500 kWh', kwh: 2500 },
+                    { label: '3 Persons', sub: '3,500 kWh', kwh: 3500 },
+                    { label: '4+ Persons', sub: '4,500 kWh', kwh: 4500 }
+                ];
+            }
+            if (l === 'tr') {
+                return [
+                    { label: '1 Kişi', sub: '1.500 kWh', kwh: 1500 },
+                    { label: '2 Kişi', sub: '2.500 kWh', kwh: 2500 },
+                    { label: '3 Kişi', sub: '3.500 kWh', kwh: 3500 },
+                    { label: '4+ Kişi', sub: '4.500 kWh', kwh: 4500 }
+                ];
+            }
+            if (l === 'ar') {
+                return [
+                    { label: 'شخص 1', sub: '1.500 ك.و.س', kwh: 1500 },
+                    { label: 'شخصان', sub: '2.500 ك.و.س', kwh: 2500 },
+                    { label: '3 أشخاص', sub: '3.500 ك.و.س', kwh: 3500 },
+                    { label: '+4 أشخاص', sub: '4.500 ك.و.س', kwh: 4500 }
+                ];
+            }
+            return [
                 { label: '1 Person', sub: '1.500 kWh', kwh: 1500 },
                 { label: '2 Pers.', sub: '2.500 kWh', kwh: 2500 },
                 { label: '3 Pers.', sub: '3.500 kWh', kwh: 3500 },
                 { label: '4+ Pers.', sub: '4.500 kWh', kwh: 4500 }
             ];
+        }
+
+        function updateHouseholdPresets(branch) {
+            const curLang = (window.i18n && typeof window.i18n.getLanguage === 'function') ? window.i18n.getLanguage() : 'de';
+            const presets = getPresetLabelsForBranch(branch, curLang);
 
             const rawVal = (calcKwh && calcKwh.value) ? calcKwh.value.toString().replace(/\D/g, '').trim() : '';
             const currentVal = rawVal ? parseInt(rawVal, 10) : null;
@@ -1427,6 +1494,14 @@ document.addEventListener("DOMContentLoaded", async () => {
                     btn.classList.toggle('active', isActive);
                 }
             });
+
+            if (calcKwh && (!calcKwh.value || calcKwh.value.toString().trim() === '')) {
+                if (branch === 'gas') {
+                    calcKwh.placeholder = curLang === 'en' ? 'e.g. 12,000' : (curLang === 'tr' ? 'örn. 12.000' : (curLang === 'ar' ? 'مثلاً 12000' : 'z. B. 12.000'));
+                } else {
+                    calcKwh.placeholder = curLang === 'en' ? 'e.g. 2,500' : (curLang === 'tr' ? 'örn. 2.500' : (curLang === 'ar' ? 'مثلاً 2500' : 'z. B. 2.500'));
+                }
+            }
         }
 
         // Tabs click
@@ -1439,18 +1514,12 @@ document.addEventListener("DOMContentLoaded", async () => {
                 
                 const noticeText = document.getElementById('calcBranchNoticeText');
                 const hasUserKwh = Boolean(calcKwh && calcKwh.value && calcKwh.value.toString().trim() !== '');
-                const hasUserAbschlag = Boolean(calcAbschlag && calcAbschlag.value && calcAbschlag.value.toString().trim() !== '');
 
                 if (currentBranch === 'gas') {
                     if (hasUserKwh) {
                         if (calcKwh.value === '2500' || calcKwh.value === '1500' || calcKwh.value === '3500' || calcKwh.value === '4500') {
                             calcKwh.value = '12000';
                         }
-                    } else if (calcKwh) {
-                        calcKwh.placeholder = 'z. B. 12.000';
-                    }
-                    if (calcAbschlag && !hasUserAbschlag) {
-                        calcAbschlag.placeholder = 'Abschlag';
                     }
                     updateHouseholdPresets('gas');
                     if (noticeText) {
@@ -1464,11 +1533,6 @@ document.addEventListener("DOMContentLoaded", async () => {
                         if (calcKwh.value === '12000' || calcKwh.value === '5000' || calcKwh.value === '18000' || calcKwh.value === '25000') {
                             calcKwh.value = '2500';
                         }
-                    } else if (calcKwh) {
-                        calcKwh.placeholder = 'z. B. 2.500';
-                    }
-                    if (calcAbschlag && !hasUserAbschlag) {
-                        calcAbschlag.placeholder = 'Abschlag';
                     }
                     updateHouseholdPresets('strom');
                     if (noticeText) {
@@ -1740,16 +1804,49 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
 
         function updateModalPresetsForBranch(branch) {
+            const curLang = (window.i18n && typeof window.i18n.getLanguage === 'function') ? window.i18n.getLanguage() : 'de';
             const presets = branch === 'gas' ? [
-                { label: 'Wohnung', sub: '5.000 kWh', kwh: 5000 },
-                { label: 'Reihenhaus', sub: '12.000 kWh', kwh: 12000 },
-                { label: 'Haus', sub: '18.000 kWh', kwh: 18000 },
-                { label: 'Großes Haus', sub: '25.000 kWh', kwh: 25000 }
+                {
+                    label: curLang === 'en' ? 'Apartment' : (curLang === 'tr' ? 'Daire' : (curLang === 'ar' ? 'شقة' : 'Wohnung')),
+                    sub: curLang === 'en' ? '5,000 kWh' : '5.000 kWh',
+                    kwh: 5000
+                },
+                {
+                    label: curLang === 'en' ? 'Townhouse' : (curLang === 'tr' ? 'Sıra Ev' : (curLang === 'ar' ? 'منزل متصل' : 'Reihenhaus')),
+                    sub: curLang === 'en' ? '12,000 kWh' : '12.000 kWh',
+                    kwh: 12000
+                },
+                {
+                    label: curLang === 'en' ? 'House' : (curLang === 'tr' ? 'Müstakil Ev' : (curLang === 'ar' ? 'منزل مستقل' : 'Haus')),
+                    sub: curLang === 'en' ? '18,000 kWh' : '18.000 kWh',
+                    kwh: 18000
+                },
+                {
+                    label: curLang === 'en' ? 'Large House' : (curLang === 'tr' ? 'Büyük Ev' : (curLang === 'ar' ? 'منزل كبير' : 'Großes Haus')),
+                    sub: curLang === 'en' ? '25,000 kWh' : '25.000 kWh',
+                    kwh: 25000
+                }
             ] : [
-                { label: '1 Person', sub: '1.500 kWh', kwh: 1500 },
-                { label: '2 Pers.', sub: '2.500 kWh', kwh: 2500 },
-                { label: '3 Pers.', sub: '3.500 kWh', kwh: 3500 },
-                { label: '4+ Pers.', sub: '4.500 kWh', kwh: 4500 }
+                {
+                    label: curLang === 'en' ? '1 Person' : (curLang === 'tr' ? '1 Kişi' : (curLang === 'ar' ? 'شخص واحد' : '1 Person')),
+                    sub: curLang === 'en' ? '1,500 kWh' : '1.500 kWh',
+                    kwh: 1500
+                },
+                {
+                    label: curLang === 'en' ? '2 Pers.' : (curLang === 'tr' ? '2 Kişi' : (curLang === 'ar' ? 'شخصان' : '2 Pers.')),
+                    sub: curLang === 'en' ? '2,500 kWh' : '2.500 kWh',
+                    kwh: 2500
+                },
+                {
+                    label: curLang === 'en' ? '3 Pers.' : (curLang === 'tr' ? '3 Kişi' : (curLang === 'ar' ? '3 أشخاص' : '3 Pers.')),
+                    sub: curLang === 'en' ? '3,500 kWh' : '3.500 kWh',
+                    kwh: 3500
+                },
+                {
+                    label: curLang === 'en' ? '4+ Pers.' : (curLang === 'tr' ? '4+ Kişi' : (curLang === 'ar' ? '4+ أشخاص' : '4+ Pers.')),
+                    sub: curLang === 'en' ? '4,500 kWh' : '4.500 kWh',
+                    kwh: 4500
+                }
             ];
             modalPresetBtns.forEach((btn, idx) => {
                 if (presets[idx]) {
@@ -1761,7 +1858,11 @@ document.addEventListener("DOMContentLoaded", async () => {
                 }
             });
             if (modalCalcKwh) {
-                modalCalcKwh.placeholder = branch === 'gas' ? 'z. B. 12000' : 'z. B. 2500';
+                if (branch === 'gas') {
+                    modalCalcKwh.placeholder = curLang === 'en' ? 'e.g. 12000' : (curLang === 'tr' ? 'Örn. 12000' : (curLang === 'ar' ? 'مثال: 12000' : 'z. B. 12000'));
+                } else {
+                    modalCalcKwh.placeholder = curLang === 'en' ? 'e.g. 2500' : (curLang === 'tr' ? 'Örn. 2500' : (curLang === 'ar' ? 'مثال: 2500' : 'z. B. 2500'));
+                }
             }
         }
 
@@ -1770,6 +1871,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             const currentSpecs = getActiveSpecs(branch);
             const tariffId = selectedOrderData.tariffId || 'alpha-basic';
             const spec = currentSpecs[tariffId] || currentSpecs['alpha-basic'];
+            const curLang = (window.i18n && typeof window.i18n.getLanguage === 'function') ? window.i18n.getLanguage() : 'de';
 
             const nameEl = document.getElementById('orderSummaryTariffName');
             const badgeEl = document.getElementById('orderSummaryTariffBadge');
@@ -1784,7 +1886,12 @@ document.addEventListener("DOMContentLoaded", async () => {
             const cityInputModal = document.getElementById('orderCity');
 
             if (nameEl) nameEl.textContent = spec.name;
-            if (badgeEl) badgeEl.textContent = `${spec.guaranteeMonths} Monate Preisgarantie`;
+            if (badgeEl) {
+                if (curLang === 'en') badgeEl.textContent = `${spec.guaranteeMonths} Months Price Guarantee`;
+                else if (curLang === 'tr') badgeEl.textContent = `${spec.guaranteeMonths} Ay Fiyat Garantisi`;
+                else if (curLang === 'ar') badgeEl.textContent = `ضمان سعر لمدة ${spec.guaranteeMonths} شهراً`;
+                else badgeEl.textContent = `${spec.guaranteeMonths} Monate Preisgarantie`;
+            }
 
             const plzVal = modalCalcPlz ? modalCalcPlz.value.replace(/\D/g, '').slice(0, 5) : (selectedOrderData.plz || '');
             if (modalCalcPlz && modalCalcPlz.value !== plzVal) {
@@ -1831,7 +1938,6 @@ document.addEventListener("DOMContentLoaded", async () => {
                 btn.classList.toggle('active', Boolean(isKwhValid && btnKwh === parsedKwh));
             });
 
-            const curLang = (window.i18n && typeof window.i18n.getLanguage === 'function') ? window.i18n.getLanguage() : 'de';
             const activeWorkCt = (isPlzValid && typeof spec.liveWorkingPriceCt === 'number') ? spec.liveWorkingPriceCt : spec.workingPriceCt;
             const activeBaseEur = (isPlzValid && typeof spec.liveBasePriceEur === 'number') ? spec.liveBasePriceEur : spec.basePriceEur;
 
@@ -1892,17 +1998,25 @@ document.addEventListener("DOMContentLoaded", async () => {
                 selectedOrderData.savings = '';
 
                 if (monthlyEl) {
-                    monthlyEl.textContent = 'Bitte unten Verbrauch wählen';
+                    monthlyEl.textContent = curLang === 'en' ? 'Please select consumption below' : (curLang === 'tr' ? 'Lütfen aşağıdan tüketim seçin' : (curLang === 'ar' ? 'يرجى اختيار الاستهلاك أدناه' : 'Bitte unten Verbrauch wählen'));
                     monthlyEl.style.color = '#ea580c';
                 }
                 if (kwhEl) {
-                    kwhEl.textContent = 'Bitte unten angeben';
+                    kwhEl.textContent = curLang === 'en' ? 'Please enter below' : (curLang === 'tr' ? 'Lütfen aşağıda belirtin' : (curLang === 'ar' ? 'يرجى الإدخال أدناه' : 'Bitte unten angeben'));
                     kwhEl.style.color = '#ea580c';
                 }
                 if (savingsEl) {
                     const rateFormatted = activeWorkCt.toFixed(2).replace('.', ',');
                     const baseFormatted = activeBaseEur.toFixed(2).replace('.', ',');
-                    savingsEl.textContent = `⚡ Konditionen: ${rateFormatted} ct/kWh • ${baseFormatted} €/Monat Grundpreis – bitte unten Verbrauch angeben`;
+                    if (curLang === 'en') {
+                        savingsEl.textContent = `⚡ Rates: ${rateFormatted} ct/kWh • €${baseFormatted}/month base price – please enter consumption below`;
+                    } else if (curLang === 'tr') {
+                        savingsEl.textContent = `⚡ Koşullar: ${rateFormatted} ct/kWh • ${baseFormatted} €/Ay sabit ücret – lütfen aşağıya tüketim girin`;
+                    } else if (curLang === 'ar') {
+                        savingsEl.textContent = `⚡ الشروط: ${rateFormatted} سنت/ك.و.س • ${baseFormatted} €/شهر سعر أساسي – يرجى إدخال الاستهلاك أدناه`;
+                    } else {
+                        savingsEl.textContent = `⚡ Konditionen: ${rateFormatted} ct/kWh • ${baseFormatted} €/Monat Grundpreis – bitte unten Verbrauch angeben`;
+                    }
                 }
             }
 
@@ -1912,7 +2026,13 @@ document.addEventListener("DOMContentLoaded", async () => {
                     promptIcon.style.background = '#dcfce7';
                     promptIcon.style.color = '#15803d';
                     promptHeader.style.color = '#166534';
-                    promptText.textContent = 'Deine Angaben wurden übernommen – dein persönlicher Abschlag ist berechnet:';
+                    promptText.textContent = curLang === 'en'
+                        ? 'Your details have been applied – your personal monthly rate is calculated:'
+                        : (curLang === 'tr'
+                            ? 'Bilgileriniz alındı – kişisel aylık taksitiniz hesaplandı:'
+                            : (curLang === 'ar'
+                                ? 'تم اعتماد بياناتك – تم حساب دفعتك الشهرية الشخصية:'
+                                : 'Deine Angaben wurden übernommen – dein persönlicher Abschlag ist berechnet:'));
                     promptBox.style.borderColor = '#86efac';
                     promptBox.style.background = '#f0fdf4';
                     if (modalStep1ValidationMsg) modalStep1ValidationMsg.style.display = 'none';
@@ -1924,11 +2044,29 @@ document.addEventListener("DOMContentLoaded", async () => {
                     promptBox.style.borderColor = 'rgba(249, 178, 51, 0.85)';
                     promptBox.style.background = '#fffdf9';
                     if (!isPlzValid && !isKwhValid) {
-                        promptText.textContent = 'Noch keine Verbrauchsdaten eingegeben – bitte hier kurz PLZ & Verbrauch ergänzen:';
+                        promptText.textContent = curLang === 'en'
+                            ? 'No consumption data entered yet – please enter postcode & consumption below:'
+                            : (curLang === 'tr'
+                                ? 'Henüz tüketim verisi girilmedi – lütfen aşağıya posta kodu ve tüketimi ekleyin:'
+                                : (curLang === 'ar'
+                                    ? 'لم يتم إدخال بيانات الاستهلاك بعد – يرجى إدخال الرمز البريدي والاستهلاك هنا:'
+                                    : 'Noch keine Verbrauchsdaten eingegeben – bitte hier kurz PLZ & Verbrauch ergänzen:'));
                     } else if (!isPlzValid && isKwhValid) {
-                        promptText.textContent = 'Fast fertig – bitte gib noch kurz deine 5-stellige Postleitzahl (Lieferort) ein:';
+                        promptText.textContent = curLang === 'en'
+                            ? 'Almost done – please enter your 5-digit postcode (supply location):'
+                            : (curLang === 'tr'
+                                ? 'Neredeyse bitti – lütfen 5 haneli posta kodunuzu (teslimat yeri) girin:'
+                                : (curLang === 'ar'
+                                    ? 'أوشكت على الانتهاء – يرجى إدخال الرمز البريدي المكون من 5 أرقام:'
+                                    : 'Fast fertig – bitte gib noch kurz deine 5-stellige Postleitzahl (Lieferort) ein:'));
                     } else {
-                        promptText.textContent = 'Fast fertig – bitte wähle noch kurz deine Haushaltsgröße oder gib deinen Jahresverbrauch (kWh) ein:';
+                        promptText.textContent = curLang === 'en'
+                            ? 'Almost done – please select your household size or enter your annual consumption (kWh):'
+                            : (curLang === 'tr'
+                                ? 'Neredeyse bitti – lütfen hane büyüklüğünüzü seçin veya yıllık tüketiminizi (kWh) girin:'
+                                : (curLang === 'ar'
+                                    ? 'أوشكت على الانتهاء – يرجى اختيار حجم الأسرة أو إدخال استهلاكك السنوي (ك.و.س):'
+                                    : 'Fast fertig – bitte wähle noch kurz deine Haushaltsgröße oder gib deinen Jahresverbrauch (kWh) ein:'));
                     }
                 }
             }
@@ -2343,6 +2481,112 @@ document.addEventListener("DOMContentLoaded", async () => {
             }
         }
 
+        const syncCancelModalTexts = (isWiderruf) => {
+            const curLang = (window.i18n && typeof window.i18n.getLanguage === 'function') ? window.i18n.getLanguage() : 'de';
+            if (isWiderruf) {
+                if (cancelModalTitle) {
+                    cancelModalTitle.textContent = curLang === 'en'
+                        ? 'Revoke Contract (Online Revocation Form)'
+                        : (curLang === 'tr'
+                            ? 'Sözleşmeyi İptal Et / Cayma (Online Cayma Formu)'
+                            : (curLang === 'ar'
+                                ? 'التراجع عن العقد (نموذج التراجع الإلكتروني)'
+                                : 'Vertrag widerrufen (Online-Widerrufsformular)'));
+                }
+                if (cancelModalSubtitle) {
+                    cancelModalSubtitle.innerHTML = curLang === 'en'
+                        ? 'Revoke your energy supply contract easily online within the 14-day revocation period. You will immediately receive an electronic confirmation of receipt by email and as a PDF document.'
+                        : (curLang === 'tr'
+                            ? 'Enerji tedarik sözleşmenizden 14 günlük cayma süresi içinde kolayca online olarak cayın. E-posta ve PDF belgesi olarak anında elektronik alındı onayı alacaksınız.'
+                            : (curLang === 'ar'
+                                ? 'تراجع عن عقد تزويد الطاقة الخاص بك بسهولة عبر الإنترنت خلال فترة التراجع البالغة 14 يوماً. ستتلقى فوراً تأكيد استلام إلكتروني عبر البريد الإلكتروني وكمستند PDF.'
+                                : 'Widerrufen Sie Ihren Energieliefervertrag innerhalb der 14-tägigen Widerrufsfrist einfach online. Sie erhalten umgehend eine elektronische Eingangsbestätigung per E-Mail sowie als PDF-Dokument.'));
+                }
+                if (cancelOnlyFields) cancelOnlyFields.style.display = 'none';
+                if (revokeOnlyFields) revokeOnlyFields.style.display = 'block';
+                if (cancelReasonSelect) cancelReasonSelect.required = false;
+                if (cancelCustomDate) cancelCustomDate.required = false;
+                if (revokeOrderDate) revokeOrderDate.required = true;
+                if (cancelContractNumberLabel) {
+                    cancelContractNumberLabel.textContent = curLang === 'en'
+                        ? 'Order or Customer Number *'
+                        : (curLang === 'tr'
+                            ? 'Sipariş veya Müşteri Numarası *'
+                            : (curLang === 'ar'
+                                ? 'رقم الطلب أو رقم العميل *'
+                                : 'Bestell- oder Kundennummer *'));
+                }
+                if (cancelDeclarationText) {
+                    cancelDeclarationText.textContent = curLang === 'en'
+                        ? 'I hereby revoke the contract concluded by me for the supply of energy (electricity/natural gas). *'
+                        : (curLang === 'tr'
+                            ? 'Tarafımdan akdedilen enerji (elektrik/doğalgaz) tedarik sözleşmesinden işbu belge ile cayıyorum. *'
+                            : (curLang === 'ar'
+                                ? 'أقر بموجب هذا بالتراجع عن العقد الذي أبرمته لتزويد الطاقة (الكهرباء/الغاز الطبيعي). *'
+                                : 'Hiermit widerrufe ich den von mir abgeschlossenen Vertrag über die Lieferung von Energie (Strom/Erdgas). *'));
+                }
+                if (btnCancelSubmit) {
+                    btnCancelSubmit.textContent = curLang === 'en'
+                        ? 'Submit Revocation'
+                        : (curLang === 'tr'
+                            ? 'Cayma Bildirimini Gönder'
+                            : (curLang === 'ar'
+                                ? 'إرسال طلب التراجع'
+                                : 'Widerruf senden'));
+                }
+            } else {
+                if (cancelModalTitle) {
+                    cancelModalTitle.textContent = curLang === 'en'
+                        ? 'Cancel Contracts Here (§ 312k BGB)'
+                        : (curLang === 'tr'
+                            ? 'Sözleşmeleri Buradan Feshedin (§ 312k BGB)'
+                            : (curLang === 'ar'
+                                ? 'إلغاء العقود هنا (§ 312k BGB)'
+                                : 'Verträge hier kündigen (§ 312k BGB)'));
+                }
+                if (cancelModalSubtitle) {
+                    cancelModalSubtitle.innerHTML = curLang === 'en'
+                        ? 'Here you can electronically cancel your existing energy supply contract with Alpha Energie in accordance with § 312k BGB. After submitting, your cancellation confirmation is immediately available as a PDF download and sent to you by email.'
+                        : (curLang === 'tr'
+                            ? 'Burada Alpha Energie ile mevcut enerji tedarik sözleşmenizi § 312k BGB uyarınca elektronik olarak feshedebilirsiniz. Gönderdikten sonra fesih onayınız anında PDF olarak indirilebilir ve ayrıca e-posta ile gönderilir.'
+                            : (curLang === 'ar'
+                                ? 'يمكنك هنا إلغاء عقد تزويد الطاقة الحالي الخاص بك مع Alpha Energie إلكترونياً وفقاً للمادة § 312k BGB. بعد الإرسال، يتوفر تأكيد الإلغاء فوراً للتحميل بصيغة PDF ويتم إرساله إليك عبر البريد الإلكتروني.'
+                                : 'Hier können Sie Ihren bestehenden Energieliefervertrag bei Alpha Energie gemäß § 312k BGB elektronisch kündigen. Nach dem Absenden steht Ihnen Ihre Kündigungsbestätigung sofort als PDF zum Download bereit und wird Ihnen zusätzlich per E-Mail zugesandt.'));
+                }
+                if (cancelOnlyFields) cancelOnlyFields.style.display = 'block';
+                if (revokeOnlyFields) revokeOnlyFields.style.display = 'none';
+                if (revokeOrderDate) revokeOrderDate.required = false;
+                if (cancelContractNumberLabel) {
+                    cancelContractNumberLabel.textContent = curLang === 'en'
+                        ? 'Contract or Customer Number *'
+                        : (curLang === 'tr'
+                            ? 'Sözleşme veya Müşteri Numarası *'
+                            : (curLang === 'ar'
+                                ? 'رقم العقد أو العميل *'
+                                : 'Vertrags- oder Kundennummer *'));
+                }
+                if (cancelDeclarationText) {
+                    cancelDeclarationText.textContent = curLang === 'en'
+                        ? 'I confirm the accuracy of my details and wish to bindingly cancel my energy supply contract stated above. *'
+                        : (curLang === 'tr'
+                            ? 'Bilgilerimin doğruluğunu onaylıyor ve yukarıda belirtilen enerji tedarik sözleşmemi bağlayıcı olarak feshetmek istiyorum. *'
+                            : (curLang === 'ar'
+                                ? 'أؤكد صحة بياناتي وأرغب في إلغاء عقد تزويد الطاقة المذكور أعلاه بشكل ملزم. *'
+                                : 'Ich bestätige die Richtigkeit meiner Angaben und möchte meinen oben genannten Energieliefervertrag verbindlich kündigen. *'));
+                }
+                if (btnCancelSubmit) {
+                    btnCancelSubmit.textContent = curLang === 'en'
+                        ? 'Cancel Now'
+                        : (curLang === 'tr'
+                            ? 'Şimdi Feshet'
+                            : (curLang === 'ar'
+                                ? 'إلغاء العقد الآن'
+                                : 'Jetzt kündigen'));
+                }
+                updateCancelSubfieldsVisibility();
+            }
+        };
+
         const triggerCancelModal = (type) => {
             if (!cancelModal) return;
             const isWiderruf = String(type || 'KUENDIGUNG').toUpperCase() === 'WIDERRUF';
@@ -2363,36 +2607,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                 cancelModeTabWiderruf.style.color = isWiderruf ? '#ffffff' : '#475569';
             }
 
-            if (isWiderruf) {
-                if (cancelModalTitle) cancelModalTitle.textContent = 'Vertrag widerrufen (Online-Widerrufsformular)';
-                if (cancelModalSubtitle) {
-                    cancelModalSubtitle.innerHTML = 'Widerrufen Sie Ihren Energieliefervertrag innerhalb der 14-tägigen Widerrufsfrist einfach online. Sie erhalten umgehend eine elektronische Eingangsbestätigung per E-Mail sowie als PDF-Dokument.';
-                }
-                if (cancelOnlyFields) cancelOnlyFields.style.display = 'none';
-                if (revokeOnlyFields) revokeOnlyFields.style.display = 'block';
-                if (cancelReasonSelect) cancelReasonSelect.required = false;
-                if (cancelCustomDate) cancelCustomDate.required = false;
-                if (revokeOrderDate) revokeOrderDate.required = true;
-                if (cancelContractNumberLabel) cancelContractNumberLabel.textContent = 'Bestell- oder Kundennummer *';
-                if (cancelDeclarationText) {
-                    cancelDeclarationText.textContent = 'Hiermit widerrufe ich den von mir abgeschlossenen Vertrag über die Lieferung von Energie (Strom/Erdgas). *';
-                }
-                if (btnCancelSubmit) btnCancelSubmit.textContent = 'Widerruf senden';
-            } else {
-                if (cancelModalTitle) cancelModalTitle.textContent = 'Verträge hier kündigen (§ 312k BGB)';
-                if (cancelModalSubtitle) {
-                    cancelModalSubtitle.innerHTML = 'Hier können Sie Ihren bestehenden Energieliefervertrag bei Alpha Energie gemäß § 312k BGB elektronisch kündigen. Nach dem Absenden steht Ihnen Ihre Kündigungsbestätigung sofort als PDF zum Download bereit und wird Ihnen zusätzlich per E-Mail zugesandt.';
-                }
-                if (cancelOnlyFields) cancelOnlyFields.style.display = 'block';
-                if (revokeOnlyFields) revokeOnlyFields.style.display = 'none';
-                if (revokeOrderDate) revokeOrderDate.required = false;
-                if (cancelContractNumberLabel) cancelContractNumberLabel.textContent = 'Vertrags- oder Kundennummer *';
-                if (cancelDeclarationText) {
-                    cancelDeclarationText.textContent = 'Ich bestätige die Richtigkeit meiner Angaben und möchte meinen oben genannten Energieliefervertrag verbindlich kündigen. *';
-                }
-                if (btnCancelSubmit) btnCancelSubmit.textContent = 'Jetzt kündigen';
-                updateCancelSubfieldsVisibility();
-            }
+            syncCancelModalTexts(isWiderruf);
 
             cancelModal.style.display = 'flex';
             lockAlphaModalScroll();
@@ -2799,6 +3014,15 @@ document.addEventListener("DOMContentLoaded", async () => {
             });
         });
 
+        window.addEventListener('languageChanged', () => {
+            updateHouseholdPresets(currentBranch);
+            recalculateTariffs();
+            updateModalPresetsForBranch(selectedOrderData.branch || currentBranch || 'strom');
+            refreshModalStep1Calculation();
+            const isWiderruf = (cancelTypeInput && cancelTypeInput.value === 'WIDERRUF');
+            syncCancelModalTexts(Boolean(isWiderruf));
+        });
+
         // --- FAQ Accordion ---
         const faqItems = document.querySelectorAll('.faq-accordion-item');
         faqItems.forEach(item => {
@@ -2817,9 +3041,44 @@ document.addEventListener("DOMContentLoaded", async () => {
 });
 
 // Cookie Banner Logic
-// Cookie Banner Logic
-// Cookie Banner Logic
 (function initCookieBanner() {
+    const getCookieBannerTexts = (lang) => {
+        if (lang === 'en') {
+            return {
+                title: 'Privacy Settings',
+                body: 'We use data storage technologies to offer you the best experience on our website. Some of them are essential (e.g., for core website functions), while others help us improve our website and your experience. Further information can be found in our <a href="datenschutz.html" style="color:#ef8a00; text-decoration:underline;">Privacy Policy</a>.',
+                accept: 'Accept All',
+                decline: 'Essential Only',
+                custom: 'Customize Individual Settings'
+            };
+        }
+        if (lang === 'tr') {
+            return {
+                title: 'Gizlilik Ayarları',
+                body: 'Web sitemizde size en iyi deneyimi sunmak için veri depolama teknolojileri kullanıyoruz. Bunlardan bazıları zorunludur (örn. temel web sitesi işlevleri için), diğerleri ise web sitemizi ve deneyiminizi geliştirmemize yardımcı olur. Daha fazla bilgiyi <a href="datenschutz.html" style="color:#ef8a00; text-decoration:underline;">Gizlilik Politikamızda</a> bulabilirsiniz.',
+                accept: 'Tümünü Kabul Et',
+                decline: 'Yalnızca Zorunlu Olanlar',
+                custom: 'Bireysel Ayarları Özelleştir'
+            };
+        }
+        if (lang === 'ar') {
+            return {
+                title: 'إعدادات الخصوصية',
+                body: 'نحن نستخدم تقنيات تخزين البيانات لنقدم لك أفضل تجربة على موقعنا الإلكتروني. بعضها ضروري (على سبيل المثال للوظائف الأساسية للموقع)، بينما يساعدنا البعض الآخر على تحسين موقعنا وتجربتك. يمكنك العثور على مزيد من المعلومات في <a href="datenschutz.html" style="color:#ef8a00; text-decoration:underline;">سياسة الخصوصية</a> الخاصة بنا.',
+                accept: 'قبول الكل',
+                decline: 'الضرورية فقط',
+                custom: 'تخصيص الإعدادات الفردية'
+            };
+        }
+        return {
+            title: 'Datenschutzeinstellungen',
+            body: 'Wir verwenden Technologien zur Datenspeicherung, um Ihnen das beste Erlebnis auf unserer Website zu bieten. Einige davon sind essenziell (z.B. für die Grundfunktionen der Website), während andere uns helfen, unsere Website und Ihr Erlebnis zu verbessern. Weitere Informationen finden Sie in unserer <a href="datenschutz.html" style="color:#ef8a00; text-decoration:underline;">Datenschutzerklärung</a>.',
+            accept: 'Alle akzeptieren',
+            decline: 'Nur Essenzielle',
+            custom: 'Individuelle Einstellungen anpassen'
+        };
+    };
+
     const checkAndShowBanner = () => {
         try {
             // Check if user has already made a choice
@@ -2829,7 +3088,9 @@ document.addEventListener("DOMContentLoaded", async () => {
             const isSettingsPage = window.location.pathname.includes('cookie-einstellungen');
             
             if (!consentGiven && !isSettingsPage) {
-                
+                const curLang = (window.i18n && typeof window.i18n.getLanguage === 'function') ? window.i18n.getLanguage() : (localStorage.getItem('alpha_lang') || 'de');
+                const t = getCookieBannerTexts(curLang);
+
                 // Create overlay element (avoiding words like 'cookie', 'banner', 'consent' in IDs to prevent Adblockers from hiding it)
                 const overlay = document.createElement("div");
                 overlay.id = "alphaDsgvoOverlay";
@@ -2841,18 +3102,16 @@ document.addEventListener("DOMContentLoaded", async () => {
                 modalBox.style.cssText = "background: #fff; border-radius: 16px; box-shadow: 0 20px 50px rgba(0,0,0,0.3); padding: 32px; max-width: 600px; width: 90%; z-index: 2147483647; display: flex; flex-direction: column; gap: 20px;";
                 
                 modalBox.innerHTML = `
-                    <h3 style="margin:0; font-size:1.5rem; font-weight:bold; color:#1a1a1a;">Datenschutzeinstellungen</h3>
-                    <p style="margin:0; font-size:0.95rem; color:#4a4a4a; line-height:1.6;">
-                        Wir verwenden Technologien zur Datenspeicherung, um Ihnen das beste Erlebnis auf unserer Website zu bieten. 
-                        Einige davon sind essenziell (z.B. für die Grundfunktionen der Website), während andere uns helfen, unsere Website und Ihr Erlebnis zu verbessern. 
-                        Weitere Informationen finden Sie in unserer <a href="datenschutz.html" style="color:#ef8a00; text-decoration:underline;">Datenschutzerklärung</a>.
+                    <h3 id="alphaDsgvoTitle" style="margin:0; font-size:1.5rem; font-weight:bold; color:#1a1a1a;">${t.title}</h3>
+                    <p id="alphaDsgvoBody" style="margin:0; font-size:0.95rem; color:#4a4a4a; line-height:1.6;">
+                        ${t.body}
                     </p>
                     <div style="display:flex; flex-direction:column; gap:12px; margin-top:10px;">
                         <div style="display:flex; gap:12px; flex-wrap:wrap;">
-                            <button id="btnAcceptAll" style="flex:1; padding:12px; background:#ef8a00; color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:bold; font-size:1rem; transition: background 0.2s;">Alle akzeptieren</button>
-                            <button id="btnDeclineAll" style="flex:1; padding:12px; background:#f0f0f0; color:#333; border:1px solid #ddd; border-radius:8px; cursor:pointer; font-weight:bold; font-size:1rem; transition: background 0.2s;">Nur Essenzielle</button>
+                            <button id="btnAcceptAll" style="flex:1; padding:12px; background:#ef8a00; color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:bold; font-size:1rem; transition: background 0.2s;">${t.accept}</button>
+                            <button id="btnDeclineAll" style="flex:1; padding:12px; background:#f0f0f0; color:#333; border:1px solid #ddd; border-radius:8px; cursor:pointer; font-weight:bold; font-size:1rem; transition: background 0.2s;">${t.decline}</button>
                         </div>
-                        <a href="cookie-einstellungen.html" style="text-align:center; padding:8px; color:#666; text-decoration:underline; font-size:0.9rem; cursor:pointer;">Individuelle Einstellungen anpassen</a>
+                        <a id="alphaDsgvoCustomLink" href="cookie-einstellungen.html" style="text-align:center; padding:8px; color:#666; text-decoration:underline; font-size:0.9rem; cursor:pointer;">${t.custom}</a>
                     </div>
                 `;
                 
@@ -2883,6 +3142,21 @@ document.addEventListener("DOMContentLoaded", async () => {
                     localStorage.setItem("cookie_analytics", "false");
                     localStorage.setItem("cookie_marketing", "false");
                     removeModal();
+                });
+
+                window.addEventListener('languageChanged', (ev) => {
+                    const nextLang = (ev && ev.detail && ev.detail.lang) || 'de';
+                    const nt = getCookieBannerTexts(nextLang);
+                    const titleEl = document.getElementById('alphaDsgvoTitle');
+                    const bodyEl = document.getElementById('alphaDsgvoBody');
+                    const accEl = document.getElementById('btnAcceptAll');
+                    const decEl = document.getElementById('btnDeclineAll');
+                    const custEl = document.getElementById('alphaDsgvoCustomLink');
+                    if (titleEl) titleEl.textContent = nt.title;
+                    if (bodyEl) bodyEl.innerHTML = nt.body;
+                    if (accEl) accEl.textContent = nt.accept;
+                    if (decEl) decEl.textContent = nt.decline;
+                    if (custEl) custEl.textContent = nt.custom;
                 });
             }
         } catch(e) {
@@ -3014,8 +3288,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         const animateCounter = (el) => {
             const target = parseFloat(el.getAttribute('data-counter-target'));
-            const suffix = el.getAttribute('data-counter-suffix') || '';
-            const prefix = el.getAttribute('data-counter-prefix') || '';
             const decimals = parseInt(el.getAttribute('data-counter-decimals') || '0', 10);
             const duration = 1600;
             const startTime = performance.now();
@@ -3026,6 +3298,8 @@ document.addEventListener("DOMContentLoaded", async () => {
                 // Ease out quartic
                 const ease = 1 - Math.pow(1 - progress, 4);
                 const current = target * ease;
+                const suffix = el.getAttribute('data-counter-suffix') || '';
+                const prefix = el.getAttribute('data-counter-prefix') || '';
                 
                 el.textContent = `${prefix}${current.toFixed(decimals)}${suffix}`;
                 
@@ -3328,21 +3602,108 @@ document.addEventListener("DOMContentLoaded", async () => {
 (function() {
     'use strict';
 
-    const DE_SLICES = [
-        { label: 'Erneuerbare Energien, gefördert nach EEG', value: 62.20, valText: '62,20 %', color: '#4d9c2d', hoverColor: '#3d8420' },
-        { label: 'Kohle', value: 23.50, valText: '23,50 %', color: '#c85a17', hoverColor: '#b04b0e' },
-        { label: 'Erdgas', value: 11.90, valText: '11,90 %', color: '#e5a93c', hoverColor: '#d49526' },
-        { label: 'Mineralöl und sonstige', value: 2.40, valText: '2,40 %', color: '#23406e', hoverColor: '#172d50' }
-    ];
-
-    const ALPHA_SLICES = [
-        { label: 'Erneuerbare Energien mit Herkunftsnachweis', value: 100.0, valText: '100 %', color: '#3b7a1e', hoverColor: '#2f6515' }
-    ];
-
-    const ORIGIN_ROWS = [
-        { country: 'Schweden', share: '5,5 %', source: 'Windkraft' },
-        { country: 'Norwegen', share: '94,5 %', source: 'Wasserkraft' }
-    ];
+    const STROMMIX_I18N = {
+        de: {
+            heading: 'STROMMIX IM VERGLEICH',
+            deTitle: 'Deutschland',
+            alphaTitle: 'Alpha Energie',
+            co2Text: '✓ CO₂-Emissionen: 0 g/kWh',
+            radText: '✓ Radioaktiver Abfall: 0,0000 g/kWh',
+            legalSub: 'Stromkennzeichnung gemäß § 42 des Energiewirtschaftsgesetzes',
+            sourceNote: 'Quelle: eigene Darstellung nach AG Energiebilanzen und Fraunhofer ISE, Stand 03/2026',
+            thCountry: 'Lieferländer der Herkunftsnachweise',
+            thShare: 'Anteil',
+            thSource: 'Stromerzeugung durch',
+            deSlices: [
+                { label: 'Erneuerbare Energien, gefördert nach EEG', value: 62.20, valText: '62,20 %', color: '#4d9c2d', hoverColor: '#3d8420' },
+                { label: 'Kohle', value: 23.50, valText: '23,50 %', color: '#c85a17', hoverColor: '#b04b0e' },
+                { label: 'Erdgas', value: 11.90, valText: '11,90 %', color: '#e5a93c', hoverColor: '#d49526' },
+                { label: 'Mineralöl und sonstige', value: 2.40, valText: '2,40 %', color: '#23406e', hoverColor: '#172d50' }
+            ],
+            alphaSlices: [
+                { label: 'Erneuerbare Energien mit Herkunftsnachweis', value: 100.0, valText: '100 %', color: '#3b7a1e', hoverColor: '#2f6515' }
+            ],
+            originRows: [
+                { country: 'Schweden', share: '5,5 %', source: 'Windkraft' },
+                { country: 'Norwegen', share: '94,5 %', source: 'Wasserkraft' }
+            ]
+        },
+        en: {
+            heading: 'ELECTRICITY MIX COMPARISON',
+            deTitle: 'Germany',
+            alphaTitle: 'Alpha Energie',
+            co2Text: '✓ CO₂ Emissions: 0 g/kWh',
+            radText: '✓ Radioactive Waste: 0.0000 g/kWh',
+            legalSub: 'Electricity Disclosure Pursuant to § 42 German Energy Industry Act (EnWG)',
+            sourceNote: 'Source: Own diagram based on AG Energiebilanzen and Fraunhofer ISE, as of 03/2026',
+            thCountry: 'Countries of Origin (Guarantees of Origin)',
+            thShare: 'Share',
+            thSource: 'Power Generation By',
+            deSlices: [
+                { label: 'Renewable Energy, EEG-subsidized', value: 62.20, valText: '62.20%', color: '#4d9c2d', hoverColor: '#3d8420' },
+                { label: 'Coal', value: 23.50, valText: '23.50%', color: '#c85a17', hoverColor: '#b04b0e' },
+                { label: 'Natural Gas', value: 11.90, valText: '11.90%', color: '#e5a93c', hoverColor: '#d49526' },
+                { label: 'Mineral Oil & Other', value: 2.40, valText: '2.40%', color: '#23406e', hoverColor: '#172d50' }
+            ],
+            alphaSlices: [
+                { label: 'Renewables with Guarantee of Origin', value: 100.0, valText: '100%', color: '#3b7a1e', hoverColor: '#2f6515' }
+            ],
+            originRows: [
+                { country: 'Sweden', share: '5.5%', source: 'Wind Power' },
+                { country: 'Norway', share: '94.5%', source: 'Hydropower' }
+            ]
+        },
+        tr: {
+            heading: 'ELEKTRİK KARIŞIMI KARŞILAŞTIRMASI',
+            deTitle: 'Almanya',
+            alphaTitle: 'Alpha Energie',
+            co2Text: '✓ CO₂ Emisyonları: 0 g/kWh',
+            radText: '✓ Radyoaktif Atık: 0,0000 g/kWh',
+            legalSub: 'Enerji Endüstrisi Yasası (EnWG) § 42 uyarınca elektrik etiketlemesi',
+            sourceNote: 'Kaynak: AG Energiebilanzen ve Fraunhofer ISE verilerine göre, 03/2026 itibarıyla',
+            thCountry: 'Menşe Garantisi Tedarik Ülkeleri',
+            thShare: 'Pay',
+            thSource: 'Üretim Kaynağı',
+            deSlices: [
+                { label: 'Yenilenebilir Enerji (EEG destekli)', value: 62.20, valText: '%62,20', color: '#4d9c2d', hoverColor: '#3d8420' },
+                { label: 'Kömür', value: 23.50, valText: '%23,50', color: '#c85a17', hoverColor: '#b04b0e' },
+                { label: 'Doğalgaz', value: 11.90, valText: '%11,90', color: '#e5a93c', hoverColor: '#d49526' },
+                { label: 'Mineral Yağ ve Diğer', value: 2.40, valText: '%2,40', color: '#23406e', hoverColor: '#172d50' }
+            ],
+            alphaSlices: [
+                { label: 'Menşe Garantili Yenilenebilir Enerji', value: 100.0, valText: '%100', color: '#3b7a1e', hoverColor: '#2f6515' }
+            ],
+            originRows: [
+                { country: 'İsveç', share: '%5,5', source: 'Rüzgar Enerjisi' },
+                { country: 'Norveç', share: '%94,5', source: 'Hidroelektrik' }
+            ]
+        },
+        ar: {
+            heading: 'مقارنة مزيج الكهرباء',
+            deTitle: 'ألمانيا',
+            alphaTitle: 'Alpha Energie',
+            co2Text: '✓ انبعاثات CO₂: 0 جم/ك.و.س',
+            radText: '✓ النفايات المشعة: 0,0000 جم/ك.و.س',
+            legalSub: 'تصنيف الكهرباء وفقاً للمادة § 42 من قانون صناعة الطاقة الألماني (EnWG)',
+            sourceNote: 'المصدر: تمثيل خاص وفقاً لـ AG Energiebilanzen ومعهد Fraunhofer ISE، حتى 03/2026',
+            thCountry: 'بلدان شهادات المنشأ',
+            thShare: 'الحصة',
+            thSource: 'توليد الكهرباء بواسطة',
+            deSlices: [
+                { label: 'طاقات متجددة مدعومة وفقاً لـ EEG', value: 62.20, valText: '62,20 %', color: '#4d9c2d', hoverColor: '#3d8420' },
+                { label: 'الفحم', value: 23.50, valText: '23,50 %', color: '#c85a17', hoverColor: '#b04b0e' },
+                { label: 'الغاز الطبيعي', value: 11.90, valText: '11,90 %', color: '#e5a93c', hoverColor: '#d49526' },
+                { label: 'الزيوت المعدنية وأخرى', value: 2.40, valText: '2,40 %', color: '#23406e', hoverColor: '#172d50' }
+            ],
+            alphaSlices: [
+                { label: 'طاقات متجددة مع شهادة منشأ', value: 100.0, valText: '100 %', color: '#3b7a1e', hoverColor: '#2f6515' }
+            ],
+            originRows: [
+                { country: 'السويد', share: '5,5 %', source: 'طاقة الرياح' },
+                { country: 'النرويج', share: '94,5 %', source: 'الطاقة الكهرومائية' }
+            ]
+        }
+    };
 
     function drawRoundedRect(ctx, x, y, w, h, r) {
         const radius = Math.min(r, w / 2, h / 2);
@@ -3364,6 +3725,12 @@ document.addEventListener("DOMContentLoaded", async () => {
         let hitRegions = [];
 
         function render(progress) {
+            const curLang = (window.i18n && typeof window.i18n.getLanguage === 'function') ? window.i18n.getLanguage() : 'de';
+            const L = STROMMIX_I18N[curLang] || STROMMIX_I18N.de;
+            const DE_SLICES = L.deSlices;
+            const ALPHA_SLICES = L.alphaSlices;
+            const ORIGIN_ROWS = L.originRows;
+
             const dpr = Math.min(window.devicePixelRatio || 1, 3);
             const parentWidth = canvas.parentElement ? canvas.parentElement.clientWidth : 760;
             const logicalW = Math.max(320, Math.min(860, parentWidth || 760));
@@ -3415,7 +3782,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             ctx.font = `800 ${Math.round(19 * s)}px 'Sora', 'Plus Jakarta Sans', system-ui, sans-serif`;
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
-            ctx.fillText('STROMMIX IM VERGLEICH', W / 2, 38 * s);
+            ctx.fillText(L.heading, W / 2, 38 * s);
 
             // Helper to draw a Donut Chart with Callouts & Legend
             function drawDonutChart(cx, cy, outerR, innerR, title, slices, chartKey, legendStartY, legendX, legendW) {
@@ -3582,8 +3949,8 @@ document.addEventListener("DOMContentLoaded", async () => {
                     ctx.fillStyle = '#15803d';
                     ctx.font = `800 ${Math.round(11 * s)}px 'Sora', system-ui, sans-serif`;
                     ctx.textAlign = 'left';
-                    ctx.fillText('✓ CO₂-Emissionen: 0 g/kWh', legendX + 10 * s, boxY + 15 * s);
-                    ctx.fillText('✓ Radioaktiver Abfall: 0,0000 g/kWh', legendX + 10 * s, boxY + 31 * s);
+                    ctx.fillText(L.co2Text, legendX + 10 * s, boxY + 15 * s);
+                    ctx.fillText(L.radText, legendX + 10 * s, boxY + 31 * s);
                 }
             }
 
@@ -3604,8 +3971,8 @@ document.addEventListener("DOMContentLoaded", async () => {
                 ctx.lineWidth = 1.2 * s;
                 ctx.stroke();
 
-                drawDonutChart(leftCx, cy, outerR, innerR, 'Deutschland', DE_SLICES, 'de', 318 * s, 30 * s, W * 0.45);
-                drawDonutChart(rightCx, cy, outerR, innerR, 'Alpha Energie', ALPHA_SLICES, 'alpha', 318 * s, W * 0.545, W * 0.415);
+                drawDonutChart(leftCx, cy, outerR, innerR, L.deTitle, DE_SLICES, 'de', 318 * s, 30 * s, W * 0.45);
+                drawDonutChart(rightCx, cy, outerR, innerR, L.alphaTitle, ALPHA_SLICES, 'alpha', 318 * s, W * 0.545, W * 0.415);
 
                 legalY = 428 * s;
             } else {
@@ -3613,7 +3980,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                 const outerR = 76 * s;
                 const innerR = 42 * s;
 
-                drawDonutChart(W / 2, 185 * s, outerR, innerR, 'Deutschland', DE_SLICES, 'de', 295 * s, 26 * s, W - 52 * s);
+                drawDonutChart(W / 2, 185 * s, outerR, innerR, L.deTitle, DE_SLICES, 'de', 295 * s, 26 * s, W - 52 * s);
 
                 // Horizontal Divider
                 ctx.beginPath();
@@ -3623,7 +3990,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                 ctx.lineWidth = 1.2 * s;
                 ctx.stroke();
 
-                drawDonutChart(W / 2, 520 * s, outerR, innerR, 'Alpha Energie', ALPHA_SLICES, 'alpha', 630 * s, 26 * s, W - 52 * s);
+                drawDonutChart(W / 2, 520 * s, outerR, innerR, L.alphaTitle, ALPHA_SLICES, 'alpha', 630 * s, 26 * s, W - 52 * s);
 
                 legalY = 720 * s;
             }
@@ -3633,11 +4000,11 @@ document.addEventListener("DOMContentLoaded", async () => {
             ctx.font = `700 ${Math.round(13 * s)}px 'Plus Jakarta Sans', 'Sora', system-ui, sans-serif`;
             ctx.textAlign = 'left';
             ctx.textBaseline = 'top';
-            ctx.fillText('Stromkennzeichnung gemäß § 42 des Energiewirtschaftsgesetzes', 28 * s, legalY);
+            ctx.fillText(L.legalSub, 28 * s, legalY);
 
             ctx.fillStyle = '#475569';
             ctx.font = `500 ${Math.round(11.5 * s)}px 'Plus Jakarta Sans', 'Sora', system-ui, sans-serif`;
-            ctx.fillText('Quelle: eigene Darstellung nach AG Energiebilanzen und Fraunhofer ISE, Stand 03/2026', 28 * s, legalY + 20 * s);
+            ctx.fillText(L.sourceNote, 28 * s, legalY + 20 * s);
 
             // 4. Bottom Table: "Lieferländer der Herkunftsnachweise"
             const tableX = 28 * s;
@@ -3673,9 +4040,9 @@ document.addEventListener("DOMContentLoaded", async () => {
             ctx.font = `800 ${Math.round(12 * s)}px 'Sora', system-ui, sans-serif`;
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
-            ctx.fillText('Lieferländer der Herkunftsnachweise', tableX + col1W / 2, tableY + headerH / 2);
-            ctx.fillText('Anteil', tableX + col1W + col2W / 2, tableY + headerH / 2);
-            ctx.fillText('Stromerzeugung durch', tableX + col1W + col2W + col3W / 2, tableY + headerH / 2);
+            ctx.fillText(L.thCountry, tableX + col1W / 2, tableY + headerH / 2);
+            ctx.fillText(L.thShare, tableX + col1W + col2W / 2, tableY + headerH / 2);
+            ctx.fillText(L.thSource, tableX + col1W + col2W + col3W / 2, tableY + headerH / 2);
 
             // Rows
             ORIGIN_ROWS.forEach((row, rIdx) => {
@@ -3823,6 +4190,10 @@ document.addEventListener("DOMContentLoaded", async () => {
         window.addEventListener('resize', () => {
             render(animProgress || 1);
         }, { passive: true });
+
+        window.addEventListener('languageChanged', () => {
+            render(animProgress || 1);
+        });
     }
 
     function initAllStrommixCanvases() {
@@ -3869,23 +4240,93 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     const INFO_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>';
 
-    const AI_TEXTS = {
-        video: {
-            badge: '✨ KI-generiertes Video',
-            title: 'Dieses Video wurde KI-generiert',
-            body: 'Dieses Video wurde mithilfe künstlicher Intelligenz (KI) erstellt bzw. visuell aufbereitet. Es dient der anschaulichen Darstellung unseres Wechselservices (Transparenzhinweis gem. Art. 50 KI-Verordnung).'
+    const AI_TEXTS_I18N = {
+        de: {
+            btnLabel: 'KI',
+            btnVideoLabel: 'KI-Video',
+            ariaLabel: 'Info: KI-generierter Inhalt – Klicken für Details',
+            video: {
+                badge: '✨ KI-generiertes Video',
+                title: 'Dieses Video wurde KI-generiert',
+                body: 'Dieses Video wurde mithilfe künstlicher Intelligenz (KI) erstellt bzw. visuell aufbereitet. Es dient der anschaulichen Darstellung unseres Wechselservices (Transparenzhinweis gem. Art. 50 KI-Verordnung).'
+            },
+            mascot: {
+                badge: '✨ KI-generierte Illustration',
+                title: 'Diese Illustration wurde KI-generiert',
+                body: 'Diese Illustration unseres Alpha-Wolf Maskottchens wurde mithilfe künstlicher Intelligenz (KI) generiert (Transparenzhinweis gem. Art. 50 KI-Verordnung).'
+            },
+            image: {
+                badge: '✨ KI-generiertes Bild',
+                title: 'Dieses Bild wurde KI-generiert',
+                body: 'Dieses Bild wurde mithilfe künstlicher Intelligenz (KI) generiert bzw. bearbeitet (Transparenzhinweis gem. Art. 50 KI-Verordnung).'
+            }
         },
-        mascot: {
-            badge: '✨ KI-generierte Illustration',
-            title: 'Diese Illustration wurde KI-generiert',
-            body: 'Diese Illustration unseres Alpha-Wolf Maskottchens wurde mithilfe künstlicher Intelligenz (KI) generiert (Transparenzhinweis gem. Art. 50 KI-Verordnung).'
+        en: {
+            btnLabel: 'AI',
+            btnVideoLabel: 'AI Video',
+            ariaLabel: 'Info: AI-generated content – Click for details',
+            video: {
+                badge: '✨ AI-generated Video',
+                title: 'This video was AI-generated',
+                body: 'This video was created or visually enhanced using artificial intelligence (AI) to illustrate our switching service (Transparency notice pursuant to Art. 50 EU AI Act).'
+            },
+            mascot: {
+                badge: '✨ AI-generated Illustration',
+                title: 'This illustration was AI-generated',
+                body: 'This illustration of our Alpha Wolf mascot was generated using artificial intelligence (AI) (Transparency notice pursuant to Art. 50 EU AI Act).'
+            },
+            image: {
+                badge: '✨ AI-generated Image',
+                title: 'This image was AI-generated',
+                body: 'This image was generated or edited using artificial intelligence (AI) (Transparency notice pursuant to Art. 50 EU AI Act).'
+            }
         },
-        image: {
-            badge: '✨ KI-generiertes Bild',
-            title: 'Dieses Bild wurde KI-generiert',
-            body: 'Dieses Bild wurde mithilfe künstlicher Intelligenz (KI) generiert bzw. bearbeitet (Transparenzhinweis gem. Art. 50 KI-Verordnung).'
+        tr: {
+            btnLabel: 'YZ',
+            btnVideoLabel: 'YZ Video',
+            ariaLabel: 'Bilgi: Yapay zeka (YZ) ile oluşturulmuş içerik – Detaylar için tıklayın',
+            video: {
+                badge: '✨ YZ ile Oluşturulmuş Video',
+                title: 'Bu video yapay zeka ile oluşturulmuştur',
+                body: 'Bu video, geçiş hizmetimizi görselleştirmek amacıyla yapay zeka (YZ) kullanılarak oluşturulmuş veya düzenlenmiştir (AB Yapay Zeka Yasası Madde 50 uyarınca şeffaflık bildirimi).'
+            },
+            mascot: {
+                badge: '✨ YZ ile Oluşturulmuş İllüstrasyon',
+                title: 'Bu illüstrasyon yapay zeka ile oluşturulmuştur',
+                body: 'Alpha-Wolf maskotumuzun bu illüstrasyonu yapay zeka (YZ) kullanılarak oluşturulmuştur (AB Yapay Zeka Yasası Madde 50 uyarınca şeffaflık bildirimi).'
+            },
+            image: {
+                badge: '✨ YZ ile Oluşturulmuş Görsel',
+                title: 'Bu görsel yapay zeka ile oluşturulmuştur',
+                body: 'Bu görsel yapay zeka (YZ) kullanılarak oluşturulmuş veya düzenlenmiştir (AB Yapay Zeka Yasası Madde 50 uyarınca şeffaflık bildirimi).'
+            }
+        },
+        ar: {
+            btnLabel: 'AI',
+            btnVideoLabel: 'فيديو AI',
+            ariaLabel: 'معلومات: محتوى مُنشأ بالذكاء الاصطناعي – انقر للتفاصيل',
+            video: {
+                badge: '✨ فيديو مُنشأ بالذكاء الاصطناعي',
+                title: 'تم إنشاء هذا الفيديو بالذكاء الاصطناعي',
+                body: 'تم إنشاء هذا الفيديو أو معالجته بصرياً باستخدام الذكاء الاصطناعي (AI) لتوضيح خدمة التبديل الخاصة بنا (إشعار الشفافية وفقاً للمادة 50 من لائحة الذكاء الاصطناعي الأوروبية).'
+            },
+            mascot: {
+                badge: '✨ رسم توضيحي بالذكاء الاصطناعي',
+                title: 'تم إنشاء هذا الرسم بالذكاء الاصطناعي',
+                body: 'تم إنشاء هذا الرسم التوضيحي لتميمة ذئب ألفا باستخدام الذكاء الاصطناعي (AI) (إشعار الشفافية وفقاً للمادة 50 من لائحة الذكاء الاصطناعي الأوروبية).'
+            },
+            image: {
+                badge: '✨ صورة مُنشأة بالذكاء الاصطناعي',
+                title: 'تم إنشاء هذه الصورة بالذكاء الاصطناعي',
+                body: 'تم إنشاء هذه الصورة أو تحريرها باستخدام الذكاء الاصطناعي (AI) (إشعار الشفافية وفقاً للمادة 50 من لائحة الذكاء الاصطناعي الأوروبية).'
+            }
         }
     };
+
+    function getAiLocaleDict() {
+        const curLang = (window.i18n && typeof window.i18n.getLanguage === 'function') ? window.i18n.getLanguage() : 'de';
+        return AI_TEXTS_I18N[curLang] || AI_TEXTS_I18N.de;
+    }
 
     function ensureAiInfoStyles() {
         if (document.getElementById('alpha-ai-info-styles')) return;
@@ -3946,9 +4387,10 @@ document.addEventListener("DOMContentLoaded", async () => {
                 right: 10px;
             }
             .ai-media-info-btn--hero-photo {
-                top: 14px;
-                left: 14px;
-                right: auto;
+                bottom: 80px !important;
+                right: 14px !important;
+                top: auto !important;
+                left: auto !important;
             }
             .ai-media-info-btn--video {
                 top: 14px;
@@ -4149,6 +4591,20 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
     }
 
+    function populatePopoverTexts(btn) {
+        const dict = getAiLocaleDict();
+        const aiType = btn.dataset.aiType || 'image';
+        const info = dict[aiType] || dict.image;
+
+        const badgeEl = document.getElementById('aiPopoverBadge');
+        const titleEl = document.getElementById('aiPopoverTitle');
+        const bodyEl = document.getElementById('aiPopoverBody');
+
+        if (badgeEl) badgeEl.textContent = info.badge;
+        if (titleEl) titleEl.textContent = info.title;
+        if (bodyEl) bodyEl.textContent = btn.dataset.aiCustomText || info.body;
+    }
+
     function openPopoverForButton(btn) {
         const pop = getOrCreatePopover();
         if (activeBtn === btn && pop.classList.contains('is-open')) {
@@ -4160,16 +4616,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             activeBtn.setAttribute('aria-expanded', 'false');
         }
 
-        const aiType = btn.dataset.aiType || 'image';
-        const info = AI_TEXTS[aiType] || AI_TEXTS.image;
-
-        const badgeEl = document.getElementById('aiPopoverBadge');
-        const titleEl = document.getElementById('aiPopoverTitle');
-        const bodyEl = document.getElementById('aiPopoverBody');
-
-        if (badgeEl) badgeEl.textContent = info.badge;
-        if (titleEl) titleEl.textContent = info.title;
-        if (bodyEl) bodyEl.textContent = btn.dataset.aiCustomText || info.body;
+        populatePopoverTexts(btn);
 
         activeBtn = btn;
         btn.classList.add('is-active');
@@ -4192,16 +4639,33 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     function createInfoButton(type, variantClass, labelText) {
+        const dict = getAiLocaleDict();
         const btn = document.createElement('button');
         btn.type = 'button';
         btn.className = 'ai-media-info-btn ' + (variantClass || '');
         btn.dataset.aiType = type;
-        const text = labelText || 'KI';
-        btn.setAttribute('aria-label', 'Info: KI-generierter Inhalt – Klicken für Details');
-        btn.setAttribute('title', 'KI-generierter Inhalt – Klicken für Info');
+        const text = type === 'video' ? dict.btnVideoLabel : (labelText ? dict.btnLabel : dict.btnLabel);
+        btn.setAttribute('aria-label', dict.ariaLabel);
+        btn.setAttribute('title', dict.ariaLabel);
         btn.innerHTML = INFO_SVG + '<span>' + text + '</span>';
         bindButton(btn);
         return btn;
+    }
+
+    function updateAllAiButtonsLanguage() {
+        const dict = getAiLocaleDict();
+        document.querySelectorAll('.ai-media-info-btn').forEach((btn) => {
+            const type = btn.dataset.aiType || 'image';
+            const span = btn.querySelector('span');
+            if (span) {
+                span.textContent = type === 'video' ? dict.btnVideoLabel : dict.btnLabel;
+            }
+            btn.setAttribute('aria-label', dict.ariaLabel);
+            btn.setAttribute('title', dict.ariaLabel);
+        });
+        if (activeBtn && popoverEl && popoverEl.classList.contains('is-open')) {
+            populatePopoverTexts(activeBtn);
+        }
     }
 
     function isAiGeneratedImage(img) {
@@ -4314,9 +4778,12 @@ document.addEventListener("DOMContentLoaded", async () => {
                 mediaWrap.appendChild(btn);
             }
         });
+
+        updateAllAiButtonsLanguage();
     }
 
     window.initAiMediaInfoBadges = initAiMediaInfoBadges;
+    window.addEventListener('languageChanged', updateAllAiButtonsLanguage);
 
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', initAiMediaInfoBadges);
