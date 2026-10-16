@@ -88,9 +88,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
     <!-- Base Styles & Scripts -->
-    <link rel="stylesheet" href="style.css?v=20261016-plz1">
-    <script src="i18n.js?v=20261016-plz1" defer></script>
-    <script src="main.js?v=20261016-plz1" defer></script>
+    <link rel="stylesheet" href="style.css?v=20261016-plz2">
+    <script src="i18n.js?v=20261016-plz2" defer></script>
+    <script src="main.js?v=20261016-plz2" defer></script>
 
     <!-- Octopus Energy Clone Architecture in Alpha Energie Orange Palette -->
     <style>
@@ -590,6 +590,7 @@
             padding: 0 12px;
             box-sizing: border-box;
             min-width: 0;
+            cursor: text;
         }
 
         .octo-input-box:focus-within {
@@ -599,6 +600,9 @@
 
         .octo-input-field {
             width: 100%;
+            height: 100%;
+            align-self: stretch;
+            flex: 1 1 auto;
             min-width: 0;
             background: transparent;
             border: none;
@@ -607,11 +611,18 @@
             font-family: inherit;
             font-size: 0.98rem;
             font-weight: 600;
+            padding: 0;
+            margin: 0;
+            cursor: text;
         }
 
         #calcPlz.octo-input-field {
-            flex: 1 0 60px;
+            flex: 1 1 60px;
             min-width: 60px;
+            width: 100%;
+            height: 100%;
+            align-self: stretch;
+            cursor: text;
         }
 
         .octo-input-field::placeholder {
@@ -633,6 +644,8 @@
             max-width: calc(100% - 66px);
             overflow: hidden;
             text-overflow: ellipsis;
+            pointer-events: none;
+            user-select: none;
         }
 
         /* Middle Column: Preset Pills + kWh/Jahr + Abschlag */
@@ -719,6 +732,8 @@
             white-space: nowrap;
             margin-left: 4px;
             flex-shrink: 0;
+            pointer-events: none;
+            user-select: none;
         }
 
         /* Octopus CTA Button in Authentic Logo Orange Gradient (#f9b233 -> #f99239 -> #e95e24) */
@@ -2138,8 +2153,8 @@
                                 <!-- Col 1: Lieferort / PLZ -->
                                 <div>
                                     <label for="calcPlz" class="octo-calc-col-label">Lieferort</label>
-                                    <div class="octo-input-box">
-                                        <input type="text" id="calcPlz" class="octo-input-field" placeholder="Deine PLZ" maxlength="5" pattern="[0-9]{5}" required>
+                                    <div class="octo-input-box" onclick="var inp=this.querySelector('input');if(inp&&document.activeElement!==inp){inp.focus();}">
+                                        <input type="text" id="calcPlz" class="octo-input-field" placeholder="Deine PLZ" maxlength="5" pattern="[0-9]{5}" inputmode="numeric" required>
                                         <span id="calcCityBadge" class="octo-city-pill" style="display: none;">Dortmund</span>
                                     </div>
                                 </div>
@@ -2167,12 +2182,12 @@
                                             </button>
                                         </div>
 
-                                        <div class="octo-input-box">
+                                        <div class="octo-input-box" onclick="var inp=this.querySelector('input');if(inp&&document.activeElement!==inp){inp.focus();}">
                                             <input type="number" id="calcKwh" class="octo-input-field" value="2500" placeholder="2500" min="500" max="100000" required>
                                             <span class="octo-unit-tag">kWh/Jahr</span>
                                         </div>
 
-                                        <div class="octo-input-box" title="Aktueller monatlicher Abschlag beim Vorversorger">
+                                        <div class="octo-input-box" title="Aktueller monatlicher Abschlag beim Vorversorger" onclick="var inp=this.querySelector('input');if(inp&&document.activeElement!==inp){inp.focus();}">
                                             <input type="number" id="calcAbschlag" class="octo-input-field" placeholder="Abschlag" min="20" max="2000">
                                             <span class="octo-unit-tag">€/Monat</span>
                                         </div>

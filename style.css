@@ -8591,11 +8591,29 @@ html.swal2-height-auto:not(.alpha-modal-open) {
     color: #b91c1c;
 }
 
-/* Prevent long city names in Lieferort / PLZ badges from covering or clipping the 5-digit PLZ */
+/* Prevent long city names in Lieferort / PLZ badges from covering or clipping the 5-digit PLZ & ensure full box surface opens input */
+.octo-input-box {
+    cursor: text !important;
+}
+
+.octo-input-field {
+    width: 100% !important;
+    height: 100% !important;
+    align-self: stretch !important;
+    flex: 1 1 auto !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    cursor: text !important;
+}
+
 #calcPlz.octo-input-field,
 input#calcPlz {
-    flex: 1 0 60px !important;
+    flex: 1 1 60px !important;
     min-width: 60px !important;
+    width: 100% !important;
+    height: 100% !important;
+    align-self: stretch !important;
+    cursor: text !important;
 }
 
 .octo-city-pill,
@@ -8606,6 +8624,13 @@ input#calcPlz {
     overflow: hidden !important;
     text-overflow: ellipsis !important;
     white-space: nowrap !important;
+    pointer-events: none !important;
+    user-select: none !important;
+}
+
+.octo-unit-tag {
+    pointer-events: none !important;
+    user-select: none !important;
 }
 
 #modalCalcCityBadge {
@@ -8613,4 +8638,7 @@ input#calcPlz {
     overflow: hidden !important;
     text-overflow: ellipsis !important;
     white-space: nowrap !important;
+    pointer-events: none !important;
+    user-select: none !important;
 }
+

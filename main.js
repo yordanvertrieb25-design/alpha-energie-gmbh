@@ -1342,6 +1342,27 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         window.syncLiveFirstconCalculation = syncLiveFirstconCalculation;
 
+        // Ensure clicking anywhere on the white surface of .octo-input-box focuses its inner input immediately
+        document.querySelectorAll('.octo-input-box, .calc-input-wrapper').forEach(box => {
+            box.style.cursor = 'text';
+            box.addEventListener('mousedown', (e) => {
+                const inp = box.querySelector('input, select, textarea');
+                if (!inp || e.target === inp) return;
+                e.preventDefault();
+                inp.focus();
+                if (typeof inp.setSelectionRange === 'function' && inp.type === 'text') {
+                    const len = (inp.value || '').length;
+                    try { inp.setSelectionRange(len, len); } catch (err) {}
+                }
+            });
+            box.addEventListener('click', () => {
+                const inp = box.querySelector('input, select, textarea');
+                if (inp && document.activeElement !== inp) {
+                    inp.focus();
+                }
+            });
+        });
+
         // Event listeners for calculator
         if (calcPlz) {
             calcPlz.addEventListener('input', () => {
