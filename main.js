@@ -4387,7 +4387,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                 right: 10px;
             }
             .ai-media-info-btn--hero-photo {
-                bottom: 80px !important;
+                bottom: 100px !important;
                 right: 14px !important;
                 top: auto !important;
                 left: auto !important;
