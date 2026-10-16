@@ -50,11 +50,11 @@ test.describe('Complete Multi-Language Translation Verification (DE | EN | TR | 
                     preset3: pick('.octo-preset-pills .household-btn:nth-child(3) .household-btn-label'),
                     calcSubmit: pick('#rechnerForm .calc-submit-btn span'),
                     calcNotice: pick('#calcBranchNoticeText'),
-                    award1Title: pick('.octo-awards-row > *:nth-child(1) .octo-award-title'),
-                    award2Title: pick('.octo-awards-row > *:nth-child(2) .octo-award-title'),
-                    award3Title: pick('.octo-awards-row > *:nth-child(3) .octo-award-title'),
-                    award4Title: pick('.octo-awards-row > *:nth-child(4) .octo-award-title'),
-                    tarifeH2: pick('#tarife .section-title'),
+                    award1Title: pick('.octo-awards-row .octo-award-badge-card:nth-child(1) .octo-award-title'),
+                    award2Title: pick('.octo-awards-row .octo-award-badge-card:nth-child(2) .octo-award-title'),
+                    award3Title: pick('.octo-awards-row .octo-award-badge-card:nth-child(3) .octo-award-title'),
+                    award4Title: pick('.octo-awards-row .octo-award-badge-card:nth-child(4) .octo-award-title'),
+                    tarifeH2: pick('#tarife .octo-section-h2'),
                     tarifeMascotText: pick('#tarife .octo-mascot-speech-text'),
                     cardBasicBadge: pick('#card-alpha-basic .tariff-badge'),
                     cardBasicBtn: pick('#card-alpha-basic .tariff-action-btn'),
@@ -67,39 +67,44 @@ test.describe('Complete Multi-Language Translation Verification (DE | EN | TR | 
                     mehrEnergieH2: pick('#mehr-energie .octo-section-h2'),
                     businessTag: pick('.octo-business-banner .octo-business-tag span'),
                     businessBtn: pick('.octo-business-banner .octo-btn-outline'),
-                    reviewScore: pick('#bewertungen > .octo-review-card:nth-child(1) > div:nth-child(2)'),
-                    review1Title: pick('#bewertungen > .octo-review-card:nth-child(2) h4'),
-                    review2Title: pick('#bewertungen > .octo-review-card:nth-child(3) h4'),
-                    review3Title: pick('#bewertungen > .octo-review-card:nth-child(4) h4'),
+                    reviewScore: pick('#bewertungen .octo-review-card:nth-child(1) > div:nth-child(2)'),
+                    review1Title: pick('#bewertungen .octo-review-card:nth-child(2) h4'),
+                    review2Title: pick('#bewertungen .octo-review-card:nth-child(3) h4'),
+                    review3Title: pick('#bewertungen .octo-review-card:nth-child(4) h4'),
                     smarteTarifeH2: pick('#smarte-tarife .octo-section-h2'),
                     smarteBento1H3: pick('#smarte-tarife .octo-bento-2-1 > .octo-card:nth-child(1) .octo-card-h3'),
                     smarteBento2H3: pick('#smarte-tarife .octo-bento-2-1 > .octo-card:nth-child(2) .octo-card-h3'),
                     smarteGrid1H3: pick('#smarte-tarife .octo-grid-4 > .octo-card:nth-child(1) .octo-card-h3'),
                     smarteGrid4H3: pick('#smarte-tarife .octo-grid-4 > .octo-card:nth-child(4) .octo-card-h3'),
                     heizenH2: pick('#heizen-speichern .octo-section-h2'),
-                    heizenCard1H3: pick('#heizen-speichern .octo-split-device-card:nth-of-type(1) .octo-card-h3'),
-                    heizenCard2H3: pick('#heizen-speichern .octo-split-device-card:nth-of-type(2) .octo-card-h3'),
+                    heizenCard1H3: pick('#heizen-speichern .octo-split-device-card:not(.reverse) .octo-card-h3'),
+                    heizenCard2H3: pick('#heizen-speichern .octo-split-device-card.reverse .octo-card-h3'),
                     innovationH2: pick('#innovation .octo-section-h2'),
                     innovationCard1H3: pick('#innovation .octo-grid-3 > .octo-card:nth-child(1) .octo-card-h3'),
                     innovationCard3H3: pick('#innovation .octo-grid-3 > .octo-card:nth-child(3) .octo-card-h3'),
-                    stromkBadge: pick('#stromkennzeichnung .octo-container > div:nth-child(1) > span'),
+                    stromkBadge: pick('#stromkennzeichnung > .octo-container > div:nth-child(1) > span'),
                     stromkH2: pick('#stromkennzeichnung .octo-section-h2'),
                     stromkLeftH3: pick('#stromkennzeichnung .octo-bento-2-1 > .octo-card:nth-child(1) .octo-card-h3'),
                     stromkRightH3: pick('#stromkennzeichnung .octo-bento-2-1 > div:nth-child(2) > .octo-card:nth-child(1) .octo-card-h3'),
+                    stromkCountries: pick('#stromkennzeichnung .octo-bento-2-1 > div:nth-child(2) > .octo-card:nth-child(1) > div:nth-child(3)'),
                     stromkGasH3: pick('#stromkennzeichnung .octo-bento-2-1 > div:nth-child(2) > .octo-card:nth-child(2) .octo-card-h3'),
                     aboutH2: pick('#about .octo-section-h2'),
-                    aboutItem1H3: pick('#about .octo-about-stack > .octo-about-item:nth-child(1) .octo-card-h3'),
-                    aboutItem2H3: pick('#about .octo-about-stack > .octo-about-item:nth-child(2) .octo-card-h3'),
-                    aboutItem3H3: pick('#about .octo-about-stack > .octo-about-item:nth-child(3) .octo-card-h3'),
+                    aboutVpill1: pick('#about .octo-about-media-card > div:nth-child(2) > span:nth-child(1)'),
+                    aboutVpill2: pick('#about .octo-about-media-card > div:nth-child(2) > span:nth-child(2)'),
+                    aboutVpill3: pick('#about .octo-about-media-card > div:nth-child(2) > span:nth-child(3)'),
+                    aboutItem1H3: pick('#about .octo-about-stack .octo-about-item:nth-child(1) .octo-card-h3'),
+                    aboutItem2H3: pick('#about .octo-about-stack .octo-about-item:nth-child(2) .octo-card-h3'),
+                    aboutItem3H3: pick('#about .octo-about-stack .octo-about-item:nth-child(3) .octo-card-h3'),
                     alphaversumH2: pick('#alphaversum .octo-section-h2'),
                     alphaversumCard1H3: pick('#alphaversum .octo-grid-3 > .octo-card:nth-child(1) .octo-card-h3'),
                     alphaversumCard3H3: pick('#alphaversum .octo-grid-3 > .octo-card:nth-child(3) .octo-card-h3'),
-                    bottomBannerH2: pick('.octo-bottom-banner-card h2'),
-                    bottomBannerBtn: pick('#bottomQuickOfferForm button[type="submit"]'),
-                    footerNewsTitle: pick('#main-footer .octo-footer-top-grid > .octo-footer-box:nth-child(2) h4'),
+                    bottomBannerH2: pick('section.octo-band-mid:last-of-type .octo-section-h2'),
+                    bottomBannerBtn: pick('.octo-bottom-offer-btn'),
+                    footerNewsTitle: pick('#main-footer .octo-footer-card:nth-child(2) .octo-card-h3'),
                     footerCancelBtn: pick('#btnOpenCancelModal span'),
                     footerRevokeBtn: pick('#btnOpenRevokeModal span'),
-                    footerCopy: pick('.octo-footer-copy > div:nth-child(1)'),
+                    footerLinkSk: pick('.octo-footer-links-cloud a[href="#stromkennzeichnung"]'),
+                    footerCopy: pick('.octo-footer-bottom > div:first-child > div:nth-child(1) > span'),
                     orderModalTitle: pick('#orderModal .modal-header-title'),
                     cancelModalTitle: pick('#cancelModalTitle'),
                     meterModalTitle: pick('#meterModal .modal-header-title')
@@ -136,8 +141,8 @@ test.describe('Complete Multi-Language Translation Verification (DE | EN | TR | 
         expect(enSnap.businessTag).toContain('ALPHA BUSINESS');
         expect(enSnap.reviewScore).toBe('Excellent');
         expect(enSnap.aboutH2).toBe('About Us');
-        expect(enSnap.footerCancelBtn).toContain('Cancel contracts here');
-        expect(enSnap.footerRevokeBtn).toContain('Revoke contract');
+        expect(enSnap.footerCancelBtn).toContain('Cancel contract');
+        expect(enSnap.footerRevokeBtn).toContain('Revoke');
 
         // Verify every single snapshot field translated away from DE in EN
         for (const [key, deVal] of Object.entries(deInitial)) {
@@ -152,7 +157,7 @@ test.describe('Complete Multi-Language Translation Verification (DE | EN | TR | 
         expect(trSnap.title).toContain('Yeşil Elektrik');
         expect(trSnap.nav1).toBe('Yeşil Elektrik');
         expect(trSnap.nav2).toBe('Doğal Gaz');
-        expect(trSnap.nav3).toBe('Ticari');
+        expect(trSnap.nav3).toBe('Kurumsal');
         expect(trSnap.nav4).toBe('Hakkımızda');
         expect(trSnap.nav5).toBe('İletişim');
         expect(trSnap.partnerLink).toBe('İş Ortağı Olun');
@@ -167,8 +172,8 @@ test.describe('Complete Multi-Language Translation Verification (DE | EN | TR | 
         expect(arSnap.lang).toBe('ar');
         expect(arSnap.title).toContain('كهرباء خضراء');
         expect(arSnap.nav1).toBe('كهرباء خضراء');
-        expect(arSnap.nav2).toBe('الغاز الطبيعي');
-        expect(arSnap.nav3).toBe('الشركات');
+        expect(arSnap.nav2).toBe('غاز طبيعي');
+        expect(arSnap.nav3).toBe('الشركات والأعمال');
         expect(arSnap.nav4).toBe('من نحن');
         expect(arSnap.nav5).toBe('اتصل بنا');
         expect(arSnap.partnerLink).toBe('كن شريكاً');

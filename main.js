@@ -2542,7 +2542,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                             ? 'Sözleşmeleri Buradan Feshedin (§ 312k BGB)'
                             : (curLang === 'ar'
                                 ? 'إلغاء العقود هنا (§ 312k BGB)'
-                                : 'Verträge hier kündigen (§ 312k BGB)'));
+                                : 'Vertrag kündigen (§ 312k BGB)'));
                 }
                 if (cancelModalSubtitle) {
                     cancelModalSubtitle.innerHTML = curLang === 'en'
