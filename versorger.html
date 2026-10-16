@@ -602,8 +602,8 @@
             display: inline-flex;
             align-items: center;
             gap: 6px;
-            font-size: 0.86rem;
-            font-weight: 800;
+            font-size: 0.8rem;
+            font-weight: 700;
             color: #9a3412;
         }
 
@@ -623,9 +623,9 @@
             background: transparent;
             color: #78350f;
             font-family: inherit;
-            font-size: 0.8rem;
+            font-size: 0.78rem;
             font-weight: 700;
-            padding: 6px 12px;
+            padding: 5px 11px;
             border-radius: 7px;
             cursor: pointer;
             transition: all 0.18s ease;
@@ -658,7 +658,7 @@
         }
 
         .octo-htnt-input-pill label {
-            font-size: 0.78rem;
+            font-size: 0.76rem;
             font-weight: 800;
             color: #9a3412;
             white-space: nowrap;
@@ -683,7 +683,7 @@
             outline: none;
             background: transparent;
             font-family: inherit;
-            font-size: 0.86rem;
+            font-size: 0.84rem;
             font-weight: 800;
             color: #1c1917;
             text-align: right;
@@ -691,7 +691,7 @@
 
         .octo-htnt-input-wrap span,
         .octo-htnt-field-wrap span {
-            font-size: 0.74rem;
+            font-size: 0.72rem;
             font-weight: 700;
             color: #78350f;
             white-space: nowrap;
@@ -699,8 +699,9 @@
 
         .octo-htnt-info-badge {
             flex-basis: 100%;
-            font-size: 0.78rem;
-            color: #57534e;
+            font-size: 0.71rem !important;
+            line-height: 1.35;
+            color: #78716c;
             margin-top: 2px;
         }
 
@@ -2368,32 +2369,32 @@
 
                             <!-- Wärmepumpe & Nachtspeicher (HT/NT) Zusatzleiste -->
                             <div id="calcWaermeHtNtRow" class="octo-waerme-htnt-row" style="display: none;">
-                                <div class="octo-waerme-htnt-header">
-                                    <div class="octo-waerme-htnt-title">
-                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#e95e24" stroke-width="2.4"><path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z"></path></svg>
+                                <div class="octo-waerme-htnt-header" style="display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 10px;">
+                                    <div class="octo-waerme-htnt-title" style="display: inline-flex; align-items: center; gap: 6px; font-size: 0.8rem; font-weight: 700; color: #9a3412;">
+                                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#e95e24" stroke-width="2.4"><path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z"></path></svg>
                                         <span>Wärmepumpe (§ 14a EnWG) &amp; Nachtspeicherheizung (HT/NT)</span>
                                     </div>
-                                    <div class="octo-waerme-meter-pills" role="group" aria-label="Zählerart wählen">
+                                    <div class="octo-waerme-meter-pills" role="group" aria-label="Zählerart wählen" style="width: fit-content;">
                                         <button type="button" class="octo-meter-type-btn active" data-meter-type="htnt">Doppeltarifzähler (HT/NT)</button>
                                         <button type="button" class="octo-meter-type-btn" data-meter-type="et">Eintarifzähler (ET)</button>
                                     </div>
                                 </div>
-                                <div id="calcHtNtSplitInputs" class="octo-waerme-htnt-grid">
-                                    <div class="octo-htnt-input-pill" id="calcHtInputBox">
+                                <div id="calcHtNtSplitInputs" class="octo-waerme-htnt-grid" style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                                    <div class="octo-htnt-input-pill" id="calcHtInputBox" style="display: inline-flex; width: fit-content; max-width: 100%;">
                                         <label for="calcKwhHt">Hochtarif (HT – Tagstrom)</label>
                                         <div class="octo-htnt-input-wrap">
                                             <input type="number" id="calcKwhHt" value="3600" min="0" max="100000" step="100">
                                             <span>kWh/Jahr</span>
                                         </div>
                                     </div>
-                                    <div class="octo-htnt-input-pill" id="calcNtInputBox">
+                                    <div class="octo-htnt-input-pill" id="calcNtInputBox" style="display: inline-flex; width: fit-content; max-width: 100%;">
                                         <label for="calcKwhNt">Niedertarif (NT – Nacht-/Wärmestrom)</label>
                                         <div class="octo-htnt-input-wrap">
                                             <input type="number" id="calcKwhNt" value="2400" min="0" max="100000" step="100">
                                             <span>kWh/Jahr</span>
                                         </div>
                                     </div>
-                                    <div class="octo-htnt-info-badge">
+                                    <div class="octo-htnt-info-badge" style="flex-basis: 100%; font-size: 0.71rem; line-height: 1.35; color: #78716c; margin-top: 2px;">
                                         ✓ Geeignet für Wärmepumpen (steuerbare Verbrauchseinrichtung § 14a EnWG) &amp; Nachtspeicherheizungen mit Doppeltarifzähler (HT/NT) oder Eintarifzähler.
                                     </div>
                                 </div>
