@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Datenschutzerklärung | Alpha Energie GmbH Dortmund</title>
-    <meta name="description" content="Datenschutzerklärung | Alpha Energie GmbH Dortmund – 100 % Ökostrom & klimaneutrales Ökogas aus Dortmund.">
+    <meta name="description" content="Datenschutzerklärung | Alpha Energie GmbH Dortmund &amp; Firstcon GmbH – Ökostrom aus 100 % erneuerbaren Energien &amp; Erdgas mit freiwilligem Klimaschutzbeitrag.">
     <link rel="canonical" href="https://alpha-energie.de/datenschutz.html">
 
     <!-- Favicon for Google Search & Browsers (Glühbirne) -->
@@ -20,7 +20,7 @@
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://alpha-energie.de/datenschutz.html">
     <meta property="og:title" content="Datenschutzerklärung | Alpha Energie GmbH Dortmund">
-    <meta property="og:description" content="Datenschutzerklärung | Alpha Energie GmbH Dortmund – 100 % Ökostrom & klimaneutrales Ökogas aus Dortmund.">
+    <meta property="og:description" content="Datenschutzerklärung | Alpha Energie GmbH Dortmund &amp; Firstcon GmbH – Ökostrom aus 100 % erneuerbaren Energien &amp; Erdgas mit freiwilligem Klimaschutzbeitrag.">
     <meta property="og:image" content="https://alpha-energie.de/logo.png">
 
     <!-- Google Fonts -->
@@ -29,8 +29,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
 
     <!-- Base Stylesheet & Scripts -->
-    <link rel="stylesheet" href="style.css">
-    <script src="main.js" defer></script>
+    <link rel="stylesheet" href="style.css?v=20261016-fc6">
+    <script src="main.js?v=20261016-fc6" defer></script>
 
     <style>
         :root {
@@ -1390,13 +1390,40 @@
             font-weight: 500;
             text-decoration: none;
             cursor: pointer;
-            transition: color 0.2s ease;
+            transition: all 0.2s ease;
         }
 
         .octo-footer-links-cloud a:hover,
         .octo-footer-links-cloud button:hover {
             color: var(--octo-accent-amber);
             text-decoration: underline;
+        }
+
+        .octo-footer-links-cloud button.octo-footer-cancel-btn,
+        #btnOpenCancelModal,
+        #btnOpenRevokeModal {
+            background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%) !important;
+            border: 2px solid #e95e24 !important;
+            color: #c2410c !important;
+            padding: 8px 16px !important;
+            border-radius: 10px !important;
+            font-weight: 800 !important;
+            font-size: 0.88rem !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            gap: 6px !important;
+            box-shadow: 0 4px 12px rgba(233, 94, 36, 0.15) !important;
+            text-decoration: none !important;
+        }
+
+        .octo-footer-links-cloud button.octo-footer-cancel-btn:hover,
+        #btnOpenCancelModal:hover,
+        #btnOpenRevokeModal:hover {
+            background: linear-gradient(135deg, #f9b233 0%, #e95e24 100%) !important;
+            color: #ffffff !important;
+            transform: translateY(-1px);
+            box-shadow: 0 6px 16px rgba(233, 94, 36, 0.28) !important;
+            text-decoration: none !important;
         }
 
         .octo-footer-bottom {
@@ -2193,19 +2220,20 @@
                         <li class="nav-item has-dropdown">
                             <a href="oekostrom.html" >Ökostrom</a>
                             <ul class="dropdown">
-                                <li><a href="oekostrom.html">100% Ökostrom (ok-power)</a></li>
-                                <li><a href="oekostrom.html#tarife">ALPHA BASIC (12M Garantie)</a></li>
-                                <li><a href="oekostrom.html#tarife">ALPHA ÖKOSTROM PLUS (Bestseller)</a></li>
-                                <li><a href="oekostrom.html#tarife">ALPHA PREMIUM (24M Garantie)</a></li>
+                                <li><a href="oekostrom.html">Ökostrom aus 100 % erneuerbaren Energien</a></li>
+                                <li><a href="oekostrom.html#tarife">ALPHA TIME 12 (12M Garantie)</a></li>
+                                <li><a href="oekostrom.html#tarife">ALPHA TIME 24 (24M Garantie)</a></li>
+                                <li><a href="oekostrom.html#tarife">ALPHA DYNAMIC (Monatlich kündbar)</a></li>
+                                <li><a href="oekostrom.html#stromkennzeichnung">Stromkennzeichnung (§ 42 EnWG)</a></li>
                                 <li><a href="waermestrom.html">Wärmestrom (§ 14a EnWG)</a></li>
                             </ul>
                         </li>
                         <li class="nav-item has-dropdown">
-                            <a href="oekogas.html" >Ökogas</a>
+                            <a href="oekogas.html" >Erdgas</a>
                             <ul class="dropdown">
-                                <li><a href="oekogas.html">Klimaneutrales Ökogas</a></li>
-                                <li><a href="oekogas.html#gastarife">Ökogas Tarifübersicht</a></li>
-                                <li><a href="versorger.html#rechner">Ökogas Tarifrechner</a></li>
+                                <li><a href="oekogas.html">Erdgas mit freiwilligem Klimaschutzbeitrag</a></li>
+                                <li><a href="oekogas.html#gastarife">Erdgas Tarifübersicht</a></li>
+                                <li><a href="versorger.html#rechner">Erdgas Tarifrechner</a></li>
                             </ul>
                         </li>
                         <li class="nav-item has-dropdown">
@@ -2296,7 +2324,7 @@
                     <p>Wir weisen darauf hin, dass die Rechtsgrundlage der Einwilligungen Art. 6 Abs. 1 lit. a. und Art. 7 DSGVO, die Rechtsgrundlage für die Verarbeitung zur Erfüllung unserer Leistungen und Durchführung vertraglicher Maßnahmen Art. 6 Abs. 1 lit. b. DSGVO, die Rechtsgrundlage für die Verarbeitung zur Erfüllung unserer rechtlichen Verpflichtungen Art. 6 Abs. 1 lit. c. DSGVO, und die Rechtsgrundlage für die Verarbeitung zur Wahrung unserer berechtigten Interessen Art. 6 Abs. 1 lit. f. DSGVO ist.</p>
 
                     <h2 class="mt-4 mb-2">Verantwortliche Stelle</h2>
-                    <p>Verantwortliche Stelle im Sinne des - 3 Abs. 7 Bundesdatenschutzgesetz (-BDSG-) sowie Diensteanbieter im Sinne des - 13 Telemediengesetz (-TMG-) ist:</p>
+                    <p>Verantwortliche Stelle im Sinne der Datenschutz-Grundverordnung (DSGVO) und des Bundesdatenschutzgesetzes (BDSG) sowie Diensteanbieter im Sinne des Digitale-Dienste-Gesetzes (DDG) für den Betrieb dieser Website ist:</p>
 
                     <p>
                         <strong>Alpha Energie GmbH</strong><br>
@@ -2307,7 +2335,21 @@
                         Telefon: 0231 39989392 (Vertrieb &amp; Zentrale) | 0231 39989390 (Kundenservice Versorger)
                     </p>
 
-                    <p>Weitere Einzelheiten zur verantwortlichen Stelle können Sie unserem Impressum entnehmen.</p>
+                    <div style="background: #fffdf9; border: 1.5px solid #f9b233; border-radius: 12px; padding: 1.25rem 1.5rem; margin: 1.5rem 0;">
+                        <h3 style="color: #c2410c; margin-top: 0; margin-bottom: 0.5rem; font-size: 1.12rem;">Verantwortliche Stelle (Vertragspartner &amp; Leistungserbringer) für Energielieferverträge (Strom &amp; Gas):</h3>
+                        <p style="margin-bottom: 0.65rem;">
+                            Soweit Sie über unsere Website einen Tarif berechnen, einen Energieliefervertrag (Ökostrom oder Erdgas) unter der Marke „Alpha Energie“ abschließen, verwalten, widerrufen oder kündigen, ist verantwortliche Stelle im Sinne des Art. 4 Nr. 7 DSGVO für die Vertragsanbahnung und Vertragsdurchführung (Art. 6 Abs. 1 lit. b DSGVO):
+                        </p>
+                        <p style="margin-bottom: 0;">
+                            <strong>Alpha Energie – Eine Marke der Firstcon GmbH</strong><br>
+                            Untere Schrangenstraße 4<br>
+                            21335 Lüneburg<br>
+                            Handelsregister: Amtsgericht Lüneburg, HRB 202031<br>
+                            Vertreten durch die Geschäftsführer: Jowana Lohmöller, Malte Steinmetz
+                        </p>
+                    </div>
+
+                    <p>Weitere Einzelheiten zur verantwortlichen Stelle können Sie unserem <a href="impressum.html" style="color: var(--secondary); text-decoration: underline;">Impressum</a> entnehmen.</p>
 
                     <h2 class="mt-4 mb-2">Auskunft, Sperrung, Löschung</h2>
                     <p>Sie haben im Rahmen der geltenden gesetzlichen Bestimmungen jederzeit das Recht auf unentgeltliche Auskunft über Ihre gespeicherten personenbezogenen Daten, deren Herkunft und Empfänger und den Zweck der Datenverarbeitung und ggf. ein Recht auf Berichtigung, Sperrung oder Löschung dieser Daten. Hierzu sowie zu weiteren Fragen zum Thema personenbezogene Daten können Sie sich jederzeit unter der im Impressum angegebenen Adresse an uns wenden.</p>
@@ -2318,10 +2360,10 @@
                     <h2 class="mt-4 mb-2">Sicherheitsmaßnahmen</h2>
                     <p>Wir treffen organisatorische, vertragliche und technische Sicherheitsmaßnahmen entsprechend dem Stand der Technik, um sicherzustellen, dass die Vorschriften der Datenschutzgesetze eingehalten werden und um damit die durch uns verarbeiteten Daten gegen zufällige oder vorsätzliche Manipulationen, Verlust, Zerstörung oder gegen den Zugriff unberechtigter Personen zu schützen. Zu den Sicherheitsmaßnahmen gehört insbesondere die verschlüsselte übertragung von Daten zwischen Ihrem Browser und unserem Server.</p>
 
-                    <h2 class="mt-4 mb-2">Weitergabe von Daten an Dritte & Drittanbieter</h2>
-                    <p>Eine Weitergabe von Daten an Dritte erfolgt nur im Rahmen der gesetzlichen Vorgaben. Wir geben die Daten der Nutzer an Dritte nur dann weiter, wenn dies z.B. auf Grundlage des Art. 6 Abs. 1 lit. b) DSGVO für Vertragszwecke erforderlich ist oder auf Grundlage berechtigter Interessen gem. Art. 6 Abs. 1 lit. f. DSGVO an einem wirtschaftlichen und effektiven Betrieb unseres Geschäftsbetriebes.</p>
+                    <h2 class="mt-4 mb-2">Weitergabe von Daten an Dritte &amp; Drittanbieter</h2>
+                    <p>Eine Weitergabe von Daten an Dritte erfolgt nur im Rahmen der gesetzlichen Vorgaben. Wir geben die Daten der Nutzer an Dritte nur dann weiter, wenn dies z.B. auf Grundlage des Art. 6 Abs. 1 lit. b) DSGVO für Vertragszwecke (insbesondere an den leistungserbringenden Vertragspartner Firstcon GmbH sowie zuständige Netz- und Messstellenbetreiber) erforderlich ist oder auf Grundlage berechtigter Interessen gem. Art. 6 Abs. 1 lit. f. DSGVO an einem wirtschaftlichen und effektiven Betrieb unseres Geschäftsbetriebes.</p>
 
-                    <p>Sofern wir Subunternehmer einsetzen, um unsere Leistungen bereitzustellen, ergreifen wir geeignete rechtliche Vorkehrungen sowie entsprechende technische und organisatorische Maßnahmen, um für den Schutz der personenbezogenen Daten gemäß- den einschlägigen gesetzlichen Vorschriften zu sorgen.</p>
+                    <p>Sofern wir Subunternehmer einsetzen, um unsere Leistungen bereitzustellen, ergreifen wir geeignete rechtliche Vorkehrungen sowie entsprechende technische und organisatorische Maßnahmen, um für den Schutz der personenbezogenen Daten gemäß den einschlägigen gesetzlichen Vorschriften zu sorgen.</p>
                 </div>
             </div>
         </section>
@@ -2333,7 +2375,7 @@
                 <div class="octo-section-header-with-mascot">
                     <div class="octo-section-header-text">
                         <h2 class="octo-section-h2">Einmal wechseln, für immer faire Preise</h2>
-                        <p class="octo-section-sub">Wechsle jetzt in 3 Minuten zur Alpha Energie GmbH – ohne Papierkram und ohne Versorgungsunterbrechung</p>
+                        <p class="octo-section-sub">Wechsle jetzt in 3 Minuten zu Alpha Energie – ohne Papierkram und ohne Versorgungsunterbrechung</p>
                     </div>
                     <!-- Alpha-Wolf Thumbs-Up Companion in Bottom Quick-Offer Header -->
                     <div class="octo-section-mascot-box" aria-hidden="true">
@@ -2348,13 +2390,13 @@
                 <div class="octo-bottom-offer-box">
                     <div>
                         <h3 class="octo-card-h3" style="font-size:1.55rem;margin-bottom:6px;">Hol' dir jetzt dein persönliches Tarifangebot</h3>
-                        <p class="octo-card-p">Gib deine Postleitzahl ein und wechsle direkt zum Live-Tarifrechner für Ökostrom oder Ökogas.</p>
+                        <p class="octo-card-p">Gib deine Postleitzahl ein und wechsle direkt zum Live-Tarifrechner für Ökostrom oder Erdgas.</p>
                     </div>
 
                     <form id="subpageQuickOfferForm" class="octo-bottom-offer-form">
                         <select id="subOfferBranch" class="octo-bottom-offer-select" aria-label="Sparte wählen">
                             <option value="strom">Ökostrom</option>
-                            <option value="gas">Ökogas</option>
+                            <option value="gas">Erdgas</option>
                         </select>
                         <input type="text" id="subOfferPlz" class="octo-bottom-offer-input" placeholder="Deine Postleitzahl (z.B. 44379)" maxlength="5" pattern="[0-9]{5}" required>
                         <button type="submit" class="octo-bottom-offer-btn">Angebot berechnen</button>
@@ -2436,7 +2478,7 @@
                     <div>
                         <h3 class="octo-card-h3" style="font-size:1.4rem;margin-bottom:14px;">Positive Energie direkt in dein Postfach</h3>
                         <p class="octo-card-p" style="margin-bottom:18px;">
-                            Sichere dir exklusive Tarif-Vorteile, Energiespartipps und Neuigkeiten rund um 100 % Ökostrom und klimaneutrales Ökogas der Alpha Energie GmbH.
+                            Sichere dir exklusive Tarif-Vorteile, Energiespartipps und Neuigkeiten rund um Ökostrom aus 100 % erneuerbaren Energien und Erdgas mit freiwilligem Klimaschutzbeitrag.
                         </p>
 
                         <form id="octoNewsletterForm">
@@ -2445,7 +2487,7 @@
 
                             <label style="display:flex;align-items:flex-start;gap:10px;font-size:0.8rem;color:#57534e;line-height:1.5;margin:8px 0 18px 0;cursor:pointer;">
                                 <input type="checkbox" required style="margin-top:4px;accent-color:#f9b233;">
-                                <span>Ja, ich möchte gerne von der Alpha Energie GmbH spannende Infos zu Ökostrom- und Ökogas-Tarifen sowie Aktionen per E-Mail erhalten. Abmeldung jederzeit möglich. Weitere Infos in der <a href="datenschutz.html" style="color:#e95e24;text-decoration:underline;">Datenschutzerklärung</a>.</span>
+                                <span>Ja, ich möchte gerne von der Alpha Energie GmbH spannende Infos zu Ökostrom- und Erdgas-Tarifen sowie Aktionen per E-Mail erhalten. Abmeldung jederzeit möglich. Weitere Infos in der <a href="datenschutz.html" style="color:#e95e24;text-decoration:underline;">Datenschutzerklärung</a>.</span>
                             </label>
 
                             <button type="submit" class="octo-btn-solid-orange" style="width:100%;">Jetzt anmelden</button>
@@ -2457,16 +2499,17 @@
                 </div>
             </div>
 
-            <!-- Octopus-Style Footer Links Cloud (incl. § 312k BGB Kündigen & Widerrufen) -->
+            <!-- Octopus-Style Footer Links Cloud (incl. Highlighted § 312k BGB Kündigen & Widerrufen) -->
             <div class="octo-footer-links-cloud">
                 <a href="impressum.html">Impressum</a>
                 <a href="datenschutz.html">Datenschutzerklärung</a>
                 <a href="cookie-einstellungen.html">Cookie-Einstellungen</a>
                 <a href="cookie-richtlinie.html">Cookie-Richtlinie</a>
-                <button type="button" id="btnOpenCancelModal" style="color:#e95e24;font-weight:700;">Verträge hier kündigen (§ 312k BGB)</button>
-                <button type="button" id="btnOpenRevokeModal" style="color:#e95e24;font-weight:700;">Verträge hier widerrufen</button>
-                <a href="oekostrom.html">100% Ökostrom</a>
-                <a href="oekogas.html">Klimaneutrales Ökogas</a>
+                <a href="versorger.html#stromkennzeichnung">Stromkennzeichnung (§ 42 EnWG)</a>
+                <button type="button" id="btnOpenCancelModal" style="display:inline-flex;align-items:center;gap:6px;background:linear-gradient(135deg,#f9b233 0%,#e95e24 100%);color:#ffffff !important;border:1.5px solid #e95e24;border-radius:999px;padding:8px 16px;font-weight:800;text-decoration:none;">Verträge hier kündigen (§ 312k BGB)</button>
+                <button type="button" id="btnOpenRevokeModal" style="display:inline-flex;align-items:center;gap:6px;background:#ffffff;color:#c2410c !important;border:1.5px solid #e95e24;border-radius:999px;padding:8px 16px;font-weight:800;text-decoration:none;">Verträge hier widerrufen</button>
+                <a href="oekostrom.html">Ökostrom (100 % erneuerbar)</a>
+                <a href="oekogas.html">Erdgas mit Klimaschutzbeitrag</a>
                 <a href="gewerbekunden.html">Gewerbekunden (B2B)</a>
                 <a href="versorger.html#rechner">Strom- &amp; Gasrechner</a>
                 <a href="nachhaltigkeit-co2.html">Energieaudits &amp; CO₂-Pfad</a>
@@ -2479,9 +2522,14 @@
             </div>
 
             <div class="octo-footer-bottom">
-                <div style="display:flex;align-items:center;gap:18px;flex-wrap:wrap;">
-                    <a href="versorger.html" style="background:transparent !important;padding:0 !important;display:inline-flex;align-items:center;"><img src="logo.png" alt="Alpha Energie GmbH" style="height:68px !important;max-height:68px !important;width:auto !important;background:transparent !important;padding:0 !important;border:none !important;border-radius:0 !important;box-shadow:none !important;object-fit:contain;"></a>
-                    <span>&copy; 2026 Alpha Energie GmbH, Alter Hellweg 50, 44379 Dortmund • Telefon: 0231 39989390</span>
+                <div style="display:flex;flex-direction:column;gap:8px;max-width:780px;">
+                    <div style="display:flex;align-items:center;gap:18px;flex-wrap:wrap;">
+                        <a href="versorger.html" style="background:transparent !important;padding:0 !important;display:inline-flex;align-items:center;"><img src="logo.png" alt="Alpha Energie GmbH" style="height:68px !important;max-height:68px !important;width:auto !important;background:transparent !important;padding:0 !important;border:none !important;border-radius:0 !important;box-shadow:none !important;object-fit:contain;"></a>
+                        <span>&copy; 2026 Alpha Energie GmbH, Alter Hellweg 50, 44379 Dortmund • Telefon: 0231 39989390</span>
+                    </div>
+                    <div style="font-size:0.78rem;color:#57534e;line-height:1.5;">
+                        <strong>Vertragspartner &amp; Leistungserbringer der Energielieferverträge:</strong> Alpha Energie – Eine Marke der Firstcon GmbH, Untere Schrangenstraße 4, 21335 Lüneburg (Amtsgericht Lüneburg, HRB 202031 • Geschäftsführung: Jowana Lohmöller, Malte Steinmetz).
+                    </div>
                 </div>
 
                 <div style="display:flex;align-items:center;gap:16px;">
@@ -2729,34 +2777,128 @@
         </a>
     </div>
 
-    <!-- Legal Cancellation Modal (§ 312k BGB) -->
+    <!-- Legal Cancellation (§ 312k BGB) & Online-Widerruf (EU 2023/2673) Modal -->
     <div id="legalCancelModal" class="digital-modal-backdrop">
-        <div class="digital-modal" style="color:#1e293b;">
+        <div class="digital-modal" style="color:#1e293b; max-width: 620px;">
             <div class="modal-header-bar">
                 <h3 class="modal-header-title" id="cancelModalTitle">Vertrag kündigen (§ 312k BGB)</h3>
                 <button type="button" class="btn-close-modal modal-close-btn" aria-label="Schließen">&times;</button>
             </div>
-            <div class="modal-body">
+            <div class="modal-body" style="max-height: 82vh; overflow-y: auto;">
+                <p id="cancelModalSubtitle" style="font-size: 0.88rem; color: #475569; margin: 0 0 1rem 0; line-height: 1.5;">
+                    Hier können Sie Ihren Energieliefervertrag bei Alpha Energie (einer Marke der Firstcon GmbH) gesetzlich konform gemäß § 312k BGB online kündigen. Nach dem Absenden erhalten Sie sofort eine speicherbare Bestätigung (PDF-Download) sowie eine automatische Bestätigungs-E-Mail.
+                </p>
+
                 <form id="formLegalCancel">
                     <input type="hidden" id="cancelTypeInput" value="KUENDIGUNG">
-                    <div class="form-group" style="margin-bottom: 1rem;">
-                        <label for="cancelContractNumber" class="calc-label" style="color:#1e293b;">Vertrags- oder Kundennummer *</label>
-                        <input type="text" id="cancelContractNumber" class="calc-input" placeholder="z. B. AE-102938" required style="color:#1e293b;background:#fff;">
+
+                    <!-- Kündigung-spezifische Felder (§ 312k BGB) -->
+                    <div id="kuendigungOnlyFields">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.85rem; margin-bottom: 0.9rem;">
+                            <div class="form-group">
+                                <label for="cancelTerminationKind" class="calc-label" style="color:#1e293b; font-size:0.84rem; font-weight:700;">Art der Kündigung *</label>
+                                <select id="cancelTerminationKind" class="calc-input" style="color:#1e293b;background:#fff; width:100%;">
+                                    <option value="ordentlich">Ordentliche Kündigung</option>
+                                    <option value="ausserordentlich">Außerordentliche Kündigung (Sonderkündigung)</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="cancelTerminationTiming" class="calc-label" style="color:#1e293b; font-size:0.84rem; font-weight:700;">Zeitpunkt der Kündigung *</label>
+                                <select id="cancelTerminationTiming" class="calc-input" style="color:#1e293b;background:#fff; width:100%;">
+                                    <option value="naechstmoeglich">Zum nächstmöglichen Zeitpunkt</option>
+                                    <option value="wunschdatum">Zu einem bestimmten Wunschdatum</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div id="cancelDesiredDateGroup" class="form-group" style="display: none; margin-bottom: 0.9rem;">
+                            <label for="cancelDesiredDate" class="calc-label" style="color:#1e293b; font-size:0.84rem; font-weight:700;">Gewünschtes Kündigungsdatum *</label>
+                            <input type="date" id="cancelDesiredDate" class="calc-input" style="color:#1e293b;background:#fff; width:100%;">
+                        </div>
+
+                        <div id="cancelExtraordinaryReasonGroup" class="form-group" style="display: none; margin-bottom: 0.9rem;">
+                            <label for="cancelReason" class="calc-label" style="color:#1e293b; font-size:0.84rem; font-weight:700;">Kündigungsgrund (bei außerordentlicher Kündigung Pflicht, z. B. Umzug / Preisanpassung) *</label>
+                            <textarea id="cancelReason" class="calc-input" rows="2" placeholder="Bitte geben Sie den Grund Ihrer außerordentlichen Kündigung an (z. B. Wohnungswechsel / Auszug zum TT.MM.JJJJ)..." style="height: auto;color:#1e293b;background:#fff; width:100%;"></textarea>
+                        </div>
                     </div>
-                    <div class="form-group" style="margin-bottom: 1rem;">
-                        <label for="cancelCustomerName" class="calc-label" style="color:#1e293b;">Vor- und Nachname des Vertragspartners *</label>
-                        <input type="text" id="cancelCustomerName" class="calc-input" placeholder="Max Mustermann" required style="color:#1e293b;background:#fff;">
+
+                    <!-- Gemeinsames Feld: Vertragsart -->
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.85rem; margin-bottom: 0.9rem;">
+                        <div class="form-group">
+                            <label for="cancelContractBranch" class="calc-label" style="color:#1e293b; font-size:0.84rem; font-weight:700;">Vertragsart / Sparte *</label>
+                            <select id="cancelContractBranch" class="calc-input" required style="color:#1e293b;background:#fff; width:100%;">
+                                <option value="Stromliefervertrag (Ökostrom)">Stromliefervertrag (Ökostrom)</option>
+                                <option value="Gasliefervertrag (Erdgas mit Klimaschutzbeitrag)">Gasliefervertrag (Erdgas)</option>
+                                <option value="Strom- und Gasliefervertrag">Strom- und Gasliefervertrag</option>
+                            </select>
+                        </div>
+
+                        <!-- Widerruf-spezifisches Feld: Bestelldatum -->
+                        <div id="widerrufOrderDateGroup" class="form-group" style="display: none;">
+                            <label for="cancelOrderDate" class="calc-label" style="color:#1e293b; font-size:0.84rem; font-weight:700;">Bestelldatum / Vertragsabschluss *</label>
+                            <input type="date" id="cancelOrderDate" class="calc-input" style="color:#1e293b;background:#fff; width:100%;">
+                        </div>
+
+                        <div id="kuendigungMeterGroup" class="form-group">
+                            <label for="cancelMeterNumber" class="calc-label" style="color:#1e293b; font-size:0.84rem; font-weight:700;">Zählernummer (optional)</label>
+                            <input type="text" id="cancelMeterNumber" class="calc-input" placeholder="z. B. 1EMH0012345678" style="color:#1e293b;background:#fff; width:100%;">
+                        </div>
                     </div>
-                    <div class="form-group" style="margin-bottom: 1rem;">
-                        <label for="cancelEmail" class="calc-label" style="color:#1e293b;">Ihre E-Mail-Adresse für die Bestätigung *</label>
-                        <input type="email" id="cancelEmail" class="calc-input" placeholder="name@beispiel.de" required style="color:#1e293b;background:#fff;">
+
+                    <!-- Vertrags-/Bestell-/Kundennummer -->
+                    <div class="form-group" style="margin-bottom: 0.9rem;">
+                        <label for="cancelContractNumber" id="cancelContractNumberLabel" class="calc-label" style="color:#1e293b; font-size:0.84rem; font-weight:700;">Vertrags- oder Kundennummer (optional, falls zur Hand)</label>
+                        <input type="text" id="cancelContractNumber" class="calc-input" placeholder="z. B. AE-102938 oder FC-..." style="color:#1e293b;background:#fff; width:100%;">
                     </div>
-                    <div class="form-group" style="margin-bottom: 1.5rem;">
-                        <label for="cancelReason" class="calc-label" style="color:#1e293b;">Grund (optional)</label>
-                        <textarea id="cancelReason" class="calc-input" rows="3" placeholder="Grund für Kündigung oder Widerruf..." style="height: auto;color:#1e293b;background:#fff;"></textarea>
+
+                    <!-- Vollständiger Name -->
+                    <div class="form-group" style="margin-bottom: 0.9rem;">
+                        <label for="cancelCustomerName" class="calc-label" style="color:#1e293b; font-size:0.84rem; font-weight:700;">Vollständiger Vor- und Nachname des Vertragspartners *</label>
+                        <input type="text" id="cancelCustomerName" class="calc-input" placeholder="Max Mustermann" required style="color:#1e293b;background:#fff; width:100%;">
                     </div>
-                    <button type="submit" class="calc-submit-btn">Erklärung rechtsverbindlich absenden</button>
+
+                    <!-- Vollständige Adresse (Straße/Hausnr., PLZ, Ort) -->
+                    <div style="display: grid; grid-template-columns: 1.5fr 0.75fr 1.15fr; gap: 0.65rem; margin-bottom: 0.9rem;">
+                        <div class="form-group">
+                            <label for="cancelStreet" class="calc-label" style="color:#1e293b; font-size:0.84rem; font-weight:700;">Straße &amp; Hausnr. *</label>
+                            <input type="text" id="cancelStreet" class="calc-input" placeholder="Musterstraße 12" required style="color:#1e293b;background:#fff; width:100%;">
+                        </div>
+                        <div class="form-group">
+                            <label for="cancelZip" class="calc-label" style="color:#1e293b; font-size:0.84rem; font-weight:700;">PLZ *</label>
+                            <input type="text" id="cancelZip" class="calc-input" placeholder="44139" maxlength="5" required style="color:#1e293b;background:#fff; width:100%;">
+                        </div>
+                        <div class="form-group">
+                            <label for="cancelCity" class="calc-label" style="color:#1e293b; font-size:0.84rem; font-weight:700;">Ort *</label>
+                            <input type="text" id="cancelCity" class="calc-input" placeholder="Dortmund" required style="color:#1e293b;background:#fff; width:100%;">
+                        </div>
+                    </div>
+
+                    <!-- E-Mail-Adresse für Eingangsbestätigung -->
+                    <div class="form-group" style="margin-bottom: 1.15rem;">
+                        <label for="cancelEmail" class="calc-label" style="color:#1e293b; font-size:0.84rem; font-weight:700;">E-Mail-Adresse für die Eingangsbestätigung (inkl. PDF) *</label>
+                        <input type="email" id="cancelEmail" class="calc-input" placeholder="name@beispiel.de" required style="color:#1e293b;background:#fff; width:100%;">
+                    </div>
+
+                    <button type="submit" id="cancelSubmitBtn" class="calc-submit-btn" style="font-weight:800; font-size:1rem;">Jetzt kündigen</button>
                 </form>
+
+                <!-- Sofortige Eingangsbestätigung & PDF-Download nach Absenden -->
+                <div id="cancelModalConfirmationView" style="display: none; background: #f8fafc; border: 2px solid #22c55e; border-radius: 14px; padding: 1.25rem; margin-top: 0.75rem;">
+                    <div style="display:flex; align-items:center; gap:10px; margin-bottom:0.75rem;">
+                        <span style="width:32px; height:32px; border-radius:50%; background:#dcfce7; color:#15803d; display:inline-flex; align-items:center; justify-content:center; font-weight:800;">✓</span>
+                        <div>
+                            <h4 id="cancelConfirmTitle" style="margin:0; font-size:1.05rem; color:#14532d;">Eingangsbestätigung</h4>
+                            <span id="cancelConfirmTimestamp" style="font-size:0.8rem; color:#475569;"></span>
+                        </div>
+                    </div>
+                    <p id="cancelConfirmNotice" style="font-size:0.86rem; color:#1e293b; line-height:1.55; margin:0 0 0.85rem 0;"></p>
+                    <div id="cancelConfirmSummary" style="background:#ffffff; border:1px solid #cbd5e1; border-radius:10px; padding:0.85rem; font-size:0.82rem; color:#334155; line-height:1.55; margin-bottom:1rem;"></div>
+                    <div style="display:flex; flex-wrap:wrap; gap:0.65rem;">
+                        <button type="button" id="btnDownloadCancelPdf" class="calc-submit-btn" style="flex:1; background:linear-gradient(135deg,#e95e24 0%,#f99239 100%); margin:0;">
+                            📄 Eingangsbestätigung als PDF herunterladen
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

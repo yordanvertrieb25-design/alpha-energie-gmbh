@@ -11,23 +11,23 @@
 
     const I18N_DATA = {
         de: {
-            page_title: 'Alpha Energie | 100% Ökostrom & Gastarife deutschlandweit',
+            page_title: 'Alpha Energie | Ökostrom aus 100 % erneuerbaren Energien & Gastarife deutschlandweit',
             bento_card2_number: 'Bis zu 380 €',
             bento_card3_number: '24 Monate'
         },
 
         en: {
-            page_title: 'Alpha Energie | 100% Green Electricity & Energy Nationwide',
+            page_title: 'Alpha Energie | Green Electricity from 100% Renewable Energy & Gas Tariffs Nationwide',
 
             // Toast
-            toast_text: '<strong>Welcome!</strong> 100% clean green electricity across Germany. Save <strong>up to €380/year</strong> with certified ok-power energy.',
+            toast_text: '<strong>Welcome!</strong> Green electricity from 100% renewable energy across Germany. Save <strong>up to €380/year</strong> with transparent energy tariffs.',
 
             // Topbar
             topbar_hours: 'Monday – Friday 8:00 AM – 6:00 PM | Nationwide Service & Customer Center Dortmund',
 
             // Navigation
             nav_tariffs: 'Electricity & Tariffs',
-            nav_oekostrom: '100% Green Electricity',
+            nav_oekostrom: 'Electricity from 100% Renewables',
             nav_waermestrom: 'Heat Pump Power (§ 14a EnWG)',
             nav_oekogas: 'Natural Gas with Climate Contribution',
             nav_gewerbe: 'Commercial Power & SME',
@@ -49,16 +49,16 @@
             nav_btn_partner: 'Become a Partner',
 
             // Hero
-            hero_tag: 'Nationwide Green Electricity & Energy Provider',
+            hero_tag: 'Nationwide Energy Provider',
             hero_title: 'Simple. Transparent.<br><span class="text-orange-gradient">Guaranteed Affordable.</span>',
             hero_desc: 'Switch in just 3 minutes to green electricity from 100% renewable energy, reliable § 14a heat pump power, or natural gas with voluntary climate contribution. Available nationwide with up to 24 months full price guarantee, up to €380 annual savings, and personal customer service at the Dortmund headquarters.',
             hero_badge_price: '24-Month Price Protection',
-            hero_badge_eco: '100% Renewable Energy (ok-power)',
+            hero_badge_eco: 'Electricity from 100% Renewable Energy',
             hero_badge_switch: 'Free Switching Service',
 
             // Hero Floating Badges
-            hero_float_badge1_title: '100% Electricity from Renewable Sources',
-            hero_float_badge1_sub: 'Certified according to ok-power criteria',
+            hero_float_badge1_title: 'Electricity from 100% Renewable Sources',
+            hero_float_badge1_sub: 'Verified guarantees of origin (hydropower & wind)',
             hero_float_badge2_title: 'Up to €380 / Year Savings',
             hero_float_badge2_sub: 'Compared to basic supply',
             hero_float_badge3_title: 'Local Customer Service in Dortmund',
@@ -75,9 +75,9 @@
             calc_tab_gas_sub: 'Climate contribution',
 
             // Rechner Dynamic Notices
-            notice_strom: 'Green electricity from 100% renewable energy • Certified according to ok-power criteria',
+            notice_strom: 'Green electricity from 100% renewable energy • 24 months full price guarantee',
             notice_waerme: 'Heat pump power (§ 14a EnWG) • Up to 25% reduced grid fees for heat pumps',
-            notice_gas: 'Natural gas with voluntary climate protection contribution • Certified CO2 compensation',
+            notice_gas: 'Natural gas with voluntary climate protection contribution • Support for selected climate projects',
 
             // Rechner Form
             calc_plz_label: 'Your Postal Code',
@@ -1734,9 +1734,9 @@
                 if (branch === 'waerme') {
                     noticeEl.textContent = 'Wärmestrom nach § 14a EnWG • Bis zu 25 % reduzierte Netzentgelte für Wärmepumpen';
                 } else if (branch === 'gas') {
-                    noticeEl.textContent = 'Erdgas mit freiwilligem Klimaschutzbeitrag • Zertifizierte CO2-Kompensation';
+                    noticeEl.textContent = 'Erdgas mit freiwilligem Klimaschutzbeitrag • 24 Monate volle Preisgarantie';
                 } else {
-                    noticeEl.textContent = 'Ökostrom aus 100 % erneuerbaren Energien • Geprüft nach ok-power Kriterien';
+                    noticeEl.textContent = 'Ökostrom aus 100 % erneuerbaren Energien • 24 Monate volle Preisgarantie';
                 }
             } else {
                 noticeEl.textContent = getBranchNotice(branch, lang);
@@ -1756,8 +1756,8 @@
         const l = lang || currentLang;
         if (l === 'de') {
             if (branch === 'waerme') return 'Wärmestrom nach § 14a EnWG • Bis zu 25 % reduzierte Netzentgelte für Wärmepumpen';
-            if (branch === 'gas') return 'Erdgas mit freiwilligem Klimaschutzbeitrag • Zertifizierte CO2-Kompensation';
-            return 'Ökostrom aus 100 % erneuerbaren Energien • Geprüft nach ok-power Kriterien';
+            if (branch === 'gas') return 'Erdgas mit freiwilligem Klimaschutzbeitrag • 24 Monate volle Preisgarantie';
+            return 'Ökostrom aus 100 % erneuerbaren Energien • 24 Monate volle Preisgarantie';
         }
         const data = I18N_DATA[l] || I18N_DATA.en;
         if (branch === 'waerme') return data.notice_waerme;

@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Impressum & Rechtliche Pflichtangaben | Alpha Energie GmbH Dortmund</title>
-    <meta name="description" content="Impressum & Rechtliche Pflichtangaben | Alpha Energie GmbH Dortmund – 100 % Ökostrom & klimaneutrales Ökogas aus Dortmund.">
+    <title>Impressum &amp; Rechtliche Pflichtangaben | Alpha Energie GmbH Dortmund</title>
+    <meta name="description" content="Impressum &amp; Rechtliche Pflichtangaben | Alpha Energie GmbH Dortmund &amp; Firstcon GmbH – Ökostrom aus 100 % erneuerbaren Energien &amp; Erdgas mit freiwilligem Klimaschutzbeitrag.">
     <link rel="canonical" href="https://alpha-energie.de/impressum.html">
 
     <!-- Favicon for Google Search & Browsers (Glühbirne) -->
@@ -19,8 +19,8 @@
     <!-- Open Graph -->
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://alpha-energie.de/impressum.html">
-    <meta property="og:title" content="Impressum & Rechtliche Pflichtangaben | Alpha Energie GmbH Dortmund">
-    <meta property="og:description" content="Impressum & Rechtliche Pflichtangaben | Alpha Energie GmbH Dortmund – 100 % Ökostrom & klimaneutrales Ökogas aus Dortmund.">
+    <meta property="og:title" content="Impressum &amp; Rechtliche Pflichtangaben | Alpha Energie GmbH Dortmund">
+    <meta property="og:description" content="Impressum &amp; Rechtliche Pflichtangaben | Alpha Energie GmbH Dortmund &amp; Firstcon GmbH – Ökostrom aus 100 % erneuerbaren Energien &amp; Erdgas mit freiwilligem Klimaschutzbeitrag.">
     <meta property="og:image" content="https://alpha-energie.de/logo.png">
 
     <!-- Google Fonts -->
@@ -29,8 +29,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
 
     <!-- Base Stylesheet & Scripts -->
-    <link rel="stylesheet" href="style.css">
-    <script src="main.js" defer></script>
+    <link rel="stylesheet" href="style.css?v=20261016-fc6">
+    <script src="main.js?v=20261016-fc6" defer></script>
 
     <style>
         :root {
@@ -1390,13 +1390,40 @@
             font-weight: 500;
             text-decoration: none;
             cursor: pointer;
-            transition: color 0.2s ease;
+            transition: all 0.2s ease;
         }
 
         .octo-footer-links-cloud a:hover,
         .octo-footer-links-cloud button:hover {
             color: var(--octo-accent-amber);
             text-decoration: underline;
+        }
+
+        .octo-footer-links-cloud button.octo-footer-cancel-btn,
+        #btnOpenCancelModal,
+        #btnOpenRevokeModal {
+            background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%) !important;
+            border: 2px solid #e95e24 !important;
+            color: #c2410c !important;
+            padding: 8px 16px !important;
+            border-radius: 10px !important;
+            font-weight: 800 !important;
+            font-size: 0.88rem !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            gap: 6px !important;
+            box-shadow: 0 4px 12px rgba(233, 94, 36, 0.15) !important;
+            text-decoration: none !important;
+        }
+
+        .octo-footer-links-cloud button.octo-footer-cancel-btn:hover,
+        #btnOpenCancelModal:hover,
+        #btnOpenRevokeModal:hover {
+            background: linear-gradient(135deg, #f9b233 0%, #e95e24 100%) !important;
+            color: #ffffff !important;
+            transform: translateY(-1px);
+            box-shadow: 0 6px 16px rgba(233, 94, 36, 0.28) !important;
+            text-decoration: none !important;
         }
 
         .octo-footer-bottom {
@@ -2193,19 +2220,20 @@
                         <li class="nav-item has-dropdown">
                             <a href="oekostrom.html" >Ökostrom</a>
                             <ul class="dropdown">
-                                <li><a href="oekostrom.html">100% Ökostrom (ok-power)</a></li>
-                                <li><a href="oekostrom.html#tarife">ALPHA BASIC (12M Garantie)</a></li>
-                                <li><a href="oekostrom.html#tarife">ALPHA ÖKOSTROM PLUS (Bestseller)</a></li>
-                                <li><a href="oekostrom.html#tarife">ALPHA PREMIUM (24M Garantie)</a></li>
+                                <li><a href="oekostrom.html">Ökostrom aus 100 % erneuerbaren Energien</a></li>
+                                <li><a href="oekostrom.html#tarife">ALPHA TIME 12 (12M Garantie)</a></li>
+                                <li><a href="oekostrom.html#tarife">ALPHA TIME 24 (24M Garantie)</a></li>
+                                <li><a href="oekostrom.html#tarife">ALPHA DYNAMIC (Monatlich kündbar)</a></li>
+                                <li><a href="oekostrom.html#stromkennzeichnung">Stromkennzeichnung (§ 42 EnWG)</a></li>
                                 <li><a href="waermestrom.html">Wärmestrom (§ 14a EnWG)</a></li>
                             </ul>
                         </li>
                         <li class="nav-item has-dropdown">
-                            <a href="oekogas.html" >Ökogas</a>
+                            <a href="oekogas.html" >Erdgas</a>
                             <ul class="dropdown">
-                                <li><a href="oekogas.html">Klimaneutrales Ökogas</a></li>
-                                <li><a href="oekogas.html#gastarife">Ökogas Tarifübersicht</a></li>
-                                <li><a href="versorger.html#rechner">Ökogas Tarifrechner</a></li>
+                                <li><a href="oekogas.html">Erdgas mit freiwilligem Klimaschutzbeitrag</a></li>
+                                <li><a href="oekogas.html#gastarife">Erdgas Tarifübersicht</a></li>
+                                <li><a href="versorger.html#rechner">Erdgas Tarifrechner</a></li>
                             </ul>
                         </li>
                         <li class="nav-item has-dropdown">
@@ -2281,7 +2309,7 @@
         <section class="section-pad">
             <div class="container" style="max-width: 800px; line-height: 1.8;">
                 <div class="card p-3xl" style="background-color: white;">
-                    <h2 class="card-title" style="border-bottom: 2px solid var(--accent-orange); padding-bottom: 0.5rem; margin-bottom: 1.5rem;">Angaben gemäß § 5 TMG</h2>
+                    <h2 class="card-title" style="border-bottom: 2px solid var(--accent-orange); padding-bottom: 0.5rem; margin-bottom: 1.5rem;">Angaben gemäß § 5 DDG (vormals § 5 TMG)</h2>
                     <p style="margin-bottom: 1.5rem;">
                         <strong>Alpha Energie GmbH</strong><br>
                         Alter Hellweg 50<br>
@@ -2305,6 +2333,20 @@
                          Registergericht: Amtsgericht Dortmund<br>
                         Registernummer: HRB 38030
                     </p>
+
+                    <div style="background: #fffdf9; border: 1.5px solid #f9b233; border-radius: 12px; padding: 1.5rem; margin: 2rem 0;">
+                        <h3 style="color: #c2410c; margin-top: 0; margin-bottom: 0.65rem; font-size: 1.18rem;">Vertragspartner &amp; Leistungserbringer der Energielieferverträge (Strom &amp; Gas):</h3>
+                        <p style="margin-bottom: 0.75rem;">
+                            Für sämtliche über diese Website angebotenen und abgeschlossenen Energielieferverträge (Ökostrom und Erdgas) unter der Marke „Alpha Energie“ ist Ihr Vertragspartner und Leistungserbringer:
+                        </p>
+                        <p style="margin-bottom: 0;">
+                            <strong>Alpha Energie – Eine Marke der Firstcon GmbH</strong><br>
+                            Untere Schrangenstraße 4<br>
+                            21335 Lüneburg<br><br>
+                            <strong>Handelsregister:</strong> Amtsgericht Lüneburg, HRB 202031<br>
+                            <strong>Vertreten durch die Geschäftsführer:</strong> Jowana Lohmöller, Malte Steinmetz
+                        </p>
+                    </div>
  
                     <h3 style="color: var(--text-main); margin-bottom: 0.5rem; margin-top: 2rem;">Umsatzsteuer-ID:</h3>
                     <p style="margin-bottom: 1.5rem;">
@@ -2319,26 +2361,22 @@
                         Erlaubnis nach § 34c GewO (Vermittlung von Verträgen über Grundstücke, grundstücksgleiche Rechte, gewerbliche Räume oder Wohnräume).
                     </p>
  
-                    <h3 style="color: var(--text-main); margin-bottom: 0.5rem; margin-top: 2rem;">Verantwortlich für den Inhalt nach § 55 Abs. 2 RStV:</h3>
+                    <h3 style="color: var(--text-main); margin-bottom: 0.5rem; margin-top: 2rem;">Verantwortlich für den Inhalt nach § 18 Abs. 2 MStV:</h3>
                     <p style="margin-bottom: 1.5rem;">
                         Tolga Canga<br>
                         Alter Hellweg 50<br>
                         44379 Dortmund
                     </p>
  
-                    <h2 class="card-title" style="border-bottom: 2px solid var(--accent-orange); padding-bottom: 0.5rem; margin-bottom: 1.5rem; margin-top: 3rem;">Verbraucherstreitbeilegung/Universalschlichtungsstelle</h2>
+                    <h2 class="card-title" style="border-bottom: 2px solid var(--accent-orange); padding-bottom: 0.5rem; margin-bottom: 1.5rem; margin-top: 3rem;">Verbraucherstreitbeilegung / Schlichtungsstelle Energie</h2>
                     <p style="margin-bottom: 1.5rem;">
-                        Die Europäische Kommission stellt eine offizielle Plattform zur Online-Streitbeilegung (OS) bereit, die Sie unter folgendem Link abrufen können: <a href="https://ec.europa.eu/consumers/odr" target="_blank" rel="noopener noreferrer" style="color: var(--accent-orange); text-decoration: underline;">https://ec.europa.eu/consumers/odr</a>.<br>
-                        Unsere E-Mail-Adresse finden Sie im oberen Teil unseres Impressums angegeben.
-                    </p>
-                    <p style="margin-bottom: 1.5rem;">
-                        Wir weisen ausdrücklich darauf hin, dass wir weder bereit noch rechtlich dazu verpflichtet sind, an einem Streitbeilegungsverfahren vor einer Verbraucherschlichtungsstelle im Sinne des Verbraucherstreitbeilegungsgesetzes (VSBG) teilzunehmen.
+                        Zur Beilegung von Streitigkeiten aus Energielieferverträgen (Strom und Gas) können Verbraucher ein Schlichtungsverfahren bei der Schlichtungsstelle Energie e. V., Friedrichstraße 133, 10117 Berlin (<a href="https://www.schlichtungsstelle-energie.de" target="_blank" rel="noopener noreferrer" style="color: var(--accent-orange); text-decoration: underline;">www.schlichtungsstelle-energie.de</a>) beantragen, sofern zuvor der Kundenservice kontaktiert und keine beidseitig zufriedenstellende Lösung gefunden wurde.
                     </p>
 
                     <h2 class="card-title" style="border-bottom: 2px solid var(--accent-orange); padding-bottom: 0.5rem; margin-bottom: 1.5rem; margin-top: 3rem;">Haftungsausschluss (Disclaimer)</h2>
                     <h3 style="color: var(--text-main); margin-bottom: 0.5rem; margin-top: 1.5rem;">Haftung für Inhalte</h3>
                     <p style="margin-bottom: 1.5rem;">
-                        Als Diensteanbieter sind wir gemäß § 7 Abs.1 TMG für eigene Inhalte auf diesen Seiten nach den allgemeinen Gesetzen verantwortlich. Nach §§ 8 bis 10 TMG sind wir als Diensteanbieter jedoch nicht verpflichtet, übermittelte oder gespeicherte fremde Informationen zu überwachen oder nach Umständen zu forschen, die auf eine rechtswidrige Tätigkeit hinweisen. Verpflichtungen zur Entfernung oder Sperrung der Nutzung von Informationen nach den allgemeinen Gesetzen bleiben hiervon unberührt. Eine diesbezügliche Haftung ist jedoch erst ab dem Zeitpunkt der Kenntnis einer konkreten Rechtsverletzung möglich. Bei Bekanntwerden von entsprechenden Rechtsverletzungen werden wir diese Inhalte umgehend entfernen.
+                        Als Diensteanbieter sind wir gemäß § 7 Abs.1 DDG für eigene Inhalte auf diesen Seiten nach den allgemeinen Gesetzen verantwortlich. Nach §§ 8 bis 10 DDG sind wir als Diensteanbieter jedoch nicht verpflichtet, übermittelte oder gespeicherte fremde Informationen zu überwachen oder nach Umständen zu forschen, die auf eine rechtswidrige Tätigkeit hinweisen. Verpflichtungen zur Entfernung oder Sperrung der Nutzung von Informationen nach den allgemeinen Gesetzen bleiben hiervon unberührt. Eine diesbezügliche Haftung ist jedoch erst ab dem Zeitpunkt der Kenntnis einer konkreten Rechtsverletzung möglich. Bei Bekanntwerden von entsprechenden Rechtsverletzungen werden wir diese Inhalte umgehend entfernen.
                     </p>
                     
                     <h3 style="color: var(--text-main); margin-bottom: 0.5rem; margin-top: 1.5rem;">Haftung für Links</h3>
@@ -2361,7 +2399,7 @@
                 <div class="octo-section-header-with-mascot">
                     <div class="octo-section-header-text">
                         <h2 class="octo-section-h2">Einmal wechseln, für immer faire Preise</h2>
-                        <p class="octo-section-sub">Wechsle jetzt in 3 Minuten zur Alpha Energie GmbH – ohne Papierkram und ohne Versorgungsunterbrechung</p>
+                        <p class="octo-section-sub">Wechsle jetzt in 3 Minuten zu Alpha Energie – ohne Papierkram und ohne Versorgungsunterbrechung</p>
                     </div>
                     <!-- Alpha-Wolf Thumbs-Up Companion in Bottom Quick-Offer Header -->
                     <div class="octo-section-mascot-box" aria-hidden="true">
@@ -2376,13 +2414,13 @@
                 <div class="octo-bottom-offer-box">
                     <div>
                         <h3 class="octo-card-h3" style="font-size:1.55rem;margin-bottom:6px;">Hol' dir jetzt dein persönliches Tarifangebot</h3>
-                        <p class="octo-card-p">Gib deine Postleitzahl ein und wechsle direkt zum Live-Tarifrechner für Ökostrom oder Ökogas.</p>
+                        <p class="octo-card-p">Gib deine Postleitzahl ein und wechsle direkt zum Live-Tarifrechner für Ökostrom oder Erdgas.</p>
                     </div>
 
                     <form id="subpageQuickOfferForm" class="octo-bottom-offer-form">
                         <select id="subOfferBranch" class="octo-bottom-offer-select" aria-label="Sparte wählen">
                             <option value="strom">Ökostrom</option>
-                            <option value="gas">Ökogas</option>
+                            <option value="gas">Erdgas</option>
                         </select>
                         <input type="text" id="subOfferPlz" class="octo-bottom-offer-input" placeholder="Deine Postleitzahl (z.B. 44379)" maxlength="5" pattern="[0-9]{5}" required>
                         <button type="submit" class="octo-bottom-offer-btn">Angebot berechnen</button>
@@ -2464,7 +2502,7 @@
                     <div>
                         <h3 class="octo-card-h3" style="font-size:1.4rem;margin-bottom:14px;">Positive Energie direkt in dein Postfach</h3>
                         <p class="octo-card-p" style="margin-bottom:18px;">
-                            Sichere dir exklusive Tarif-Vorteile, Energiespartipps und Neuigkeiten rund um 100 % Ökostrom und klimaneutrales Ökogas der Alpha Energie GmbH.
+                            Sichere dir exklusive Tarif-Vorteile, Energiespartipps und Neuigkeiten rund um Ökostrom aus 100 % erneuerbaren Energien und Erdgas mit freiwilligem Klimaschutzbeitrag.
                         </p>
 
                         <form id="octoNewsletterForm">
@@ -2473,7 +2511,7 @@
 
                             <label style="display:flex;align-items:flex-start;gap:10px;font-size:0.8rem;color:#57534e;line-height:1.5;margin:8px 0 18px 0;cursor:pointer;">
                                 <input type="checkbox" required style="margin-top:4px;accent-color:#f9b233;">
-                                <span>Ja, ich möchte gerne von der Alpha Energie GmbH spannende Infos zu Ökostrom- und Ökogas-Tarifen sowie Aktionen per E-Mail erhalten. Abmeldung jederzeit möglich. Weitere Infos in der <a href="datenschutz.html" style="color:#e95e24;text-decoration:underline;">Datenschutzerklärung</a>.</span>
+                                <span>Ja, ich möchte gerne von der Alpha Energie GmbH spannende Infos zu Ökostrom- und Erdgas-Tarifen sowie Aktionen per E-Mail erhalten. Abmeldung jederzeit möglich. Weitere Infos in der <a href="datenschutz.html" style="color:#e95e24;text-decoration:underline;">Datenschutzerklärung</a>.</span>
                             </label>
 
                             <button type="submit" class="octo-btn-solid-orange" style="width:100%;">Jetzt anmelden</button>
@@ -2485,16 +2523,17 @@
                 </div>
             </div>
 
-            <!-- Octopus-Style Footer Links Cloud (incl. § 312k BGB Kündigen & Widerrufen) -->
+            <!-- Octopus-Style Footer Links Cloud (incl. Highlighted § 312k BGB Kündigen & Widerrufen) -->
             <div class="octo-footer-links-cloud">
                 <a href="impressum.html">Impressum</a>
                 <a href="datenschutz.html">Datenschutzerklärung</a>
                 <a href="cookie-einstellungen.html">Cookie-Einstellungen</a>
                 <a href="cookie-richtlinie.html">Cookie-Richtlinie</a>
-                <button type="button" id="btnOpenCancelModal" style="color:#e95e24;font-weight:700;">Verträge hier kündigen (§ 312k BGB)</button>
-                <button type="button" id="btnOpenRevokeModal" style="color:#e95e24;font-weight:700;">Verträge hier widerrufen</button>
-                <a href="oekostrom.html">100% Ökostrom</a>
-                <a href="oekogas.html">Klimaneutrales Ökogas</a>
+                <a href="versorger.html#stromkennzeichnung">Stromkennzeichnung (§ 42 EnWG)</a>
+                <button type="button" id="btnOpenCancelModal" style="display:inline-flex;align-items:center;gap:6px;background:linear-gradient(135deg,#f9b233 0%,#e95e24 100%);color:#ffffff !important;border:1.5px solid #e95e24;border-radius:999px;padding:8px 16px;font-weight:800;text-decoration:none;">Verträge hier kündigen (§ 312k BGB)</button>
+                <button type="button" id="btnOpenRevokeModal" style="display:inline-flex;align-items:center;gap:6px;background:#ffffff;color:#c2410c !important;border:1.5px solid #e95e24;border-radius:999px;padding:8px 16px;font-weight:800;text-decoration:none;">Verträge hier widerrufen</button>
+                <a href="oekostrom.html">Ökostrom (100 % erneuerbar)</a>
+                <a href="oekogas.html">Erdgas mit Klimaschutzbeitrag</a>
                 <a href="gewerbekunden.html">Gewerbekunden (B2B)</a>
                 <a href="versorger.html#rechner">Strom- &amp; Gasrechner</a>
                 <a href="nachhaltigkeit-co2.html">Energieaudits &amp; CO₂-Pfad</a>
@@ -2507,9 +2546,14 @@
             </div>
 
             <div class="octo-footer-bottom">
-                <div style="display:flex;align-items:center;gap:18px;flex-wrap:wrap;">
-                    <a href="versorger.html" style="background:transparent !important;padding:0 !important;display:inline-flex;align-items:center;"><img src="logo.png" alt="Alpha Energie GmbH" style="height:68px !important;max-height:68px !important;width:auto !important;background:transparent !important;padding:0 !important;border:none !important;border-radius:0 !important;box-shadow:none !important;object-fit:contain;"></a>
-                    <span>&copy; 2026 Alpha Energie GmbH, Alter Hellweg 50, 44379 Dortmund • Telefon: 0231 39989390</span>
+                <div style="display:flex;flex-direction:column;gap:8px;max-width:780px;">
+                    <div style="display:flex;align-items:center;gap:18px;flex-wrap:wrap;">
+                        <a href="versorger.html" style="background:transparent !important;padding:0 !important;display:inline-flex;align-items:center;"><img src="logo.png" alt="Alpha Energie GmbH" style="height:68px !important;max-height:68px !important;width:auto !important;background:transparent !important;padding:0 !important;border:none !important;border-radius:0 !important;box-shadow:none !important;object-fit:contain;"></a>
+                        <span>&copy; 2026 Alpha Energie GmbH, Alter Hellweg 50, 44379 Dortmund • Telefon: 0231 39989390</span>
+                    </div>
+                    <div style="font-size:0.78rem;color:#57534e;line-height:1.5;">
+                        <strong>Vertragspartner &amp; Leistungserbringer der Energielieferverträge:</strong> Alpha Energie – Eine Marke der Firstcon GmbH, Untere Schrangenstraße 4, 21335 Lüneburg (Amtsgericht Lüneburg, HRB 202031 • Geschäftsführung: Jowana Lohmöller, Malte Steinmetz).
+                    </div>
                 </div>
 
                 <div style="display:flex;align-items:center;gap:16px;">
@@ -2757,34 +2801,165 @@
         </a>
     </div>
 
-    <!-- Legal Cancellation Modal (§ 312k BGB) -->
+    <!-- Legal Cancellation (§ 312k BGB) & Online-Revocation (EU 2023/2673) Modal -->
     <div id="legalCancelModal" class="digital-modal-backdrop">
-        <div class="digital-modal" style="color:#1e293b;">
+        <div class="digital-modal" style="color:#1e293b;max-width:680px;">
             <div class="modal-header-bar">
                 <h3 class="modal-header-title" id="cancelModalTitle">Vertrag kündigen (§ 312k BGB)</h3>
                 <button type="button" class="btn-close-modal modal-close-btn" aria-label="Schließen">&times;</button>
             </div>
-            <div class="modal-body">
-                <form id="formLegalCancel">
-                    <input type="hidden" id="cancelTypeInput" value="KUENDIGUNG">
-                    <div class="form-group" style="margin-bottom: 1rem;">
-                        <label for="cancelContractNumber" class="calc-label" style="color:#1e293b;">Vertrags- oder Kundennummer *</label>
-                        <input type="text" id="cancelContractNumber" class="calc-input" placeholder="z. B. AE-102938" required style="color:#1e293b;background:#fff;">
+            <div class="modal-body" style="max-height:82vh;overflow-y:auto;">
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:1.15rem;background:#f8fafc;padding:6px;border-radius:12px;border:1px solid #e2e8f0;">
+                    <button type="button" id="cancelModeTabKuendigung" style="padding:10px 12px;border-radius:9px;font-size:0.86rem;font-weight:800;cursor:pointer;border:1.5px solid #e95e24;background:linear-gradient(135deg,#f9b233 0%,#e95e24 100%);color:#ffffff;transition:all 0.2s ease;">
+                        Vertrag kündigen (§ 312k BGB)
+                    </button>
+                    <button type="button" id="cancelModeTabWiderruf" style="padding:10px 12px;border-radius:9px;font-size:0.86rem;font-weight:800;cursor:pointer;border:1.5px solid #cbd5e1;background:#ffffff;color:#334155;transition:all 0.2s ease;">
+                        Vertrag widerrufen (Online-Widerruf)
+                    </button>
+                </div>
+
+                <div id="cancelFormContainer">
+                    <form id="formLegalCancel">
+                        <input type="hidden" id="cancelTypeInput" value="KUENDIGUNG">
+
+                        <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:1rem;margin-bottom:1rem;">
+                            <div style="font-size:0.8rem;font-weight:800;color:#c2410c;text-transform:uppercase;letter-spacing:0.04em;margin-bottom:0.75rem;">1. Angaben zum Vertrag</div>
+                            <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.85rem;margin-bottom:0.85rem;" class="modal-inline-grid-2">
+                                <div class="form-group" style="margin:0;">
+                                    <label for="cancelContractType" class="calc-label" style="color:#1e293b;font-size:0.82rem;font-weight:700;">Vertragsart / Sparte *</label>
+                                    <select id="cancelContractType" class="calc-input" required style="color:#1e293b;background:#fff;height:42px;">
+                                        <option value="Stromliefervertrag (Ökostrom)">Stromliefervertrag (Ökostrom)</option>
+                                        <option value="Gasliefervertrag (Erdgas)">Gasliefervertrag (Erdgas)</option>
+                                        <option value="Strom- und Gasliefervertrag">Strom- und Gasliefervertrag</option>
+                                    </select>
+                                </div>
+                                <div class="form-group" style="margin:0;">
+                                    <label for="cancelContractNumber" id="cancelContractNumberLabel" class="calc-label" style="color:#1e293b;font-size:0.82rem;font-weight:700;">Vertrags- oder Kundennummer *</label>
+                                    <input type="text" id="cancelContractNumber" class="calc-input" placeholder="z. B. AE-102938 (oder unbekannt)" required style="color:#1e293b;background:#fff;height:42px;">
+                                </div>
+                            </div>
+                            <div class="form-group" style="margin:0;">
+                                <label for="cancelMeterNumber" class="calc-label" style="color:#1e293b;font-size:0.82rem;font-weight:700;">Zählernummer (optional – zur eindeutigen Zuordnung)</label>
+                                <input type="text" id="cancelMeterNumber" class="calc-input" placeholder="z. B. 1EMH0012345678 (falls zur Hand)" style="color:#1e293b;background:#fff;height:42px;">
+                            </div>
+                        </div>
+
+                        <div id="cancelOnlyFields" style="background:#fffdf9;border:1px solid rgba(249,178,51,0.55);border-radius:12px;padding:1rem;margin-bottom:1rem;">
+                            <div style="font-size:0.8rem;font-weight:800;color:#c2410c;text-transform:uppercase;letter-spacing:0.04em;margin-bottom:0.75rem;">2. Art &amp; Zeitpunkt der Kündigung (§ 312k BGB)</div>
+                            <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.85rem;margin-bottom:0.85rem;" class="modal-inline-grid-2">
+                                <div class="form-group" style="margin:0;">
+                                    <label for="cancelTerminationType" class="calc-label" style="color:#1e293b;font-size:0.82rem;font-weight:700;">Art der Kündigung *</label>
+                                    <select id="cancelTerminationType" class="calc-input" style="color:#1e293b;background:#fff;height:42px;">
+                                        <option value="ordentlich">Ordentliche Kündigung</option>
+                                        <option value="ausserordentlich">Außerordentliche Kündigung (Sonderkündigung)</option>
+                                    </select>
+                                </div>
+                                <div class="form-group" style="margin:0;">
+                                    <label for="cancelDateType" class="calc-label" style="color:#1e293b;font-size:0.82rem;font-weight:700;">Kündigungszeitpunkt *</label>
+                                    <select id="cancelDateType" class="calc-input" style="color:#1e293b;background:#fff;height:42px;">
+                                        <option value="naechstmoeglich">Zum nächstmöglichen Zeitpunkt</option>
+                                        <option value="wunschdatum">Zu einem bestimmten Wunschdatum</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div id="cancelExtraReasonGroup" class="form-group" style="display:none;margin-bottom:0.85rem;">
+                                <label for="cancelReasonSelect" class="calc-label" style="color:#1e293b;font-size:0.82rem;font-weight:700;">Grund für die außerordentliche Kündigung *</label>
+                                <select id="cancelReasonSelect" class="calc-input" style="color:#1e293b;background:#fff;height:42px;">
+                                    <option value="">Bitte Kündigungsgrund wählen...</option>
+                                    <option value="Wohnungswechsel / Umzug (§ 41b Abs. 5 EnWG)">Wohnungswechsel / Umzug (§ 41b Abs. 5 EnWG)</option>
+                                    <option value="Preisanpassung / Preisänderung (§ 41 Abs. 5 EnWG)">Preisanpassung / Preisänderung (§ 41 Abs. 5 EnWG)</option>
+                                    <option value="Änderung der Vertragsbedingungen">Änderung der Vertragsbedingungen</option>
+                                    <option value="Todesfall des Vertragsnehmers">Todesfall des Vertragsnehmers</option>
+                                    <option value="Sonstiger wichtiger Grund (§ 314 BGB)">Sonstiger wichtiger Grund (§ 314 BGB)</option>
+                                </select>
+                            </div>
+                            <div id="cancelCustomDateGroup" class="form-group" style="display:none;margin-bottom:0.85rem;">
+                                <label for="cancelCustomDate" class="calc-label" style="color:#1e293b;font-size:0.82rem;font-weight:700;">Gewünschtes Kündigungsdatum *</label>
+                                <input type="date" id="cancelCustomDate" class="calc-input" style="color:#1e293b;background:#fff;height:42px;">
+                            </div>
+                            <div class="form-group" style="margin:0;">
+                                <label for="cancelReason" class="calc-label" style="color:#1e293b;font-size:0.82rem;font-weight:700;">Ergänzende Hinweise zur Kündigung (optional)</label>
+                                <input type="text" id="cancelReason" class="calc-input" placeholder="Optional: z. B. neue Anschrift bei Umzug" style="color:#1e293b;background:#fff;height:40px;">
+                            </div>
+                        </div>
+
+                        <div id="revokeOnlyFields" style="display:none;background:#fffdf9;border:1px solid rgba(249,178,51,0.55);border-radius:12px;padding:1rem;margin-bottom:1rem;">
+                            <div style="font-size:0.8rem;font-weight:800;color:#c2410c;text-transform:uppercase;letter-spacing:0.04em;margin-bottom:0.65rem;">2. Angaben zum Vertragswiderruf (ohne Angabe von Gründen)</div>
+                            <div class="form-group" style="margin:0;">
+                                <label for="revokeOrderDate" class="calc-label" style="color:#1e293b;font-size:0.82rem;font-weight:700;">Bestelldatum / Datum des Vertragsschlusses (optional)</label>
+                                <input type="date" id="revokeOrderDate" class="calc-input" style="color:#1e293b;background:#fff;height:42px;">
+                            </div>
+                            <p style="font-size:0.78rem;color:#64748b;margin:0.5rem 0 0 0;line-height:1.45;">
+                                Hinweis: Für Ihren gesetzlichen Widerruf innerhalb der 14-tägigen Widerrufsfrist ist keinerlei Begründung erforderlich.
+                            </p>
+                        </div>
+
+                        <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:1rem;margin-bottom:1rem;">
+                            <div style="font-size:0.8rem;font-weight:800;color:#c2410c;text-transform:uppercase;letter-spacing:0.04em;margin-bottom:0.75rem;">3. Vertragspartner &amp; Anschrift</div>
+                            <div style="display:grid;grid-template-columns:110px 1fr 1fr;gap:0.75rem;margin-bottom:0.85rem;" class="modal-inline-grid-2">
+                                <div class="form-group" style="margin:0;">
+                                    <label for="cancelSalutation" class="calc-label" style="color:#1e293b;font-size:0.82rem;font-weight:700;">Anrede</label>
+                                    <select id="cancelSalutation" class="calc-input" style="color:#1e293b;background:#fff;height:42px;">
+                                        <option value="Herr">Herr</option>
+                                        <option value="Frau">Frau</option>
+                                        <option value="Divers">Divers</option>
+                                        <option value="Firma">Firma</option>
+                                    </select>
+                                </div>
+                                <div class="form-group" style="margin:0;">
+                                    <label for="cancelFirstName" class="calc-label" style="color:#1e293b;font-size:0.82rem;font-weight:700;">Vorname *</label>
+                                    <input type="text" id="cancelFirstName" class="calc-input" placeholder="Max" required style="color:#1e293b;background:#fff;height:42px;">
+                                </div>
+                                <div class="form-group" style="margin:0;">
+                                    <label for="cancelLastName" class="calc-label" style="color:#1e293b;font-size:0.82rem;font-weight:700;">Nachname *</label>
+                                    <input type="text" id="cancelLastName" class="calc-input" placeholder="Mustermann" required style="color:#1e293b;background:#fff;height:42px;">
+                                </div>
+                            </div>
+                            <div style="display:grid;grid-template-columns:2fr 1fr;gap:0.75rem;margin-bottom:0.85rem;">
+                                <div class="form-group" style="margin:0;">
+                                    <label for="cancelStreet" class="calc-label" style="color:#1e293b;font-size:0.82rem;font-weight:700;">Straße (Verbrauchs-/Vertragsadresse) *</label>
+                                    <input type="text" id="cancelStreet" class="calc-input" placeholder="Musterstraße" required style="color:#1e293b;background:#fff;height:42px;">
+                                </div>
+                                <div class="form-group" style="margin:0;">
+                                    <label for="cancelHouseNr" class="calc-label" style="color:#1e293b;font-size:0.82rem;font-weight:700;">Hausnr. *</label>
+                                    <input type="text" id="cancelHouseNr" class="calc-input" placeholder="12a" required style="color:#1e293b;background:#fff;height:42px;">
+                                </div>
+                            </div>
+                            <div style="display:grid;grid-template-columns:130px 1fr;gap:0.75rem;margin-bottom:0.85rem;">
+                                <div class="form-group" style="margin:0;">
+                                    <label for="cancelPlz" class="calc-label" style="color:#1e293b;font-size:0.82rem;font-weight:700;">PLZ *</label>
+                                    <input type="text" id="cancelPlz" class="calc-input" placeholder="44379" maxlength="5" pattern="[0-9]{5}" required style="color:#1e293b;background:#fff;height:42px;">
+                                </div>
+                                <div class="form-group" style="margin:0;">
+                                    <label for="cancelCity" class="calc-label" style="color:#1e293b;font-size:0.82rem;font-weight:700;">Ort *</label>
+                                    <input type="text" id="cancelCity" class="calc-input" placeholder="Dortmund" required style="color:#1e293b;background:#fff;height:42px;">
+                                </div>
+                            </div>
+                            <div class="form-group" style="margin:0;">
+                                <label for="cancelEmail" class="calc-label" style="color:#1e293b;font-size:0.82rem;font-weight:700;">E-Mail-Adresse für die sofortige Eingangsbestätigung (inkl. PDF) *</label>
+                                <input type="email" id="cancelEmail" class="calc-input" placeholder="name@beispiel.de" required style="color:#1e293b;background:#fff;height:42px;">
+                            </div>
+                        </div>
+
+                        <div id="cancelDeclarationText" style="font-size:0.8rem;color:#475569;background:#fff7ed;border:1px solid #fed7aa;border-radius:10px;padding:0.75rem 0.9rem;margin-bottom:1rem;line-height:1.5;">
+                            Hiermit kündige ich meinen oben genannten Energieliefervertrag bei Alpha Energie – Eine Marke der Firstcon GmbH. Nach dem Absenden erhalten Sie sofort Ihre elektronische Kündigungsbestätigung als PDF-Download sowie automatisch per E-Mail (§ 312k BGB).
+                        </div>
+
+                        <button type="submit" id="btnCancelSubmit" class="calc-submit-btn" style="width:100%;font-size:1rem;font-weight:800;">Jetzt kündigen</button>
+                    </form>
+                </div>
+
+                <div id="cancelModalConfirmationView" style="display:none;padding:0.5rem 0;">
+                    <div id="cancelConfirmationDetails"></div>
+                    <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:1.15rem;">
+                        <button type="button" id="btnDownloadCancelPdf" class="calc-submit-btn" style="flex:1;background:linear-gradient(135deg,#16a34a 0%,#15803d 100%);border-color:#15803d;">
+                            📄 Bestätigung als PDF herunterladen
+                        </button>
+                        <button type="button" class="btn-close-modal" style="padding:0 20px;height:48px;border-radius:10px;border:1.5px solid #cbd5e1;background:#ffffff;color:#334155;font-weight:700;cursor:pointer;">
+                            Fenster schließen
+                        </button>
                     </div>
-                    <div class="form-group" style="margin-bottom: 1rem;">
-                        <label for="cancelCustomerName" class="calc-label" style="color:#1e293b;">Vor- und Nachname des Vertragspartners *</label>
-                        <input type="text" id="cancelCustomerName" class="calc-input" placeholder="Max Mustermann" required style="color:#1e293b;background:#fff;">
-                    </div>
-                    <div class="form-group" style="margin-bottom: 1rem;">
-                        <label for="cancelEmail" class="calc-label" style="color:#1e293b;">Ihre E-Mail-Adresse für die Bestätigung *</label>
-                        <input type="email" id="cancelEmail" class="calc-input" placeholder="name@beispiel.de" required style="color:#1e293b;background:#fff;">
-                    </div>
-                    <div class="form-group" style="margin-bottom: 1.5rem;">
-                        <label for="cancelReason" class="calc-label" style="color:#1e293b;">Grund (optional)</label>
-                        <textarea id="cancelReason" class="calc-input" rows="3" placeholder="Grund für Kündigung oder Widerruf..." style="height: auto;color:#1e293b;background:#fff;"></textarea>
-                    </div>
-                    <button type="submit" class="calc-submit-btn">Erklärung rechtsverbindlich absenden</button>
-                </form>
+                </div>
             </div>
         </div>
     </div>

@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Klimaneutrales Ökogas mit 12 & 24 Monaten Preisgarantie | Alpha Energie GmbH</title>
-    <meta name="description" content="Sichere dir klimaneutrales Ökogas mit 100 % Gold-Standard CO₂-Kompensation und voller Preisgarantie für die Heizperiode bei der Alpha Energie GmbH.">
+    <title>Erdgas mit freiwilligem Klimaschutzbeitrag &amp; 12 / 24 Monaten Preisgarantie | Alpha Energie GmbH</title>
+    <meta name="description" content="Sichere dir Erdgas mit freiwilligem Klimaschutzbeitrag zur Unterstützung zertifizierter Klimaschutzprojekte und voller Preisgarantie bei der Alpha Energie GmbH.">
     <link rel="canonical" href="https://alpha-energie.de/oekogas.html">
 
     <!-- Favicon for Google Search & Browsers (Glühbirne) -->
@@ -19,8 +19,8 @@
     <!-- Open Graph -->
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://alpha-energie.de/oekogas.html">
-    <meta property="og:title" content="Klimaneutrales Ökogas mit 12 & 24 Monaten Preisgarantie | Alpha Energie GmbH">
-    <meta property="og:description" content="Sichere dir klimaneutrales Ökogas mit 100 % Gold-Standard CO₂-Kompensation und voller Preisgarantie für die Heizperiode bei der Alpha Energie GmbH.">
+    <meta property="og:title" content="Erdgas mit freiwilligem Klimaschutzbeitrag &amp; 12 / 24 Monaten Preisgarantie | Alpha Energie GmbH">
+    <meta property="og:description" content="Sichere dir Erdgas mit freiwilligem Klimaschutzbeitrag zur Unterstützung zertifizierter Klimaschutzprojekte und voller Preisgarantie bei der Alpha Energie GmbH.">
     <meta property="og:image" content="https://alpha-energie.de/logo.png">
 
     <!-- Google Fonts -->
@@ -29,9 +29,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
 
     <!-- Base Stylesheet & Scripts -->
-    <link rel="stylesheet" href="style.css">
-    <script src="i18n.js" defer></script>
-    <script src="main.js" defer></script>
+    <link rel="stylesheet" href="style.css?v=20261016-fc6">
+    <script src="i18n.js?v=20261016-fc6" defer></script>
+    <script src="main.js?v=20261016-fc6" defer></script>
 
     <style>
         :root {
@@ -1391,13 +1391,40 @@
             font-weight: 500;
             text-decoration: none;
             cursor: pointer;
-            transition: color 0.2s ease;
+            transition: all 0.2s ease;
         }
 
         .octo-footer-links-cloud a:hover,
         .octo-footer-links-cloud button:hover {
             color: var(--octo-accent-amber);
             text-decoration: underline;
+        }
+
+        .octo-footer-links-cloud button.octo-footer-cancel-btn,
+        #btnOpenCancelModal,
+        #btnOpenRevokeModal {
+            background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%) !important;
+            border: 2px solid #e95e24 !important;
+            color: #c2410c !important;
+            padding: 8px 16px !important;
+            border-radius: 10px !important;
+            font-weight: 800 !important;
+            font-size: 0.88rem !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            gap: 6px !important;
+            box-shadow: 0 4px 12px rgba(233, 94, 36, 0.15) !important;
+            text-decoration: none !important;
+        }
+
+        .octo-footer-links-cloud button.octo-footer-cancel-btn:hover,
+        #btnOpenCancelModal:hover,
+        #btnOpenRevokeModal:hover {
+            background: linear-gradient(135deg, #f9b233 0%, #e95e24 100%) !important;
+            color: #ffffff !important;
+            transform: translateY(-1px);
+            box-shadow: 0 6px 16px rgba(233, 94, 36, 0.28) !important;
+            text-decoration: none !important;
         }
 
         .octo-footer-bottom {
@@ -2194,19 +2221,21 @@
                         <li class="nav-item has-dropdown">
                             <a href="oekostrom.html" >Ökostrom</a>
                             <ul class="dropdown">
-                                <li><a href="oekostrom.html">100% Ökostrom (ok-power)</a></li>
-                                <li><a href="oekostrom.html#tarife">ALPHA BASIC (12M Garantie)</a></li>
-                                <li><a href="oekostrom.html#tarife">ALPHA ÖKOSTROM PLUS (Bestseller)</a></li>
-                                <li><a href="oekostrom.html#tarife">ALPHA PREMIUM (24M Garantie)</a></li>
+                                <li><a href="oekostrom.html">Ökostrom aus 100 % erneuerbaren Energien</a></li>
+                                <li><a href="oekostrom.html#tarife">ALPHA TIME 12 (12M Garantie)</a></li>
+                                <li><a href="oekostrom.html#tarife">ALPHA TIME 24 (24M Garantie)</a></li>
+                                <li><a href="oekostrom.html#tarife">ALPHA DYNAMIC (Monatlich kündbar)</a></li>
+                                <li><a href="oekostrom.html#stromkennzeichnung">Stromkennzeichnung (§ 42 EnWG)</a></li>
                                 <li><a href="waermestrom.html">Wärmestrom (§ 14a EnWG)</a></li>
                             </ul>
                         </li>
                         <li class="nav-item has-dropdown">
-                            <a href="oekogas.html" style='color:#e95e24;font-weight:800;'>Ökogas</a>
+                            <a href="oekogas.html" style='color:#e95e24;font-weight:800;'>Erdgas</a>
                             <ul class="dropdown">
-                                <li><a href="oekogas.html">Klimaneutrales Ökogas</a></li>
-                                <li><a href="oekogas.html#gastarife">Ökogas Tarifübersicht</a></li>
-                                <li><a href="versorger.html#rechner">Ökogas Tarifrechner</a></li>
+                                <li><a href="oekogas.html">Erdgas mit freiwilligem Klimaschutzbeitrag</a></li>
+                                <li><a href="oekogas.html#gastarife">Erdgas Tarifübersicht</a></li>
+                                <li><a href="#klimaschutzprojekte">Klimaschutzprojekte</a></li>
+                                <li><a href="versorger.html#rechner">Erdgas Tarifrechner</a></li>
                             </ul>
                         </li>
                         <li class="nav-item has-dropdown">
@@ -2275,25 +2304,25 @@
             <div class="octo-container octo-subpage-hero-grid">
                 <div>
                     <div class="octo-breadcrumb">
-                        <a href="versorger.html">Alpha Energie Versorger</a> <span>&rsaquo;</span> <span>Klimaneutrales Ökogas</span>
+                        <a href="versorger.html">Alpha Energie Versorger</a> <span>&rsaquo;</span> <span>Erdgas mit freiwilligem Klimaschutzbeitrag</span>
                     </div>
                     <h1 class="octo-hero-h1" style="margin-bottom:18px;">
-                        Wohlige Wärme mit <span class="highlight">100 % klimaneutralem Ökogas</span> &amp; Heizperioden-Schutz.
+                        Wohlige Wärme mit <span class="highlight">Erdgas mit freiwilligem Klimaschutzbeitrag</span> &amp; Heizperioden-Schutz.
                     </h1>
                     <p class="octo-hero-sub" style="margin-bottom:26px;">
-                        Sichere dir jetzt kalkulierbare Heizkosten für den nächsten Winter: Unsere Ökogas-Tarife gleichen die beim Heizen entstehenden CO₂-Emissionen zu 100 % über zertifizierte Gold-Standard-Klimaschutzprojekte aus – mit bis zu 24 Monaten Preisgarantie.
+                        Sichere dir jetzt kalkulierbare Heizkosten für den nächsten Winter: Unsere Erdgas-Tarife beinhalten einen freiwilligen Klimaschutzbeitrag zur Unterstützung zertifizierter internationaler Klimaschutzprojekte – mit 12 oder 24 Monaten eingeschränkter Preisgarantie.
                     </p>
                     <div style="display:flex;gap:14px;flex-wrap:wrap;">
                         <a href="versorger.html#rechner" class="octo-btn-solid-orange">Jetzt Gastarif berechnen &rarr;</a>
-                        <a href="#gastarife" class="octo-btn-outline">Ökogas-Tarife ansehen</a>
+                        <a href="#klimaschutzprojekte" class="octo-btn-outline">Geförderte Klimaschutzprojekte</a>
                     </div>
                 </div>
                 <div class="octo-mascot-inline-card">
                     <div class="octo-mascot-speech">
-                        <span class="octo-mascot-pill">🔥 Warm &amp; Sparsam</span>
+                        <span class="octo-mascot-pill">🔥 Warm &amp; Kalkulierbar</span>
                         <span class="octo-mascot-speech-text">Mit unserer Gaspreisgarantie heizt du den ganzen Winter über sorgenfrei zum Festpreis!</span>
                     </div>
-                    <img src="wolf-mascot-sitting.png?v=wolf2" alt="Alpha-Wolf für klimaneutrales Ökogas" class="octo-mascot-img" loading="eager">
+                    <img src="wolf-mascot-sitting.png?v=wolf2" alt="Alpha-Wolf für Erdgas mit freiwilligem Klimaschutzbeitrag" class="octo-mascot-img" loading="eager">
                 </div>
             </div>
         </section>
@@ -2301,14 +2330,14 @@
         <section class="octo-kpi-strip">
             <div class="octo-container octo-kpi-grid">
                 <div class="octo-kpi-box">
-                    <div class="octo-kpi-val">100 %</div>
-                    <div class="octo-kpi-label">CO₂-Kompensation</div>
+                    <div class="octo-kpi-val">Klimabeitrag</div>
+                    <div class="octo-kpi-label">Freiwilliger Beitrag</div>
                     <div class="octo-kpi-sub">Zertifizierte Klimaschutzprojekte</div>
                 </div>
                 <div class="octo-kpi-box">
                     <div class="octo-kpi-val">Gold Standard</div>
                     <div class="octo-kpi-label">Streng auditiert</div>
-                    <div class="octo-kpi-sub">Nachweisbare Emissionsminderung</div>
+                    <div class="octo-kpi-sub">International verifizierte Projekte</div>
                 </div>
                 <div class="octo-kpi-box">
                     <div class="octo-kpi-val">Bis 420 €</div>
@@ -2323,83 +2352,127 @@
             </div>
         </section>
 
-        <!-- ÖKOGAS TARIF-PAKETE -->
+        <!-- ERDGAS TARIF-PAKETE -->
         <section id="gastarife" class="octo-section octo-section-cream">
             <div class="octo-container">
                 <div class="octo-section-header-with-mascot">
                     <div class="octo-section-header-text">
-                        <span class="octo-pill-badge">Unsere 3 Ökogas-Tarife</span>
-                        <h2 class="octo-section-h2" style="margin-bottom:8px;">Faire Ökogas-Tarife für Wohnungen &amp; Einfamilienhäuser</h2>
+                        <span class="octo-pill-badge">Unsere 3 Erdgas-Tarife</span>
+                        <h2 class="octo-section-h2" style="margin-bottom:8px;">Faire Erdgas-Tarife für Wohnungen &amp; Einfamilienhäuser</h2>
                         <p class="octo-section-sub">Transparente Arbeitspreise ohne versteckte Pakete oder Vorkasse – jederzeit online im Tarifrechner auf deine Postleitzahl abstimmbar.</p>
                     </div>
                     <div class="octo-section-mascot-box" aria-hidden="true">
                         <div class="octo-mascot-speech">
-                            <span class="octo-mascot-speech-tag">🌍 Klimaschutz inklusive</span>
-                            <span class="octo-mascot-speech-text">Jede Kilowattstunde Ökogas fördert zertifizierte Aufforstungs- und Sauberwasserprojekte!</span>
+                            <span class="octo-mascot-speech-tag">🌍 Klimaschutzbeitrag inklusive</span>
+                            <span class="octo-mascot-speech-text">Jeder Erdgas-Tarif beinhaltet einen freiwilligen Beitrag zur Förderung zertifizierter Klimaschutzprojekte!</span>
                         </div>
-                        <img src="wolf-mascot-eco.png?v=wolf2" alt="Alpha-Wolf Ökogas" class="octo-mascot-img" loading="eager">
+                        <img src="wolf-mascot-eco.png?v=wolf2" alt="Alpha-Wolf Erdgas mit Klimaschutzbeitrag" class="octo-mascot-img" loading="eager">
                     </div>
                 </div>
 
                 <div class="octo-bento-grid-3">
-                    <div class="octo-bento-card">
-                        <div>
-                            <span class="octo-pill-badge" style="margin-bottom:12px;">Für Etagenheizung &amp; Wohnung</span>
-                            <h3 class="octo-card-h3" style="font-size:1.5rem;">ALPHA GAS BASIC 12</h3>
-                            <p class="octo-card-p">Ideal bis 12.000 kWh Jahresverbrauch: Niedriger Grundpreis und 12 Monate volle Gaspreisgarantie.</p>
-                            <div style="background:#fffdf7;border:1.5px solid rgba(249,178,51,0.45);border-radius:16px;padding:16px;margin:18px 0;">
-                                <div style="font-size:0.82rem;color:#57534e;">Arbeitspreis (brutto)</div>
-                                <div style="font-size:1.75rem;font-weight:800;color:#e95e24;">9,85 Cent / kWh</div>
-                                <div style="font-size:0.85rem;color:#44403c;margin-top:4px;">Grundpreis: <strong>11,90 € / Monat</strong></div>
-                            </div>
-                            <ul class="octo-check-list">
-                                <li>100 % CO₂-kompensiertes Ökogas</li>
-                                <li>12 Monate Energiepreisgarantie</li>
-                                <li>Bis zu <strong>300 € Jahresersparnis</strong></li>
-                                <li>Nahtloser Wechsel ohne Technikertermin</li>
-                            </ul>
-                        </div>
-                        <a href="versorger.html#rechner" class="octo-btn-solid-orange" style="text-align:center;width:100%;">Gastarif berechnen &rarr;</a>
-                    </div>
-
+                    <!-- Tarif 1 (Bestseller 12M) -->
                     <div class="octo-bento-card featured">
                         <div>
-                            <span class="octo-pill-badge" style="background:#e95e24;color:#fff;margin-bottom:12px;">★ Bestseller für Einfamilienhäuser</span>
-                            <h3 class="octo-card-h3" style="font-size:1.5rem;">ALPHA ÖKOGAS PLUS</h3>
-                            <p class="octo-card-p">Perfekt für Haushalte von 12.000 bis 25.000 kWh: Stark gesenkter Arbeitspreis für maximale jährliche Heizkostenersparnis.</p>
+                            <span class="octo-pill-badge" style="background:#e95e24;color:#fff;margin-bottom:12px;">★ Bestseller • 12 Monate Preisgarantie</span>
+                            <h3 class="octo-card-h3" style="font-size:1.5rem;">ALPHA TIME 12</h3>
+                            <p class="octo-card-p">Der Tarif mit kurzer Vertragslaufzeit (12 Monate): Erdgas mit freiwilligem Klimaschutzbeitrag und 12 Monaten eingeschränkter Preisgarantie.</p>
                             <div style="background:#ffffff;border:1.5px solid rgba(233,94,36,0.45);border-radius:16px;padding:16px;margin:18px 0;">
-                                <div style="font-size:0.82rem;color:#57534e;">Arbeitspreis (brutto)</div>
-                                <div style="font-size:1.75rem;font-weight:800;color:#e95e24;">9,40 Cent / kWh</div>
-                                <div style="font-size:0.85rem;color:#44403c;margin-top:4px;">Grundpreis: <strong>12,90 € / Monat</strong></div>
+                                <div style="font-size:0.82rem;color:#57534e;">Arbeitspreis (brutto, PLZ-abhängig)</div>
+                                <div style="font-size:1.75rem;font-weight:800;color:#e95e24;">ab 8,92 Cent / kWh</div>
+                                <div style="font-size:0.85rem;color:#44403c;margin-top:4px;">Grundpreis: <strong>ab 20,76 € / Monat</strong></div>
                             </div>
                             <ul class="octo-check-list">
-                                <li>Gold-Standard zertifiziertes Ökogas</li>
-                                <li>12 Monate volle Heizperioden-Garantie</li>
-                                <li>Bis zu <strong>380 € Jahresersparnis</strong></li>
-                                <li>Persönlicher Kundenservice in Dortmund</li>
+                                <li>Erdgas mit freiwilligem Klimaschutzbeitrag</li>
+                                <li>Der Tarif mit kurzer Vertragslaufzeit (12 Monate)</li>
+                                <li>12 Monate eingeschränkte Preisgarantie</li>
+                                <li>Nahtloser Wechsel ohne Technikertermin</li>
                             </ul>
                         </div>
                         <a href="versorger.html#rechner" class="octo-btn-solid-orange" style="text-align:center;width:100%;">Jetzt Bestseller sichern &rarr;</a>
                     </div>
 
+                    <!-- Tarif 2 (24M) -->
                     <div class="octo-bento-card">
                         <div>
-                            <span class="octo-pill-badge" style="margin-bottom:12px;">2 Heizperioden Festpreis</span>
-                            <h3 class="octo-card-h3" style="font-size:1.5rem;">ALPHA GAS PREMIUM 24</h3>
-                            <p class="octo-card-p">Maximale Sicherheit für 24 Monate: Dein Arbeitspreis bleibt über zwei komplette Winter hinweg garantiert stabil.</p>
+                            <span class="octo-pill-badge" style="margin-bottom:12px;">2 Heizperioden Planungssicherheit</span>
+                            <h3 class="octo-card-h3" style="font-size:1.5rem;">ALPHA TIME 24</h3>
+                            <p class="octo-card-p">Maximale Sicherheit für 24 Monate: 24 Monate Vertragslaufzeit und 24 Monate eingeschränkte Preisgarantie über zwei volle Heizperioden.</p>
                             <div style="background:#fffdf7;border:1.5px solid rgba(249,178,51,0.45);border-radius:16px;padding:16px;margin:18px 0;">
-                                <div style="font-size:0.82rem;color:#57534e;">Arbeitspreis (brutto)</div>
-                                <div style="font-size:1.75rem;font-weight:800;color:#e95e24;">9,65 Cent / kWh</div>
-                                <div style="font-size:0.85rem;color:#44403c;margin-top:4px;">Grundpreis: <strong>13,50 € / Monat</strong></div>
+                                <div style="font-size:0.82rem;color:#57534e;">Arbeitspreis (brutto, PLZ-abhängig)</div>
+                                <div style="font-size:1.75rem;font-weight:800;color:#e95e24;">ab 9,15 Cent / kWh</div>
+                                <div style="font-size:0.85rem;color:#44403c;margin-top:4px;">Grundpreis: <strong>ab 20,76 € / Monat</strong></div>
                             </div>
                             <ul class="octo-check-list">
-                                <li><strong>24 Monate</strong> volle Preisgarantie</li>
-                                <li>100 % Klimaschutzbeitrag inklusive</li>
-                                <li>Dauerhaft faire Konditionen &amp; <strong>0 € Wechselkosten</strong></li>
-                                <li>Flexible Abschlagsanpassung jederzeit</li>
+                                <li>Erdgas mit freiwilligem Klimaschutzbeitrag</li>
+                                <li>24 Monate Vertragslaufzeit für langfristige Planungssicherheit</li>
+                                <li>24 Monate eingeschränkte Preisgarantie</li>
+                                <li>Keine Vorauskasse &amp; 0 € Wechselkosten</li>
                             </ul>
                         </div>
                         <a href="versorger.html#rechner" class="octo-btn-solid-orange" style="text-align:center;width:100%;">24M Garantie berechnen &rarr;</a>
+                    </div>
+
+                    <!-- Tarif 3 (Dynamic) -->
+                    <div class="octo-bento-card">
+                        <div>
+                            <span class="octo-pill-badge" style="margin-bottom:12px;">Monatlich kündbar • Flexibel</span>
+                            <h3 class="octo-card-h3" style="font-size:1.5rem;">ALPHA DYNAMIC</h3>
+                            <p class="octo-card-p">Dynamischer Erdgas-Tarif mit freiwilligem Klimaschutzbeitrag und monatlicher Kündbarkeit für höchste Flexibilität.</p>
+                            <div style="background:#fffdf7;border:1.5px solid rgba(249,178,51,0.45);border-radius:16px;padding:16px;margin:18px 0;">
+                                <div style="font-size:0.82rem;color:#57534e;">Arbeitspreis (brutto, börsenorientiert)</div>
+                                <div style="font-size:1.75rem;font-weight:800;color:#e95e24;">ab 10,12 Cent / kWh</div>
+                                <div style="font-size:0.85rem;color:#44403c;margin-top:4px;">Grundpreis: <strong>ab 16,69 € / Monat</strong></div>
+                            </div>
+                            <ul class="octo-check-list">
+                                <li>Erdgas mit freiwilligem Klimaschutzbeitrag</li>
+                                <li>Monatlich kündbar – volle Flexibilität ohne lange Bindung</li>
+                                <li>Großhandelsorientierte Preisgestaltung</li>
+                                <li>Transparente monatliche Abrechnung</li>
+                            </ul>
+                        </div>
+                        <a href="versorger.html#rechner" class="octo-btn-solid-orange" style="text-align:center;width:100%;">Dynamischen Gastarif berechnen &rarr;</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- FREIWILLIGER KLIMASCHUTZBEITRAG & KLIMASCHUTZPROJEKTE -->
+        <section id="klimaschutzprojekte" class="octo-section octo-section-peach">
+            <div class="octo-container">
+                <div style="text-align:center;max-width:1280px;margin:0 auto 40px auto;">
+                    <span class="octo-pill-badge">Transparente Verbraucherinformation (UWG-konform)</span>
+                    <h2 class="octo-h2">Erdgas mit freiwilligem Klimaschutzbeitrag – Was bedeutet das?</h2>
+                    <p class="octo-lead">Bei unseren Gastarifen handelt es sich um <strong>Erdgas mit freiwilligem Klimaschutzbeitrag</strong>. Bei der Verbrennung von Erdgas entstehen naturgemäß CO₂-Emissionen; das gelieferte Erdgas selbst ist ein fossiler Energieträger. Mit jedem gelieferten Tarif unterstützen wir jedoch über unseren Leistungspartner Firstcon GmbH international registrierte und unabhängig geprüfte Klimaschutzprojekte (z. B. nach Gold Standard / Verified Carbon Standard).</p>
+                </div>
+
+                <div class="octo-bento-grid-3">
+                    <div class="octo-bento-card">
+                        <div>
+                            <div class="octo-icon-badge">
+                                <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+                            </div>
+                            <h3 class="octo-card-h3">1. Ausbau erneuerbarer Energieanlagen</h3>
+                            <p class="octo-card-p">Finanzielle Förderung von Windkraft-, Wasserkraft- und Photovoltaikprojekten in Schwellen- und Entwicklungsländern, um dort fossile Stromerzeugung zurückzudrängen.</p>
+                        </div>
+                    </div>
+                    <div class="octo-bento-card">
+                        <div>
+                            <div class="octo-icon-badge">
+                                <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"></circle><path d="m9 12 2 2 4-4"></path></svg>
+                            </div>
+                            <h3 class="octo-card-h3">2. Waldschutz &amp; Energieeffizienz</h3>
+                            <p class="octo-card-p">Unterstützung verifizierter Waldschutz- und Aufforstungsinitiativen sowie energieeffizienter Kochöfen und Trinkwasseraufbereitung zur nachhaltigen Einsparung von Brennholz.</p>
+                        </div>
+                    </div>
+                    <div class="octo-bento-card">
+                        <div>
+                            <div class="octo-icon-badge">
+                                <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path></svg>
+                            </div>
+                            <h3 class="octo-card-h3">3. 100 % Versorgungssicherheit</h3>
+                            <p class="octo-card-p">Beim Wechsel zu Alpha Energie wird keine einzige Schraube an deinem Gaszähler oder deiner Heizung gedreht. Die Gaslieferung läuft gesetzlich garantiert ohne jede Unterbrechung weiter.</p>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -2412,7 +2485,7 @@
                 <div class="octo-section-header-with-mascot">
                     <div class="octo-section-header-text">
                         <h2 class="octo-section-h2">Einmal wechseln, für immer faire Preise</h2>
-                        <p class="octo-section-sub">Wechsle jetzt in 3 Minuten zur Alpha Energie GmbH – ohne Papierkram und ohne Versorgungsunterbrechung</p>
+                        <p class="octo-section-sub">Wechsle jetzt in 3 Minuten zur Alpha Energie – ohne Papierkram und ohne Versorgungsunterbrechung</p>
                     </div>
                     <!-- Alpha-Wolf Thumbs-Up Companion in Bottom Quick-Offer Header -->
                     <div class="octo-section-mascot-box" aria-hidden="true">
@@ -2427,13 +2500,13 @@
                 <div class="octo-bottom-offer-box">
                     <div>
                         <h3 class="octo-card-h3" style="font-size:1.55rem;margin-bottom:6px;">Hol' dir jetzt dein persönliches Tarifangebot</h3>
-                        <p class="octo-card-p">Gib deine Postleitzahl ein und wechsle direkt zum Live-Tarifrechner für Ökostrom oder Ökogas.</p>
+                        <p class="octo-card-p">Gib deine Postleitzahl ein und wechsle direkt zum Live-Tarifrechner für Ökostrom oder Erdgas.</p>
                     </div>
 
                     <form id="subpageQuickOfferForm" class="octo-bottom-offer-form">
                         <select id="subOfferBranch" class="octo-bottom-offer-select" aria-label="Sparte wählen">
                             <option value="strom">Ökostrom</option>
-                            <option value="gas">Ökogas</option>
+                            <option value="gas" selected>Erdgas</option>
                         </select>
                         <input type="text" id="subOfferPlz" class="octo-bottom-offer-input" placeholder="Deine Postleitzahl (z.B. 44379)" maxlength="5" pattern="[0-9]{5}" required>
                         <button type="submit" class="octo-bottom-offer-btn">Angebot berechnen</button>
@@ -2515,7 +2588,7 @@
                     <div>
                         <h3 class="octo-card-h3" style="font-size:1.4rem;margin-bottom:14px;">Positive Energie direkt in dein Postfach</h3>
                         <p class="octo-card-p" style="margin-bottom:18px;">
-                            Sichere dir exklusive Tarif-Vorteile, Energiespartipps und Neuigkeiten rund um 100 % Ökostrom und klimaneutrales Ökogas der Alpha Energie GmbH.
+                            Sichere dir exklusive Tarif-Vorteile, Energiespartipps und Neuigkeiten rund um Ökostrom aus 100 % erneuerbaren Energien und Erdgas mit freiwilligem Klimaschutzbeitrag.
                         </p>
 
                         <form id="octoNewsletterForm">
@@ -2524,7 +2597,7 @@
 
                             <label style="display:flex;align-items:flex-start;gap:10px;font-size:0.8rem;color:#57534e;line-height:1.5;margin:8px 0 18px 0;cursor:pointer;">
                                 <input type="checkbox" required style="margin-top:4px;accent-color:#f9b233;">
-                                <span>Ja, ich möchte gerne von der Alpha Energie GmbH spannende Infos zu Ökostrom- und Ökogas-Tarifen sowie Aktionen per E-Mail erhalten. Abmeldung jederzeit möglich. Weitere Infos in der <a href="datenschutz.html" style="color:#e95e24;text-decoration:underline;">Datenschutzerklärung</a>.</span>
+                                <span>Ja, ich möchte gerne von der Alpha Energie GmbH spannende Infos zu Ökostrom- und Erdgas-Tarifen sowie Aktionen per E-Mail erhalten. Abmeldung jederzeit möglich. Weitere Infos in der <a href="datenschutz.html" style="color:#e95e24;text-decoration:underline;">Datenschutzerklärung</a>.</span>
                             </label>
 
                             <button type="submit" class="octo-btn-solid-orange" style="width:100%;">Jetzt anmelden</button>
@@ -2542,10 +2615,11 @@
                 <a href="datenschutz.html">Datenschutzerklärung</a>
                 <a href="cookie-einstellungen.html">Cookie-Einstellungen</a>
                 <a href="cookie-richtlinie.html">Cookie-Richtlinie</a>
-                <button type="button" id="btnOpenCancelModal" style="color:#e95e24;font-weight:700;">Verträge hier kündigen (§ 312k BGB)</button>
-                <button type="button" id="btnOpenRevokeModal" style="color:#e95e24;font-weight:700;">Verträge hier widerrufen</button>
-                <a href="oekostrom.html">100% Ökostrom</a>
-                <a href="oekogas.html">Klimaneutrales Ökogas</a>
+                <button type="button" id="btnOpenCancelModal" class="octo-footer-cancel-btn">📄 Verträge hier kündigen (§ 312k BGB)</button>
+                <button type="button" id="btnOpenRevokeModal" class="octo-footer-cancel-btn">↩️ Verträge hier widerrufen (Online-Widerruf)</button>
+                <a href="oekostrom.html#stromkennzeichnung">Stromkennzeichnung (§ 42 EnWG)</a>
+                <a href="oekostrom.html">Ökostrom (100 % Erneuerbare)</a>
+                <a href="oekogas.html">Erdgas mit Klimaschutzbeitrag</a>
                 <a href="gewerbekunden.html">Gewerbekunden (B2B)</a>
                 <a href="versorger.html#rechner">Strom- &amp; Gasrechner</a>
                 <a href="nachhaltigkeit-co2.html">Energieaudits &amp; CO₂-Pfad</a>
@@ -2560,7 +2634,10 @@
             <div class="octo-footer-bottom">
                 <div style="display:flex;align-items:center;gap:18px;flex-wrap:wrap;">
                     <a href="versorger.html" style="background:transparent !important;padding:0 !important;display:inline-flex;align-items:center;"><img src="logo.png" alt="Alpha Energie GmbH" style="height:68px !important;max-height:68px !important;width:auto !important;background:transparent !important;padding:0 !important;border:none !important;border-radius:0 !important;box-shadow:none !important;object-fit:contain;"></a>
-                    <span>&copy; 2026 Alpha Energie GmbH, Alter Hellweg 50, 44379 Dortmund • Telefon: 0231 39989390</span>
+                    <div>
+                        <div style="font-weight:700;color:#1c1917;">&copy; 2026 Alpha Energie GmbH, Alter Hellweg 50, 44379 Dortmund • Telefon: 0231 39989390</div>
+                        <div style="font-size:0.78rem;color:#57534e;margin-top:3px;">Vertragspartner &amp; Leistungserbringer der Energielieferverträge: <strong>Alpha Energie – Eine Marke der Firstcon GmbH</strong>, Untere Schrangenstraße 4, 21335 Lüneburg (HRB 202031, AG Lüneburg)</div>
+                    </div>
                 </div>
 
                 <div style="display:flex;align-items:center;gap:16px;">
@@ -2591,7 +2668,7 @@
                     <div id="orderSummaryCard" style="background: #f8fafc; padding: 1.15rem 1.25rem; border-radius: 12px; margin-bottom: 1.15rem; border: 1.5px solid #e2e8f0; transition: all 0.25s ease;">
                         <div style="font-size: 0.82rem; color: #64748b; font-weight: 600;">Ausgewählter Tarif:</div>
                         <div style="display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; flex-wrap: wrap; margin-top: 0.2rem;">
-                            <div id="orderSummaryTariffName" style="font-size: 1.25rem; font-weight: 800; color: #0a1f44;">ALPHA BASIC</div>
+                            <div id="orderSummaryTariffName" style="font-size: 1.25rem; font-weight: 800; color: #0a1f44;">ALPHA TIME 12</div>
                             <span id="orderSummaryTariffBadge" style="font-size: 0.75rem; font-weight: 700; background: #fff7ed; color: #c2410c; border: 1px solid #fed7aa; padding: 3px 10px; border-radius: 999px;">12 Monate Preisgarantie</span>
                         </div>
                         <div style="display: flex; gap: 1.5rem; flex-wrap: wrap; margin-top: 0.55rem; font-size: 0.92rem; color: #1e293b;">
@@ -2808,34 +2885,128 @@
         </a>
     </div>
 
-    <!-- Legal Cancellation Modal (§ 312k BGB) -->
+    <!-- Legal Cancellation (§ 312k BGB) & Online-Widerruf (EU 2023/2673) Modal -->
     <div id="legalCancelModal" class="digital-modal-backdrop">
-        <div class="digital-modal" style="color:#1e293b;">
+        <div class="digital-modal" style="color:#1e293b; max-width: 620px;">
             <div class="modal-header-bar">
                 <h3 class="modal-header-title" id="cancelModalTitle">Vertrag kündigen (§ 312k BGB)</h3>
                 <button type="button" class="btn-close-modal modal-close-btn" aria-label="Schließen">&times;</button>
             </div>
-            <div class="modal-body">
+            <div class="modal-body" style="max-height: 82vh; overflow-y: auto;">
+                <p id="cancelModalSubtitle" style="font-size: 0.88rem; color: #475569; margin: 0 0 1rem 0; line-height: 1.5;">
+                    Hier können Sie Ihren Energieliefervertrag bei Alpha Energie (einer Marke der Firstcon GmbH) gesetzlich konform gemäß § 312k BGB online kündigen. Nach dem Absenden erhalten Sie sofort eine speicherbare Bestätigung (PDF-Download) sowie eine automatische Bestätigungs-E-Mail.
+                </p>
+
                 <form id="formLegalCancel">
                     <input type="hidden" id="cancelTypeInput" value="KUENDIGUNG">
-                    <div class="form-group" style="margin-bottom: 1rem;">
-                        <label for="cancelContractNumber" class="calc-label" style="color:#1e293b;">Vertrags- oder Kundennummer *</label>
-                        <input type="text" id="cancelContractNumber" class="calc-input" placeholder="z. B. AE-102938" required style="color:#1e293b;background:#fff;">
+
+                    <!-- Kündigung-spezifische Felder (§ 312k BGB) -->
+                    <div id="kuendigungOnlyFields">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.85rem; margin-bottom: 0.9rem;">
+                            <div class="form-group">
+                                <label for="cancelTerminationKind" class="calc-label" style="color:#1e293b; font-size:0.84rem; font-weight:700;">Art der Kündigung *</label>
+                                <select id="cancelTerminationKind" class="calc-input" style="color:#1e293b;background:#fff; width:100%;">
+                                    <option value="ordentlich">Ordentliche Kündigung</option>
+                                    <option value="ausserordentlich">Außerordentliche Kündigung (Sonderkündigung)</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="cancelTerminationTiming" class="calc-label" style="color:#1e293b; font-size:0.84rem; font-weight:700;">Zeitpunkt der Kündigung *</label>
+                                <select id="cancelTerminationTiming" class="calc-input" style="color:#1e293b;background:#fff; width:100%;">
+                                    <option value="naechstmoeglich">Zum nächstmöglichen Zeitpunkt</option>
+                                    <option value="wunschdatum">Zu einem bestimmten Wunschdatum</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div id="cancelDesiredDateGroup" class="form-group" style="display: none; margin-bottom: 0.9rem;">
+                            <label for="cancelDesiredDate" class="calc-label" style="color:#1e293b; font-size:0.84rem; font-weight:700;">Gewünschtes Kündigungsdatum *</label>
+                            <input type="date" id="cancelDesiredDate" class="calc-input" style="color:#1e293b;background:#fff; width:100%;">
+                        </div>
+
+                        <div id="cancelExtraordinaryReasonGroup" class="form-group" style="display: none; margin-bottom: 0.9rem;">
+                            <label for="cancelReason" class="calc-label" style="color:#1e293b; font-size:0.84rem; font-weight:700;">Kündigungsgrund (bei außerordentlicher Kündigung Pflicht, z. B. Umzug / Preisanpassung) *</label>
+                            <textarea id="cancelReason" class="calc-input" rows="2" placeholder="Bitte geben Sie den Grund Ihrer außerordentlichen Kündigung an (z. B. Wohnungswechsel / Auszug zum TT.MM.JJJJ)..." style="height: auto;color:#1e293b;background:#fff; width:100%;"></textarea>
+                        </div>
                     </div>
-                    <div class="form-group" style="margin-bottom: 1rem;">
-                        <label for="cancelCustomerName" class="calc-label" style="color:#1e293b;">Vor- und Nachname des Vertragspartners *</label>
-                        <input type="text" id="cancelCustomerName" class="calc-input" placeholder="Max Mustermann" required style="color:#1e293b;background:#fff;">
+
+                    <!-- Gemeinsames Feld: Vertragsart -->
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.85rem; margin-bottom: 0.9rem;">
+                        <div class="form-group">
+                            <label for="cancelContractBranch" class="calc-label" style="color:#1e293b; font-size:0.84rem; font-weight:700;">Vertragsart / Sparte *</label>
+                            <select id="cancelContractBranch" class="calc-input" required style="color:#1e293b;background:#fff; width:100%;">
+                                <option value="Stromliefervertrag (Ökostrom)">Stromliefervertrag (Ökostrom)</option>
+                                <option value="Gasliefervertrag (Erdgas mit Klimaschutzbeitrag)">Gasliefervertrag (Erdgas)</option>
+                                <option value="Strom- und Gasliefervertrag">Strom- und Gasliefervertrag</option>
+                            </select>
+                        </div>
+
+                        <!-- Widerruf-spezifisches Feld: Bestelldatum -->
+                        <div id="widerrufOrderDateGroup" class="form-group" style="display: none;">
+                            <label for="cancelOrderDate" class="calc-label" style="color:#1e293b; font-size:0.84rem; font-weight:700;">Bestelldatum / Vertragsabschluss *</label>
+                            <input type="date" id="cancelOrderDate" class="calc-input" style="color:#1e293b;background:#fff; width:100%;">
+                        </div>
+
+                        <div id="kuendigungMeterGroup" class="form-group">
+                            <label for="cancelMeterNumber" class="calc-label" style="color:#1e293b; font-size:0.84rem; font-weight:700;">Zählernummer (optional)</label>
+                            <input type="text" id="cancelMeterNumber" class="calc-input" placeholder="z. B. 1EMH0012345678" style="color:#1e293b;background:#fff; width:100%;">
+                        </div>
                     </div>
-                    <div class="form-group" style="margin-bottom: 1rem;">
-                        <label for="cancelEmail" class="calc-label" style="color:#1e293b;">Ihre E-Mail-Adresse für die Bestätigung *</label>
-                        <input type="email" id="cancelEmail" class="calc-input" placeholder="name@beispiel.de" required style="color:#1e293b;background:#fff;">
+
+                    <!-- Vertrags-/Bestell-/Kundennummer -->
+                    <div class="form-group" style="margin-bottom: 0.9rem;">
+                        <label for="cancelContractNumber" id="cancelContractNumberLabel" class="calc-label" style="color:#1e293b; font-size:0.84rem; font-weight:700;">Vertrags- oder Kundennummer (optional, falls zur Hand)</label>
+                        <input type="text" id="cancelContractNumber" class="calc-input" placeholder="z. B. AE-102938 oder FC-..." style="color:#1e293b;background:#fff; width:100%;">
                     </div>
-                    <div class="form-group" style="margin-bottom: 1.5rem;">
-                        <label for="cancelReason" class="calc-label" style="color:#1e293b;">Grund (optional)</label>
-                        <textarea id="cancelReason" class="calc-input" rows="3" placeholder="Grund für Kündigung oder Widerruf..." style="height: auto;color:#1e293b;background:#fff;"></textarea>
+
+                    <!-- Vollständiger Name -->
+                    <div class="form-group" style="margin-bottom: 0.9rem;">
+                        <label for="cancelCustomerName" class="calc-label" style="color:#1e293b; font-size:0.84rem; font-weight:700;">Vollständiger Vor- und Nachname des Vertragspartners *</label>
+                        <input type="text" id="cancelCustomerName" class="calc-input" placeholder="Max Mustermann" required style="color:#1e293b;background:#fff; width:100%;">
                     </div>
-                    <button type="submit" class="calc-submit-btn">Erklärung rechtsverbindlich absenden</button>
+
+                    <!-- Vollständige Adresse (Straße/Hausnr., PLZ, Ort) -->
+                    <div style="display: grid; grid-template-columns: 1.5fr 0.75fr 1.15fr; gap: 0.65rem; margin-bottom: 0.9rem;">
+                        <div class="form-group">
+                            <label for="cancelStreet" class="calc-label" style="color:#1e293b; font-size:0.84rem; font-weight:700;">Straße &amp; Hausnr. *</label>
+                            <input type="text" id="cancelStreet" class="calc-input" placeholder="Musterstraße 12" required style="color:#1e293b;background:#fff; width:100%;">
+                        </div>
+                        <div class="form-group">
+                            <label for="cancelZip" class="calc-label" style="color:#1e293b; font-size:0.84rem; font-weight:700;">PLZ *</label>
+                            <input type="text" id="cancelZip" class="calc-input" placeholder="44139" maxlength="5" required style="color:#1e293b;background:#fff; width:100%;">
+                        </div>
+                        <div class="form-group">
+                            <label for="cancelCity" class="calc-label" style="color:#1e293b; font-size:0.84rem; font-weight:700;">Ort *</label>
+                            <input type="text" id="cancelCity" class="calc-input" placeholder="Dortmund" required style="color:#1e293b;background:#fff; width:100%;">
+                        </div>
+                    </div>
+
+                    <!-- E-Mail-Adresse für Eingangsbestätigung -->
+                    <div class="form-group" style="margin-bottom: 1.15rem;">
+                        <label for="cancelEmail" class="calc-label" style="color:#1e293b; font-size:0.84rem; font-weight:700;">E-Mail-Adresse für die Eingangsbestätigung (inkl. PDF) *</label>
+                        <input type="email" id="cancelEmail" class="calc-input" placeholder="name@beispiel.de" required style="color:#1e293b;background:#fff; width:100%;">
+                    </div>
+
+                    <button type="submit" id="cancelSubmitBtn" class="calc-submit-btn" style="font-weight:800; font-size:1rem;">Jetzt kündigen</button>
                 </form>
+
+                <!-- Sofortige Eingangsbestätigung & PDF-Download nach Absenden -->
+                <div id="cancelModalConfirmationView" style="display: none; background: #f8fafc; border: 2px solid #22c55e; border-radius: 14px; padding: 1.25rem; margin-top: 0.75rem;">
+                    <div style="display:flex; align-items:center; gap:10px; margin-bottom:0.75rem;">
+                        <span style="width:32px; height:32px; border-radius:50%; background:#dcfce7; color:#15803d; display:inline-flex; align-items:center; justify-content:center; font-weight:800;">✓</span>
+                        <div>
+                            <h4 id="cancelConfirmTitle" style="margin:0; font-size:1.05rem; color:#14532d;">Eingangsbestätigung</h4>
+                            <span id="cancelConfirmTimestamp" style="font-size:0.8rem; color:#475569;"></span>
+                        </div>
+                    </div>
+                    <p id="cancelConfirmNotice" style="font-size:0.86rem; color:#1e293b; line-height:1.55; margin:0 0 0.85rem 0;"></p>
+                    <div id="cancelConfirmSummary" style="background:#ffffff; border:1px solid #cbd5e1; border-radius:10px; padding:0.85rem; font-size:0.82rem; color:#334155; line-height:1.55; margin-bottom:1rem;"></div>
+                    <div style="display:flex; flex-wrap:wrap; gap:0.65rem;">
+                        <button type="button" id="btnDownloadCancelPdf" class="calc-submit-btn" style="flex:1; background:linear-gradient(135deg,#e95e24 0%,#f99239 100%); margin:0;">
+                            📄 Eingangsbestätigung als PDF herunterladen
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

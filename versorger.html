@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>100 % Ökostrom &amp; Ökogas – Günstig &amp; Fair | Alpha Energie GmbH</title>
-    <meta name="description" content="Alpha Energie: 100 % zertifizierter Ökostrom (ok-power) und klimaneutrales Ökogas deutschlandweit mit bis zu 24 Monaten Preisgarantie. Jetzt in 3 Minuten wechseln &amp; sparen!">
+    <title>Ökostrom aus 100 % erneuerbaren Energien &amp; Erdgas | Alpha Energie</title>
+    <meta name="description" content="Alpha Energie: Ökostrom aus 100 % erneuerbaren Energien (ok-power) und Erdgas mit freiwilligem Klimaschutzbeitrag deutschlandweit mit bis zu 24 Monaten Preisgarantie. Jetzt in 3 Minuten wechseln &amp; sparen!">
     <link rel="canonical" href="https://alpha-energie.de/versorger">
     <meta name="robots" content="noindex, follow">
 
@@ -78,8 +78,8 @@
     <!-- Open Graph / Twitter -->
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://alpha-energie.de/versorger">
-    <meta property="og:title" content="100 % Ökostrom &amp; Ökogas – Günstig &amp; Fair | Alpha Energie GmbH">
-    <meta property="og:description" content="Alpha Energie: 100 % zertifizierter Ökostrom (ok-power) und klimaneutrales Ökogas deutschlandweit mit bis zu 24 Monaten Preisgarantie. Jetzt Tarif berechnen!">
+    <meta property="og:title" content="Ökostrom aus 100 % erneuerbaren Energien &amp; Erdgas | Alpha Energie">
+    <meta property="og:description" content="Alpha Energie: Ökostrom aus 100 % erneuerbaren Energien (ok-power) und Erdgas mit freiwilligem Klimaschutzbeitrag deutschlandweit mit bis zu 24 Monaten Preisgarantie. Jetzt Tarif berechnen!">
     <meta property="og:image" content="https://alpha-energie.de/logo.png">
 
     <!-- Google Fonts -->
@@ -89,8 +89,8 @@
 
     <!-- Base Styles & Scripts -->
     <link rel="stylesheet" href="style.css">
-    <script src="i18n.js" defer></script>
-    <script src="main.js?v=20261015-fc5" defer></script>
+    <script src="i18n.js?v=20261016-fc6" defer></script>
+    <script src="main.js?v=20261016-fc6" defer></script>
 
     <!-- Octopus Energy Clone Architecture in Alpha Energie Orange Palette -->
     <style>
@@ -1478,6 +1478,7 @@
         .octo-footer-links-cloud {
             display: flex;
             flex-wrap: wrap;
+            align-items: center;
             gap: 12px 24px;
             padding: 24px 0;
             border-top: 1px solid rgba(249, 178, 51, 0.28);
@@ -1485,8 +1486,7 @@
             margin-bottom: 24px;
         }
 
-        .octo-footer-links-cloud a,
-        .octo-footer-links-cloud button {
+        .octo-footer-links-cloud a {
             background: none;
             border: none;
             padding: 0;
@@ -1499,10 +1499,49 @@
             transition: color 0.2s ease;
         }
 
-        .octo-footer-links-cloud a:hover,
-        .octo-footer-links-cloud button:hover {
+        .octo-footer-links-cloud a:hover {
             color: var(--octo-accent-amber);
             text-decoration: underline;
+        }
+
+        .octo-footer-links-cloud button.octo-footer-cancel-btn,
+        #btnOpenCancelModal,
+        #btnOpenRevokeModal {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: linear-gradient(135deg, #f9b233 0%, #f99239 55%, #e95e24 100%);
+            color: #ffffff !important;
+            border: 1.5px solid #e95e24;
+            border-radius: 999px;
+            padding: 9px 18px;
+            font-family: inherit;
+            font-size: 0.88rem;
+            font-weight: 800;
+            text-decoration: none !important;
+            cursor: pointer;
+            box-shadow: 0 4px 14px rgba(233, 94, 36, 0.25);
+            transition: transform 0.18s ease, box-shadow 0.18s ease, filter 0.18s ease;
+        }
+
+        .octo-footer-links-cloud button.octo-footer-cancel-btn:hover,
+        #btnOpenCancelModal:hover,
+        #btnOpenRevokeModal:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 18px rgba(233, 94, 36, 0.36);
+            filter: brightness(1.04);
+            text-decoration: none !important;
+        }
+
+        .octo-footer-links-cloud button.octo-footer-revoke-btn {
+            background: #ffffff;
+            color: #c2410c !important;
+            border: 1.5px solid #e95e24;
+            box-shadow: 0 2px 10px rgba(233, 94, 36, 0.14);
+        }
+
+        .octo-footer-links-cloud button.octo-footer-revoke-btn:hover {
+            background: #fff7ed;
         }
 
         .octo-footer-bottom {
@@ -1883,7 +1922,7 @@
       "logo": "https://alpha-energie.de/logo.png",
       "telephone": "0231 39989390",
       "email": "info@alpha-energie.de",
-      "description": "Alpha Energie GmbH ist ein unabhängiger Strom- und Gasversorger aus Dortmund, spezialisiert auf 100 % Ökostrom aus erneuerbaren Energien (ok-power) und klimaneutrales Ökogas für Privat- und Gewerbekunden.",
+      "description": "Alpha Energie ist Ihr zuverlässiger Strom- und Gasversorger aus Dortmund, spezialisiert auf Ökostrom aus 100 % erneuerbaren Energien (ok-power) und Erdgas mit freiwilligem Klimaschutzbeitrag für Privat- und Gewerbekunden.",
       "foundingDate": "2021",
       "areaServed": {
         "@type": "Country",
@@ -1928,19 +1967,20 @@
                         <li class="nav-item has-dropdown">
                             <a href="oekostrom.html">Ökostrom</a>
                             <ul class="dropdown">
-                                <li><a href="oekostrom.html">100% Ökostrom (ok-power)</a></li>
-                                <li><a href="#tarife">ALPHA BASIC (12M Garantie)</a></li>
-                                <li><a href="#tarife">ALPHA ÖKOSTROM PLUS (Bestseller)</a></li>
-                                <li><a href="#tarife">ALPHA PREMIUM (24M Garantie)</a></li>
+                                <li><a href="oekostrom.html">Ökostrom aus 100 % erneuerbaren Energien</a></li>
+                                <li><a href="#tarife">ALPHA BASIC 24 (Preisgarantie)</a></li>
+                                <li><a href="#tarife">ALPHA TIME 24 (Bestseller)</a></li>
+                                <li><a href="#tarife">ALPHA PREMIUM 24 (Top-Preisschutz)</a></li>
+                                <li><a href="#stromkennzeichnung">Stromkennzeichnung (§ 42 EnWG)</a></li>
                                 <li><a href="waermestrom.html">Wärmestrom (§ 14a EnWG)</a></li>
                             </ul>
                         </li>
                         <li class="nav-item has-dropdown">
-                            <a href="oekogas.html">Ökogas</a>
+                            <a href="oekogas.html">Erdgas</a>
                             <ul class="dropdown">
-                                <li><a href="oekogas.html">Klimaneutrales Ökogas</a></li>
-                                <li><a href="oekogas.html#gastarife">Ökogas Tarifübersicht</a></li>
-                                <li><a href="#rechner">Ökogas Tarifrechner</a></li>
+                                <li><a href="oekogas.html">Erdgas mit freiwilligem Klimaschutzbeitrag</a></li>
+                                <li><a href="oekogas.html#gastarife">Erdgas Tarifübersicht</a></li>
+                                <li><a href="#rechner">Erdgas Tarifrechner</a></li>
                             </ul>
                         </li>
                         <li class="nav-item has-dropdown">
@@ -2027,7 +2067,7 @@
                                 <span class="octo-trust-icon" aria-hidden="true">
                                     <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
                                 </span>
-                                <span><strong>4.9 von 5 Sternen</strong> bei <a href="#bewertungen">Kundenbewertungen</a> • 100 % ok-power Ökostrom &amp; Ökogas</span>
+                                <span><strong>4.9 von 5 Sternen</strong> bei <a href="#bewertungen">Kundenbewertungen</a> • Ökostrom aus 100 % erneuerbaren Energien &amp; Erdgas</span>
                             </li>
                             <li class="octo-hero-trust-item">
                                 <span class="octo-trust-icon" aria-hidden="true">
@@ -2051,11 +2091,11 @@
                             <span class="octo-mascot-pill octo-peeking-wolf-pill">⚡ Dein Alpha-Wolf</span>
                         </div>
                         <div class="octo-stage-visual-card octo-photo-filter">
-                            <img src="clean_energy_home.jpg" alt="Alpha Energie – 100 % Ökostrom & klimaneutrales Ökogas für Ihr Zuhause" loading="eager" fetchpriority="high">
+                            <img src="clean_energy_home.jpg" alt="Alpha Energie – Ökostrom aus 100 % erneuerbaren Energien &amp; Erdgas für Ihr Zuhause" loading="eager" fetchpriority="high">
                             <div class="octo-stage-badge-top">Bis zu 380 € / Jahr sparen</div>
                             <div class="octo-stage-overlay-pill">
                                 <div>
-                                    <div style="font-size:0.88rem;font-weight:800;color:#e95e24;">100 % Ökostrom &amp; Ökogas</div>
+                                    <div style="font-size:0.88rem;font-weight:800;color:#e95e24;">Ökostrom &amp; Erdgas</div>
                                     <div style="font-size:0.76rem;color:#57534e;font-weight:600;">Deutschlandweiter Support</div>
                                 </div>
                                 <span style="background:linear-gradient(135deg,#f9b233 0%,#f99239 55%,#e95e24 100%);color:#ffffff;font-weight:800;font-size:0.78rem;padding:5px 10px;border-radius:8px;white-space:nowrap;">24M Garantie</span>
@@ -2066,7 +2106,7 @@
 
                 <!-- Bottom Row: Octopus Horizontal Tarifrechner Bar -->
                 <div id="rechner" class="octo-calc-shell">
-                    <!-- 2 Folder-Style Tabs: Ökostrom | Ökogas -->
+                    <!-- 2 Folder-Style Tabs: Ökostrom | Erdgas -->
                     <div class="octo-calc-tabs" role="tablist" aria-label="Energieart wählen">
                         <button type="button" class="octo-calc-tab calc-tab-btn active" data-branch="strom" data-octo-mode="strom">
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
@@ -2074,7 +2114,7 @@
                         </button>
                         <button type="button" class="octo-calc-tab calc-tab-btn" data-branch="gas" data-octo-mode="gas">
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"></path></svg>
-                            <span class="calc-tab-title">Ökogas</span>
+                            <span class="calc-tab-title">Erdgas</span>
                         </button>
                     </div>
 
@@ -2175,13 +2215,13 @@
                         </div>
                     </div>
 
-                    <a href="oekostrom.html" class="octo-award-badge-card">
+                    <a href="#stromkennzeichnung" class="octo-award-badge-card">
                         <div class="octo-award-icon-box octo-award-logo-box">
                             <img src="ok-power-siegel.png" alt="OK Power Ökostromzertifizierung">
                         </div>
                         <div>
                             <div class="octo-award-title">ok-power Zertifiziert</div>
-                            <div class="octo-award-sub">100 % echter Ökostrom im HKNR Umweltbundesamt</div>
+                            <div class="octo-award-sub">Ökostrom aus 100 % erneuerbaren Energien (HKNR)</div>
                         </div>
                     </a>
 
@@ -2291,7 +2331,7 @@
                                 </div>
                                 <div class="tariff-feature-item">
                                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                                    <span>100 % zertifizierter Ökostrom (ok-power Siegel)</span>
+                                    <span>Ökostrom aus 100 % erneuerbaren Energien (ok-power)</span>
                                 </div>
                                 <div class="tariff-feature-item">
                                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
@@ -2337,7 +2377,7 @@
                                 </div>
                                 <div class="tariff-feature-item">
                                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                                    <span>100 % zertifizierter Ökostrom (ok-power)</span>
+                                    <span>Ökostrom aus 100 % erneuerbaren Energien (ok-power)</span>
                                 </div>
                             </div>
                         </div>
@@ -2540,36 +2580,36 @@
             </div>
         </section>
 
-        <!-- 8. SECTION: "100 % Ökostrom & klimaneutrales Ökogas für dein Zuhause." (Octopus 2/3+1/3 + 4-Col Grid) -->
+        <!-- 8. SECTION: "Ökostrom aus 100 % erneuerbaren Energien & Erdgas für dein Zuhause." (Octopus 2/3+1/3 + 4-Col Grid) -->
         <section class="octo-band-mid" id="smarte-tarife">
             <div class="octo-container">
                 <div class="octo-section-header-with-mascot">
                     <div class="octo-section-header-text">
-                        <h2 class="octo-section-h2">100 % Ökostrom &amp; klimaneutrales Ökogas für dein Zuhause.</h2>
-                        <p class="octo-section-sub">Ob günstiger Grünstrom für deine Wohnung oder verlässliches Ökogas für deine Heizung – finde den Tarif, der perfekt zu dir passt</p>
+                        <h2 class="octo-section-h2">Ökostrom aus 100 % erneuerbaren Energien &amp; Erdgas für dein Zuhause.</h2>
+                        <p class="octo-section-sub">Ob Ökostrom aus 100 % erneuerbaren Energien für deine Wohnung oder Erdgas mit freiwilligem Klimaschutzbeitrag für deine Heizung – finde den Tarif, der perfekt zu dir passt</p>
                     </div>
                     <!-- Pose 4: Alpha-Wolf Eco Leaf & Lightning (Non-Overlapping Flex Companion) -->
                     <div class="octo-section-mascot-box" aria-hidden="true">
                         <div class="octo-mascot-speech">
-                            <span class="octo-mascot-speech-tag">100 % Nachhaltig</span>
-                            <span class="octo-mascot-speech-text">Zertifizierter ok-power Grünstrom &amp; klimaneutrales Ökogas</span>
+                            <span class="octo-mascot-speech-tag">ok-power Zertifiziert</span>
+                            <span class="octo-mascot-speech-text">Ökostrom aus 100 % erneuerbaren Energien &amp; Erdgas mit freiwilligem Klimaschutzbeitrag</span>
                         </div>
                         <img src="wolf-mascot-eco.png?v=wolf2" alt="Alpha-Wolf mit grünem Öko-Blatt und Energie-Funke" class="octo-mascot-img" loading="eager">
                     </div>
                 </div>
 
-                <!-- Row 1: 2/3 100% Ökostrom + 1/3 Klimaneutrales Ökogas -->
+                <!-- Row 1: 2/3 Ökostrom + 1/3 Erdgas mit freiwilligem Klimaschutzbeitrag -->
                 <div class="octo-bento-2-1">
                     <div class="octo-card">
                         <div class="octo-card-split">
                             <div style="display:flex;flex-direction:column;justify-content:space-between;height:100%;gap:16px;">
                                 <div>
-                                    <h3 class="octo-card-h3">100 % Ökostrom (ok-power) – Sauberer Grünstrom zum Sparpreis</h3>
+                                    <h3 class="octo-card-h3">Ökostrom aus 100 % erneuerbaren Energien (ok-power)</h3>
                                     <p class="octo-card-p" style="margin-bottom:12px;">
-                                        Wechsle in wenigen Minuten zu zertifiziertem 100 % Ökostrom aus erneuerbaren Energien und sichere dir dauerhaft faire Konditionen mit fester Preisgarantie.
+                                        Wechsle in wenigen Minuten zu zertifiziertem Ökostrom aus 100 % erneuerbaren Energien und sichere dir dauerhaft faire Konditionen mit fester Preisgarantie.
                                     </p>
                                     <ul class="octo-check-list" style="margin-bottom:0;">
-                                        <li><span class="octo-check-dot">⚡</span><span>100 % Ökostrom: Zertifizierter Grünstrom aus Wasser- &amp; Windkraft (ok-power)</span></li>
+                                        <li><span class="octo-check-dot">⚡</span><span>Ökostrom aus 100 % erneuerbaren Energien (ok-power zertifiziert)</span></li>
                                         <li><span class="octo-check-dot">🛡️</span><span>Voller Preisschutz: Wahlweise 12 oder 24 Monate Preisgarantie</span></li>
                                         <li><span class="octo-check-dot">🤝</span><span>Persönlicher Service: Direkte Betreuung aus unserem Kundencenter Dortmund</span></li>
                                     </ul>
@@ -2580,7 +2620,7 @@
                             </div>
 
                             <div class="octo-card-visual octo-photo-filter">
-                                <img src="public/images/smart_step_oekostrom.jpg" alt="100 % Ökostrom von Alpha Energie">
+                                <img src="public/images/smart_step_oekostrom.jpg" alt="Ökostrom aus 100 % erneuerbaren Energien von Alpha Energie">
                             </div>
                         </div>
                     </div>
@@ -2590,27 +2630,27 @@
                             <div style="height:145px;border-radius:12px;background:#ffffff;border:1px solid rgba(249,146,57,0.42);display:flex;align-items:center;justify-content:center;margin-bottom:16px;color:#e95e24;">
                                 <svg width="68" height="68" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"></path></svg>
                             </div>
-                            <h3 class="octo-card-h3">Klimaneutrales Ökogas</h3>
+                            <h3 class="octo-card-h3">Erdgas mit freiwilligem Klimaschutzbeitrag</h3>
                             <p class="octo-card-p">
-                                Heize zuverlässig, sauber und bezahlbar: Unser 100 % CO₂-kompensiertes Erdgas schützt dich mit bis zu 24 Monaten Preisgarantie vor Preissprüngen in der Heizperiode.
+                                Heize zuverlässig und planbar: Unser Erdgas mit freiwilligem Klimaschutzbeitrag unterstützt ausgewählte Klimaschutzprojekte und schützt dich mit bis zu 24 Monaten Preisgarantie vor Preissprüngen.
                             </p>
                         </div>
                         <div>
-                            <a href="oekogas.html" class="octo-btn-cta" style="width:100%;">Zu den Ökogas-Tarifen</a>
+                            <a href="oekogas.html" class="octo-btn-cta" style="width:100%;">Zu den Erdgas-Tarifen</a>
                         </div>
                     </div>
                 </div>
 
-                <!-- Row 2: 4-Column Ökostrom & Ökogas Sub-Cards -->
+                <!-- Row 2: 4-Column Ökostrom & Erdgas Sub-Cards -->
                 <div class="octo-grid-4">
                     <div class="octo-card bg-deep">
                         <div>
                             <div style="height:110px;border-radius:12px;background:#ffffff;border:1px solid rgba(249,178,51,0.38);display:flex;align-items:center;justify-content:center;margin-bottom:16px;color:#e95e24;">
                                 <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
                             </div>
-                            <h3 class="octo-card-h3" style="font-size:1.18rem;">100 % Ökostrom (ok-power)</h3>
+                            <h3 class="octo-card-h3" style="font-size:1.18rem;">Ökostrom (ok-power)</h3>
                             <p class="octo-card-p" style="font-size:0.9rem;">
-                                Echter Grünstrom aus 100 % erneuerbaren Energien – geprüft im Herkunftsnachweisregister des Umweltbundesamtes.
+                                Ökostrom aus 100 % erneuerbaren Energien – geprüft im Herkunftsnachweisregister des Umweltbundesamtes.
                             </p>
                         </div>
                         <a href="oekostrom.html" class="octo-btn-outline" style="width:100%;box-sizing:border-box;">Zum Ökostrom</a>
@@ -2621,12 +2661,12 @@
                             <div style="height:110px;border-radius:12px;background:#ffffff;border:1px solid rgba(249,178,51,0.38);display:flex;align-items:center;justify-content:center;margin-bottom:16px;color:#e95e24;">
                                 <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"></path></svg>
                             </div>
-                            <h3 class="octo-card-h3" style="font-size:1.18rem;">Klimaneutrales Ökogas</h3>
+                            <h3 class="octo-card-h3" style="font-size:1.18rem;">Erdgas mit Klimaschutzbeitrag</h3>
                             <p class="octo-card-p" style="font-size:0.9rem;">
-                                Sichere Gasversorgung für Heizung und Warmwasser mit 100 % zertifizierter CO₂-Kompensation und fairen Abschlägen.
+                                Sichere Gasversorgung für Heizung und Warmwasser – Erdgas mit freiwilligem Klimaschutzbeitrag und fairen Abschlägen.
                             </p>
                         </div>
-                        <a href="oekogas.html" class="octo-btn-outline" style="width:100%;box-sizing:border-box;">Zum Ökogas</a>
+                        <a href="oekogas.html" class="octo-btn-outline" style="width:100%;box-sizing:border-box;">Zum Erdgas</a>
                     </div>
 
                     <div class="octo-card bg-deep">
@@ -2658,41 +2698,41 @@
             </div>
         </section>
 
-        <!-- 9. SECTION: "Ökostrom & Ökogas – Einfach wechseln, dauerhaft sparen" (Octopus 2 Horizontal Split Cards) -->
+        <!-- 9. SECTION: "Ökostrom & Erdgas – Einfach wechseln, dauerhaft sparen" (Octopus 2 Horizontal Split Cards) -->
         <section class="octo-band-surface" id="heizen-speichern">
             <div class="octo-container">
                 <div style="text-align:center;margin-bottom:32px;">
-                    <h2 class="octo-section-h2">Ökostrom &amp; Ökogas – Einfach wechseln, dauerhaft sparen</h2>
+                    <h2 class="octo-section-h2">Ökostrom &amp; Erdgas – Einfach wechseln, dauerhaft sparen</h2>
                     <p class="octo-section-sub" style="margin-bottom:0;">Transparente Konditionen, gesetzlich garantierte Versorgungssicherheit und 0 € Wechselkosten.</p>
                 </div>
 
-                <!-- Card 1: Klimaneutrales Ökogas -->
+                <!-- Card 1: Erdgas mit freiwilligem Klimaschutzbeitrag -->
                 <div class="octo-split-device-card">
                     <div class="octo-split-device-media octo-photo-filter">
-                        <img src="public/images/smart_step_oekogas.jpg" alt="Klimaneutrales Ökogas mit Preisgarantie von Alpha Energie">
+                        <img src="public/images/smart_step_oekogas.jpg" alt="Erdgas mit freiwilligem Klimaschutzbeitrag und Preisgarantie von Alpha Energie">
                     </div>
                     <div class="octo-split-device-content">
-                        <h3 class="octo-card-h3" style="font-size:1.5rem;">Klimaneutrales Ökogas mit fester Preisgarantie</h3>
+                        <h3 class="octo-card-h3" style="font-size:1.5rem;">Erdgas mit freiwilligem Klimaschutzbeitrag &amp; Preisgarantie</h3>
                         <p class="octo-card-p">
-                            Du heizt mit Gas? Wir beliefern dein Zuhause oder dein Gewerbe zuverlässig und unterbrechungsfrei mit 100 % klimaneutralem Ökogas – inklusive kostenloser Kündigung deines Altvertrags beim bisherigen Versorger.
+                            Du heizt mit Gas? Wir beliefern dein Zuhause oder dein Gewerbe zuverlässig und unterbrechungsfrei mit Erdgas mit freiwilligem Klimaschutzbeitrag – inklusive kostenloser Kündigung deines Altvertrags beim bisherigen Versorger.
                         </p>
                         <ul class="octo-check-list" style="margin-bottom:8px;">
-                            <li><span class="octo-check-dot">✓</span><span>100 % CO₂-kompensiertes Ökogas (optional mit 10 % Biogas im Premium-Tarif)</span></li>
-                            <li><span class="octo-check-dot">✓</span><span>12 oder 24 Monate feste Preisgarantie für volle Kalkulationssicherheit</span></li>
+                            <li><span class="octo-check-dot">✓</span><span>Erdgas mit freiwilligem Klimaschutzbeitrag zur Förderung zertifizierter Klimaschutzprojekte</span></li>
+                            <li><span class="octo-check-dot">✓</span><span>Bis zu 24 Monate feste Preisgarantie für volle Kalkulationssicherheit</span></li>
                             <li><span class="octo-check-dot">✓</span><span>Nahtloser Wechsel ohne Zählertausch oder technische Umbauten</span></li>
                         </ul>
                         <div>
-                            <a href="oekogas.html" class="octo-btn-cta">Jetzt Ökogas sichern</a>
+                            <a href="oekogas.html" class="octo-btn-cta">Jetzt Erdgastarif sichern</a>
                         </div>
                     </div>
                 </div>
 
-                <!-- Card 2: 100 % Ökostrom (ok-power) -->
+                <!-- Card 2: Ökostrom aus 100 % erneuerbaren Energien (ok-power) -->
                 <div class="octo-split-device-card reverse" style="margin-bottom:0;">
                     <div class="octo-split-device-content">
-                        <h3 class="octo-card-h3" style="font-size:1.5rem;">100 % Ökostrom mit ok-power Gütesiegel</h3>
+                        <h3 class="octo-card-h3" style="font-size:1.5rem;">Ökostrom aus 100 % erneuerbaren Energien mit ok-power Gütesiegel</h3>
                         <p class="octo-card-p">
-                            Wechsle aus der teuren Grundversorgung in einen fairen Alpha Energie Ökostromtarif. Du erhältst 100 % sauberen Strom aus regenerativer Erzeugung und sparst bis zu 380 € im Jahr.
+                            Wechsle aus der teuren Grundversorgung in einen fairen Alpha Energie Ökostromtarif. Du erhältst Ökostrom aus 100 % erneuerbaren Energien und sparst bis zu 380 € im Jahr.
                         </p>
                         <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:8px;">
                             <a href="oekostrom.html" class="octo-btn-cta">Für Privatkunden</a>
@@ -2700,17 +2740,17 @@
                         </div>
                     </div>
                     <div class="octo-split-device-media octo-photo-filter">
-                        <img src="public/images/versorger_oekostrom_split.jpg" alt="100 % Ökostrom aus Wasserkraft und erneuerbaren Energien für Privat- und Gewerbekunden">
+                        <img src="public/images/versorger_oekostrom_split.jpg" alt="Ökostrom aus 100 % erneuerbaren Energien für Privat- und Gewerbekunden">
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- 10. SECTION: "Saubere Energie. Faire Preise. Echter Service." (Octopus 3-Col Cards) -->
+        <!-- 10. SECTION: "Erneuerbare Energie. Faire Preise. Echter Service." (Octopus 3-Col Cards) -->
         <section class="octo-band-mid" id="innovation">
             <div class="octo-container">
-                <h2 class="octo-section-h2">Saubere Energie. Faire Preise. Echter Service.</h2>
-                <p class="octo-section-sub">Werde Teil der Energiewende mit der Alpha Energie GmbH</p>
+                <h2 class="octo-section-h2">Erneuerbare Energie. Faire Preise. Echter Service.</h2>
+                <p class="octo-section-sub">Werde Teil der Energiewende mit Alpha Energie</p>
 
                 <div class="octo-grid-3">
                     <div class="octo-card bg-deep">
@@ -2718,12 +2758,12 @@
                             <div style="height:145px;border-radius:14px;background:#ffffff;border:1.5px solid rgba(249,178,51,0.52);display:flex;align-items:center;justify-content:center;margin-bottom:18px;">
                                 <img src="ok-power-siegel.png" alt="ok-power Siegel" style="max-height:112px;max-width:240px;width:auto;height:auto;object-fit:contain;background:#fff;padding:10px 18px;border-radius:12px;box-shadow:0 6px 18px rgba(233,94,36,0.14);">
                             </div>
-                            <h3 class="octo-card-h3">ok-power Grünstrom</h3>
+                            <h3 class="octo-card-h3">ok-power Ökostrom</h3>
                             <p class="octo-card-p">
-                                100 % echter Ökostrom aus Wind- und Wasserkraft – streng geprüft nach ok-power Kriterien und im Herkunftsnachweisregister (HKNR) entwertet.
+                                Ökostrom aus 100 % erneuerbaren Energien – streng geprüft nach ok-power Kriterien und im Herkunftsnachweisregister (HKNR) entwertet.
                             </p>
                         </div>
-                        <a href="oekostrom.html" class="octo-btn-cta" style="width:100%;">Zu 100% Ökostrom</a>
+                        <a href="oekostrom.html" class="octo-btn-cta" style="width:100%;">Zu den Ökostrom-Tarifen</a>
                     </div>
 
                     <div class="octo-card bg-deep">
@@ -2731,12 +2771,12 @@
                             <div style="height:145px;border-radius:14px;background:#ffffff;border:1.5px solid rgba(249,178,51,0.52);display:flex;align-items:center;justify-content:center;margin-bottom:18px;color:#e95e24;">
                                 <svg width="68" height="68" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"></path></svg>
                             </div>
-                            <h3 class="octo-card-h3">Klimaneutrales Ökogas</h3>
+                            <h3 class="octo-card-h3">Erdgas mit freiwilligem Klimaschutzbeitrag</h3>
                             <p class="octo-card-p">
-                                Unsere Ökogas-Tarife gleichen 100 % der entstehenden CO₂-Emissionen durch zertifizierte Klimaschutzprojekte aus – mit bis zu 24 Monaten Preisgarantie.
+                                Mit unseren Erdgastarifen leistest du einen freiwilligen Klimaschutzbeitrag zur Förderung geprüfter Klimaschutzprojekte – kombiniert mit bis zu 24 Monaten Preisgarantie.
                             </p>
                         </div>
-                        <a href="oekogas.html" class="octo-btn-cta" style="width:100%;">Zu 100% Ökogas</a>
+                        <a href="oekogas.html" class="octo-btn-cta" style="width:100%;">Zu den Erdgas-Tarifen</a>
                     </div>
 
                     <div class="octo-card bg-deep">
@@ -2755,11 +2795,101 @@
             </div>
         </section>
 
+        <!-- 10b. SECTION: STROMKENNZEICHNUNG (§ 42 EnWG) & KLIMASCHUTZBEITRAG -->
+        <section class="octo-band-surface" id="stromkennzeichnung" style="padding:56px 0;border-top:1px solid rgba(249,178,51,0.28);border-bottom:1px solid rgba(249,178,51,0.28);">
+            <div class="octo-container">
+                <div style="text-align:center;max-width:860px;margin:0 auto 32px auto;">
+                    <span style="display:inline-block;background:#fff7ed;color:#c2410c;border:1px solid #fdba74;border-radius:999px;padding:4px 14px;font-size:0.78rem;font-weight:800;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:10px;">Gesetzliche Pflichtangabe nach § 42 EnWG</span>
+                    <h2 class="octo-section-h2" style="margin-bottom:10px;">Stromkennzeichnung &amp; Strommix im Vergleich</h2>
+                    <p class="octo-section-sub" style="margin-bottom:0;">
+                        Transparenter Nachweis unseres Energieträgermixes und der Umweltauswirkungen gemäß § 42 Energiewirtschaftsgesetz (EnWG) für <strong>Alpha Energie – Eine Marke der Firstcon GmbH</strong> (Stand: 03/2026, Datenbasis 2024).
+                    </p>
+                </div>
+
+                <div style="display:grid;grid-template-columns:1.35fr 1fr;gap:28px;align-items:stretch;" class="octo-bento-2-1">
+                    <!-- Left: Official Stromkennzeichnung Graphic (Stand 03/2026) -->
+                    <div class="octo-card" style="padding:20px;display:flex;flex-direction:column;justify-content:space-between;background:#ffffff;">
+                        <div>
+                            <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:14px;">
+                                <h3 class="octo-card-h3" style="font-size:1.22rem;margin:0;">Offizielle Stromkennzeichnung (Stand 03/2026)</h3>
+                                <a href="stromkennzeichnung-alpha-energie.jpg" target="_blank" rel="noopener" style="font-size:0.82rem;font-weight:700;color:#e95e24;text-decoration:underline;">Grafik in Originalgröße öffnen &nearr;</a>
+                            </div>
+                            <div style="border-radius:14px;overflow:hidden;border:1.5px solid rgba(249,178,51,0.45);background:#f8fafc;">
+                                <img src="stromkennzeichnung-alpha-energie.jpg" alt="Strommix im Vergleich – Alpha Energie (Eine Marke der Firstcon GmbH), Stand 03/2026: 65,0 % Erneuerbare Energien mit Herkunftsnachweisen, 35,0 % Erneuerbare Energien nach EEG, 0 g/kWh CO2-Emissionen, 0,0000 g/kWh radioaktiver Abfall" style="width:100%;height:auto;display:block;object-fit:contain;" loading="lazy">
+                            </div>
+                        </div>
+                        <p style="font-size:0.78rem;color:#64748b;margin:12px 0 0 0;line-height:1.45;">
+                            Stromkennzeichnung gemäß § 42 Energiewirtschaftsgesetz vom 07. Juli 2005, geändert 2021. Angaben auf der Basis vorläufiger Daten für das Jahr 2024 bzw. 2023 • Quellen: BDEW, Stand 08/2025 • Stand der Information 03/2026.
+                        </p>
+                    </div>
+
+                    <!-- Right: Tabular Summary & Voluntary Climate Contribution Info -->
+                    <div style="display:flex;flex-direction:column;gap:20px;">
+                        <div class="octo-card" style="padding:22px;background:#ffffff;">
+                            <h3 class="octo-card-h3" style="font-size:1.18rem;margin-bottom:12px;">Energieträgermix &amp; Umweltauswirkungen im Überblick</h3>
+                            <div style="overflow-x:auto;">
+                                <table style="width:100%;border-collapse:collapse;font-size:0.84rem;color:#1e293b;">
+                                    <thead>
+                                        <tr style="border-bottom:2px solid rgba(249,178,51,0.55);text-align:left;">
+                                            <th style="padding:8px 6px;">Energieträger / Kennzahl</th>
+                                            <th style="padding:8px 6px;color:#c2410c;font-weight:800;">Alpha Energie*</th>
+                                            <th style="padding:8px 6px;color:#64748b;">Deutschland**</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr style="border-bottom:1px solid #f1f5f9;">
+                                            <td style="padding:7px 6px;font-weight:600;">Erneuerbare Energien mit Herkunftsnachweisen</td>
+                                            <td style="padding:7px 6px;font-weight:800;color:#15803d;">65,0 %</td>
+                                            <td style="padding:7px 6px;color:#64748b;">11,6 %</td>
+                                        </tr>
+                                        <tr style="border-bottom:1px solid #f1f5f9;">
+                                            <td style="padding:7px 6px;font-weight:600;">Erneuerbare Energien (finanziert aus EEG-Umlage / nach EEG)</td>
+                                            <td style="padding:7px 6px;font-weight:800;color:#15803d;">35,0 %</td>
+                                            <td style="padding:7px 6px;color:#64748b;">44,6 %</td>
+                                        </tr>
+                                        <tr style="border-bottom:1px solid #f1f5f9;">
+                                            <td style="padding:7px 6px;">Kohle / Erdgas / Kernkraft / Sonstige fossile Energieträger</td>
+                                            <td style="padding:7px 6px;font-weight:700;">0,0 %</td>
+                                            <td style="padding:7px 6px;color:#64748b;">43,8 %</td>
+                                        </tr>
+                                        <tr style="border-bottom:1px solid #f1f5f9;background:#fff7ed;">
+                                            <td style="padding:7px 6px;font-weight:700;">CO₂-Emissionen</td>
+                                            <td style="padding:7px 6px;font-weight:800;color:#15803d;">0 g/kWh</td>
+                                            <td style="padding:7px 6px;color:#64748b;">298 g/kWh</td>
+                                        </tr>
+                                        <tr style="background:#fff7ed;">
+                                            <td style="padding:7px 6px;font-weight:700;">Radioaktiver Abfall</td>
+                                            <td style="padding:7px 6px;font-weight:800;color:#15803d;">0,0000 g/kWh</td>
+                                            <td style="padding:7px 6px;color:#64748b;">0,0000 g/kWh</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <p style="font-size:0.75rem;color:#64748b;margin:10px 0 0 0;">
+                                * Ökostromprodukt &amp; Gesamtenergieträgermix von Alpha Energie – Eine Marke der Firstcon GmbH (100 % erneuerbare Energien). ** Durchschnittswerte der Stromerzeugung in Deutschland.
+                            </p>
+                        </div>
+
+                        <div class="octo-card" style="padding:22px;background:#fffdf9;border:1.5px solid rgba(249,178,51,0.55);">
+                            <h3 class="octo-card-h3" style="font-size:1.12rem;margin-bottom:8px;">Information zum freiwilligen Klimaschutzbeitrag (Erdgas)</h3>
+                            <p class="octo-card-p" style="font-size:0.86rem;margin-bottom:10px;">
+                                Bei unseren Erdgastarifen handelt es sich um <strong>Erdgas mit freiwilligem Klimaschutzbeitrag</strong>. Bei der Verbrennung von Erdgas entstehen unvermeidbare CO₂-Emissionen. Über den im Tarif enthaltenen freiwilligen Klimaschutzbeitrag fördern wir international anerkannte und zertifizierte Klimaschutzprojekte (Verified Carbon Standard / Gold Standard), die den Ausbau erneuerbarer Energien und den Waldschutz weltweit unterstützen.
+                            </p>
+                            <div style="display:flex;gap:10px;flex-wrap:wrap;">
+                                <a href="oekostrom.html#stromkennzeichnung" class="octo-btn-outline" style="height:36px;padding:0 14px;font-size:0.8rem;">Details zum Ökostrom</a>
+                                <a href="oekogas.html#klimaschutzbeitrag" class="octo-btn-outline" style="height:36px;padding:0 14px;font-size:0.8rem;">Details zu den Klimaschutzprojekten</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
         <!-- 11. SECTION: "Über uns" (Octopus 2-Col Split: Team/Video Left + 3 Stacked Feature Cards Right) -->
         <section class="octo-band-deep" id="about">
             <div class="octo-container">
                 <h2 class="octo-section-h2">Über uns</h2>
-                <p class="octo-section-sub">Erfahre mehr über deinen unabhängigen Ökostrom- &amp; Gasversorger aus Dortmund</p>
+                <p class="octo-section-sub">Erfahre mehr über deinen Ökostrom- &amp; Gasversorger aus Dortmund</p>
 
                 <div class="octo-about-grid">
                     <!-- Top: Full-Width 16:9 Widescreen Video with Sound -->
@@ -2794,7 +2924,7 @@
                         <div class="octo-about-item">
                             <h3 class="octo-card-h3" style="font-size:1.25rem;margin-bottom:6px;">Wer wir sind</h3>
                             <p class="octo-card-p">
-                                Unser Ziel: Privathaushalten und Unternehmen in ganz Deutschland einfachen Zugang zu bezahlbarem 100 % Ökostrom und klimaneutralem Ökogas zu ermöglichen.
+                                Unser Ziel: Privathaushalten und Unternehmen in ganz Deutschland einfachen Zugang zu bezahlbarem Ökostrom aus 100 % erneuerbaren Energien und Erdgas mit freiwilligem Klimaschutzbeitrag zu ermöglichen.
                             </p>
                             <a href="ueber-uns.html" class="octo-about-link">Mehr erfahren &rarr;</a>
                         </div>
@@ -2875,7 +3005,7 @@
                 <div class="octo-section-header-with-mascot">
                     <div class="octo-section-header-text">
                         <h2 class="octo-section-h2">Einmal wechseln, für immer faire Preise</h2>
-                        <p class="octo-section-sub">Wechsle jetzt in 3 Minuten zur Alpha Energie GmbH</p>
+                        <p class="octo-section-sub">Wechsle jetzt in 3 Minuten zu Alpha Energie</p>
                     </div>
                     <!-- Alpha-Wolf Thumbs-Up Companion in Bottom Quick-Offer Header -->
                     <div class="octo-section-mascot-box" aria-hidden="true">
@@ -2890,13 +3020,13 @@
                 <div class="octo-bottom-offer-box">
                     <div>
                         <h3 class="octo-card-h3" style="font-size:1.55rem;margin-bottom:6px;">Hol' dir jetzt dein Angebot</h3>
-                        <p class="octo-card-p">Gib deine Postleitzahl ein und sieh sofort deine persönliche Ersparnis für Ökostrom oder Ökogas.</p>
+                        <p class="octo-card-p">Gib deine Postleitzahl ein und sieh sofort deine persönliche Ersparnis für Ökostrom oder Erdgas.</p>
                     </div>
 
                     <form id="bottomQuickOfferForm" class="octo-bottom-offer-form">
                         <select id="bottomOfferBranch" class="octo-bottom-offer-select" aria-label="Sparte wählen">
                             <option value="strom">Ökostrom</option>
-                            <option value="gas">Ökogas</option>
+                            <option value="gas">Erdgas</option>
                         </select>
                         <input type="text" id="bottomOfferPlz" class="octo-bottom-offer-input" placeholder="Deine Postleitzahl (z.B. 44379)" maxlength="5" pattern="[0-9]{5}" required>
                         <button type="submit" class="octo-bottom-offer-btn">Angebot einholen</button>
@@ -2982,7 +3112,7 @@
                     <div>
                         <h3 class="octo-card-h3" style="font-size:1.4rem;margin-bottom:14px;">Positive Energie direkt in dein Postfach</h3>
                         <p class="octo-card-p" style="margin-bottom:18px;">
-                            Sichere dir exklusive Tarif-Vorteile, Energiespartipps und Neuigkeiten rund um 100 % Ökostrom und klimaneutrales Ökogas der Alpha Energie GmbH.
+                            Sichere dir exklusive Tarif-Vorteile, Energiespartipps und Neuigkeiten rund um Ökostrom aus 100 % erneuerbaren Energien und Erdgas mit freiwilligem Klimaschutzbeitrag.
                         </p>
 
                         <form id="octoNewsletterForm">
@@ -2991,7 +3121,7 @@
 
                             <label style="display:flex;align-items:flex-start;gap:10px;font-size:0.8rem;color:#57534e;line-height:1.5;margin:8px 0 18px 0;cursor:pointer;">
                                 <input type="checkbox" required style="margin-top:4px;accent-color:#f9b233;">
-                                <span>Ja, ich möchte gerne von der Alpha Energie GmbH spannende Infos zu Ökostrom- und Ökogas-Tarifen sowie Aktionen per E-Mail erhalten. Abmeldung jederzeit möglich. Weitere Infos in der <a href="datenschutz.html" style="color:#e95e24;text-decoration:underline;">Datenschutzerklärung</a>.</span>
+                                <span>Ja, ich möchte gerne von der Alpha Energie GmbH spannende Infos zu Ökostrom- und Erdgas-Tarifen sowie Aktionen per E-Mail erhalten. Abmeldung jederzeit möglich. Weitere Infos in der <a href="datenschutz.html" style="color:#e95e24;text-decoration:underline;">Datenschutzerklärung</a>.</span>
                             </label>
 
                             <button type="submit" class="octo-btn-solid-orange" style="width:100%;">Jetzt anmelden</button>
@@ -3003,16 +3133,23 @@
                 </div>
             </div>
 
-            <!-- Octopus-Style Footer Links Cloud (incl. § 312k BGB Kündigen & Widerrufen) -->
+            <!-- Octopus-Style Footer Links Cloud (incl. Highlighted § 312k BGB Kündigungsbutton & Online-Widerrufsbutton) -->
             <div class="octo-footer-links-cloud">
                 <a href="impressum.html">Impressum</a>
                 <a href="datenschutz.html">Datenschutzerklärung</a>
                 <a href="cookie-einstellungen.html">Cookie-Einstellungen</a>
                 <a href="cookie-richtlinie.html">Cookie-Richtlinie</a>
-                <button type="button" id="btnOpenCancelModal" style="color:#e95e24;font-weight:700;">Verträge hier kündigen (§ 312k BGB)</button>
-                <button type="button" id="btnOpenRevokeModal" style="color:#e95e24;font-weight:700;">Verträge hier widerrufen</button>
-                <a href="oekostrom.html">100% Ökostrom</a>
-                <a href="oekogas.html">Klimaneutrales Ökogas</a>
+                <a href="#stromkennzeichnung">Stromkennzeichnung (§ 42 EnWG)</a>
+                <button type="button" id="btnOpenCancelModal" class="octo-footer-cancel-btn">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="9" y1="15" x2="15" y2="15"></line></svg>
+                    <span>Verträge hier kündigen (§ 312k BGB)</span>
+                </button>
+                <button type="button" id="btnOpenRevokeModal" class="octo-footer-cancel-btn octo-footer-revoke-btn">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><polyline points="1 4 1 10 7 10"></polyline><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path></svg>
+                    <span>Verträge hier widerrufen</span>
+                </button>
+                <a href="oekostrom.html">Ökostrom (100 % erneuerbar)</a>
+                <a href="oekogas.html">Erdgas mit Klimaschutzbeitrag</a>
                 <a href="gewerbekunden.html">Gewerbekunden (B2B)</a>
                 <a href="#rechner">Strom- &amp; Gasrechner</a>
                 <a href="nachhaltigkeit-co2.html">Energieaudits &amp; CO₂-Pfad</a>
@@ -3025,9 +3162,14 @@
             </div>
 
             <div class="octo-footer-bottom">
-                <div style="display:flex;align-items:center;gap:18px;flex-wrap:wrap;">
-                    <a href="versorger.html" style="background:transparent !important;padding:0 !important;display:inline-flex;align-items:center;"><img src="logo.png" alt="Alpha Energie GmbH" style="height:68px !important;max-height:68px !important;width:auto !important;background:transparent !important;padding:0 !important;border:none !important;border-radius:0 !important;box-shadow:none !important;object-fit:contain;"></a>
-                    <span>&copy; 2026 Alpha Energie GmbH, Alter Hellweg 50, 44379 Dortmund • Telefon: 0231 39989390</span>
+                <div style="display:flex;flex-direction:column;gap:8px;max-width:780px;">
+                    <div style="display:flex;align-items:center;gap:18px;flex-wrap:wrap;">
+                        <a href="versorger.html" style="background:transparent !important;padding:0 !important;display:inline-flex;align-items:center;"><img src="logo.png" alt="Alpha Energie GmbH" style="height:68px !important;max-height:68px !important;width:auto !important;background:transparent !important;padding:0 !important;border:none !important;border-radius:0 !important;box-shadow:none !important;object-fit:contain;"></a>
+                        <span>&copy; 2026 Alpha Energie GmbH, Alter Hellweg 50, 44379 Dortmund • Telefon: 0231 39989390</span>
+                    </div>
+                    <div style="font-size:0.78rem;color:#57534e;line-height:1.5;">
+                        <strong>Vertragspartner &amp; Leistungserbringer der Energielieferverträge:</strong> Alpha Energie – Eine Marke der Firstcon GmbH, Untere Schrangenstraße 4, 21335 Lüneburg (Amtsgericht Lüneburg, HRB 202031 • Geschäftsführung: Jowana Lohmöller, Malte Steinmetz). Details im <a href="impressum.html" style="color:#e95e24;text-decoration:underline;">Impressum</a> &amp; in der <a href="datenschutz.html" style="color:#e95e24;text-decoration:underline;">Datenschutzerklärung</a>.
+                    </div>
                 </div>
 
                 <div style="display:flex;align-items:center;gap:16px;">
@@ -3276,34 +3418,181 @@
         </a>
     </div>
 
-    <!-- Legal Cancellation Modal (§ 312k BGB) -->
+    <!-- Legal Cancellation (§ 312k BGB) & Online-Revocation (EU 2023/2673) Modal -->
     <div id="legalCancelModal" class="digital-modal-backdrop">
-        <div class="digital-modal" style="color:#1e293b;">
+        <div class="digital-modal" style="color:#1e293b;max-width:680px;">
             <div class="modal-header-bar">
                 <h3 class="modal-header-title" id="cancelModalTitle">Vertrag kündigen (§ 312k BGB)</h3>
                 <button type="button" class="btn-close-modal modal-close-btn" aria-label="Schließen">&times;</button>
             </div>
-            <div class="modal-body">
-                <form id="formLegalCancel">
-                    <input type="hidden" id="cancelTypeInput" value="KUENDIGUNG">
-                    <div class="form-group" style="margin-bottom: 1rem;">
-                        <label for="cancelContractNumber" class="calc-label" style="color:#1e293b;">Vertrags- oder Kundennummer *</label>
-                        <input type="text" id="cancelContractNumber" class="calc-input" placeholder="z. B. AE-102938" required style="color:#1e293b;background:#fff;">
+            <div class="modal-body" style="max-height:82vh;overflow-y:auto;">
+                <!-- Mode Switcher Tabs: Kündigung vs. Widerruf -->
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:1.15rem;background:#f8fafc;padding:6px;border-radius:12px;border:1px solid #e2e8f0;">
+                    <button type="button" id="cancelModeTabKuendigung" style="padding:10px 12px;border-radius:9px;font-size:0.86rem;font-weight:800;cursor:pointer;border:1.5px solid #e95e24;background:linear-gradient(135deg,#f9b233 0%,#e95e24 100%);color:#ffffff;transition:all 0.2s ease;">
+                        Vertrag kündigen (§ 312k BGB)
+                    </button>
+                    <button type="button" id="cancelModeTabWiderruf" style="padding:10px 12px;border-radius:9px;font-size:0.86rem;font-weight:800;cursor:pointer;border:1.5px solid #cbd5e1;background:#ffffff;color:#334155;transition:all 0.2s ease;">
+                        Vertrag widerrufen (Online-Widerruf)
+                    </button>
+                </div>
+
+                <div id="cancelFormContainer">
+                    <form id="formLegalCancel">
+                        <input type="hidden" id="cancelTypeInput" value="KUENDIGUNG">
+
+                        <!-- 1. Vertragsart & Identifikation -->
+                        <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:1rem;margin-bottom:1rem;">
+                            <div style="font-size:0.8rem;font-weight:800;color:#c2410c;text-transform:uppercase;letter-spacing:0.04em;margin-bottom:0.75rem;">1. Angaben zum Vertrag</div>
+
+                            <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.85rem;margin-bottom:0.85rem;" class="modal-inline-grid-2">
+                                <div class="form-group" style="margin:0;">
+                                    <label for="cancelContractType" class="calc-label" style="color:#1e293b;font-size:0.82rem;font-weight:700;">Vertragsart / Sparte *</label>
+                                    <select id="cancelContractType" class="calc-input" required style="color:#1e293b;background:#fff;height:42px;">
+                                        <option value="Stromliefervertrag (Ökostrom)">Stromliefervertrag (Ökostrom)</option>
+                                        <option value="Gasliefervertrag (Erdgas)">Gasliefervertrag (Erdgas)</option>
+                                        <option value="Strom- und Gasliefervertrag">Strom- und Gasliefervertrag</option>
+                                    </select>
+                                </div>
+                                <div class="form-group" style="margin:0;">
+                                    <label for="cancelContractNumber" id="cancelContractNumberLabel" class="calc-label" style="color:#1e293b;font-size:0.82rem;font-weight:700;">Vertrags- oder Kundennummer *</label>
+                                    <input type="text" id="cancelContractNumber" class="calc-input" placeholder="z. B. AE-102938 (oder unbekannt)" required style="color:#1e293b;background:#fff;height:42px;">
+                                </div>
+                            </div>
+
+                            <div class="form-group" style="margin:0;">
+                                <label for="cancelMeterNumber" class="calc-label" style="color:#1e293b;font-size:0.82rem;font-weight:700;">Zählernummer (optional – zur eindeutigen Zuordnung)</label>
+                                <input type="text" id="cancelMeterNumber" class="calc-input" placeholder="z. B. 1EMH0012345678 (falls zur Hand)" style="color:#1e293b;background:#fff;height:42px;">
+                            </div>
+                        </div>
+
+                        <!-- 2a. Kündigungsspezifische Pflichtfelder (§ 312k BGB) -->
+                        <div id="cancelOnlyFields" style="background:#fffdf9;border:1px solid rgba(249,178,51,0.55);border-radius:12px;padding:1rem;margin-bottom:1rem;">
+                            <div style="font-size:0.8rem;font-weight:800;color:#c2410c;text-transform:uppercase;letter-spacing:0.04em;margin-bottom:0.75rem;">2. Art &amp; Zeitpunkt der Kündigung (§ 312k BGB)</div>
+
+                            <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.85rem;margin-bottom:0.85rem;" class="modal-inline-grid-2">
+                                <div class="form-group" style="margin:0;">
+                                    <label for="cancelTerminationType" class="calc-label" style="color:#1e293b;font-size:0.82rem;font-weight:700;">Art der Kündigung *</label>
+                                    <select id="cancelTerminationType" class="calc-input" style="color:#1e293b;background:#fff;height:42px;">
+                                        <option value="ordentlich">Ordentliche Kündigung</option>
+                                        <option value="ausserordentlich">Außerordentliche Kündigung (Sonderkündigung)</option>
+                                    </select>
+                                </div>
+                                <div class="form-group" style="margin:0;">
+                                    <label for="cancelDateType" class="calc-label" style="color:#1e293b;font-size:0.82rem;font-weight:700;">Kündigungszeitpunkt *</label>
+                                    <select id="cancelDateType" class="calc-input" style="color:#1e293b;background:#fff;height:42px;">
+                                        <option value="naechstmoeglich">Zum nächstmöglichen Zeitpunkt</option>
+                                        <option value="wunschdatum">Zu einem bestimmten Wunschdatum</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div id="cancelExtraReasonGroup" class="form-group" style="display:none;margin-bottom:0.85rem;">
+                                <label for="cancelReasonSelect" class="calc-label" style="color:#1e293b;font-size:0.82rem;font-weight:700;">Grund für die außerordentliche Kündigung *</label>
+                                <select id="cancelReasonSelect" class="calc-input" style="color:#1e293b;background:#fff;height:42px;">
+                                    <option value="">Bitte Kündigungsgrund wählen...</option>
+                                    <option value="Wohnungswechsel / Umzug (§ 41b Abs. 5 EnWG)">Wohnungswechsel / Umzug (§ 41b Abs. 5 EnWG)</option>
+                                    <option value="Preisanpassung / Preisänderung (§ 41 Abs. 5 EnWG)">Preisanpassung / Preisänderung (§ 41 Abs. 5 EnWG)</option>
+                                    <option value="Änderung der Vertragsbedingungen">Änderung der Vertragsbedingungen</option>
+                                    <option value="Todesfall des Vertragsnehmers">Todesfall des Vertragsnehmers</option>
+                                    <option value="Sonstiger wichtiger Grund (§ 314 BGB)">Sonstiger wichtiger Grund (§ 314 BGB)</option>
+                                </select>
+                            </div>
+
+                            <div id="cancelCustomDateGroup" class="form-group" style="display:none;margin-bottom:0.85rem;">
+                                <label for="cancelCustomDate" class="calc-label" style="color:#1e293b;font-size:0.82rem;font-weight:700;">Gewünschtes Kündigungsdatum *</label>
+                                <input type="date" id="cancelCustomDate" class="calc-input" style="color:#1e293b;background:#fff;height:42px;">
+                            </div>
+
+                            <div class="form-group" style="margin:0;">
+                                <label for="cancelReason" class="calc-label" style="color:#1e293b;font-size:0.82rem;font-weight:700;">Ergänzende Hinweise zur Kündigung (optional)</label>
+                                <input type="text" id="cancelReason" class="calc-input" placeholder="Optional: z. B. neue Anschrift bei Umzug" style="color:#1e293b;background:#fff;height:40px;">
+                            </div>
+                        </div>
+
+                        <!-- 2b. Widerrufsspezifische Felder (EU-Richtlinie 2023/2673 - OHNE Widerrufsgrund!) -->
+                        <div id="revokeOnlyFields" style="display:none;background:#fffdf9;border:1px solid rgba(249,178,51,0.55);border-radius:12px;padding:1rem;margin-bottom:1rem;">
+                            <div style="font-size:0.8rem;font-weight:800;color:#c2410c;text-transform:uppercase;letter-spacing:0.04em;margin-bottom:0.65rem;">2. Angaben zum Vertragswiderruf (ohne Angabe von Gründen)</div>
+                            <div class="form-group" style="margin:0;">
+                                <label for="revokeOrderDate" class="calc-label" style="color:#1e293b;font-size:0.82rem;font-weight:700;">Bestelldatum / Datum des Vertragsschlusses (optional)</label>
+                                <input type="date" id="revokeOrderDate" class="calc-input" style="color:#1e293b;background:#fff;height:42px;">
+                            </div>
+                            <p style="font-size:0.78rem;color:#64748b;margin:0.5rem 0 0 0;line-height:1.45;">
+                                Hinweis: Für Ihren gesetzlichen Widerruf innerhalb der 14-tägigen Widerrufsfrist ist keinerlei Begründung erforderlich.
+                            </p>
+                        </div>
+
+                        <!-- 3. Persönliche Daten & Lieferanschrift zur eindeutigen Zuordnung -->
+                        <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:1rem;margin-bottom:1rem;">
+                            <div style="font-size:0.8rem;font-weight:800;color:#c2410c;text-transform:uppercase;letter-spacing:0.04em;margin-bottom:0.75rem;">3. Vertragspartner &amp; Anschrift</div>
+
+                            <div style="display:grid;grid-template-columns:110px 1fr 1fr;gap:0.75rem;margin-bottom:0.85rem;" class="modal-inline-grid-2">
+                                <div class="form-group" style="margin:0;">
+                                    <label for="cancelSalutation" class="calc-label" style="color:#1e293b;font-size:0.82rem;font-weight:700;">Anrede</label>
+                                    <select id="cancelSalutation" class="calc-input" style="color:#1e293b;background:#fff;height:42px;">
+                                        <option value="Herr">Herr</option>
+                                        <option value="Frau">Frau</option>
+                                        <option value="Divers">Divers</option>
+                                        <option value="Firma">Firma</option>
+                                    </select>
+                                </div>
+                                <div class="form-group" style="margin:0;">
+                                    <label for="cancelFirstName" class="calc-label" style="color:#1e293b;font-size:0.82rem;font-weight:700;">Vorname *</label>
+                                    <input type="text" id="cancelFirstName" class="calc-input" placeholder="Max" required style="color:#1e293b;background:#fff;height:42px;">
+                                </div>
+                                <div class="form-group" style="margin:0;">
+                                    <label for="cancelLastName" class="calc-label" style="color:#1e293b;font-size:0.82rem;font-weight:700;">Nachname *</label>
+                                    <input type="text" id="cancelLastName" class="calc-input" placeholder="Mustermann" required style="color:#1e293b;background:#fff;height:42px;">
+                                </div>
+                            </div>
+
+                            <div style="display:grid;grid-template-columns:2fr 1fr;gap:0.75rem;margin-bottom:0.85rem;">
+                                <div class="form-group" style="margin:0;">
+                                    <label for="cancelStreet" class="calc-label" style="color:#1e293b;font-size:0.82rem;font-weight:700;">Straße (Verbrauchs-/Vertragsadresse) *</label>
+                                    <input type="text" id="cancelStreet" class="calc-input" placeholder="Musterstraße" required style="color:#1e293b;background:#fff;height:42px;">
+                                </div>
+                                <div class="form-group" style="margin:0;">
+                                    <label for="cancelHouseNr" class="calc-label" style="color:#1e293b;font-size:0.82rem;font-weight:700;">Hausnr. *</label>
+                                    <input type="text" id="cancelHouseNr" class="calc-input" placeholder="12a" required style="color:#1e293b;background:#fff;height:42px;">
+                                </div>
+                            </div>
+
+                            <div style="display:grid;grid-template-columns:130px 1fr;gap:0.75rem;margin-bottom:0.85rem;">
+                                <div class="form-group" style="margin:0;">
+                                    <label for="cancelPlz" class="calc-label" style="color:#1e293b;font-size:0.82rem;font-weight:700;">PLZ *</label>
+                                    <input type="text" id="cancelPlz" class="calc-input" placeholder="44379" maxlength="5" pattern="[0-9]{5}" required style="color:#1e293b;background:#fff;height:42px;">
+                                </div>
+                                <div class="form-group" style="margin:0;">
+                                    <label for="cancelCity" class="calc-label" style="color:#1e293b;font-size:0.82rem;font-weight:700;">Ort *</label>
+                                    <input type="text" id="cancelCity" class="calc-input" placeholder="Dortmund" required style="color:#1e293b;background:#fff;height:42px;">
+                                </div>
+                            </div>
+
+                            <div class="form-group" style="margin:0;">
+                                <label for="cancelEmail" class="calc-label" style="color:#1e293b;font-size:0.82rem;font-weight:700;">E-Mail-Adresse für die sofortige Eingangsbestätigung (inkl. PDF) *</label>
+                                <input type="email" id="cancelEmail" class="calc-input" placeholder="name@beispiel.de" required style="color:#1e293b;background:#fff;height:42px;">
+                            </div>
+                        </div>
+
+                        <div id="cancelDeclarationText" style="font-size:0.8rem;color:#475569;background:#fff7ed;border:1px solid #fed7aa;border-radius:10px;padding:0.75rem 0.9rem;margin-bottom:1rem;line-height:1.5;">
+                            Hiermit kündige ich meinen oben genannten Energieliefervertrag bei Alpha Energie – Eine Marke der Firstcon GmbH. Nach dem Absenden erhalten Sie sofort Ihre elektronische Kündigungsbestätigung als PDF-Download sowie automatisch per E-Mail (§ 312k BGB).
+                        </div>
+
+                        <button type="submit" id="btnCancelSubmit" class="calc-submit-btn" style="width:100%;font-size:1rem;font-weight:800;">Jetzt kündigen</button>
+                    </form>
+                </div>
+
+                <!-- Confirmation View (shown immediately after submission with PDF Download + Email receipt info) -->
+                <div id="cancelModalConfirmationView" style="display:none;padding:0.5rem 0;">
+                    <div id="cancelConfirmationDetails"></div>
+                    <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:1.15rem;">
+                        <button type="button" id="btnDownloadCancelPdf" class="calc-submit-btn" style="flex:1;background:linear-gradient(135deg,#16a34a 0%,#15803d 100%);border-color:#15803d;">
+                            📄 Bestätigung als PDF herunterladen
+                        </button>
+                        <button type="button" class="btn-close-modal" style="padding:0 20px;height:48px;border-radius:10px;border:1.5px solid #cbd5e1;background:#ffffff;color:#334155;font-weight:700;cursor:pointer;">
+                            Fenster schließen
+                        </button>
                     </div>
-                    <div class="form-group" style="margin-bottom: 1rem;">
-                        <label for="cancelCustomerName" class="calc-label" style="color:#1e293b;">Vor- und Nachname des Vertragspartners *</label>
-                        <input type="text" id="cancelCustomerName" class="calc-input" placeholder="Max Mustermann" required style="color:#1e293b;background:#fff;">
-                    </div>
-                    <div class="form-group" style="margin-bottom: 1rem;">
-                        <label for="cancelEmail" class="calc-label" style="color:#1e293b;">Ihre E-Mail-Adresse für die Bestätigung *</label>
-                        <input type="email" id="cancelEmail" class="calc-input" placeholder="name@beispiel.de" required style="color:#1e293b;background:#fff;">
-                    </div>
-                    <div class="form-group" style="margin-bottom: 1.5rem;">
-                        <label for="cancelReason" class="calc-label" style="color:#1e293b;">Grund (optional)</label>
-                        <textarea id="cancelReason" class="calc-input" rows="3" placeholder="Grund für Kündigung oder Widerruf..." style="height: auto;color:#1e293b;background:#fff;"></textarea>
-                    </div>
-                    <button type="submit" class="calc-submit-btn">Erklärung rechtsverbindlich absenden</button>
-                </form>
+                </div>
             </div>
         </div>
     </div>

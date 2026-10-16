@@ -359,40 +359,40 @@ async function calculateLiveTariffs({ plz, consumption, currentAbschlag, branch 
     const slotMetadata = isGas ? {
         'alpha-basic': {
             name: 'ALPHA BASIC 24 GAS',
-            badge: 'Klimafreundlich & Günstig',
+            badge: 'Fair & Preisstabil',
             isBestseller: false,
-            ecoCertificate: '100% CO2-Kompensiertes Ökogas'
+            ecoCertificate: 'Erdgas mit freiwilligem Klimaschutzbeitrag'
         },
         'alpha-time': {
             name: 'ALPHA TIME 24 GAS',
             badge: 'Bestseller & Spar-Vorteil',
             isBestseller: true,
-            ecoCertificate: '100% Klimaneutrales Erdgas Bestseller'
+            ecoCertificate: 'Erdgas mit freiwilligem Klimaschutzbeitrag'
         },
         'alpha-premium': {
             name: 'ALPHA PREMIUM 24 GAS',
-            badge: '24 Monate Preisschutz & 10% Biogas',
+            badge: '24 Monate Preisschutz & Komfort',
             isBestseller: false,
-            ecoCertificate: '10% Biogas + 90% Klimakompensiert'
+            ecoCertificate: 'Erdgas mit freiwilligem Klimaschutzbeitrag'
         }
     } : {
         'alpha-basic': {
             name: 'ALPHA BASIC 24',
             badge: 'Flexibel & Günstig',
             isBestseller: false,
-            ecoCertificate: '100% Ökostrom (ok-power+ Kriterien)'
+            ecoCertificate: 'Ökostrom aus 100 % erneuerbaren Energien'
         },
         'alpha-time': {
             name: 'ALPHA TIME 24',
             badge: 'Bestseller & Spar-Vorteil',
             isBestseller: true,
-            ecoCertificate: '100% Zertifizierter Ökostrom (ok-power)'
+            ecoCertificate: 'Ökostrom aus 100 % erneuerbaren Energien'
         },
         'alpha-premium': {
             name: 'ALPHA PREMIUM 24',
             badge: '24 Monate Preisschutz & VIP',
             isBestseller: false,
-            ecoCertificate: '100% Ökostrom mit ok-power+ Neuanlagenförderung'
+            ecoCertificate: 'Ökostrom aus 100 % erneuerbaren Energien'
         }
     };
 
@@ -412,18 +412,31 @@ async function calculateLiveTariffs({ plz, consumption, currentAbschlag, branch 
 
         const defaultFeatures = isGas ? [
             `${fcTariff.PriceGuaranteeDuration || 24} Monate volle Preisgarantie`,
-            '100 % klimaneutral durch zertifizierte Klimaschutzprojekte',
-            'Monatlich kündbar nach der Erstlaufzeit',
+            'Erdgas mit freiwilligem Klimaschutzbeitrag',
+            'Förderung ausgewählter Klimaschutzprojekte',
             'Kostenloser & automatischer Wechselservice'
         ] : [
             `${fcTariff.PriceGuaranteeDuration || 24} Monate volle Preisgarantie`,
-            'Ökostrom aus 100 % erneuerbaren Energien (Wasserkraft)',
+            'Ökostrom aus 100 % erneuerbaren Energien',
             'Monatlich kündbar nach der Erstlaufzeit',
             'Kostenloser Wechselservice & Abmeldung'
         ];
 
         const rawFcFeatures = Array.isArray(fcTariff.AdditionalFeatures)
-            ? fcTariff.AdditionalFeatures.filter(f => f && !/bonus|prämie/i.test(f))
+            ? fcTariff.AdditionalFeatures
+                .filter(f => f && !/bonus|prämie/i.test(f))
+                .map(f => {
+                    if (/kurzer\s+Vertragslaufzeit/i.test(f)) {
+                        return 'Attraktives Preis-Leistungs-Verhältnis mit 24 Monaten Planungssicherheit';
+                    }
+                    if (/kompensation|klimaneutral|co2/i.test(f)) {
+                        return 'Erdgas mit freiwilligem Klimaschutzbeitrag';
+                    }
+                    if (/^100\s*%?\s*Ökostrom$/i.test(f.trim())) {
+                        return 'Ökostrom aus 100 % erneuerbaren Energien';
+                    }
+                    return f;
+                })
             : [];
 
         const mergedFeatures = [

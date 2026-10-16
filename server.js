@@ -339,12 +339,12 @@ app.post('/api/tarife/calculate', async (req, res) => {
                 bonusEur: 0,
                 priceGuaranteeMonths: 24,
                 contractTermMonths: 24,
-                ecoCertificate: '100% Ökostrom (ok-power+ Kriterien)',
+                ecoCertificate: 'Ökostrom aus 100 % erneuerbaren Energien',
                 features: [
                     '24 Monate volle Preisgarantie',
-                    'ok-power+ zertifiziert',
-                    '100% Ökostrom aus erneuerbaren Energien',
-                    'Investition in den Ausbau erneuerbarer Energien'
+                    'Ökostrom aus 100 % erneuerbaren Energien',
+                    'Investition in den Ausbau erneuerbarer Energien',
+                    'Kostenloser & automatischer Wechselservice'
                 ]
             },
             {
@@ -360,12 +360,12 @@ app.post('/api/tarife/calculate', async (req, res) => {
                 bonusEur: 0,
                 priceGuaranteeMonths: 24,
                 contractTermMonths: 24,
-                ecoCertificate: '100% Zertifizierter Ökostrom (ok-power)',
+                ecoCertificate: 'Ökostrom aus 100 % erneuerbaren Energien',
                 features: [
                     '24 Monate volle Preisgarantie',
-                    'Der Tarif mit kurzer Vertragslaufzeit',
-                    'ok-power+ zertifiziert',
-                    '100% Ökostrom aus erneuerbaren Energien'
+                    'Attraktives Preis-Leistungs-Verhältnis mit 24 Monaten Planungssicherheit',
+                    'Ökostrom aus 100 % erneuerbaren Energien',
+                    'Kostenloser & automatischer Wechselservice'
                 ]
             },
             {
@@ -381,12 +381,12 @@ app.post('/api/tarife/calculate', async (req, res) => {
                 bonusEur: 0,
                 priceGuaranteeMonths: 24,
                 contractTermMonths: 24,
-                ecoCertificate: '100% Ökostrom mit ok-power+ Neuanlagenförderung',
+                ecoCertificate: 'Ökostrom aus 100 % erneuerbaren Energien',
                 features: [
                     '24 Monate volle Preisgarantie',
                     'Sicherheit und Planbarkeit durch lange Preisgarantie',
-                    'ok-power+ zertifiziert',
-                    '100% Ökostrom aus erneuerbaren Energien'
+                    'Ökostrom aus 100 % erneuerbaren Energien',
+                    'Kostenloser & automatischer Wechselservice'
                 ]
             }
         ];
@@ -397,7 +397,7 @@ app.post('/api/tarife/calculate', async (req, res) => {
                 firstconTariffId: 226,
                 firstconName: 'Alpha Basic 24',
                 name: 'ALPHA BASIC 24 GAS',
-                badge: 'Klimafreundlich & Günstig',
+                badge: 'Fair & Preisstabil',
                 isBestseller: false,
                 workingPriceCt: 11.76,
                 basePriceEurMonth: 22.42,
@@ -405,12 +405,12 @@ app.post('/api/tarife/calculate', async (req, res) => {
                 bonusEur: 0,
                 priceGuaranteeMonths: 24,
                 contractTermMonths: 24,
-                ecoCertificate: '100% CO2-Kompensiertes Ökogas',
+                ecoCertificate: 'Erdgas mit freiwilligem Klimaschutzbeitrag',
                 features: [
                     '24 Monate volle Preisgarantie',
-                    'Kompensation der CO2-Emissionen durch zertifizierte Klimaschutzprojekte',
-                    'Effektiver Beitrag zum globalen Klimaschutz',
-                    'Förderung nachhaltiger Technologien'
+                    'Erdgas mit freiwilligem Klimaschutzbeitrag',
+                    'Förderung ausgewählter Klimaschutzprojekte',
+                    'Kostenloser & automatischer Wechselservice'
                 ]
             },
             {
@@ -426,12 +426,12 @@ app.post('/api/tarife/calculate', async (req, res) => {
                 bonusEur: 0,
                 priceGuaranteeMonths: 24,
                 contractTermMonths: 24,
-                ecoCertificate: '100% Klimaneutrales Erdgas Bestseller',
+                ecoCertificate: 'Erdgas mit freiwilligem Klimaschutzbeitrag',
                 features: [
                     '24 Monate volle Preisgarantie',
-                    'Der Tarif mit kurzer Vertragslaufzeit',
-                    'Kompensation der CO2-Emissionen durch zertifizierte Klimaschutzprojekte',
-                    'Effektiver Beitrag zum globalen Klimaschutz'
+                    'Attraktives Preis-Leistungs-Verhältnis mit 24 Monaten Planungssicherheit',
+                    'Erdgas mit freiwilligem Klimaschutzbeitrag',
+                    'Förderung ausgewählter Klimaschutzprojekte'
                 ]
             },
             {
@@ -439,7 +439,7 @@ app.post('/api/tarife/calculate', async (req, res) => {
                 firstconTariffId: 228,
                 firstconName: 'Alpha Premium 24',
                 name: 'ALPHA PREMIUM 24 GAS',
-                badge: '24 Monate Preisschutz & 10% Biogas',
+                badge: '24 Monate Preisschutz & Komfort',
                 isBestseller: false,
                 workingPriceCt: 10.45,
                 basePriceEurMonth: 22.42,
@@ -447,12 +447,12 @@ app.post('/api/tarife/calculate', async (req, res) => {
                 bonusEur: 0,
                 priceGuaranteeMonths: 24,
                 contractTermMonths: 24,
-                ecoCertificate: '10% Biogas + 90% Klimakompensiert',
+                ecoCertificate: 'Erdgas mit freiwilligem Klimaschutzbeitrag',
                 features: [
                     '24 Monate volle Preisgarantie',
                     'Sicherheit und Planbarkeit durch lange Preisgarantie',
-                    'Kompensation der CO2-Emissionen durch zertifizierte Klimaschutzprojekte',
-                    'Effektiver Beitrag zum globalen Klimaschutz'
+                    'Erdgas mit freiwilligem Klimaschutzbeitrag',
+                    'Förderung ausgewählter Klimaschutzprojekte'
                 ]
             }
         ];
@@ -1236,38 +1236,445 @@ app.post('/api/zaehlerstand/submit', async (req, res) => {
     }
 });
 
-// 1.4 Submit Legal Cancellation pursuant to § 312k BGB
+// Helper: Encode string to PDF 1.4 WinAnsi literal string with octal escapes for non-ASCII chars
+function toPdfWinAnsiString(input) {
+    const str = String(input == null ? '' : input)
+        .replace(/€/g, 'EUR')
+        .replace(/[–—]/g, '-')
+        .replace(/[„“”]/g, '"')
+        .replace(/[’‘]/g, "'")
+        .replace(/•/g, '-');
+    let out = '(';
+    for (let i = 0; i < str.length; i++) {
+        const code = str.charCodeAt(i);
+        if (code === 40 || code === 41 || code === 92) {
+            out += '\\' + str[i];
+        } else if (code >= 32 && code <= 126) {
+            out += str[i];
+        } else if (code >= 160 && code <= 255) {
+            out += '\\' + code.toString(8).padStart(3, '0');
+        } else {
+            out += ' ';
+        }
+    }
+    out += ')';
+    return out;
+}
+
+// Helper: Generate valid PDF 1.4 Buffer for Kündigung (§ 312k BGB) or Widerruf (EU 2023/2673)
+function generateLegalConfirmationPdfBuffer(details) {
+    const isWiderruf = details.type === 'WIDERRUF';
+    const docTitle = isWiderruf
+        ? 'Eingangsbestätigungsdokument - Vertragswiderruf'
+        : 'Eingangsbestätigung der Kündigung gem. § 312k BGB';
+    const subTitle = isWiderruf
+        ? 'Bestätigung über den Eingang Ihrer Widerrufserklärung auf einem dauerhaften Datenträger'
+        : 'Dokumentation Ihrer elektronischen Kündigungserklärung zum dauerhaften Speichern';
+
+    const ops = [];
+    // Header Banner (Navy #0a1f44)
+    ops.push('0.039 0.122 0.267 rg');
+    ops.push('0 755 595 87 re f');
+    // Orange Accent Bar (#ff7a00)
+    ops.push('1 0.478 0 rg');
+    ops.push('0 751 595 4 re f');
+
+    // Header Text (White)
+    ops.push('BT /F2 16 Tf 1 1 1 rg 45 805 Td ' + toPdfWinAnsiString('ALPHA ENERGIE') + ' Tj ET');
+    ops.push('BT /F1 9.5 Tf 0.82 0.87 0.95 rg 45 788 Td ' + toPdfWinAnsiString('Eine Marke der Firstcon GmbH  |  Energielieferung (Ökostrom & Erdgas)') + ' Tj ET');
+    ops.push('BT /F1 9 Tf 0.82 0.87 0.95 rg 45 771 Td ' + toPdfWinAnsiString('Referenz-Nr.: ' + details.confirmationNumber + '   |   Eingang: ' + details.submittedAtFormatted) + ' Tj ET');
+
+    // Main Document Title
+    ops.push('BT /F2 14 Tf 0.039 0.122 0.267 rg 45 718 Td ' + toPdfWinAnsiString(docTitle) + ' Tj ET');
+    ops.push('BT /F1 9.5 Tf 0.35 0.42 0.52 rg 45 702 Td ' + toPdfWinAnsiString(subTitle) + ' Tj ET');
+
+    // Info Box Background
+    ops.push('0.969 0.980 0.988 rg');
+    ops.push('45 350 505 335 re f');
+    ops.push('0.85 0.89 0.93 RG 1 w');
+    ops.push('45 350 505 335 re S');
+
+    const rows = [
+        ['Bestätigungsnummer:', details.confirmationNumber],
+        ['Datum & Uhrzeit des Eingangs:', details.submittedAtFormatted],
+        ['Vorgangsart:', isWiderruf ? 'Widerruf eines Energieliefervertrags' : (details.terminationType || 'Ordentliche Kündigung')],
+    ];
+
+    if (!isWiderruf) {
+        if (details.reason) {
+            rows.push(['Kündigungsgrund:', details.reason]);
+        }
+        rows.push(['Gewünschter Kündigungszeitpunkt:', details.cancelDate || 'Zum nächstmöglichen Zeitpunkt']);
+    } else {
+        rows.push(['Bestelldatum des Vertrags:', details.orderDate || 'Nicht angegeben']);
+    }
+
+    rows.push(
+        ['Vertragsart / Sparte:', details.contractType || 'Energieliefervertrag (Strom / Gas)'],
+        [isWiderruf ? 'Bestell- oder Kundennummer:' : 'Vertrags- oder Kundennummer:', details.contractNumber || '-']
+    );
+
+    if (details.meterNumber) {
+        rows.push(['Zählernummer:', details.meterNumber]);
+    }
+
+    rows.push(
+        ['Name des Kunden:', details.customerName || '-'],
+        ['Anschrift (Verbrauchsstelle):', details.fullAddress || '-'],
+        ['E-Mail-Adresse:', details.email || '-'],
+        ['Abgegebene Erklärung:', isWiderruf
+            ? 'Hiermit widerrufe ich den von mir abgeschlossenen Energieliefervertrag.'
+            : 'Hiermit kündige ich den oben genannten Energieliefervertrag verbindlich.']
+    );
+
+    let y = 662;
+    for (const [label, val] of rows) {
+        ops.push('BT /F2 9.5 Tf 0.15 0.22 0.32 rg 60 ' + y + ' Td ' + toPdfWinAnsiString(label) + ' Tj ET');
+        const valStr = String(val || '-');
+        if (valStr.length > 58) {
+            const firstPart = valStr.slice(0, 58);
+            const secondPart = valStr.slice(58, 116);
+            ops.push('BT /F1 9.5 Tf 0.05 0.09 0.16 rg 235 ' + y + ' Td ' + toPdfWinAnsiString(firstPart) + ' Tj ET');
+            y -= 13;
+            ops.push('BT /F1 9.5 Tf 0.05 0.09 0.16 rg 235 ' + y + ' Td ' + toPdfWinAnsiString(secondPart) + ' Tj ET');
+        } else {
+            ops.push('BT /F1 9.5 Tf 0.05 0.09 0.16 rg 235 ' + y + ' Td ' + toPdfWinAnsiString(valStr) + ' Tj ET');
+        }
+        y -= 19;
+        ops.push('0.91 0.94 0.96 RG 0.5 w 60 ' + (y + 12) + ' m 535 ' + (y + 12) + ' l S');
+    }
+
+    // Legal Note Section below box
+    ops.push('BT /F2 10 Tf 0.039 0.122 0.267 rg 45 322 Td ' + toPdfWinAnsiString('Wichtige Hinweise zum weiteren Ablauf:') + ' Tj ET');
+
+    const legalLines = isWiderruf ? [
+        '1. Eingangsbestätigung: Wir bestätigen hiermit den elektronischen Eingang Ihrer Widerrufserklärung',
+        '   zum oben genannten Zeitpunkt (' + details.submittedAtFormatted + ').',
+        '2. Prüfung der Wirksamkeit: Bitte beachten Sie, dass diese automatische Eingangsbestätigung',
+        '   lediglich den Erhalt Ihrer Erklärung dokumentiert. Eine inhaltliche und formelle Prüfung',
+        '   der Wirksamkeit Ihrer Widerrufserklärung durch unseren Kundenservice steht noch aus.',
+        '3. Rückmeldung: Nach Abschluss der Prüfung erhalten Sie eine gesonderte Bestätigung per E-Mail.'
+    ] : [
+        '1. Gesetzliche Dokumentation (§ 312k BGB): Dieses PDF-Dokument dient als dauerhafter Datenträger',
+        '   zum Nachweis Ihrer online eingereichten Kündigungserklärung. Bitte speichern Sie es für Ihre Unterlagen.',
+        '2. Bearbeitung: Unser Kundenservice prüft Ihre Angaben und bestätigt Ihnen den genauen Beendigungs-',
+        '   zeitpunkt Ihres Energieliefervertrags zeitnah schriftlich bzw. per E-Mail.',
+        '3. Kopie per E-Mail: Eine Ausfertigung dieser Bestätigung wurde zusätzlich an ' + (details.email || 'Ihre E-Mail') + ' gesendet.'
+    ];
+
+    let ly = 304;
+    for (const line of legalLines) {
+        ops.push('BT /F1 9 Tf 0.25 0.32 0.42 rg 45 ' + ly + ' Td ' + toPdfWinAnsiString(line) + ' Tj ET');
+        ly -= 14;
+    }
+
+    // Footer Divider & Legal Entities
+    ops.push('0.82 0.86 0.90 RG 0.8 w 45 125 m 550 125 l S');
+    ops.push('BT /F2 8.5 Tf 0.2 0.26 0.35 rg 45 108 Td ' + toPdfWinAnsiString('Alpha Energie GmbH  |  Alter Hellweg 50, 44379 Dortmund  |  Tel.: 0231 39989390  |  info@alpha-energie.de') + ' Tj ET');
+    ops.push('BT /F1 8 Tf 0.35 0.42 0.52 rg 45 94 Td ' + toPdfWinAnsiString('Leistungserbringer / Vertragspartner der Energielieferverträge: Alpha Energie - Eine Marke der Firstcon GmbH,') + ' Tj ET');
+    ops.push('BT /F1 8 Tf 0.35 0.42 0.52 rg 45 82 Td ' + toPdfWinAnsiString('Untere Schrangenstraße 4, 21335 Lüneburg  |  Amtsgericht Lüneburg HRB 202031  |  Geschäftsführung: Jowana Lohmöller, Malte Steinmetz') + ' Tj ET');
+
+    const streamContent = ops.join('\n');
+    const objects = [
+        '1 0 obj\n<< /Type /Catalog /Pages 2 0 R >>\nendobj\n',
+        '2 0 obj\n<< /Type /Pages /Kids [3 0 R] /Count 1 >>\nendobj\n',
+        '3 0 obj\n<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 4 0 R /F2 5 0 R >> >> /Contents 6 0 R >>\nendobj\n',
+        '4 0 obj\n<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>\nendobj\n',
+        '5 0 obj\n<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>\nendobj\n',
+        `6 0 obj\n<< /Length ${Buffer.byteLength(streamContent, 'ascii')} >>\nstream\n${streamContent}\nendstream\nendobj\n`
+    ];
+
+    let pdf = '%PDF-1.4\n';
+    const offsets = [0];
+    for (const obj of objects) {
+        offsets.push(Buffer.byteLength(pdf, 'ascii'));
+        pdf += obj;
+    }
+    const xrefOffset = Buffer.byteLength(pdf, 'ascii');
+    pdf += `xref\n0 ${objects.length + 1}\n0000000000 65535 f \n`;
+    for (let i = 1; i <= objects.length; i++) {
+        pdf += String(offsets[i]).padStart(10, '0') + ' 00000 n \n';
+    }
+    pdf += `trailer\n<< /Size ${objects.length + 1} /Root 1 0 R >>\nstartxref\n${xrefOffset}\n%%EOF\n`;
+    return Buffer.from(pdf, 'ascii');
+}
+
+// 1.4 Submit Legal Cancellation pursuant to § 312k BGB & Online Revocation (EU 2023/2673)
 app.post('/api/kuendigung/submit', async (req, res) => {
     try {
-        const { contractNumber, customerName, email, cancelDate, reason, type = 'KUENDIGUNG' } = req.body;
+        const body = req.body || {};
+        const isWiderruf = String(body.type || 'KUENDIGUNG').toUpperCase() === 'WIDERRUF';
+        const type = isWiderruf ? 'WIDERRUF' : 'KUENDIGUNG';
+
+        const salutation = String(body.salutation || '').trim();
+        const firstName = String(body.firstName || '').trim();
+        const lastName = String(body.lastName || '').trim();
+        const customerName = String(body.customerName || `${salutation} ${firstName} ${lastName}`.replace(/\s+/g, ' ')).trim();
+
+        const street = String(body.street || '').trim();
+        const houseNr = String(body.houseNr || '').trim();
+        const plz = String(body.plz || '').trim();
+        const city = String(body.city || '').trim();
+        const fullAddress = (street || plz || city)
+            ? `${street} ${houseNr}, ${plz} ${city}`.replace(/\s+/g, ' ').replace(/^,\s*/, '').trim()
+            : String(body.address || 'Nicht angegeben').trim();
+
+        const contractType = String(body.contractType || body.contractBranch || 'Ökostrom / Erdgas').trim();
+        const contractNumber = String(body.contractNumber || '').trim();
+        const meterNumber = String(body.meterNumber || '').trim();
+        const email = String(body.email || '').trim();
+
+        const terminationType = isWiderruf
+            ? 'Widerruf'
+            : String(body.terminationType || 'Ordentliche Kündigung').trim();
+        const reason = isWiderruf
+            ? null
+            : (String(body.reason || '').trim() || null);
+        const orderDateRaw = String(body.orderDate || '').trim();
+        const orderDate = orderDateRaw ? formatGermanDate(orderDateRaw) : '';
+
+        const cancelDateRaw = String(body.cancelDate || '').trim();
+        const cancelDate = isWiderruf
+            ? (orderDate ? `Bestelldatum: ${orderDate}` : 'Sofort (Widerruf)')
+            : (cancelDateRaw && cancelDateRaw !== 'Zum nächstmöglichen Zeitpunkt'
+                ? formatGermanDate(cancelDateRaw)
+                : 'Zum nächstmöglichen Zeitpunkt');
+
         if (!contractNumber || !customerName || !email) {
             return res.status(400).json({
                 success: false,
-                error: 'Bitte geben Sie Vertragsnummer, Vor- und Nachname sowie Ihre E-Mail-Adresse an.'
+                error: 'Bitte geben Sie Vertrags-/Kundennummer, Ihren vollständigen Namen sowie Ihre E-Mail-Adresse an.'
             });
         }
 
-        const confirmationNumber = 'KD-' + Date.now().toString().slice(-6);
+        if (!isWiderruf && /außerordentlich/i.test(terminationType) && !reason) {
+            return res.status(400).json({
+                success: false,
+                error: 'Bitte geben Sie bei einer außerordentlichen Kündigung den Kündigungsgrund an.'
+            });
+        }
+
+        const now = new Date();
+        const submittedAtFormatted = now.toLocaleDateString('de-DE', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric',
+            timeZone: 'Europe/Berlin'
+        }) + ', ' + now.toLocaleTimeString('de-DE', {
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+            timeZone: 'Europe/Berlin'
+        }) + ' Uhr';
+
+        const prefix = isWiderruf ? 'WR-' : 'KD-';
+        const confirmationNumber = prefix + Date.now().toString().slice(-6);
+
+        const summaryReason = [
+            isWiderruf ? `[Widerruf | Vertragsart: ${contractType}]` : `[${terminationType} | Vertragsart: ${contractType}]`,
+            fullAddress ? `Adresse: ${fullAddress}` : null,
+            meterNumber ? `Zähler: ${meterNumber}` : null,
+            isWiderruf && orderDate ? `Bestelldatum: ${orderDate}` : null,
+            !isWiderruf && reason ? `Grund: ${reason}` : null
+        ].filter(Boolean).join(' | ');
 
         await prisma.legalCancellation.create({
             data: {
                 contractNumber,
                 customerName,
                 email,
-                cancelDate: cancelDate || 'Zum nächstmöglichen Zeitpunkt',
-                reason: reason || null,
-                type: type.toUpperCase() === 'WIDERRUF' ? 'WIDERRUF' : 'KUENDIGUNG'
+                cancelDate,
+                reason: summaryReason,
+                type
             }
         });
+
+        const pdfDetails = {
+            confirmationNumber,
+            submittedAtIso: now.toISOString(),
+            submittedAtFormatted,
+            type,
+            terminationType,
+            reason,
+            cancelDate,
+            orderDate,
+            contractType,
+            contractNumber,
+            meterNumber,
+            customerName,
+            street,
+            houseNr,
+            plz,
+            city,
+            fullAddress,
+            email
+        };
+
+        const pdfBuffer = generateLegalConfirmationPdfBuffer(pdfDetails);
+        const pdfBase64 = pdfBuffer.toString('base64');
+        const pdfFilename = isWiderruf
+            ? `Widerrufsbestaetigung_${confirmationNumber}.pdf`
+            : `Kuendigungsbestaetigung_${confirmationNumber}.pdf`;
+
+        // Persist record locally so GET /api/kuendigung/pdf/:confirmationNumber can serve it anytime
+        try {
+            const storeFile = path.join(__dirname, 'data', 'legal_cancellations.json');
+            fs.mkdirSync(path.dirname(storeFile), { recursive: true });
+            const existing = fs.existsSync(storeFile)
+                ? JSON.parse(fs.readFileSync(storeFile, 'utf8') || '[]')
+                : [];
+            existing.unshift(pdfDetails);
+            fs.writeFileSync(storeFile, JSON.stringify(existing.slice(0, 500), null, 2), 'utf8');
+        } catch (fileErr) {
+            console.warn('[Kuendigung/Widerruf] Could not persist JSON backup:', fileErr.message);
+        }
+
+        // Send automatic confirmation email to customer + copy to backoffice
+        (async () => {
+            try {
+                const transporter = getMailTransporter();
+                if (!transporter) {
+                    console.warn('[Kuendigung/Widerruf] SMTP credentials not configured; skipping email dispatch.');
+                    return;
+                }
+                const sender = getSenderEmail();
+                const subjectCustomer = isWiderruf
+                    ? `Eingangsbestätigung Ihres Widerrufs (${confirmationNumber}) – Alpha Energie`
+                    : `Eingangsbestätigung Ihrer Kündigung gem. § 312k BGB (${confirmationNumber}) – Alpha Energie`;
+
+                const customerHtml = `<!DOCTYPE html>
+<html lang="de">
+<head><meta charset="UTF-8"><title>${escapeHtml(subjectCustomer)}</title></head>
+<body style="margin:0;padding:0;background:#f1f5f9;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;color:#1e293b;">
+  <div style="padding:30px 15px;">
+    <div style="max-width:620px;margin:0 auto;background:#ffffff;border-radius:12px;overflow:hidden;border:1px solid #e2e8f0;box-shadow:0 4px 20px rgba(0,0,0,0.06);">
+      <div style="background:linear-gradient(135deg,#0a1f44 0%,#1e3b6a 100%);padding:28px 24px;text-align:center;border-bottom:4px solid #ff7a00;">
+        <h1 style="color:#ffffff;margin:0;font-size:1.3rem;">${isWiderruf ? 'Eingangsbestätigung Ihres Vertragswiderrufs' : 'Eingangsbestätigung Ihrer Vertragskündigung (§ 312k BGB)'}</h1>
+        <p style="color:#cbd5e1;margin:6px 0 0 0;font-size:0.9rem;">Referenznummer: <strong>${escapeHtml(confirmationNumber)}</strong> | Eingang: <strong>${escapeHtml(submittedAtFormatted)}</strong></p>
+      </div>
+      <div style="padding:28px 26px;">
+        <p style="margin-top:0;font-size:1rem;">Guten Tag <strong>${escapeHtml(customerName)}</strong>,</p>
+        <p style="color:#334155;font-size:0.95rem;line-height:1.6;">
+          ${isWiderruf
+              ? 'hiermit bestätigen wir Ihnen den elektronischen Eingang Ihrer Widerrufserklärung bei Alpha Energie. Nachfolgend erhalten Sie die Zusammenfassung Ihrer übermittelten Angaben sowie Ihre Bestätigung als PDF-Dokument im Anhang.'
+              : 'hiermit bestätigen wir Ihnen gemäß § 312k BGB den elektronischen Eingang Ihrer Kündigungserklärung bei Alpha Energie. Im Anhang dieser E-Mail finden Sie Ihre Kündigungsbestätigung als PDF-Dokument zum dauerhaften Speichern.'}
+        </p>
+
+        <div style="background:#f8fafc;border:1px solid #e2e8f0;border-left:4px solid #ff7a00;border-radius:8px;padding:18px 20px;margin:22px 0;">
+          <h3 style="margin:0 0 12px 0;font-size:0.9rem;text-transform:uppercase;letter-spacing:0.5px;color:#0a1f44;">Übermittelte Angaben im Überblick</h3>
+          <table style="width:100%;font-size:0.92rem;border-collapse:collapse;">
+            <tr><td style="padding:5px 0;color:#64748b;width:44%;"><strong>Bestätigungsnummer:</strong></td><td style="padding:5px 0;color:#0f172a;font-weight:700;">${escapeHtml(confirmationNumber)}</td></tr>
+            <tr><td style="padding:5px 0;color:#64748b;"><strong>Datum &amp; Uhrzeit:</strong></td><td style="padding:5px 0;color:#0f172a;">${escapeHtml(submittedAtFormatted)}</td></tr>
+            <tr><td style="padding:5px 0;color:#64748b;"><strong>Vorgangsart:</strong></td><td style="padding:5px 0;color:#0f172a;">${escapeHtml(isWiderruf ? 'Widerruf eines Energieliefervertrags' : terminationType)}</td></tr>
+            ${!isWiderruf && reason ? `<tr><td style="padding:5px 0;color:#64748b;"><strong>Kündigungsgrund:</strong></td><td style="padding:5px 0;color:#0f172a;">${escapeHtml(reason)}</td></tr>` : ''}
+            ${!isWiderruf ? `<tr><td style="padding:5px 0;color:#64748b;"><strong>Kündigungszeitpunkt:</strong></td><td style="padding:5px 0;color:#0f172a;">${escapeHtml(cancelDate)}</td></tr>` : ''}
+            ${isWiderruf && orderDate ? `<tr><td style="padding:5px 0;color:#64748b;"><strong>Bestelldatum:</strong></td><td style="padding:5px 0;color:#0f172a;">${escapeHtml(orderDate)}</td></tr>` : ''}
+            <tr><td style="padding:5px 0;color:#64748b;"><strong>Vertragsart / Sparte:</strong></td><td style="padding:5px 0;color:#0f172a;">${escapeHtml(contractType)}</td></tr>
+            <tr><td style="padding:5px 0;color:#64748b;"><strong>${isWiderruf ? 'Bestell- / Kundennummer:' : 'Vertrags- / Kundennummer:'}</strong></td><td style="padding:5px 0;color:#0f172a;">${escapeHtml(contractNumber)}</td></tr>
+            ${meterNumber ? `<tr><td style="padding:5px 0;color:#64748b;"><strong>Zählernummer:</strong></td><td style="padding:5px 0;color:#0f172a;">${escapeHtml(meterNumber)}</td></tr>` : ''}
+            <tr><td style="padding:5px 0;color:#64748b;"><strong>Name des Kunden:</strong></td><td style="padding:5px 0;color:#0f172a;">${escapeHtml(customerName)}</td></tr>
+            <tr><td style="padding:5px 0;color:#64748b;"><strong>Anschrift:</strong></td><td style="padding:5px 0;color:#0f172a;">${escapeHtml(fullAddress)}</td></tr>
+            <tr><td style="padding:5px 0;color:#64748b;"><strong>E-Mail-Adresse:</strong></td><td style="padding:5px 0;color:#0f172a;">${escapeHtml(email)}</td></tr>
+          </table>
+        </div>
+
+        ${isWiderruf ? `
+        <div style="background:#fff7ed;border:1px solid #fed7aa;border-radius:8px;padding:14px 16px;margin:18px 0;font-size:0.88rem;color:#9a3412;line-height:1.55;">
+          <strong>Wichtiger Hinweis zur Wirksamkeitsprüfung:</strong><br>
+          Diese automatische Eingangsbestätigung dokumentiert den fristgerechten Eingang Ihrer Widerrufserklärung (${escapeHtml(submittedAtFormatted)}). Bitte beachten Sie, dass eine inhaltliche und formelle <strong>Prüfung der Wirksamkeit Ihrer Widerrufserklärung noch aussteht</strong>. Sie erhalten nach Abschluss der Prüfung eine gesonderte Rückmeldung von unserem Kundenservice.
+        </div>` : `
+        <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:14px 16px;margin:18px 0;font-size:0.88rem;color:#166534;line-height:1.55;">
+          <strong>Hinweis gemäß § 312k BGB:</strong><br>
+          Ihre Kündigungserklärung ist uns am ${escapeHtml(submittedAtFormatted)} zugegangen. Das beigefügte PDF-Dokument dient Ihnen als Nachweis auf einem dauerhaften Datenträger. Nach Prüfung Ihrer Vertragsdaten erhalten Sie von unserem Kundenservice die abschließende Kündigungsbestätigung zum jeweiligen Beendigungszeitpunkt.
+        </div>`}
+
+        <p style="margin-top:24px;font-size:0.92rem;color:#334155;">
+          Mit freundlichen Grüßen<br>
+          <strong>Ihr Kundenservice von Alpha Energie</strong>
+        </p>
+      </div>
+      <div style="background:#f8fafc;border-top:1px solid #e2e8f0;padding:18px 24px;font-size:0.78rem;color:#64748b;text-align:center;line-height:1.55;">
+        <strong>Alpha Energie GmbH</strong> • Alter Hellweg 50, 44379 Dortmund • Tel.: 0231 39989390 • info@alpha-energie.de<br>
+        Leistungserbringer / Vertragspartner der Energielieferverträge: <strong>Alpha Energie – Eine Marke der Firstcon GmbH</strong>, Untere Schrangenstraße 4, 21335 Lüneburg (Amtsgericht Lüneburg HRB 202031, vertreten durch Jowana Lohmöller &amp; Malte Steinmetz)
+      </div>
+    </div>
+  </div>
+</body>
+</html>`;
+
+                await transporter.sendMail({
+                    from: sender,
+                    to: email,
+                    subject: subjectCustomer,
+                    html: customerHtml,
+                    attachments: [
+                        {
+                            filename: pdfFilename,
+                            content: pdfBuffer,
+                            contentType: 'application/pdf'
+                        }
+                    ]
+                });
+
+                const backofficeEmail = process.env.NOTIFICATION_EMAIL || 'info@alpha-energie.de';
+                await transporter.sendMail({
+                    from: sender,
+                    to: backofficeEmail,
+                    subject: `[${isWiderruf ? 'Online-Widerruf' : 'Online-Kündigung § 312k BGB'}] ${confirmationNumber} – ${customerName} (${contractNumber})`,
+                    html: customerHtml,
+                    attachments: [
+                        {
+                            filename: pdfFilename,
+                            content: pdfBuffer,
+                            contentType: 'application/pdf'
+                        }
+                    ]
+                });
+            } catch (mailErr) {
+                console.warn('[Kuendigung/Widerruf] Email dispatch error:', mailErr.message);
+            }
+        })();
 
         res.status(201).json({
             success: true,
             confirmationNumber,
-            message: `Ihre Bestätigung für ${type.toUpperCase() === 'WIDERRUF' ? 'den Widerruf' : 'die Kündigung'} gem. § 312k BGB wurde erfasst. Bestätigungsnummer: ${confirmationNumber}`
+            submittedAt: submittedAtFormatted,
+            details: pdfDetails,
+            pdfBase64,
+            pdfFilename,
+            pdfUrl: `/api/kuendigung/pdf/${confirmationNumber}`,
+            message: isWiderruf
+                ? `Ihre Widerrufserklärung wurde am ${submittedAtFormatted} erfasst (Bestätigungs-Nr.: ${confirmationNumber}). Eine Eingangsbestätigung inkl. PDF wurde an ${email} versendet. Hinweis: Die Prüfung der Wirksamkeit Ihrer Widerrufserklärung steht noch aus.`
+                : `Ihre Kündigung gem. § 312k BGB wurde am ${submittedAtFormatted} erfasst (Bestätigungs-Nr.: ${confirmationNumber}). Ihre Kündigungsbestätigung steht als PDF zum Download bereit und wurde zusätzlich per E-Mail an ${email} versendet.`
         });
     } catch (error) {
         console.error("Cancellation error:", error);
-        res.status(500).json({ success: false, error: 'Fehler beim Absenden des Kündigungsformulars' });
+        res.status(500).json({ success: false, error: 'Fehler beim Absenden des Formulars' });
+    }
+});
+
+// 1.4b Download Legal Cancellation / Revocation PDF by confirmationNumber
+app.get('/api/kuendigung/pdf/:confirmationNumber', async (req, res) => {
+    try {
+        const confNum = String(req.params.confirmationNumber || '').trim();
+        const storeFile = path.join(__dirname, 'data', 'legal_cancellations.json');
+        let record = null;
+        if (fs.existsSync(storeFile)) {
+            const list = JSON.parse(fs.readFileSync(storeFile, 'utf8') || '[]');
+            record = list.find(item => item.confirmationNumber === confNum);
+        }
+        if (!record) {
+            return res.status(404).json({ success: false, error: 'Bestätigungsdokument nicht gefunden.' });
+        }
+        const pdfBuffer = generateLegalConfirmationPdfBuffer(record);
+        const filename = record.type === 'WIDERRUF'
+            ? `Widerrufsbestaetigung_${confNum}.pdf`
+            : `Kuendigungsbestaetigung_${confNum}.pdf`;
+        res.setHeader('Content-Type', 'application/pdf');
+        res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+        res.send(pdfBuffer);
+    } catch (err) {
+        res.status(500).json({ success: false, error: 'Fehler beim Erstellen des PDF-Dokuments.' });
     }
 });
 
