@@ -8591,4 +8591,26 @@ html.swal2-height-auto:not(.alpha-modal-open) {
     color: #b91c1c;
 }
 
+/* Prevent long city names in Lieferort / PLZ badges from covering or clipping the 5-digit PLZ */
+#calcPlz.octo-input-field,
+input#calcPlz {
+    flex: 1 0 60px !important;
+    min-width: 60px !important;
+}
 
+.octo-city-pill,
+#calcCityBadge {
+    flex: 0 1 auto !important;
+    min-width: 0 !important;
+    max-width: calc(100% - 66px) !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+}
+
+#modalCalcCityBadge {
+    max-width: calc(100% - 76px) !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+}

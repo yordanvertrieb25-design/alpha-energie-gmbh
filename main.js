@@ -749,6 +749,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             '44': 'Dortmund',
             '45': 'Essen',
             '40': 'Düsseldorf',
+            '41': 'Mönchengladbach',
             '47': 'Duisburg',
             '50': 'Köln',
             '53': 'Bonn',
@@ -1179,12 +1180,14 @@ document.addEventListener("DOMContentLoaded", async () => {
                     livePlzCityCache[rawPlz] = data.city;
                     if (calcPlz && calcPlz.value === rawPlz && calcCityBadge) {
                         calcCityBadge.textContent = data.city;
+                        calcCityBadge.title = data.city;
                         calcCityBadge.style.display = 'inline-block';
                     }
                     const mPlz = document.getElementById('modalCalcPlz');
                     const mBadge = document.getElementById('modalCalcCityBadge');
                     if (mPlz && mPlz.value === rawPlz && mBadge) {
                         mBadge.textContent = data.city;
+                        mBadge.title = data.city;
                         mBadge.style.display = 'inline-block';
                     }
                     const oPlz = document.getElementById('orderPlz');
@@ -1349,6 +1352,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                         const prefix = val.slice(0, 2);
                         const city = livePlzCityCache[val] || cityMap[prefix] || (val.startsWith('4') || val.startsWith('5') ? 'NRW' : 'Deutschland');
                         calcCityBadge.textContent = city;
+                        calcCityBadge.title = city;
                         calcCityBadge.style.display = 'inline-block';
                     } else {
                         calcCityBadge.style.display = 'none';
@@ -1902,6 +1906,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             if (modalCalcCityBadge) {
                 if (plzVal.length >= 2 && detectedCity) {
                     modalCalcCityBadge.textContent = detectedCity;
+                    modalCalcCityBadge.title = detectedCity;
                     modalCalcCityBadge.style.display = 'inline-block';
                 } else {
                     modalCalcCityBadge.style.display = 'none';
@@ -1919,6 +1924,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                 calcPlz.value = plzVal;
                 if (calcCityBadge && detectedCity) {
                     calcCityBadge.textContent = detectedCity;
+                    calcCityBadge.title = detectedCity;
                     calcCityBadge.style.display = 'inline-block';
                 }
             }
