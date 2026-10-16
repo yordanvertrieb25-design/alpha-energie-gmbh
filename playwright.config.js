@@ -11,6 +11,7 @@ module.exports = defineConfig({
   use: {
     baseURL: 'http://127.0.0.1:3000',
     headless: true,
+    channel: 'chrome',
   },
   webServer: {
     command: 'node server.js',

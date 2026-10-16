@@ -26,7 +26,7 @@
             topbar_hours: 'Monday – Friday 8:00 AM – 6:00 PM | Nationwide Service & Customer Center Dortmund',
 
             // Navigation
-            nav_tariffs: 'Electricity & Tariffs',
+            nav_tariffs: 'Green Electricity',
             nav_oekostrom: 'Electricity from 100% Renewables',
             nav_waermestrom: 'Heat Pump Power (§ 14a EnWG)',
             nav_oekogas: 'Natural Gas with Climate Contribution',
@@ -82,15 +82,15 @@
             // Rechner Form
             calc_plz_label: 'Your Postal Code',
             calc_household_label: 'Household Size / Standard Consumption',
-            calc_1pers: '1 Person',
-            calc_2pers: '2 Persons',
-            calc_3pers: '3 Persons',
+            calc_1pers: 'Low',
+            calc_2pers: 'Medium',
+            calc_3pers: 'High',
             calc_4pers: '4+ Persons',
             calc_kwh_unit: 'kWh / year',
             calc_abschlag_label: 'Current monthly payment (€ / month)',
             calc_savings_label: 'Your calculated savings potential:',
             calc_savings_text: 'Up to €320 / year!',
-            calc_submit_btn: 'Calculate & Compare Tariffs ↓',
+            calc_submit_btn: 'Find Tariff',
             calc_guarantee_note: 'Free, non-binding & certified switching',
 
             // Bento Metric Cards
@@ -717,15 +717,15 @@
             // Rechner Form
             calc_plz_label: 'Posta Kodunuz',
             calc_household_label: 'Hanedeki Kişi Sayısı / Standart Tüketim',
-            calc_1pers: '1 Kişi',
-            calc_2pers: '2 Kişi',
-            calc_3pers: '3 Kişi',
+            calc_1pers: 'Az',
+            calc_2pers: 'Orta',
+            calc_3pers: 'Çok',
             calc_4pers: '4+ Kişi',
             calc_kwh_unit: 'kWh / yıl',
             calc_abschlag_label: 'Mevcut aylık avans ödemesi (€ / ay)',
             calc_savings_label: 'Hesaplanan tasarruf fırsatınız:',
             calc_savings_text: 'Yılda 320 €\'ya varan!',
-            calc_submit_btn: 'Tarifeleri Hesapla & Karşılaştır ↓',
+            calc_submit_btn: 'Tarife Bul',
             calc_guarantee_note: 'Ücretsiz, bağlayıcı olmayan & onaylı geçiş',
 
             // Bento Metric Cards
@@ -1353,14 +1353,14 @@
             calc_plz_label: 'الرمز البريدي الخاص بك',
             calc_household_label: 'حجم الأسرة / الاستهلاك القياسي',
             calc_1pers: 'شخص واحد',
-            calc_2pers: 'شخصان',
-            calc_3pers: '3 أشخاص',
+            calc_2pers: 'متوسط',
+            calc_3pers: 'كثير',
             calc_4pers: '4+ أشخاص',
             calc_kwh_unit: 'ك.و.س / سنة',
             calc_abschlag_label: 'الدفعة الشهرية الحالية (€ / شهر)',
             calc_savings_label: 'إمكانية التوفير المحسوبة لك:',
             calc_savings_text: 'حتى 320 € / سنة!',
-            calc_submit_btn: 'احسب وقارن التعريفات ↓',
+            calc_submit_btn: 'ابحث عن تعريفة',
             calc_guarantee_note: 'انتقال مجاني، غير ملزم ومعتمد',
 
             // Bento Metric Cards
@@ -1986,7 +1986,7 @@
         { selector: '.household-btn[data-kwh="4500"] .household-btn-label', key: 'calc_4pers' },
         { selector: 'label[for="calcAbschlag"]', key: 'calc_abschlag_label' },
         { selector: '.savings-banner-box .savings-label', key: 'calc_savings_label' },
-        { selector: '.calc-submit-btn', key: 'calc_submit_btn', isHtml: true },
+        { selector: '#rechnerForm .calc-submit-btn span', key: 'calc_submit_btn' },
         { selector: '.calc-guarantee-note', key: 'calc_guarantee_note', hasSvgPrefix: true },
 
         // Trust Bento Cards
@@ -2289,14 +2289,14 @@
         {"selector":"#main-nav .nav-list > li:nth-child(3) > a[href=\"gewerbekunden.html\"]","key":"nav_top_gewerbe"},
         {"selector":"#main-nav .nav-list > li:nth-child(4) > a[href=\"ueber-uns.html\"]","key":"nav_top_about"},
         {"selector":"#main-nav .nav-list > li:nth-child(5) > a","key":"nav_top_contact"},
-        {"selector":"#main-nav .nav-list > li:nth-child(1) .dropdown li:nth-child(1) a","key":"nav_dd_basic"},
-        {"selector":"#main-nav .nav-list > li:nth-child(1) .dropdown li:nth-child(2) a","key":"nav_dd_time"},
-        {"selector":"#main-nav .nav-list > li:nth-child(1) .dropdown li:nth-child(3) a","key":"nav_dd_premium"},
-        {"selector":"#main-nav .nav-list > li:nth-child(1) .dropdown li:nth-child(4) a","key":"nav_dd_oekostrom_ok"},
+        {"selector":"#main-nav .nav-list > li:nth-child(1) .dropdown li:nth-child(1) a","key":"nav_dd_oekostrom_ok"},
+        {"selector":"#main-nav .nav-list > li:nth-child(1) .dropdown li:nth-child(2) a","key":"nav_dd_basic"},
+        {"selector":"#main-nav .nav-list > li:nth-child(1) .dropdown li:nth-child(3) a","key":"nav_dd_time"},
+        {"selector":"#main-nav .nav-list > li:nth-child(1) .dropdown li:nth-child(4) a","key":"nav_dd_premium"},
         {"selector":"#main-nav .nav-list > li:nth-child(1) .dropdown li:nth-child(5) a","key":"nav_dd_strommix"},
-        {"selector":"#main-nav .nav-list > li:nth-child(2) .dropdown li:nth-child(1) a[href=\"oekogas.html\"]","key":"nav_dd_gas_klima"},
-        {"selector":"#main-nav .nav-list > li:nth-child(2) .dropdown li:nth-child(2) a[href*=\"#tarife\"]","key":"nav_dd_gas_overview"},
-        {"selector":"#main-nav .nav-list > li:nth-child(2) .dropdown li:nth-child(3) a[href*=\"#rechner\"]","key":"nav_dd_live_calc"},
+        {"selector":"#main-nav .nav-list > li:nth-child(2) .dropdown li:nth-child(1) a","key":"nav_dd_gas_klima"},
+        {"selector":"#main-nav .nav-list > li:nth-child(2) .dropdown li:nth-child(2) a","key":"nav_dd_gas_overview"},
+        {"selector":"#main-nav .nav-list > li:nth-child(2) .dropdown li:nth-child(3) a","key":"nav_dd_live_calc"},
         {"selector":".header-actions a[href*=\"versorger.html#rechner\"]","key":"nav_btn_calc"},
         {"selector":".header-actions a[href=\"https://vp.alpha-energie.de\"]","key":"nav_btn_login","hasSvgPrefix":true},
         {"selector":"h1.octo-hero-h1.hero-versorger-title","key":"octo_hero_h1","isHtml":true},
@@ -2772,7 +2772,7 @@
                 } else if (branch === 'gas') {
                     noticeEl.textContent = 'Erdgas mit freiwilligem Klimaschutzbeitrag • 24 Monate volle Preisgarantie';
                 } else {
-                    noticeEl.textContent = 'Ökostrom aus 100 % erneuerbaren Energien • 24 Monate volle Preisgarantie';
+                    noticeEl.textContent = noticeEl.dataset.i18nOriginal || 'Ökostrom aus 100 % erneuerbaren Energien • Geprüft nach ok-power Kriterien';
                 }
             } else {
                 noticeEl.textContent = getBranchNotice(branch, lang);
@@ -2899,8 +2899,12 @@
 
         // Pre-cache German original values immediately
         SELECTOR_MAPPINGS.forEach(mapping => {
-            const el = document.querySelector(mapping.selector);
-            if (el) cacheOriginal(el, mapping.hasSvgPrefix);
+            if (mapping.all) {
+                document.querySelectorAll(mapping.selector).forEach(el => cacheOriginal(el, mapping.hasSvgPrefix));
+            } else {
+                const el = document.querySelector(mapping.selector);
+                if (el) cacheOriginal(el, mapping.hasSvgPrefix);
+            }
         });
 
         // If stored language is EN, TR, or AR, switch now!

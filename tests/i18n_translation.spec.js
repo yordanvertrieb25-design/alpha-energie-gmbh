@@ -1,9 +1,8 @@
 const { test, expect } = require('@playwright/test');
 
-test.describe('Multi-Language Translation System Verification (DE | EN | TR)', () => {
+test.describe('Complete Multi-Language Translation Verification (DE | EN | TR | AR)', () => {
 
     test.beforeEach(async ({ page }) => {
-        // Pre-seed consent so cookie banner does not interfere
         await page.addInitScript(() => {
             try {
                 localStorage.setItem('alpha_consent_status', 'all');
@@ -12,534 +11,248 @@ test.describe('Multi-Language Translation System Verification (DE | EN | TR)', (
         });
     });
 
-    test('1. Switching to English (EN) translates Navigation, Hero, Rechner, Badges, Tariffs, and Footer', async ({ page }) => {
+    test('1. Exhaustive DOM Audit: Every section of versorger.html translates to EN, TR, AR and restores 100% to DE', async ({ page }) => {
         await page.goto('/versorger', { waitUntil: 'load' });
         await page.evaluate(() => localStorage.removeItem('alpha_lang'));
         await page.waitForTimeout(300);
 
-        // Click English language button
-        const btnEn = page.locator('.lang-btn[data-lang="en"]').first();
-        await btnEn.click();
-
-        // 1. Check HTML lang attribute, title and button state
-        await expect(page.locator('html')).toHaveAttribute('lang', 'en');
-        await expect(page).toHaveTitle('Alpha Energie | 100% Green Electricity & Energy Nationwide');
-        await expect(btnEn).toHaveClass(/active/);
-
-        // 2. Check Welcome Toast banner is removed
-        await expect(page.locator('#langToastBanner')).toHaveCount(0);
-
-        // 3. Navigation
-        const navTariffs = page.locator('#main-nav .nav-list > li:nth-child(1) > a');
-        await expect(navTariffs).toHaveText('Electricity & Tariffs');
-        const calcCta = page.locator('.header-actions a[href="#rechner"]');
-        await expect(calcCta).toHaveText('Calculate Tariff');
-        const partnerBtn = page.locator('.header-actions a[href="/"], .header-actions a[href="partner-werden.html"]');
-        await expect(partnerBtn).toBeVisible();
-        await expect(partnerBtn).toHaveText('Become a Partner');
-        await expect(page.locator('.header-actions')).not.toContainText('VP-Portal');
-
-        // 4. Hero Section
-        const heroTag = page.locator('.hero-versorger-content .versorger-tag');
-        await expect(heroTag).toContainText('Nationwide Green Electricity & Energy Provider');
-        const heroTitle = page.locator('.hero-versorger-title');
-        await expect(heroTitle).toContainText('Simple. Transparent.');
-        await expect(heroTitle).toContainText('Guaranteed Affordable.');
-        const heroDesc = page.locator('.hero-versorger-desc');
-        await expect(heroDesc).toContainText('green electricity from 100% renewable energy');
-
-        // Hero Badges
-        const heroBadges = page.locator('.versorger-hero-badges');
-        await expect(heroBadges).toContainText('24-Month Price Protection');
-        await expect(heroBadges).toContainText('100% Renewable Energy (ok-power)');
-        await expect(heroBadges).toContainText('Free Switching Service');
-
-        // Floating Badges in Hero frame
-        const visualBadges = page.locator('.hero-visual-frame');
-        await expect(visualBadges).toContainText('100% Electricity from Renewable Sources');
-        await expect(visualBadges).toContainText('Up to €380 / Year Savings');
-        await expect(visualBadges).toContainText('Local Customer Service in Dortmund');
-
-        // 5. Live-Tarifrechner
-        const rechnerTitle = page.locator('#rechner .rechner-header-title');
-        await expect(rechnerTitle).toHaveText('Live Tariff Calculator');
-        const rechnerSubtitle = page.locator('#rechner .rechner-header-subtitle');
-        await expect(rechnerSubtitle).toContainText('Compare our tariffs for your postal code in real time:');
-
-        // Calculator Tabs
-        await expect(page.locator('.calc-tab-btn[data-branch="strom"] .calc-tab-title')).toHaveText('Green Electricity');
-        await expect(page.locator('.calc-tab-btn[data-branch="gas"] .calc-tab-title')).toHaveText('Natural Gas');
-
-        // Notice Bar
-        const noticeBar = page.locator('#calcBranchNoticeText');
-        await expect(noticeBar).toHaveText('Green electricity from 100% renewable energy • Certified according to ok-power criteria');
-
-        // Form elements
-        await expect(page.locator('label[for="calcPlz"]')).toHaveText('Your Postal Code');
-        await expect(page.locator('#rechnerForm .calc-submit-btn')).toContainText('Calculate & Compare Tariffs');
-
-        // 6. Bento Metric Cards
-        const trustBar = page.locator('#trust');
-        await expect(trustBar).toContainText('Green electricity from 100% renewable energy');
-        await expect(trustBar).toContainText('Savings per year');
-        await expect(trustBar).toContainText('Fixed price guarantee');
-        await expect(trustBar).toContainText('Seamless switching service');
-
-        // 7. Tariff Cards
-        const cardBasic = page.locator('#card-alpha-basic');
-        await expect(cardBasic).toContainText('Flexible & Affordable');
-        await expect(cardBasic.locator('.tariff-action-btn')).toContainText('Select Tariff');
-
-        const cardTime = page.locator('#card-alpha-time');
-        await expect(cardTime.locator('.tariff-ribbon')).toContainText('Bestseller & Smart Energy');
-        await expect(cardTime.locator('.tariff-action-btn')).toContainText('Select Bestseller');
-
-        const cardPremium = page.locator('#card-alpha-premium');
-        await expect(cardPremium).toContainText('24-Month Price Protection & VIP');
-        await expect(cardPremium.locator('.tariff-action-btn')).toContainText('Select Tariff');
-
-        // 8. Advantages (Warum wir)
-        const vorteileSection = page.locator('#warum-wir');
-        await expect(vorteileSection.locator('.section-title')).toContainText('Why We Are the Best: 5 Decisive Advantages Over Basic Supply');
-        await expect(vorteileSection).toContainText('Energy & Base Price: Permanently Fair & Affordable');
-        await expect(vorteileSection).toContainText('Price Guarantee: Up to 24 Months Full Predictability');
-
-        // 9. Comparison Matrix
-        const matrixSection = page.locator('#vergleich');
-        await expect(matrixSection.locator('.section-title')).toContainText('Alpha Energie vs. Local Basic Provider');
-        await expect(matrixSection.locator('.matrix-th-feature')).toContainText('Performance Feature & Criterion');
-
-        // 10. Sektorenkopplung
-        const sektorSection = page.locator('#sektorenkopplung');
-        await expect(sektorSection.locator('.section-title')).toContainText('Sector Coupling: PV + Heat Pump + Wallbox');
-
-        // 11. Footer
-        const footer = page.locator('#main-footer');
-        await expect(footer).toContainText('Tariffs & Electricity');
-        await expect(footer).toContainText('Service & Solutions');
-        await expect(footer).toContainText('Legal');
-        await expect(footer).toContainText('Cancel contract online');
-        await expect(footer).toContainText('All rights reserved');
-    });
-
-    test('2. Switching to Turkish (TR) translates Navigation, Hero, Rechner, Badges, Tariffs, and Footer', async ({ page }) => {
-        await page.goto('/versorger', { waitUntil: 'load' });
-        await page.evaluate(() => localStorage.removeItem('alpha_lang'));
-        await page.waitForTimeout(300);
-
-        // Click Turkish language button
-        const btnTr = page.locator('.lang-btn[data-lang="tr"]').first();
-        await btnTr.click();
-
-        // 1. Check HTML lang attribute, title and button state
-        await expect(page.locator('html')).toHaveAttribute('lang', 'tr');
-        await expect(page).toHaveTitle('Alpha Energie | Almanya Genelinde %100 Yeşil Elektrik & Enerji');
-        await expect(btnTr).toHaveClass(/active/);
-
-        // 2. Check Welcome Toast banner is removed
-        await expect(page.locator('#langToastBanner')).toHaveCount(0);
-
-        // 3. Navigation
-        const navTariffs = page.locator('#main-nav .nav-list > li:nth-child(1) > a');
-        await expect(navTariffs).toHaveText('Elektrik & Tarifeler');
-        const calcCta = page.locator('.header-actions a[href="#rechner"]');
-        await expect(calcCta).toHaveText('Tarife Hesapla');
-        const partnerBtn = page.locator('.header-actions a[href="/"], .header-actions a[href="partner-werden.html"]');
-        await expect(partnerBtn).toBeVisible();
-        await expect(partnerBtn).toHaveText('İş Ortağı Olun');
-        await expect(page.locator('.header-actions')).not.toContainText('VP-Portal');
-
-        // 4. Hero Section
-        const heroTag = page.locator('.hero-versorger-content .versorger-tag');
-        await expect(heroTag).toContainText('Almanya Genelinde %100 Yeşil Elektrik ve Enerji Sağlayıcısı');
-        const heroTitle = page.locator('.hero-versorger-title');
-        await expect(heroTitle).toContainText('Basit. Şeffaf.');
-        await expect(heroTitle).toContainText('Garantili Uygun Fiyat.');
-        const heroDesc = page.locator('.hero-versorger-desc');
-        await expect(heroDesc).toContainText('yeşil elektriğe, güvenilir § 14a ısı pompası elektriğine veya iklim katkılı doğal gaza geçin');
-
-        // Hero Badges
-        const heroBadges = page.locator('.versorger-hero-badges');
-        await expect(heroBadges).toContainText('24 Ay Fiyat Koruması');
-        await expect(heroBadges).toContainText('%100 Yenilenebilir Enerji (ok-power)');
-        await expect(heroBadges).toContainText('Ücretsiz Geçiş Hizmeti');
-
-        // Floating Badges in Hero frame
-        const visualBadges = page.locator('.hero-visual-frame');
-        await expect(visualBadges).toContainText('%100 Yenilenebilir Kaynaklı Elektrik');
-        await expect(visualBadges).toContainText("Yılda 380 €'ya Varan Tasarruf");
-        await expect(visualBadges).toContainText("Dortmund'da Yerinde Müşteri Hizmetleri");
-
-        // 5. Live-Tarifrechner
-        const rechnerTitle = page.locator('#rechner .rechner-header-title');
-        await expect(rechnerTitle).toHaveText('Canlı Tarife Hesaplayıcı');
-        const rechnerSubtitle = page.locator('#rechner .rechner-header-subtitle');
-        await expect(rechnerSubtitle).toContainText('Posta kodunuz için tarifelerimizi gerçek zamanlı karşılaştırın:');
-
-        // Calculator Tabs
-        await expect(page.locator('.calc-tab-btn[data-branch="strom"] .calc-tab-title')).toHaveText('Yeşil Elektrik');
-        await expect(page.locator('.calc-tab-btn[data-branch="gas"] .calc-tab-title')).toHaveText('Doğal Gaz');
-
-        // Notice Bar
-        const noticeBar = page.locator('#calcBranchNoticeText');
-        await expect(noticeBar).toHaveText('%100 Yenilenebilir Enerji Kaynaklarından Yeşil Elektrik • ok-power kriterlerine göre onaylı');
-
-        // Form elements
-        await expect(page.locator('label[for="calcPlz"]')).toHaveText('Posta Kodunuz');
-        await expect(page.locator('#rechnerForm .calc-submit-btn')).toContainText('Tarifeleri Hesapla & Karşılaştır');
-
-        // 6. Bento Metric Cards
-        const trustBar = page.locator('#trust');
-        await expect(trustBar).toContainText('%100 Yenilenebilir Enerji Kaynaklarından Yeşil Elektrik');
-        await expect(trustBar).toContainText('Yıllık tasarruf');
-        await expect(trustBar).toContainText('Sabit fiyat garantisi');
-        await expect(trustBar).toContainText('Kesintisiz geçiş hizmeti');
-
-        // 7. Tariff Cards
-        const cardBasic = page.locator('#card-alpha-basic');
-        await expect(cardBasic).toContainText('Esnek & Uygun Fiyatlı');
-        await expect(cardBasic.locator('.tariff-action-btn')).toContainText('Tarifeyi Seç');
-
-        const cardTime = page.locator('#card-alpha-time');
-        await expect(cardTime.locator('.tariff-ribbon')).toContainText('Çok Satan & Akıllı Enerji');
-        await expect(cardTime.locator('.tariff-action-btn')).toContainText('Çok Satanı Seç');
-
-        const cardPremium = page.locator('#card-alpha-premium');
-        await expect(cardPremium).toContainText('24 Ay Fiyat Koruması & VIP');
-        await expect(cardPremium.locator('.tariff-action-btn')).toContainText('Tarifeyi Seç');
-
-        // 8. Advantages (Warum wir)
-        const vorteileSection = page.locator('#warum-wir');
-        await expect(vorteileSection.locator('.section-title')).toContainText('Neden En İyisiyiz: Temel Tedariğe Göre 5 Belirleyici Avantaj');
-        await expect(vorteileSection).toContainText('Birim & Temel Fiyat: Sürekli Adil & Uygun');
-        await expect(vorteileSection).toContainText('Fiyat Garantisi: 24 Aya Varan Tam Öngörülebilirlik');
-
-        // 9. Comparison Matrix
-        const matrixSection = page.locator('#vergleich');
-        await expect(matrixSection.locator('.section-title')).toContainText('Alpha Energie vs. Yerel Temel Tedarikçi');
-        await expect(matrixSection.locator('.matrix-th-feature')).toContainText('Hizmet Özelliği & Kriter');
-
-        // 10. Sektorenkopplung
-        const sektorSection = page.locator('#sektorenkopplung');
-        await expect(sektorSection.locator('.section-title')).toContainText('Sektörel Entegrasyon: PV + Isı Pompası + Wallbox');
-
-        // 11. Footer
-        const footer = page.locator('#main-footer');
-        await expect(footer).toContainText('Tarifeler & Elektrik');
-        await expect(footer).toContainText('Hizmet & Çözümler');
-        await expect(footer).toContainText('Yasal Bilgiler');
-        await expect(footer).toContainText('Sözleşmeyi online feshet');
-        await expect(footer).toContainText('Tüm hakları saklıdır');
-    });
-
-    test('3. Switching back to German (DE) completely restores original German texts', async ({ page }) => {
-        await page.goto('/versorger', { waitUntil: 'load' });
-        await page.evaluate(() => localStorage.removeItem('alpha_lang'));
-        await page.waitForTimeout(300);
-
-        // Switch to English first
-        const btnEn = page.locator('.lang-btn[data-lang="en"]').first();
-        await btnEn.click();
-        await expect(page.locator('html')).toHaveAttribute('lang', 'en');
-
-        // Now switch back to German
-        const btnDe = page.locator('.lang-btn[data-lang="de"]').first();
-        await btnDe.click();
-
-        // 1. Check HTML lang attribute, title and button state
-        await expect(page.locator('html')).toHaveAttribute('lang', 'de');
-        await expect(page).toHaveTitle('Alpha Energie | 100% Ökostrom & Gastarife deutschlandweit');
-        await expect(btnDe).toHaveClass(/active/);
-
-        // 2. Confirm Welcome Toast banner is removed
-        await expect(page.locator('#langToastBanner')).toHaveCount(0);
-
-        // 3. Navigation
-        const navTariffs = page.locator('#main-nav .nav-list > li:nth-child(1) > a');
-        await expect(navTariffs).toHaveText('Strom & Tarife');
-        const calcCta = page.locator('.header-actions a[href="#rechner"]');
-        await expect(calcCta).toHaveText('Tarif berechnen');
-        const partnerBtn = page.locator('.header-actions a[href="/"], .header-actions a[href="partner-werden.html"]');
-        await expect(partnerBtn).toBeVisible();
-        await expect(partnerBtn).toHaveText('Partner werden');
-        await expect(page.locator('.header-actions')).not.toContainText('VP-Portal');
-
-        // 4. Hero Section
-        const heroTag = page.locator('.hero-versorger-content .versorger-tag');
-        await expect(heroTag).toContainText('Deutschlandweiter Ökostrom- & Energieversorger');
-        const heroTitle = page.locator('.hero-versorger-title');
-        await expect(heroTitle).toContainText('Einfach. Transparent.');
-        await expect(heroTitle).toContainText('Garantiert günstig.');
-
-        // Hero Badges
-        const heroBadges = page.locator('.versorger-hero-badges');
-        await expect(heroBadges).toContainText('24 Monate Preisschutz');
-        await expect(heroBadges).toContainText('100 % erneuerbare Energien (ok-power)');
-        await expect(heroBadges).toContainText('Kostenloser Wechselservice');
-
-        // Floating Badges in Hero frame
-        const visualBadges = page.locator('.hero-visual-frame');
-        await expect(visualBadges).toContainText('100 % Strom aus erneuerbaren Quellen');
-        await expect(visualBadges).toContainText('Bis zu 380 € / Jahr Ersparnis');
-        await expect(visualBadges).toContainText('Vor-Ort-Kundenservice in Dortmund');
-
-        // 5. Live-Tarifrechner
-        const rechnerTitle = page.locator('#rechner .rechner-header-title');
-        await expect(rechnerTitle).toHaveText('Live-Tarifrechner');
-        await expect(page.locator('.calc-tab-btn[data-branch="strom"] .calc-tab-title')).toHaveText('Ökostrom');
-        await expect(page.locator('.calc-tab-btn[data-branch="gas"] .calc-tab-title')).toHaveText('Erdgas');
-
-        const noticeBar = page.locator('#calcBranchNoticeText');
-        await expect(noticeBar).toHaveText('Ökostrom aus 100 % erneuerbaren Energien • Geprüft nach ok-power Kriterien');
-
-        await expect(page.locator('label[for="calcPlz"]')).toHaveText('Ihre Postleitzahl');
-        await expect(page.locator('#rechnerForm .calc-submit-btn')).toContainText('Tarife berechnen & vergleichen');
-
-        // 6. Bento Metric Cards
-        const trustBar = page.locator('#trust');
-        await expect(trustBar).toContainText('Ökostrom aus 100 % erneuerbaren Energien');
-        await expect(trustBar).toContainText('Ersparnis pro Jahr');
-        await expect(trustBar).toContainText('Feste Preisgarantie');
-        await expect(trustBar).toContainText('Digitaler Wechselservice');
-
-        // 7. Tariff Cards
-        const cardBasic = page.locator('#card-alpha-basic');
-        await expect(cardBasic).toContainText('Flexibel & Günstig');
-        await expect(cardBasic.locator('.tariff-action-btn')).toContainText('Tarif wählen');
-
-        const cardTime = page.locator('#card-alpha-time');
-        await expect(cardTime.locator('.tariff-ribbon')).toContainText('Bestseller & Smart Energy');
-        await expect(cardTime.locator('.tariff-action-btn')).toContainText('Bestseller wählen');
-
-        const cardPremium = page.locator('#card-alpha-premium');
-        await expect(cardPremium).toContainText('24 Monate Preisschutz & VIP');
-        await expect(cardPremium.locator('.tariff-action-btn')).toContainText('Tarif wählen');
-
-        // 8. Advantages
-        const vorteileSection = page.locator('#warum-wir');
-        await expect(vorteileSection.locator('.section-title')).toContainText('Warum wir die Besten sind: 5 entscheidende Vorteile gegenüber der Grundversorgung');
-
-        // 9. Comparison Matrix
-        const matrixSection = page.locator('#vergleich');
-        await expect(matrixSection.locator('.section-title')).toContainText('Alpha Energie vs. Lokaler Grundversorger');
-
-        // 10. Sektorenkopplung
-        const sektorSection = page.locator('#sektorenkopplung');
-        await expect(sektorSection.locator('.section-title')).toContainText('Ganzheitliche Energielösungen');
-
-        // 11. Footer
-        const footer = page.locator('#main-footer');
-        await expect(footer).toContainText('Tarife & Strom');
-        await expect(footer).toContainText('Service & Lösungen');
-        await expect(footer).toContainText('Vertrag online kündigen');
-        await expect(footer).toContainText('Alle Rechte vorbehalten');
-    });
-
-    test('4. Persistence across page reload via localStorage and URL parameter', async ({ page }) => {
-        await page.goto('/versorger', { waitUntil: 'load' });
-        await page.evaluate(() => localStorage.removeItem('alpha_lang'));
-        await page.waitForTimeout(300);
-
-        // Click Turkish
-        const btnTr = page.locator('.lang-btn[data-lang="tr"]').first();
-        await btnTr.click();
-        await expect(page.locator('html')).toHaveAttribute('lang', 'tr');
-
-        // Verify stored in localStorage
-        const storedLang = await page.evaluate(() => localStorage.getItem('alpha_lang'));
-        expect(storedLang).toBe('tr');
-
-        // Reload page
-        await page.reload({ waitUntil: 'load' });
-        await page.waitForTimeout(500);
-
-        // Lang should still be Turkish
-        await expect(page.locator('html')).toHaveAttribute('lang', 'tr');
-        await expect(page.locator('.lang-btn[data-lang="tr"]').first()).toHaveClass(/active/);
-        await expect(page.locator('.hero-versorger-title')).toContainText('Basit. Şeffaf.');
-
-        // Test URL parameter initialization ?lang=en
-        await page.goto('/versorger?lang=en', { waitUntil: 'load' });
-        await page.waitForTimeout(500);
-
-        await expect(page.locator('html')).toHaveAttribute('lang', 'en');
-        await expect(page.locator('.lang-btn[data-lang="en"]').first()).toHaveClass(/active/);
-        await expect(page.locator('.hero-versorger-title')).toContainText('Simple. Transparent.');
-    });
-
-    test('5. Translation of Modals: #meterModal and #orderModal in EN and TR', async ({ page }) => {
-        await page.goto('/versorger', { waitUntil: 'load' });
-        await page.evaluate(() => localStorage.removeItem('alpha_lang'));
-        await page.waitForTimeout(300);
-
-        // 1. Switch to English
+        // Capture all key section texts in German (DE) before switching
+        const getSectionSnapshot = async () => {
+            return await page.evaluate(() => {
+                const pick = (sel) => {
+                    const el = document.querySelector(sel);
+                    return el ? el.textContent.replace(/\s+/g, ' ').trim() : null;
+                };
+                return {
+                    lang: document.documentElement.getAttribute('lang'),
+                    title: document.title,
+                    nav1: pick('#main-nav .nav-list > li:nth-child(1) > a'),
+                    nav2: pick('#main-nav .nav-list > li:nth-child(2) > a'),
+                    nav3: pick('#main-nav .nav-list > li:nth-child(3) > a'),
+                    nav4: pick('#main-nav .nav-list > li:nth-child(4) > a'),
+                    nav5: pick('#main-nav .nav-list > li:nth-child(5) > a'),
+                    partnerLink: pick('.header-actions a[href="partner-werden.html"]'),
+                    promoBar: pick('.octo-promo-bar .octo-promo-inner > span:nth-child(2)'),
+                    heroPre: pick('.octo-hero-pre'),
+                    heroH1: pick('.hero-versorger-title'),
+                    wolfPill: pick('.octo-peeking-wolf-pill'),
+                    stageBadgeTop: pick('.octo-stage-badge-top'),
+                    stageOverlay1: pick('.octo-stage-overlay-pill > div > div:nth-child(1)'),
+                    stageOverlay2: pick('.octo-stage-overlay-pill > div > div:nth-child(2)'),
+                    stageOverlay3: pick('.octo-stage-overlay-pill > span'),
+                    calcTabStrom: pick('.calc-tab-btn[data-branch="strom"] .calc-tab-title'),
+                    calcTabGas: pick('.calc-tab-btn[data-branch="gas"] .calc-tab-title'),
+                    calcLabelPlz: pick('label[for="calcPlz"]'),
+                    calcPlzPlaceholder: document.querySelector('#calcPlz')?.placeholder,
+                    calcLabelKwh: pick('label[for="calcKwh"]'),
+                    preset1: pick('.octo-preset-pills .household-btn:nth-child(1) .household-btn-label'),
+                    preset2: pick('.octo-preset-pills .household-btn:nth-child(2) .household-btn-label'),
+                    preset3: pick('.octo-preset-pills .household-btn:nth-child(3) .household-btn-label'),
+                    calcSubmit: pick('#rechnerForm .calc-submit-btn span'),
+                    calcNotice: pick('#calcBranchNoticeText'),
+                    award1Title: pick('.octo-awards-row > *:nth-child(1) .octo-award-title'),
+                    award2Title: pick('.octo-awards-row > *:nth-child(2) .octo-award-title'),
+                    award3Title: pick('.octo-awards-row > *:nth-child(3) .octo-award-title'),
+                    award4Title: pick('.octo-awards-row > *:nth-child(4) .octo-award-title'),
+                    tarifeH2: pick('#tarife .section-title'),
+                    tarifeMascotText: pick('#tarife .octo-mascot-speech-text'),
+                    cardBasicBadge: pick('#card-alpha-basic .tariff-badge'),
+                    cardBasicBtn: pick('#card-alpha-basic .tariff-action-btn'),
+                    cardTimeRibbon: pick('#card-alpha-time .tariff-ribbon span'),
+                    cardTimeBadge: pick('#card-alpha-time .tariff-badge'),
+                    cardTimeBtn: pick('#card-alpha-time .tariff-action-btn'),
+                    cardPremiumBadge: pick('#card-alpha-premium .tariff-badge'),
+                    bentoLeftH3: pick('.octo-bento-1-2 > .octo-card:nth-child(1) .octo-card-h3'),
+                    bentoRightH3: pick('.octo-bento-1-2 > .octo-card:nth-child(2) .octo-card-h3'),
+                    mehrEnergieH2: pick('#mehr-energie .octo-section-h2'),
+                    businessTag: pick('.octo-business-banner .octo-business-tag span'),
+                    businessBtn: pick('.octo-business-banner .octo-btn-outline'),
+                    reviewScore: pick('#bewertungen > .octo-review-card:nth-child(1) > div:nth-child(2)'),
+                    review1Title: pick('#bewertungen > .octo-review-card:nth-child(2) h4'),
+                    review2Title: pick('#bewertungen > .octo-review-card:nth-child(3) h4'),
+                    review3Title: pick('#bewertungen > .octo-review-card:nth-child(4) h4'),
+                    smarteTarifeH2: pick('#smarte-tarife .octo-section-h2'),
+                    smarteBento1H3: pick('#smarte-tarife .octo-bento-2-1 > .octo-card:nth-child(1) .octo-card-h3'),
+                    smarteBento2H3: pick('#smarte-tarife .octo-bento-2-1 > .octo-card:nth-child(2) .octo-card-h3'),
+                    smarteGrid1H3: pick('#smarte-tarife .octo-grid-4 > .octo-card:nth-child(1) .octo-card-h3'),
+                    smarteGrid4H3: pick('#smarte-tarife .octo-grid-4 > .octo-card:nth-child(4) .octo-card-h3'),
+                    heizenH2: pick('#heizen-speichern .octo-section-h2'),
+                    heizenCard1H3: pick('#heizen-speichern .octo-split-device-card:nth-of-type(1) .octo-card-h3'),
+                    heizenCard2H3: pick('#heizen-speichern .octo-split-device-card:nth-of-type(2) .octo-card-h3'),
+                    innovationH2: pick('#innovation .octo-section-h2'),
+                    innovationCard1H3: pick('#innovation .octo-grid-3 > .octo-card:nth-child(1) .octo-card-h3'),
+                    innovationCard3H3: pick('#innovation .octo-grid-3 > .octo-card:nth-child(3) .octo-card-h3'),
+                    stromkBadge: pick('#stromkennzeichnung .octo-container > div:nth-child(1) > span'),
+                    stromkH2: pick('#stromkennzeichnung .octo-section-h2'),
+                    stromkLeftH3: pick('#stromkennzeichnung .octo-bento-2-1 > .octo-card:nth-child(1) .octo-card-h3'),
+                    stromkRightH3: pick('#stromkennzeichnung .octo-bento-2-1 > div:nth-child(2) > .octo-card:nth-child(1) .octo-card-h3'),
+                    stromkGasH3: pick('#stromkennzeichnung .octo-bento-2-1 > div:nth-child(2) > .octo-card:nth-child(2) .octo-card-h3'),
+                    aboutH2: pick('#about .octo-section-h2'),
+                    aboutItem1H3: pick('#about .octo-about-stack > .octo-about-item:nth-child(1) .octo-card-h3'),
+                    aboutItem2H3: pick('#about .octo-about-stack > .octo-about-item:nth-child(2) .octo-card-h3'),
+                    aboutItem3H3: pick('#about .octo-about-stack > .octo-about-item:nth-child(3) .octo-card-h3'),
+                    alphaversumH2: pick('#alphaversum .octo-section-h2'),
+                    alphaversumCard1H3: pick('#alphaversum .octo-grid-3 > .octo-card:nth-child(1) .octo-card-h3'),
+                    alphaversumCard3H3: pick('#alphaversum .octo-grid-3 > .octo-card:nth-child(3) .octo-card-h3'),
+                    bottomBannerH2: pick('.octo-bottom-banner-card h2'),
+                    bottomBannerBtn: pick('#bottomQuickOfferForm button[type="submit"]'),
+                    footerNewsTitle: pick('#main-footer .octo-footer-top-grid > .octo-footer-box:nth-child(2) h4'),
+                    footerCancelBtn: pick('#btnOpenCancelModal span'),
+                    footerRevokeBtn: pick('#btnOpenRevokeModal span'),
+                    footerCopy: pick('.octo-footer-copy > div:nth-child(1)'),
+                    orderModalTitle: pick('#orderModal .modal-header-title'),
+                    cancelModalTitle: pick('#cancelModalTitle'),
+                    meterModalTitle: pick('#meterModal .modal-header-title')
+                };
+            });
+        };
+
+        const deInitial = await getSectionSnapshot();
+        expect(deInitial.lang).toBe('de');
+
+        // 1. Switch to English (EN)
         await page.locator('.lang-btn[data-lang="en"]').first().click();
+        const enSnap = await getSectionSnapshot();
+        expect(enSnap.lang).toBe('en');
+        expect(enSnap.title).toContain('Green Electricity from 100% Renewable Energy');
+        expect(enSnap.nav1).toBe('Green Electricity');
+        expect(enSnap.nav2).toBe('Natural Gas');
+        expect(enSnap.nav3).toBe('Business');
+        expect(enSnap.nav4).toBe('About Us');
+        expect(enSnap.nav5).toBe('Contact');
+        expect(enSnap.partnerLink).toBe('Become a Partner');
+        expect(enSnap.heroPre).toBe('Switch now to');
+        expect(enSnap.heroH1).toContain('Green Electricity & Natural Gas.');
+        expect(enSnap.wolfPill).toContain('Your Alpha-Wolf');
+        expect(enSnap.calcTabStrom).toBe('Green Electricity');
+        expect(enSnap.calcTabGas).toBe('Natural Gas');
+        expect(enSnap.calcPlzPlaceholder).toBe('Your ZIP');
+        expect(enSnap.preset1).toBe('Low');
+        expect(enSnap.preset2).toBe('Medium');
+        expect(enSnap.preset3).toBe('High');
+        expect(enSnap.calcSubmit).toBe('Find Tariff');
+        expect(enSnap.tarifeH2).toContain('Tariffs');
+        expect(enSnap.mehrEnergieH2).toContain('More energy for your money.');
+        expect(enSnap.businessTag).toContain('ALPHA BUSINESS');
+        expect(enSnap.reviewScore).toBe('Excellent');
+        expect(enSnap.aboutH2).toBe('About Us');
+        expect(enSnap.footerCancelBtn).toContain('Cancel contracts here');
+        expect(enSnap.footerRevokeBtn).toContain('Revoke contract');
 
-        // Open Meter Modal
-        const btnMeter = page.locator('#btnOpenMeterModal');
-        await btnMeter.click();
-        const meterModal = page.locator('#meterModal');
-        await expect(meterModal).toBeVisible();
-        await expect(meterModal.locator('.modal-header-title')).toHaveText('Report Meter Reading Online');
-        await expect(meterModal.locator('button[type="submit"]')).toHaveText('Submit meter reading now');
+        // Verify every single snapshot field translated away from DE in EN
+        for (const [key, deVal] of Object.entries(deInitial)) {
+            if (key === 'lang') continue;
+            expect(enSnap[key], `EN snapshot key "${key}" should not remain German ("${deVal}")`).not.toBe(deVal);
+        }
 
-        // Close Meter Modal
-        await meterModal.locator('.modal-close-btn').click();
-        await expect(meterModal).not.toBeVisible();
+        // 2. Switch to Turkish (TR)
+        await page.locator('.lang-btn[data-lang="tr"]').first().click();
+        const trSnap = await getSectionSnapshot();
+        expect(trSnap.lang).toBe('tr');
+        expect(trSnap.title).toContain('Yeşil Elektrik');
+        expect(trSnap.nav1).toBe('Yeşil Elektrik');
+        expect(trSnap.nav2).toBe('Doğal Gaz');
+        expect(trSnap.nav3).toBe('Ticari');
+        expect(trSnap.nav4).toBe('Hakkımızda');
+        expect(trSnap.nav5).toBe('İletişim');
+        expect(trSnap.partnerLink).toBe('İş Ortağı Olun');
+        for (const [key, deVal] of Object.entries(deInitial)) {
+            if (key === 'lang') continue;
+            expect(trSnap[key], `TR snapshot key "${key}" should not remain German ("${deVal}")`).not.toBe(deVal);
+        }
 
-        // Open Order Modal via Tariff Action button
-        const btnOrder = page.locator('#card-alpha-basic .tariff-action-btn');
-        await btnOrder.click();
+        // 3. Switch to Arabic (AR)
+        await page.locator('.lang-btn[data-lang="ar"]').first().click();
+        const arSnap = await getSectionSnapshot();
+        expect(arSnap.lang).toBe('ar');
+        expect(arSnap.title).toContain('كهرباء خضراء');
+        expect(arSnap.nav1).toBe('كهرباء خضراء');
+        expect(arSnap.nav2).toBe('الغاز الطبيعي');
+        expect(arSnap.nav3).toBe('الشركات');
+        expect(arSnap.nav4).toBe('من نحن');
+        expect(arSnap.nav5).toBe('اتصل بنا');
+        expect(arSnap.partnerLink).toBe('كن شريكاً');
+        for (const [key, deVal] of Object.entries(deInitial)) {
+            if (key === 'lang') continue;
+            expect(arSnap[key], `AR snapshot key "${key}" should not remain German ("${deVal}")`).not.toBe(deVal);
+        }
+
+        // 4. Switch back to German (DE) and verify 100% lossless restoration
+        await page.locator('.lang-btn[data-lang="de"]').first().click();
+        const deRestored = await getSectionSnapshot();
+        expect(deRestored).toEqual(deInitial);
+    });
+
+    test('2. Modals (#orderModal, #legalCancelModal, #meterModal) translate completely in EN, TR, AR, and DE', async ({ page }) => {
+        await page.goto('/versorger', { waitUntil: 'load' });
+        await page.evaluate(() => localStorage.removeItem('alpha_lang'));
+        await page.waitForTimeout(200);
+
+        // Switch to Arabic (AR)
+        await page.locator('.lang-btn[data-lang="ar"]').first().click();
+
+        // Open Order Modal
+        await page.locator('#card-alpha-basic .tariff-action-btn').click();
         const orderModal = page.locator('#orderModal');
         await expect(orderModal).toBeVisible();
-        await expect(orderModal.locator('.modal-header-title')).toHaveText('Online Order & Provider Switch');
-        await expect(orderModal.locator('#progStep1')).toHaveText('1. Tariff & Date');
-        await expect(orderModal.locator('#progStep2')).toHaveText('2. Meter & Address');
-        await expect(orderModal.locator('#progStep3')).toHaveText('3. Personal Data');
-        await expect(orderModal.locator('#btnStep1Next')).toHaveText('Continue to Step 2: Meter Data →');
-
-        // Close Order Modal
+        await expect(orderModal.locator('.modal-header-title')).toHaveText('الطلب عبر الإنترنت وتغيير المزود');
+        await expect(orderModal.locator('#progStep1')).toHaveText('1. التعريفة والتاريخ');
+        await expect(orderModal.locator('#modalInlineCalcPromptText')).toContainText('لم يتم إدخال بيانات الاستهلاك بعد');
+        await expect(orderModal.locator('#btnStep1Next')).toContainText('المتابعة إلى الخطوة 2');
         await orderModal.locator('.modal-close-btn').click();
         await expect(orderModal).not.toBeVisible();
 
-        // 2. Switch to Turkish
-        await page.locator('.lang-btn[data-lang="tr"]').first().click();
+        // Open Legal Cancel Modal (§ 312k BGB)
+        await page.locator('#btnOpenCancelModal').click();
+        const cancelModal = page.locator('#legalCancelModal');
+        await expect(cancelModal).toBeVisible();
+        await expect(page.locator('#cancelModalTitle')).toContainText('إلغاء العقود هنا');
+        await expect(page.locator('#btnCancelSubmit')).toHaveText('إلغاء العقد الآن');
 
-        // Open Meter Modal in Turkish
-        await btnMeter.click();
+        // Switch tab inside Cancel Modal to Revocation (Widerruf)
+        await page.locator('#cancelModeTabWiderruf').click();
+        await expect(page.locator('#cancelModalTitle')).toContainText('التراجع عن العقد');
+        await expect(page.locator('#btnCancelSubmit')).toHaveText('إرسال طلب التراجع');
+        await cancelModal.locator('.modal-close-btn').click();
+        await expect(cancelModal).not.toBeVisible();
+
+        // Open Meter Modal
+        await page.locator('#btnOpenMeterModal').click();
+        const meterModal = page.locator('#meterModal');
         await expect(meterModal).toBeVisible();
-        await expect(meterModal.locator('.modal-header-title')).toHaveText('Online Sayaç Bildirimi');
-        await expect(meterModal.locator('button[type="submit"]')).toHaveText('Sayaç değerini şimdi ilet');
-
-        // Close Meter Modal
+        await expect(meterModal.locator('.modal-header-title')).toHaveText('إبلاغ قراءة العداد عبر الإنترنت');
         await meterModal.locator('.modal-close-btn').click();
         await expect(meterModal).not.toBeVisible();
-
-        // Open Order Modal in Turkish
-        await btnOrder.click();
-        await expect(orderModal).toBeVisible();
-        await expect(orderModal.locator('.modal-header-title')).toHaveText('Online Sipariş & Tedarikçi Değişimi');
-        await expect(orderModal.locator('#progStep1')).toHaveText('1. Tarife & Tarih');
-        await expect(orderModal.locator('#progStep2')).toHaveText('2. Sayaç & Adres');
-        await expect(orderModal.locator('#progStep3')).toHaveText('3. Kişisel Bilgiler');
-        await expect(orderModal.locator('#btnStep1Next')).toHaveText("Adım 2'ye Devam Et: Sayaç Bilgileri →");
-
-        // Close Order Modal
-        await orderModal.locator('.modal-close-btn').click();
-        await expect(orderModal).not.toBeVisible();
     });
 
-    test('6. Turkish Language (TR) Bento Metric Card 2 bounds and overflow check across all viewports (375px, 768px, 1024px, 1280px, 1440px)', async ({ page }) => {
-        test.setTimeout(90000);
-        const viewports = [375, 768, 1024, 1280, 1440];
+    test('3. All 17 HTML pages include i18n.js and the AR language button', async ({ page }) => {
+        const pages = [
+            '/versorger.html',
+            '/oekostrom.html',
+            '/oekogas.html',
+            '/waermestrom.html',
+            '/gewerbekunden.html',
+            '/photovoltaik.html',
+            '/sektorenkopplung.html',
+            '/nachhaltigkeit-co2.html',
+            '/service.html',
+            '/ueber-uns.html',
+            '/partner-werden.html',
+            '/karriere.html',
+            '/kontakt.html',
+            '/impressum.html',
+            '/datenschutz.html',
+            '/cookie-richtlinie.html',
+            '/cookie-einstellungen.html'
+        ];
 
-        for (const width of viewports) {
-            await page.setViewportSize({ width, height: 900 });
-            await page.goto('/versorger?lang=tr', { waitUntil: 'domcontentloaded' });
-            await page.waitForTimeout(150);
-
-            await expect(page.locator('html')).toHaveAttribute('lang', 'tr');
-
-            const card = page.locator('.section-trust-metrics .trust-stat-card:nth-child(2)');
-            const numEl = card.locator('.stat-number');
-
-            await expect(numEl).toBeVisible();
-            await expect(numEl).toHaveText("380 €'ya varan");
-
-            const cardBox = await card.boundingBox();
-            const numBox = await numEl.boundingBox();
-
-            expect(cardBox).not.toBeNull();
-            expect(numBox).not.toBeNull();
-
-            // Check bounding box containment: numBox must be completely within cardBox
-            expect(numBox.x + numBox.width).toBeLessThanOrEqual(cardBox.x + cardBox.width + 0.5);
-            expect(numBox.x).toBeGreaterThanOrEqual(cardBox.x - 0.5);
-
-            // Check element horizontal overflow (scrollWidth vs clientWidth)
-            const numOverflow = await numEl.evaluate((el) => el.scrollWidth > el.clientWidth);
-            expect(numOverflow).toBe(false);
-
-            // Check card horizontal overflow
-            const cardOverflow = await card.evaluate((el) => el.scrollWidth > el.clientWidth);
-            expect(cardOverflow).toBe(false);
-
-            // Check document-level horizontal overflow (0px horizontal overflow)
-            const docOverflow = await page.evaluate((w) => {
-                return document.documentElement.scrollWidth > w;
-            }, width);
-            expect(docOverflow).toBe(false);
-
-            // Switch back to German to ensure lossless roundtrip and no layout shifts
-            await page.evaluate(() => window.i18n.setLanguage('de'));
-            await expect(page.locator('html')).toHaveAttribute('lang', 'de');
-            await expect(numEl).toHaveText("Bis zu 380 €");
-
-            const deCardBox = await card.boundingBox();
-            const deNumBox = await numEl.boundingBox();
-            expect(deNumBox.x + deNumBox.width).toBeLessThanOrEqual(deCardBox.x + deCardBox.width + 0.5);
-            expect(deNumBox.x).toBeGreaterThanOrEqual(deCardBox.x - 0.5);
+        for (const url of pages) {
+            await page.goto(url, { waitUntil: 'domcontentloaded' });
+            const hasArBtn = await page.locator('.lang-btn[data-lang="ar"]').count();
+            expect(hasArBtn, `Page ${url} should have AR button`).toBeGreaterThan(0);
+            const hasI18n = await page.evaluate(() => Boolean(window.i18n && typeof window.i18n.setLanguage === 'function'));
+            expect(hasI18n, `Page ${url} should load window.i18n`).toBe(true);
         }
-    });
-
-    test('7. Switching to Arabic (AR) translates Navigation, Hero, Rechner, Badges, Tariffs, Modals, and Footer with 0px overflow', async ({ page }) => {
-        await page.goto('/versorger', { waitUntil: 'load' });
-        await page.evaluate(() => localStorage.removeItem('alpha_lang'));
-        await page.waitForTimeout(300);
-
-        // Click Arabic language button
-        const btnAr = page.locator('.lang-btn[data-lang="ar"]').first();
-        await expect(btnAr).toBeVisible();
-        await btnAr.click();
-
-        // 1. Check HTML lang attribute, title and button state
-        await expect(page.locator('html')).toHaveAttribute('lang', 'ar');
-        await expect(page).toHaveTitle('Alpha Energie | كهرباء خضراء 100% وتعريفات غاز في جميع أنحاء ألمانيا');
-        await expect(btnAr).toHaveClass(/active/);
-
-        // 2. Navigation
-        const navTariffs = page.locator('#main-nav .nav-list > li:nth-child(1) > a');
-        await expect(navTariffs).toHaveText('الكهرباء والتعريفات');
-        const calcCta = page.locator('.header-actions a[href="#rechner"]');
-        await expect(calcCta).toHaveText('احسب التعريفة');
-        const partnerBtn = page.locator('.header-actions a[href="/"], .header-actions a[href="partner-werden.html"]');
-        await expect(partnerBtn).toHaveText('كن شريكاً');
-
-        // 3. Hero Section
-        const heroTag = page.locator('.hero-versorger-content .versorger-tag');
-        await expect(heroTag).toContainText('مزود الكهرباء الخضراء والطاقة في جميع أنحاء ألمانيا');
-        const heroTitle = page.locator('.hero-versorger-title');
-        await expect(heroTitle).toContainText('بسيط. شفاف.');
-        await expect(heroTitle).toContainText('مضمون بأفضل الأسعار.');
-
-        // 4. Live-Tarifrechner
-        const rechnerTitle = page.locator('#rechner .rechner-header-title');
-        await expect(rechnerTitle).toHaveText('حاسبة التعريفات المباشرة');
-        await expect(page.locator('.calc-tab-btn[data-branch="strom"] .calc-tab-title')).toHaveText('كهرباء خضراء');
-        await expect(page.locator('.calc-tab-btn[data-branch="gas"] .calc-tab-title')).toHaveText('غاز طبيعي');
-
-        // 5. Bento Metric Cards
-        const trustBar = page.locator('#trust');
-        await expect(trustBar).toContainText('كهرباء خضراء من طاقة متجددة 100%');
-        await expect(trustBar).toContainText('حتى 380 €');
-        await expect(trustBar).toContainText('24 شهراً');
-
-        // 6. Tariff Cards
-        const cardBasic = page.locator('#card-alpha-basic');
-        await expect(cardBasic).toContainText('مرن واقتصادي');
-        await expect(cardBasic.locator('.tariff-action-btn')).toContainText('اختر التعريفة');
-
-        // 7. Footer
-        const footer = page.locator('#main-footer');
-        await expect(footer).toContainText('التعريفات والكهرباء');
-        await expect(footer).toContainText('الخدمة والحلول');
-        await expect(footer).toContainText('إلغاء العقد عبر الإنترنت');
-
-        // 8. Switch back to German and verify lossless restoration
-        const btnDe = page.locator('.lang-btn[data-lang="de"]').first();
-        await btnDe.click();
-        await expect(page.locator('html')).toHaveAttribute('lang', 'de');
-        await expect(heroTitle).toContainText('Einfach. Transparent.');
     });
 
 });

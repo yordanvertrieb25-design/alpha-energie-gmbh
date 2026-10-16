@@ -1446,32 +1446,32 @@ document.addEventListener("DOMContentLoaded", async () => {
             }
             if (l === 'en') {
                 return [
-                    { label: '1 Person', sub: '1,500 kWh', kwh: 1500 },
-                    { label: '2 Persons', sub: '2,500 kWh', kwh: 2500 },
-                    { label: '3 Persons', sub: '3,500 kWh', kwh: 3500 },
+                    { label: 'Low', sub: '1,500 kWh', kwh: 1500 },
+                    { label: 'Medium', sub: '2,500 kWh', kwh: 2500 },
+                    { label: 'High', sub: '3,500 kWh', kwh: 3500 },
                     { label: '4+ Persons', sub: '4,500 kWh', kwh: 4500 }
                 ];
             }
             if (l === 'tr') {
                 return [
-                    { label: '1 Kişi', sub: '1.500 kWh', kwh: 1500 },
-                    { label: '2 Kişi', sub: '2.500 kWh', kwh: 2500 },
-                    { label: '3 Kişi', sub: '3.500 kWh', kwh: 3500 },
+                    { label: 'Az', sub: '1.500 kWh', kwh: 1500 },
+                    { label: 'Orta', sub: '2.500 kWh', kwh: 2500 },
+                    { label: 'Çok', sub: '3.500 kWh', kwh: 3500 },
                     { label: '4+ Kişi', sub: '4.500 kWh', kwh: 4500 }
                 ];
             }
             if (l === 'ar') {
                 return [
-                    { label: 'شخص 1', sub: '1.500 ك.و.س', kwh: 1500 },
-                    { label: 'شخصان', sub: '2.500 ك.و.س', kwh: 2500 },
-                    { label: '3 أشخاص', sub: '3.500 ك.و.س', kwh: 3500 },
+                    { label: 'قليل', sub: '1.500 ك.و.س', kwh: 1500 },
+                    { label: 'متوسط', sub: '2.500 ك.و.س', kwh: 2500 },
+                    { label: 'كثير', sub: '3.500 ك.و.س', kwh: 3500 },
                     { label: '+4 أشخاص', sub: '4.500 ك.و.س', kwh: 4500 }
                 ];
             }
             return [
-                { label: '1 Person', sub: '1.500 kWh', kwh: 1500 },
-                { label: '2 Pers.', sub: '2.500 kWh', kwh: 2500 },
-                { label: '3 Pers.', sub: '3.500 kWh', kwh: 3500 },
+                { label: 'Wenig', sub: '1.500 kWh', kwh: 1500 },
+                { label: 'Mittel', sub: '2.500 kWh', kwh: 2500 },
+                { label: 'Viel', sub: '3.500 kWh', kwh: 3500 },
                 { label: '4+ Pers.', sub: '4.500 kWh', kwh: 4500 }
             ];
         }
