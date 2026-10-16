@@ -8512,35 +8512,10 @@ html.swal2-height-auto:not(.alpha-modal-open) {
     font-size: 0.76rem;
 }
 
-.ai-media-info-btn--mascot {
-    bottom: 8px;
-    right: 8px;
-    top: auto;
-    height: 22px;
-    padding: 0 7px;
-    font-size: 0.65rem;
-    background: rgba(255, 253, 249, 0.94);
-    color: #9a3412;
-    border: 1.2px solid rgba(249, 178, 51, 0.9);
-    box-shadow: 0 3px 10px rgba(233, 94, 36, 0.16);
-}
-
-.ai-media-info-btn--inline-pill {
-    position: relative !important;
-    top: auto !important;
-    right: auto !important;
-    bottom: auto !important;
-    left: auto !important;
-    display: inline-flex;
-    vertical-align: middle;
-    height: 20px;
-    padding: 0 6px;
-    font-size: 0.64rem;
-    margin-left: 5px;
-    background: rgba(233, 94, 36, 0.14);
-    color: #9a3412;
-    border: 1px solid rgba(233, 94, 36, 0.55);
-    box-shadow: none;
+.ai-media-info-btn--mascot,
+.ai-media-info-btn--inline-pill,
+.ai-media-info-btn[data-ai-type="mascot"] {
+    display: none !important;
 }
 
 /* Floating Click Popover */

@@ -4399,34 +4399,10 @@ document.addEventListener("DOMContentLoaded", async () => {
                 padding: 0 12px;
                 font-size: 0.76rem;
             }
-            .ai-media-info-btn--mascot {
-                bottom: 8px;
-                right: 8px;
-                top: auto;
-                height: 22px;
-                padding: 0 7px;
-                font-size: 0.65rem;
-                background: rgba(255, 253, 249, 0.95);
-                color: #9a3412;
-                border: 1.2px solid rgba(249, 178, 51, 0.9);
-                box-shadow: 0 3px 10px rgba(233, 94, 36, 0.16);
-            }
-            .ai-media-info-btn--inline-pill {
-                position: relative !important;
-                top: auto !important;
-                right: auto !important;
-                bottom: auto !important;
-                left: auto !important;
-                display: inline-flex;
-                vertical-align: middle;
-                height: 20px;
-                padding: 0 6px;
-                font-size: 0.64rem;
-                margin-left: 5px;
-                background: rgba(233, 94, 36, 0.15);
-                color: #9a3412;
-                border: 1px solid rgba(233, 94, 36, 0.55);
-                box-shadow: none;
+            .ai-media-info-btn--mascot,
+            .ai-media-info-btn--inline-pill,
+            .ai-media-info-btn[data-ai-type="mascot"] {
+                display: none !important;
             }
             .ai-media-info-popover {
                 position: fixed;
@@ -4672,15 +4648,22 @@ document.addEventListener("DOMContentLoaded", async () => {
         if (!img) return false;
         const src = (img.getAttribute('src') || '').toLowerCase();
         if (!src) return false;
-        // Never badge logos, seals, or favicons
-        if (src.includes('logo') || src.includes('ok-power') || src.includes('bdeb') || src.includes('favicon') || src.includes('apple-touch')) {
+        // Never badge logos, seals, favicons, or Wolf mascot illustrations
+        if (
+            src.includes('logo') ||
+            src.includes('ok-power') ||
+            src.includes('bdeb') ||
+            src.includes('favicon') ||
+            src.includes('apple-touch') ||
+            src.includes('wolf-mascot') ||
+            img.classList.contains('octo-mascot-img') ||
+            img.classList.contains('octo-peeking-wolf-img') ||
+            img.closest('.octo-hero-peeking-wolf, .octo-section-mascot-box, .octo-footer-mascot-aside, .octo-mascot-inline-card')
+        ) {
             return false;
         }
         if (img.dataset.aiGenerated === 'true') {
-            return (src.includes('wolf-mascot') || img.classList.contains('octo-mascot-img') || img.classList.contains('octo-peeking-wolf-img')) ? 'mascot' : 'image';
-        }
-        if (src.includes('wolf-mascot') || img.classList.contains('octo-mascot-img') || img.classList.contains('octo-peeking-wolf-img')) {
-            return 'mascot';
+            return 'image';
         }
         if (
             src.includes('clean_energy_home') ||
@@ -4699,6 +4682,11 @@ document.addEventListener("DOMContentLoaded", async () => {
     function initAiMediaInfoBadges() {
         ensureAiInfoStyles();
 
+        // Remove any legacy mascot AI badges if present
+        document.querySelectorAll('.ai-media-info-btn[data-ai-type="mascot"], .ai-media-info-btn--mascot, .ai-media-info-btn--inline-pill').forEach((btn) => {
+            btn.remove();
+        });
+
         // 1. Bind any already-present static .ai-media-info-btn buttons in HTML
         document.querySelectorAll('.ai-media-info-btn').forEach(bindButton);
 
@@ -4713,44 +4701,12 @@ document.addEventListener("DOMContentLoaded", async () => {
             wrapper.appendChild(btn);
         });
 
-        // 3. Equip all AI-generated <img> elements (Wolf mascot illustrations & AI photos)
+        // 3. Equip all AI-generated photo <img> elements (never Wolf mascots)
         document.querySelectorAll('img').forEach((img) => {
             const aiKind = isAiGeneratedImage(img);
             if (!aiKind) return;
 
-            // Case A: Peeking Wolf in Hero -> place inline inside .octo-peeking-wolf-pill
-            const peekingWrap = img.closest('.octo-hero-peeking-wolf');
-            if (peekingWrap) {
-                peekingWrap.removeAttribute('aria-hidden');
-                const pill = peekingWrap.querySelector('.octo-peeking-wolf-pill');
-                if (pill && !pill.querySelector('.ai-media-info-btn')) {
-                    pill.style.pointerEvents = 'auto';
-                    const btn = createInfoButton('mascot', 'ai-media-info-btn--inline-pill', 'KI');
-                    pill.appendChild(btn);
-                }
-                return;
-            }
-
-            // Case B: Mascot Box / Footer Mascot Aside / Inline Mascot Card
-            // Place inline inside the speech-tag or mascot-pill so it NEVER covers the Wolf image!
-            const mascotBox = img.closest('.octo-section-mascot-box, .octo-footer-mascot-aside, .octo-mascot-inline-card');
-            if (mascotBox) {
-                mascotBox.removeAttribute('aria-hidden');
-                if (!mascotBox.querySelector('.ai-media-info-btn')) {
-                    const inlineTarget = mascotBox.querySelector('.octo-mascot-speech-tag, .octo-mascot-pill');
-                    if (inlineTarget) {
-                        inlineTarget.style.pointerEvents = 'auto';
-                        const btn = createInfoButton('mascot', 'ai-media-info-btn--inline-pill', 'KI');
-                        inlineTarget.appendChild(btn);
-                    } else {
-                        const btn = createInfoButton('mascot', 'ai-media-info-btn--mascot', 'KI');
-                        mascotBox.appendChild(btn);
-                    }
-                }
-                return;
-            }
-
-            // Case C: Hero Stage Visual Card -> top-left so it never covers .octo-stage-badge-top at top-right
+            // Hero Stage Visual Card -> bottom-right above bottom pill
             const heroStageCard = img.closest('.octo-stage-visual-card');
             if (heroStageCard) {
                 if (!heroStageCard.querySelector('.ai-media-info-btn')) {
@@ -4760,21 +4716,12 @@ document.addEventListener("DOMContentLoaded", async () => {
                 return;
             }
 
-            // Case D: Card Visual / Split Device Media / General Wrapper
+            // Card Visual / Split Device Media / General Wrapper
             const mediaWrap = img.closest('.octo-card-visual, .octo-split-device-media') || img.parentElement;
             if (mediaWrap && !mediaWrap.querySelector('.ai-media-info-btn')) {
-                // If it's the Sitting Wolf card with a caption div right after the img, append inline to caption so top badges are never covered
-                const nextCaption = img.nextElementSibling;
-                if (aiKind === 'mascot' && nextCaption && nextCaption.tagName === 'DIV') {
-                    nextCaption.style.pointerEvents = 'auto';
-                    const btn = createInfoButton('mascot', 'ai-media-info-btn--inline-pill', 'KI');
-                    nextCaption.appendChild(btn);
-                    return;
-                }
                 const computedPos = window.getComputedStyle(mediaWrap).position;
                 if (computedPos === 'static') mediaWrap.style.position = 'relative';
-                const variant = aiKind === 'mascot' ? 'ai-media-info-btn--mascot' : 'ai-media-info-btn--photo';
-                const btn = createInfoButton(aiKind === 'mascot' ? 'mascot' : 'image', variant, 'KI');
+                const btn = createInfoButton('image', 'ai-media-info-btn--photo', 'KI');
                 mediaWrap.appendChild(btn);
             }
         });
