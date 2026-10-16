@@ -640,61 +640,40 @@
         .octo-waerme-htnt-grid,
         .octo-waerme-split-col {
             display: flex;
-            align-items: center;
-            gap: 10px;
+            flex-direction: row;
+            align-items: flex-end;
+            gap: 14px;
             flex-wrap: wrap;
         }
 
         .octo-htnt-input-pill {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            background: #fff9eb;
-            border: 1.4px solid rgba(249, 178, 51, 0.6);
-            border-radius: 10px;
-            padding: 5px 12px;
-            width: fit-content;
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+            gap: 6px;
+            background: transparent;
+            border: none;
+            padding: 0;
+            width: 245px;
             max-width: 100%;
+            flex: 0 1 245px;
         }
 
         .octo-htnt-input-pill label {
-            font-size: 0.76rem;
-            font-weight: 800;
-            color: #9a3412;
+            display: block;
+            font-size: 0.84rem;
+            font-weight: 600;
+            color: var(--octo-text-light);
             white-space: nowrap;
             margin: 0;
         }
 
-        .octo-htnt-input-wrap,
-        .octo-htnt-field-wrap {
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-            background: #ffffff;
-            border: 1px solid rgba(249, 178, 51, 0.5);
-            border-radius: 7px;
-            padding: 3px 8px;
-        }
-
-        .octo-htnt-input-wrap input,
-        .octo-htnt-field-wrap input {
-            width: 68px;
-            border: none;
-            outline: none;
-            background: transparent;
-            font-family: inherit;
-            font-size: 0.84rem;
-            font-weight: 800;
-            color: #1c1917;
-            text-align: right;
-        }
-
-        .octo-htnt-input-wrap span,
-        .octo-htnt-field-wrap span {
-            font-size: 0.72rem;
-            font-weight: 700;
-            color: #78350f;
-            white-space: nowrap;
+        .octo-htnt-input-pill .octo-input-box {
+            height: 52px;
+            border-radius: 14px;
+            background: var(--octo-bg-deep);
+            border: 1.6px solid var(--octo-border-orange);
+            padding: 0 12px;
         }
 
         .octo-htnt-info-badge {
@@ -2379,19 +2358,19 @@
                                         <button type="button" class="octo-meter-type-btn" data-meter-type="et">Eintarifzähler (ET)</button>
                                     </div>
                                 </div>
-                                <div id="calcHtNtSplitInputs" class="octo-waerme-htnt-grid" style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
-                                    <div class="octo-htnt-input-pill" id="calcHtInputBox" style="display: inline-flex; width: fit-content; max-width: 100%;">
-                                        <label for="calcKwhHt">Hochtarif (HT – Tagstrom)</label>
-                                        <div class="octo-htnt-input-wrap">
-                                            <input type="number" id="calcKwhHt" value="3600" min="0" max="100000" step="100">
-                                            <span>kWh/Jahr</span>
+                                <div id="calcHtNtSplitInputs" class="octo-waerme-htnt-grid">
+                                    <div class="octo-htnt-input-pill" id="calcHtInputBox">
+                                        <label for="calcKwhHt" class="octo-calc-col-label">Hochtarif (HT – Tagstrom)</label>
+                                        <div class="octo-input-box" onclick="var inp=this.querySelector('input');if(inp&&document.activeElement!==inp){inp.focus();}">
+                                            <input type="number" id="calcKwhHt" class="octo-input-field" value="3600" placeholder="3600" min="0" max="100000" step="100">
+                                            <span class="octo-unit-tag">kWh/Jahr</span>
                                         </div>
                                     </div>
-                                    <div class="octo-htnt-input-pill" id="calcNtInputBox" style="display: inline-flex; width: fit-content; max-width: 100%;">
-                                        <label for="calcKwhNt">Niedertarif (NT – Nacht-/Wärmestrom)</label>
-                                        <div class="octo-htnt-input-wrap">
-                                            <input type="number" id="calcKwhNt" value="2400" min="0" max="100000" step="100">
-                                            <span>kWh/Jahr</span>
+                                    <div class="octo-htnt-input-pill" id="calcNtInputBox">
+                                        <label for="calcKwhNt" class="octo-calc-col-label">Niedertarif (NT – Nacht-/Wärmestrom)</label>
+                                        <div class="octo-input-box" onclick="var inp=this.querySelector('input');if(inp&&document.activeElement!==inp){inp.focus();}">
+                                            <input type="number" id="calcKwhNt" class="octo-input-field" value="2400" placeholder="2400" min="0" max="100000" step="100">
+                                            <span class="octo-unit-tag">kWh/Jahr</span>
                                         </div>
                                     </div>
                                     <div class="octo-htnt-info-badge" style="flex-basis: 100%; font-size: 0.71rem; line-height: 1.35; color: #78716c; margin-top: 2px;">
