@@ -3778,4 +3778,445 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 })();
 
+// ==========================================================================
+// Alpha Energie - AI Transparency Info Icon & Click Popover (Art. 50 KI-VO)
+// Automatically equips AI-generated videos, photos & Wolf mascot illustrations
+// with a clickable Info Icon (ⓘ KI) that explains AI generation on click.
+// ==========================================================================
+(function() {
+    'use strict';
+
+    const INFO_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>';
+
+    const AI_TEXTS = {
+        video: {
+            badge: '✨ KI-generiertes Video',
+            title: 'Dieses Video wurde KI-generiert',
+            body: 'Dieses Video wurde mithilfe künstlicher Intelligenz (KI) erstellt bzw. visuell aufbereitet. Es dient der anschaulichen Darstellung unseres Wechselservices (Transparenzhinweis gem. Art. 50 KI-Verordnung).'
+        },
+        mascot: {
+            badge: '✨ KI-generierte Illustration',
+            title: 'Diese Illustration wurde KI-generiert',
+            body: 'Diese Illustration unseres Alpha-Wolf Maskottchens wurde mithilfe künstlicher Intelligenz (KI) generiert (Transparenzhinweis gem. Art. 50 KI-Verordnung).'
+        },
+        image: {
+            badge: '✨ KI-generiertes Bild',
+            title: 'Dieses Bild wurde KI-generiert',
+            body: 'Dieses Bild wurde mithilfe künstlicher Intelligenz (KI) generiert bzw. bearbeitet (Transparenzhinweis gem. Art. 50 KI-Verordnung).'
+        }
+    };
+
+    function ensureAiInfoStyles() {
+        if (document.getElementById('alpha-ai-info-styles')) return;
+        const style = document.createElement('style');
+        style.id = 'alpha-ai-info-styles';
+        style.textContent = `
+            .octo-section-mascot-box,
+            .octo-footer-mascot-aside,
+            .octo-mascot-inline-card,
+            .octo-card-visual,
+            .octo-stage-visual-card,
+            .octo-split-device-media {
+                position: relative;
+            }
+            .ai-media-info-btn {
+                position: absolute;
+                z-index: 35;
+                pointer-events: auto !important;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                gap: 4px;
+                height: 25px;
+                padding: 0 8px;
+                border-radius: 999px;
+                background: rgba(28, 25, 23, 0.80);
+                backdrop-filter: blur(8px);
+                -webkit-backdrop-filter: blur(8px);
+                color: #ffffff;
+                border: 1.2px solid rgba(249, 178, 51, 0.88);
+                font-family: 'Sora', 'Plus Jakarta Sans', system-ui, sans-serif;
+                font-size: 0.68rem;
+                font-weight: 700;
+                letter-spacing: 0.02em;
+                line-height: 1;
+                cursor: pointer;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.22);
+                transition: transform 0.18s ease, background 0.18s ease, box-shadow 0.18s ease;
+                user-select: none;
+            }
+            .ai-media-info-btn:hover,
+            .ai-media-info-btn:focus-visible,
+            .ai-media-info-btn.is-active {
+                background: linear-gradient(135deg, #f9b233 0%, #e95e24 100%) !important;
+                color: #ffffff !important;
+                border-color: #ffffff !important;
+                transform: translateY(-1px) scale(1.04);
+                box-shadow: 0 6px 16px rgba(233, 94, 36, 0.38);
+                outline: none;
+            }
+            .ai-media-info-btn svg {
+                width: 13px;
+                height: 13px;
+                flex-shrink: 0;
+            }
+            .ai-media-info-btn--photo {
+                bottom: 10px;
+                right: 10px;
+            }
+            .ai-media-info-btn--hero-photo {
+                top: 12px;
+                right: 12px;
+            }
+            .ai-media-info-btn--video {
+                top: 14px;
+                left: 14px;
+                height: 32px;
+                padding: 0 12px;
+                font-size: 0.76rem;
+            }
+            .ai-media-info-btn--mascot {
+                top: 7px;
+                right: 7px;
+                height: 22px;
+                padding: 0 7px;
+                font-size: 0.65rem;
+                background: rgba(255, 253, 249, 0.95);
+                color: #9a3412;
+                border: 1.2px solid rgba(249, 178, 51, 0.9);
+                box-shadow: 0 3px 10px rgba(233, 94, 36, 0.16);
+            }
+            .ai-media-info-btn--inline-pill {
+                position: static;
+                height: 20px;
+                padding: 0 6px;
+                font-size: 0.64rem;
+                margin-left: 4px;
+                background: rgba(233, 94, 36, 0.15);
+                color: #9a3412;
+                border: 1px solid rgba(233, 94, 36, 0.55);
+                box-shadow: none;
+            }
+            .ai-media-info-popover {
+                position: fixed;
+                z-index: 100005;
+                width: 315px;
+                max-width: calc(100vw - 24px);
+                background: #ffffff;
+                color: #1c1917;
+                border: 1.5px solid #f9b233;
+                border-radius: 16px;
+                padding: 14px 16px;
+                box-shadow: 0 18px 42px rgba(15, 23, 42, 0.24), 0 0 0 1px rgba(249, 178, 51, 0.25);
+                font-family: 'Plus Jakarta Sans', 'Sora', system-ui, sans-serif;
+                font-size: 0.8rem;
+                line-height: 1.48;
+                opacity: 0;
+                transform: translateY(6px) scale(0.97);
+                pointer-events: none;
+                transition: opacity 0.18s ease, transform 0.18s ease;
+            }
+            .ai-media-info-popover.is-open {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+                pointer-events: auto;
+            }
+            .ai-media-info-popover-header {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: 8px;
+                margin-bottom: 7px;
+                padding-bottom: 6px;
+                border-bottom: 1px solid rgba(249, 178, 51, 0.35);
+            }
+            .ai-media-info-popover-badge {
+                display: inline-flex;
+                align-items: center;
+                gap: 5px;
+                font-size: 0.7rem;
+                font-weight: 800;
+                color: #c2410c;
+                background: #fff7ed;
+                border: 1px solid #fdba74;
+                border-radius: 999px;
+                padding: 3px 9px;
+                text-transform: uppercase;
+                letter-spacing: 0.04em;
+            }
+            .ai-media-info-popover-close {
+                background: #f1f5f9;
+                border: none;
+                color: #475569;
+                width: 22px;
+                height: 22px;
+                border-radius: 50%;
+                font-size: 0.95rem;
+                font-weight: 700;
+                line-height: 1;
+                cursor: pointer;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+            }
+            .ai-media-info-popover-close:hover {
+                background: #fee2e2;
+                color: #b91c1c;
+            }
+            .ai-media-info-popover-title {
+                font-weight: 800;
+                font-size: 0.86rem;
+                color: #1c1917;
+                margin: 0 0 4px 0;
+            }
+            .ai-media-info-popover-body {
+                margin: 0;
+                color: #44403c;
+                font-size: 0.78rem;
+                line-height: 1.48;
+            }
+        `;
+        document.head.appendChild(style);
+    }
+
+    let popoverEl = null;
+    let activeBtn = null;
+
+    function getOrCreatePopover() {
+        if (popoverEl) return popoverEl;
+        popoverEl = document.createElement('div');
+        popoverEl.id = 'alphaAiInfoPopover';
+        popoverEl.className = 'ai-media-info-popover';
+        popoverEl.setAttribute('role', 'dialog');
+        popoverEl.setAttribute('aria-label', 'Hinweis zu KI-generierten Inhalten');
+        popoverEl.innerHTML = `
+            <div class="ai-media-info-popover-header">
+                <span class="ai-media-info-popover-badge" id="aiPopoverBadge">✨ KI-generierter Inhalt</span>
+                <button type="button" class="ai-media-info-popover-close" aria-label="Hinweis schließen">&times;</button>
+            </div>
+            <div class="ai-media-info-popover-title" id="aiPopoverTitle">Hinweis zur KI-Generierung</div>
+            <p class="ai-media-info-popover-body" id="aiPopoverBody"></p>
+        `;
+        document.body.appendChild(popoverEl);
+
+        const closeBtn = popoverEl.querySelector('.ai-media-info-popover-close');
+        if (closeBtn) {
+            closeBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                closePopover();
+            });
+        }
+
+        document.addEventListener('click', (e) => {
+            if (!popoverEl || !popoverEl.classList.contains('is-open')) return;
+            if (popoverEl.contains(e.target)) return;
+            if (activeBtn && activeBtn.contains(e.target)) return;
+            closePopover();
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closePopover();
+        });
+
+        window.addEventListener('scroll', () => {
+            if (popoverEl && popoverEl.classList.contains('is-open') && activeBtn) {
+                positionPopover(activeBtn);
+            }
+        }, { passive: true });
+
+        window.addEventListener('resize', () => {
+            if (popoverEl && popoverEl.classList.contains('is-open') && activeBtn) {
+                positionPopover(activeBtn);
+            }
+        }, { passive: true });
+
+        return popoverEl;
+    }
+
+    function positionPopover(btn) {
+        if (!popoverEl || !btn) return;
+        const rect = btn.getBoundingClientRect();
+        const popW = Math.min(315, window.innerWidth - 24);
+        const popH = popoverEl.offsetHeight || 138;
+
+        let left = rect.left + rect.width / 2 - popW / 2;
+        left = Math.max(12, Math.min(window.innerWidth - popW - 12, left));
+
+        let top = rect.top - popH - 10;
+        if (top < 12) {
+            top = Math.min(window.innerHeight - popH - 12, rect.bottom + 10);
+        }
+
+        popoverEl.style.left = Math.round(left) + 'px';
+        popoverEl.style.top = Math.round(top) + 'px';
+    }
+
+    function closePopover() {
+        if (popoverEl) popoverEl.classList.remove('is-open');
+        if (activeBtn) {
+            activeBtn.classList.remove('is-active');
+            activeBtn.setAttribute('aria-expanded', 'false');
+            activeBtn = null;
+        }
+    }
+
+    function openPopoverForButton(btn) {
+        const pop = getOrCreatePopover();
+        if (activeBtn === btn && pop.classList.contains('is-open')) {
+            closePopover();
+            return;
+        }
+        if (activeBtn) {
+            activeBtn.classList.remove('is-active');
+            activeBtn.setAttribute('aria-expanded', 'false');
+        }
+
+        const aiType = btn.dataset.aiType || 'image';
+        const info = AI_TEXTS[aiType] || AI_TEXTS.image;
+
+        const badgeEl = document.getElementById('aiPopoverBadge');
+        const titleEl = document.getElementById('aiPopoverTitle');
+        const bodyEl = document.getElementById('aiPopoverBody');
+
+        if (badgeEl) badgeEl.textContent = info.badge;
+        if (titleEl) titleEl.textContent = info.title;
+        if (bodyEl) bodyEl.textContent = btn.dataset.aiCustomText || info.body;
+
+        activeBtn = btn;
+        btn.classList.add('is-active');
+        btn.setAttribute('aria-expanded', 'true');
+
+        pop.classList.add('is-open');
+        positionPopover(btn);
+    }
+
+    function bindButton(btn) {
+        if (!btn || btn.dataset.aiInfoBound === 'true') return;
+        btn.dataset.aiInfoBound = 'true';
+        btn.setAttribute('aria-haspopup', 'dialog');
+        btn.setAttribute('aria-expanded', 'false');
+        btn.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            openPopoverForButton(btn);
+        });
+    }
+
+    function createInfoButton(type, variantClass, labelText) {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'ai-media-info-btn ' + (variantClass || '');
+        btn.dataset.aiType = type;
+        const text = labelText || 'KI';
+        btn.setAttribute('aria-label', 'Info: KI-generierter Inhalt – Klicken für Details');
+        btn.setAttribute('title', 'KI-generierter Inhalt – Klicken für Info');
+        btn.innerHTML = INFO_SVG + '<span>' + text + '</span>';
+        bindButton(btn);
+        return btn;
+    }
+
+    function isAiGeneratedImage(img) {
+        if (!img) return false;
+        const src = (img.getAttribute('src') || '').toLowerCase();
+        if (!src) return false;
+        // Never badge logos, seals, or favicons
+        if (src.includes('logo') || src.includes('ok-power') || src.includes('bdeb') || src.includes('favicon') || src.includes('apple-touch')) {
+            return false;
+        }
+        if (img.dataset.aiGenerated === 'true') return true;
+        if (src.includes('wolf-mascot') || img.classList.contains('octo-mascot-img') || img.classList.contains('octo-peeking-wolf-img')) {
+            return 'mascot';
+        }
+        if (
+            src.includes('clean_energy_home') ||
+            src.includes('versorger_tarife_home') ||
+            src.includes('versorger_business_strom') ||
+            src.includes('smart_step_oekostrom') ||
+            src.includes('smart_step_oekogas') ||
+            src.includes('versorger_oekostrom_split') ||
+            img.closest('.octo-stage-visual-card, .octo-split-device-media, .octo-photo-filter')
+        ) {
+            return 'image';
+        }
+        return false;
+    }
+
+    function initAiMediaInfoBadges() {
+        ensureAiInfoStyles();
+
+        // 1. Bind any already-present static .ai-media-info-btn buttons in HTML
+        document.querySelectorAll('.ai-media-info-btn').forEach(bindButton);
+
+        // 2. Equip all <video> elements
+        document.querySelectorAll('video').forEach((video) => {
+            const wrapper = video.parentElement;
+            if (!wrapper) return;
+            if (wrapper.querySelector('.ai-media-info-btn')) return;
+            const computedPos = window.getComputedStyle(wrapper).position;
+            if (computedPos === 'static') wrapper.style.position = 'relative';
+            const btn = createInfoButton('video', 'ai-media-info-btn--video', 'KI-Video');
+            wrapper.appendChild(btn);
+        });
+
+        // 3. Equip all AI-generated <img> elements (Wolf mascot illustrations & AI photos)
+        document.querySelectorAll('img').forEach((img) => {
+            const aiKind = isAiGeneratedImage(img);
+            if (!aiKind) return;
+
+            // Case A: Peeking Wolf in Hero
+            const peekingWrap = img.closest('.octo-hero-peeking-wolf');
+            if (peekingWrap) {
+                peekingWrap.removeAttribute('aria-hidden');
+                const pill = peekingWrap.querySelector('.octo-peeking-wolf-pill');
+                if (pill && !pill.querySelector('.ai-media-info-btn')) {
+                    pill.style.pointerEvents = 'auto';
+                    const btn = createInfoButton('mascot', 'ai-media-info-btn--inline-pill', 'KI');
+                    pill.appendChild(btn);
+                }
+                return;
+            }
+
+            // Case B: Mascot Box / Footer Mascot Aside / Inline Mascot Card
+            const mascotBox = img.closest('.octo-section-mascot-box, .octo-footer-mascot-aside, .octo-mascot-inline-card');
+            if (mascotBox) {
+                mascotBox.removeAttribute('aria-hidden');
+                if (!mascotBox.querySelector('.ai-media-info-btn')) {
+                    const btn = createInfoButton('mascot', 'ai-media-info-btn--mascot', 'KI');
+                    mascotBox.appendChild(btn);
+                }
+                return;
+            }
+
+            // Case C: Hero Stage Visual Card
+            const heroStageCard = img.closest('.octo-stage-visual-card');
+            if (heroStageCard) {
+                if (!heroStageCard.querySelector('.ai-media-info-btn')) {
+                    const btn = createInfoButton('image', 'ai-media-info-btn--hero-photo', 'KI');
+                    heroStageCard.appendChild(btn);
+                }
+                return;
+            }
+
+            // Case D: Card Visual / Split Device Media / General Wrapper
+            const mediaWrap = img.closest('.octo-card-visual, .octo-split-device-media') || img.parentElement;
+            if (mediaWrap && !mediaWrap.querySelector('.ai-media-info-btn')) {
+                const computedPos = window.getComputedStyle(mediaWrap).position;
+                if (computedPos === 'static') mediaWrap.style.position = 'relative';
+                const variant = aiKind === 'mascot' ? 'ai-media-info-btn--mascot' : 'ai-media-info-btn--photo';
+                const btn = createInfoButton(aiKind === 'mascot' ? 'mascot' : 'image', variant, 'KI');
+                mediaWrap.appendChild(btn);
+            }
+        });
+    }
+
+    window.initAiMediaInfoBadges = initAiMediaInfoBadges;
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initAiMediaInfoBadges);
+    } else {
+        initAiMediaInfoBadges();
+    }
+})();
+
+
 

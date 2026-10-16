@@ -8435,3 +8435,176 @@ html.swal2-height-auto:not(.alpha-modal-open) {
     z-index: 2;
 }
 
+/* ==========================================================================
+   AI Transparency Info Icon Badge & Click Popover (Art. 50 EU AI Act)
+   ========================================================================== */
+.octo-section-mascot-box,
+.octo-footer-mascot-aside,
+.octo-mascot-inline-card,
+.octo-card-visual,
+.octo-stage-visual-card,
+.octo-split-device-media {
+    position: relative;
+}
+
+.ai-media-info-btn {
+    position: absolute;
+    z-index: 35;
+    pointer-events: auto !important;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    height: 26px;
+    padding: 0 9px;
+    border-radius: 999px;
+    background: rgba(28, 25, 23, 0.78);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    color: #ffffff;
+    border: 1.2px solid rgba(249, 178, 51, 0.85);
+    font-family: 'Sora', 'Plus Jakarta Sans', system-ui, sans-serif;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    line-height: 1;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.22);
+    transition: transform 0.18s ease, background 0.18s ease, box-shadow 0.18s ease;
+    user-select: none;
+}
+
+.ai-media-info-btn:hover,
+.ai-media-info-btn:focus-visible,
+.ai-media-info-btn.is-active {
+    background: linear-gradient(135deg, #f9b233 0%, #e95e24 100%);
+    color: #ffffff;
+    border-color: #ffffff;
+    transform: translateY(-1px) scale(1.03);
+    box-shadow: 0 6px 16px rgba(233, 94, 36, 0.38);
+    outline: none;
+}
+
+.ai-media-info-btn svg {
+    width: 13px;
+    height: 13px;
+    flex-shrink: 0;
+}
+
+/* Position variants */
+.ai-media-info-btn--photo {
+    bottom: 10px;
+    right: 10px;
+}
+
+.ai-media-info-btn--hero-photo {
+    top: 12px;
+    right: 12px;
+}
+
+.ai-media-info-btn--video {
+    top: 14px;
+    left: 14px;
+    height: 32px;
+    padding: 0 12px;
+    font-size: 0.76rem;
+}
+
+.ai-media-info-btn--mascot {
+    top: 7px;
+    right: 7px;
+    height: 22px;
+    padding: 0 7px;
+    font-size: 0.65rem;
+    background: rgba(255, 253, 249, 0.94);
+    color: #9a3412;
+    border: 1.2px solid rgba(249, 178, 51, 0.9);
+    box-shadow: 0 3px 10px rgba(233, 94, 36, 0.16);
+}
+
+.ai-media-info-btn--inline-pill {
+    position: static;
+    height: 20px;
+    padding: 0 6px;
+    font-size: 0.65rem;
+    margin-left: 4px;
+    background: rgba(233, 94, 36, 0.14);
+    color: #9a3412;
+    border: 1px solid rgba(233, 94, 36, 0.55);
+    box-shadow: none;
+}
+
+/* Floating Click Popover */
+.ai-media-info-popover {
+    position: fixed;
+    z-index: 100005;
+    width: 310px;
+    max-width: calc(100vw - 24px);
+    background: #ffffff;
+    color: #1c1917;
+    border: 1.5px solid #f9b233;
+    border-radius: 16px;
+    padding: 14px 16px;
+    box-shadow: 0 18px 42px rgba(15, 23, 42, 0.24), 0 0 0 1px rgba(249, 178, 51, 0.25);
+    font-family: 'Plus Jakarta Sans', 'Sora', system-ui, sans-serif;
+    font-size: 0.8rem;
+    line-height: 1.48;
+    opacity: 0;
+    transform: translateY(6px) scale(0.97);
+    pointer-events: none;
+    transition: opacity 0.18s ease, transform 0.18s ease;
+}
+
+.ai-media-info-popover.is-open {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    pointer-events: auto;
+}
+
+.ai-media-info-popover-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 6px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid rgba(249, 178, 51, 0.35);
+}
+
+.ai-media-info-popover-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.72rem;
+    font-weight: 800;
+    color: #c2410c;
+    background: #fff7ed;
+    border: 1px solid #fdba74;
+    border-radius: 999px;
+    padding: 2px 9px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.ai-media-info-popover-close {
+    background: #f1f5f9;
+    border: none;
+    color: #475569;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    font-size: 0.95rem;
+    font-weight: 700;
+    line-height: 1;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.ai-media-info-popover-close:hover {
+    background: #fee2e2;
+    color: #b91c1c;
+}
+
+

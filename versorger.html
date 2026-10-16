@@ -88,9 +88,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
     <!-- Base Styles & Scripts -->
-    <link rel="stylesheet" href="style.css">
-    <script src="i18n.js?v=20261016-canvas1" defer></script>
-    <script src="main.js?v=20261016-canvas1" defer></script>
+    <link rel="stylesheet" href="style.css?v=20261016-ai1">
+    <script src="i18n.js?v=20261016-ai1" defer></script>
+    <script src="main.js?v=20261016-ai1" defer></script>
 
     <!-- Octopus Energy Clone Architecture in Alpha Energie Orange Palette -->
     <style>
@@ -2086,13 +2086,23 @@
 
                     <div class="octo-hero-right octo-hero-right-with-peeking-wolf">
                         <!-- Pose 1: Alpha-Wolf Peeking from Behind & Gripping the Hero Image Card -->
-                        <div class="octo-hero-peeking-wolf" aria-hidden="true">
-                            <img src="wolf-mascot-peeking.png?v=wolf3" alt="Alpha Energie Alpha-Wolf schaut lächelnd hinter dem Bild hervor" class="octo-peeking-wolf-img" loading="eager">
-                            <span class="octo-mascot-pill octo-peeking-wolf-pill">⚡ Dein Alpha-Wolf</span>
+                        <div class="octo-hero-peeking-wolf">
+                            <img src="wolf-mascot-peeking.png?v=wolf3" alt="Alpha Energie Alpha-Wolf schaut lächelnd hinter dem Bild hervor" class="octo-peeking-wolf-img" data-ai-generated="true" loading="eager">
+                            <span class="octo-mascot-pill octo-peeking-wolf-pill" style="pointer-events:auto;">
+                                ⚡ Dein Alpha-Wolf
+                                <button type="button" class="ai-media-info-btn ai-media-info-btn--inline-pill" data-ai-type="mascot" aria-label="Info: KI-generierte Illustration – Klicken für Details" title="KI-generierte Illustration – Klicken für Info">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                                    <span>KI</span>
+                                </button>
+                            </span>
                         </div>
                         <div class="octo-stage-visual-card octo-photo-filter">
-                            <img src="clean_energy_home.jpg" alt="Alpha Energie – Ökostrom aus 100 % erneuerbaren Energien &amp; Erdgas für Ihr Zuhause" loading="eager" fetchpriority="high">
+                            <img src="clean_energy_home.jpg" alt="Alpha Energie – Ökostrom aus 100 % erneuerbaren Energien &amp; Erdgas für Ihr Zuhause" data-ai-generated="true" loading="eager" fetchpriority="high">
                             <div class="octo-stage-badge-top">Bis zu 380 € / Jahr sparen</div>
+                            <button type="button" class="ai-media-info-btn ai-media-info-btn--hero-photo" data-ai-type="image" aria-label="Info: KI-generiertes Bild – Klicken für Details" title="KI-generiertes Bild – Klicken für Info">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                                <span>KI</span>
+                            </button>
                             <div class="octo-stage-overlay-pill">
                                 <div>
                                     <div style="font-size:0.88rem;font-weight:800;color:#e95e24;">Ökostrom &amp; Erdgas</div>
@@ -2917,6 +2927,10 @@
                                 <source src="versorger_wolf_wechsel.mp4?v=20261015-sound" type="video/mp4">
                                 <source src="public/b2c_tarifberatung.mp4?v=20261015-sound" type="video/mp4">
                             </video>
+                            <button type="button" class="ai-media-info-btn ai-media-info-btn--video" data-ai-type="video" aria-label="Info: KI-generiertes Video – Klicken für Details" title="KI-generiertes Video – Klicken für Info">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                                <span>KI-Video</span>
+                            </button>
                             <button type="button" id="introVideoSoundBtn" aria-label="Ton ein- oder ausschalten" style="position:absolute;top:14px;right:14px;z-index:12;background:rgba(28,25,23,0.82);backdrop-filter:blur(8px);color:#ffffff;border:1.5px solid rgba(249,178,51,0.85);border-radius:999px;padding:7px 14px;font-size:0.8rem;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:6px;box-shadow:0 6px 18px rgba(0,0,0,0.28);transition:all 0.2s ease;">
                                 <span id="introVideoSoundIcon">🔊</span>
                                 <span id="introVideoSoundLabel">Ton an</span>
