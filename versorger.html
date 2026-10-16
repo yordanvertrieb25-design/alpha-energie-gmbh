@@ -580,12 +580,14 @@
             box-shadow: 0 4px 14px rgba(233, 94, 36, 0.06);
         }
 
+        .octo-waerme-htnt-header,
         .octo-waerme-htnt-inner {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            gap: 16px;
+            gap: 12px;
             flex-wrap: wrap;
+            margin-bottom: 10px;
         }
 
         .octo-waerme-meter-col {
@@ -595,14 +597,14 @@
             flex-wrap: wrap;
         }
 
+        .octo-waerme-htnt-title,
         .octo-waerme-label {
             display: inline-flex;
             align-items: center;
             gap: 6px;
-            font-size: 0.84rem;
+            font-size: 0.86rem;
             font-weight: 800;
             color: #9a3412;
-            white-space: nowrap;
         }
 
         .octo-waerme-meter-pills {
@@ -613,6 +615,7 @@
             border: 1px solid rgba(249, 178, 51, 0.55);
             gap: 4px;
             flex-wrap: wrap;
+            width: fit-content;
         }
 
         .octo-meter-type-btn {
@@ -634,6 +637,7 @@
             box-shadow: 0 2px 8px rgba(233, 94, 36, 0.25);
         }
 
+        .octo-waerme-htnt-grid,
         .octo-waerme-split-col {
             display: flex;
             align-items: center;
@@ -642,13 +646,15 @@
         }
 
         .octo-htnt-input-pill {
-            display: flex;
+            display: inline-flex;
             align-items: center;
             gap: 8px;
             background: #fff9eb;
             border: 1.4px solid rgba(249, 178, 51, 0.6);
             border-radius: 10px;
-            padding: 5px 10px;
+            padding: 5px 12px;
+            width: fit-content;
+            max-width: 100%;
         }
 
         .octo-htnt-input-pill label {
@@ -659,6 +665,7 @@
             margin: 0;
         }
 
+        .octo-htnt-input-wrap,
         .octo-htnt-field-wrap {
             display: inline-flex;
             align-items: center;
@@ -669,6 +676,7 @@
             padding: 3px 8px;
         }
 
+        .octo-htnt-input-wrap input,
         .octo-htnt-field-wrap input {
             width: 68px;
             border: none;
@@ -681,10 +689,19 @@
             text-align: right;
         }
 
+        .octo-htnt-input-wrap span,
         .octo-htnt-field-wrap span {
             font-size: 0.74rem;
             font-weight: 700;
             color: #78350f;
+            white-space: nowrap;
+        }
+
+        .octo-htnt-info-badge {
+            flex-basis: 100%;
+            font-size: 0.78rem;
+            color: #57534e;
+            margin-top: 2px;
         }
 
         /* Horizontal Calculator Body */
@@ -1769,7 +1786,12 @@
                 gap: 5px;
             }
             .octo-waerme-htnt-grid {
-                grid-template-columns: 1fr;
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .octo-htnt-input-pill {
+                flex-wrap: wrap;
+                width: fit-content;
             }
             .octo-awards-row,
             .octo-grid-4 {
