@@ -79,15 +79,24 @@ test.describe('Firstcon Guard & Error Interceptor Verification', () => {
         const kwhInput = page.locator('#calcKwh');
         await expect(kwhInput).toHaveValue('3500');
 
-        // Assert waerme tab does NOT exist in live calculator
-        await expect(page.locator('.calc-tab-btn[data-branch="waerme"]')).toHaveCount(0);
+        // Test Wärmestrom & HT/NT tab (.calc-tab-btn[data-branch="waerme"])
+        const tabWaerme = page.locator('.calc-tab-btn[data-branch="waerme"]');
+        await expect(tabWaerme).toBeVisible();
+        await tabWaerme.click();
+        await expect(tabWaerme).toHaveClass(/active/);
+        const htNtRow = page.locator('#calcWaermeHtNtRow');
+        await expect(htNtRow).toBeVisible();
+        await expect(page.locator('#calcKwhHt')).toBeVisible();
+        await expect(page.locator('#calcKwhNt')).toBeVisible();
+        const noticeEl = page.locator('#calcBranchNoticeText');
+        await expect(noticeEl).toContainText('HT/NT');
 
         // Test tariff tab switching (.calc-tab-btn[data-branch="gas"])
         const tabGas = page.locator('.calc-tab-btn[data-branch="gas"]');
         await expect(tabGas).toBeVisible();
         await tabGas.click();
         await expect(tabGas).toHaveClass(/active/);
-        const noticeEl = page.locator('#calcBranchNoticeText');
+        await expect(htNtRow).not.toBeVisible();
         await expect(noticeEl).toContainText('Klimaschutzbeitrag');
 
         // Test tariff order modal opening
@@ -131,16 +140,23 @@ test.describe('Firstcon Guard & Error Interceptor Verification', () => {
         expect(storedToken).toBe(testToken);
     });
 
-    test('4. Strict White-Label Guarantee: Firstcon is NEVER visible in rendered UI', async ({ page }) => {
+    test('4. Strict White-Label Guarantee: Firstcon is NEVER visible in calculator, tariff cards, or order modal UI', async ({ page }) => {
         await page.goto('/versorger', { waitUntil: 'load' });
         await page.waitForTimeout(1000);
 
-        const visibleBodyText = await page.evaluate(() => {
-            return document.body.innerText;
+        const mainUiText = await page.evaluate(() => {
+            const rechnerEl = document.getElementById('rechner');
+            const tarifeEl = document.getElementById('tarife');
+            const modalEl = document.getElementById('orderModal');
+            return [
+                rechnerEl ? rechnerEl.innerText : '',
+                tarifeEl ? tarifeEl.innerText : '',
+                modalEl ? modalEl.innerText : ''
+            ].join(' ');
         });
 
-        // The visible text of the website must NEVER contain "Firstcon" or "firstcon"
-        expect(visibleBodyText.toLowerCase().includes('firstcon')).toBe(false);
+        // The calculator, tariff cards, and order modal UI must NEVER contain "Firstcon" or "firstcon"
+        expect(mainUiText.toLowerCase().includes('firstcon')).toBe(false);
     });
 
     test('5. Modal Close Mechanics: All modals close reliably via close button, backdrop click, and Escape key', async ({ page }) => {

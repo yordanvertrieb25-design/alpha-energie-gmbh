@@ -502,10 +502,10 @@
             background: var(--octo-bg-surface);
         }
 
-        /* 2 Folder Tabs at Top of Calculator (Ökostrom | Ökogas) */
+        /* 3 Folder Tabs at Top of Calculator (Ökostrom | Wärmepumpe & HT/NT | Erdgas) */
         .octo-calc-tabs {
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
+            grid-template-columns: repeat(3, 1fr);
             background: #fde8bd;
         }
 
@@ -515,10 +515,11 @@
             color: #7c2d12 !important;
             border: none !important;
             border-bottom: 1.6px solid rgba(249, 178, 51, 0.48) !important;
+            border-right: 1px solid rgba(249, 178, 51, 0.35) !important;
             border-radius: 0 !important;
-            padding: 15px 20px !important;
+            padding: 14px 16px !important;
             font-family: inherit !important;
-            font-size: 1.02rem !important;
+            font-size: 0.98rem !important;
             font-weight: 700 !important;
             cursor: pointer;
             display: flex !important;
@@ -530,12 +531,23 @@
             box-shadow: none !important;
         }
 
+        body.octo-orange-body .octo-calc-tab:last-child {
+            border-right: none !important;
+        }
+
         body.octo-orange-body .octo-calc-tab .calc-tab-title,
         body.octo-orange-body .octo-calc-tab span {
             color: inherit !important;
-            font-size: 1.02rem !important;
+            font-size: 0.98rem !important;
             font-weight: 700 !important;
             margin: 0 !important;
+        }
+
+        body.octo-orange-body .octo-calc-tab .calc-tab-subtitle {
+            font-size: 0.74rem !important;
+            font-weight: 600 !important;
+            opacity: 0.85;
+            margin-left: 4px !important;
         }
 
         body.octo-orange-body .octo-calc-tab:first-child {
@@ -556,6 +568,123 @@
 
         body.octo-orange-body .octo-calc-tab:hover:not(.active) {
             background: #fbd996 !important;
+        }
+
+        /* Wärmepumpe & Nachtspeicher (HT/NT) Calculator Bar */
+        .octo-waerme-htnt-row {
+            margin-top: 14px;
+            padding: 12px 16px;
+            background: #ffffff;
+            border: 1.5px solid rgba(249, 178, 51, 0.65);
+            border-radius: 12px;
+            box-shadow: 0 4px 14px rgba(233, 94, 36, 0.06);
+        }
+
+        .octo-waerme-htnt-inner {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .octo-waerme-meter-col {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .octo-waerme-label {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.84rem;
+            font-weight: 800;
+            color: #9a3412;
+            white-space: nowrap;
+        }
+
+        .octo-waerme-meter-pills {
+            display: inline-flex;
+            background: #fff9eb;
+            padding: 3px;
+            border-radius: 10px;
+            border: 1px solid rgba(249, 178, 51, 0.55);
+            gap: 4px;
+            flex-wrap: wrap;
+        }
+
+        .octo-meter-type-btn {
+            border: none;
+            background: transparent;
+            color: #78350f;
+            font-family: inherit;
+            font-size: 0.8rem;
+            font-weight: 700;
+            padding: 6px 12px;
+            border-radius: 7px;
+            cursor: pointer;
+            transition: all 0.18s ease;
+        }
+
+        .octo-meter-type-btn.active {
+            background: var(--logo-gradient-135);
+            color: #ffffff;
+            box-shadow: 0 2px 8px rgba(233, 94, 36, 0.25);
+        }
+
+        .octo-waerme-split-col {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .octo-htnt-input-pill {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: #fff9eb;
+            border: 1.4px solid rgba(249, 178, 51, 0.6);
+            border-radius: 10px;
+            padding: 5px 10px;
+        }
+
+        .octo-htnt-input-pill label {
+            font-size: 0.78rem;
+            font-weight: 800;
+            color: #9a3412;
+            white-space: nowrap;
+            margin: 0;
+        }
+
+        .octo-htnt-field-wrap {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            background: #ffffff;
+            border: 1px solid rgba(249, 178, 51, 0.5);
+            border-radius: 7px;
+            padding: 3px 8px;
+        }
+
+        .octo-htnt-field-wrap input {
+            width: 68px;
+            border: none;
+            outline: none;
+            background: transparent;
+            font-family: inherit;
+            font-size: 0.86rem;
+            font-weight: 800;
+            color: #1c1917;
+            text-align: right;
+        }
+
+        .octo-htnt-field-wrap span {
+            font-size: 0.74rem;
+            font-weight: 700;
+            color: #78350f;
         }
 
         /* Horizontal Calculator Body */
@@ -1630,7 +1759,17 @@
 
         @media (max-width: 640px) {
             .octo-calc-tabs {
-                grid-template-columns: repeat(2, 1fr);
+                grid-template-columns: repeat(3, 1fr);
+                gap: 6px;
+            }
+            .octo-calc-tab {
+                font-size: 0.78rem;
+                padding: 0 6px;
+                height: 48px;
+                gap: 5px;
+            }
+            .octo-waerme-htnt-grid {
+                grid-template-columns: 1fr;
             }
             .octo-awards-row,
             .octo-grid-4 {
@@ -1997,7 +2136,7 @@
                                 <li><a href="#tarife">ALPHA TIME 24 (Bestseller)</a></li>
                                 <li><a href="#tarife">ALPHA PREMIUM 24 (Top-Preisschutz)</a></li>
                                 <li><a href="#stromkennzeichnung">Stromkennzeichnung (§ 42 EnWG)</a></li>
-                                <li><a href="waermestrom.html">Wärmestrom (§ 14a EnWG)</a></li>
+                                <li><a href="waermestrom.html">Wärmestrom (Wärmepumpe &amp; HT/NT)</a></li>
                             </ul>
                         </li>
                         <li class="nav-item has-dropdown">
@@ -2135,11 +2274,15 @@
 
                 <!-- Bottom Row: Octopus Horizontal Tarifrechner Bar -->
                 <div id="rechner" class="octo-calc-shell">
-                    <!-- 2 Folder-Style Tabs: Ökostrom | Erdgas -->
+                    <!-- 3 Folder-Style Tabs: Ökostrom | Wärmestrom & HT/NT | Erdgas -->
                     <div class="octo-calc-tabs" role="tablist" aria-label="Energieart wählen">
                         <button type="button" class="octo-calc-tab calc-tab-btn active" data-branch="strom" data-octo-mode="strom">
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
                             <span class="calc-tab-title">Ökostrom</span>
+                        </button>
+                        <button type="button" class="octo-calc-tab calc-tab-btn" data-branch="waerme" data-octo-mode="waerme">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z"></path></svg>
+                            <span class="calc-tab-title">Wärmestrom &amp; HT/NT</span>
                         </button>
                         <button type="button" class="octo-calc-tab calc-tab-btn" data-branch="gas" data-octo-mode="gas">
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"></path></svg>
@@ -2200,6 +2343,39 @@
                                         <span>Tarif finden</span>
                                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
                                     </button>
+                                </div>
+                            </div>
+
+                            <!-- Wärmepumpe & Nachtspeicher (HT/NT) Zusatzleiste -->
+                            <div id="calcWaermeHtNtRow" class="octo-waerme-htnt-row" style="display: none;">
+                                <div class="octo-waerme-htnt-header">
+                                    <div class="octo-waerme-htnt-title">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#e95e24" stroke-width="2.4"><path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z"></path></svg>
+                                        <span>Wärmepumpe (§ 14a EnWG) &amp; Nachtspeicherheizung (HT/NT)</span>
+                                    </div>
+                                    <div class="octo-waerme-meter-pills" role="group" aria-label="Zählerart wählen">
+                                        <button type="button" class="octo-meter-type-btn active" data-meter-type="htnt">Doppeltarifzähler (HT/NT)</button>
+                                        <button type="button" class="octo-meter-type-btn" data-meter-type="et">Eintarifzähler (ET)</button>
+                                    </div>
+                                </div>
+                                <div id="calcHtNtSplitInputs" class="octo-waerme-htnt-grid">
+                                    <div class="octo-htnt-input-pill" id="calcHtInputBox">
+                                        <label for="calcKwhHt">Hochtarif (HT – Tagstrom)</label>
+                                        <div class="octo-htnt-input-wrap">
+                                            <input type="number" id="calcKwhHt" value="3600" min="0" max="100000" step="100">
+                                            <span>kWh/Jahr</span>
+                                        </div>
+                                    </div>
+                                    <div class="octo-htnt-input-pill" id="calcNtInputBox">
+                                        <label for="calcKwhNt">Niedertarif (NT – Nacht-/Wärmestrom)</label>
+                                        <div class="octo-htnt-input-wrap">
+                                            <input type="number" id="calcKwhNt" value="2400" min="0" max="100000" step="100">
+                                            <span>kWh/Jahr</span>
+                                        </div>
+                                    </div>
+                                    <div class="octo-htnt-info-badge">
+                                        ✓ Geeignet für Wärmepumpen (steuerbare Verbrauchseinrichtung § 14a EnWG) &amp; Nachtspeicherheizungen mit Doppeltarifzähler (HT/NT) oder Eintarifzähler.
+                                    </div>
                                 </div>
                             </div>
 
@@ -2701,14 +2877,14 @@
                     <div class="octo-card bg-deep">
                         <div>
                             <div style="height:110px;border-radius:12px;background:#ffffff;border:1px solid rgba(249,178,51,0.38);display:flex;align-items:center;justify-content:center;margin-bottom:16px;color:#e95e24;">
-                                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><polyline points="9 12 11 14 15 10"></polyline></svg>
+                                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z"></path></svg>
                             </div>
-                            <h3 class="octo-card-h3" style="font-size:1.18rem;">12 &amp; 24 Monate Garantie</h3>
+                            <h3 class="octo-card-h3" style="font-size:1.18rem;">Wärmepumpe &amp; HT/NT</h3>
                             <p class="octo-card-p" style="font-size:0.9rem;">
-                                Entscheide selbst zwischen 12 Monaten Flexibilität oder 24 Monaten maximaler Planungssicherheit bis 2028.
+                                Spezielle Wärmestromtarife für Wärmepumpen (§ 14a EnWG) und Nachtspeicherheizungen (Doppeltarif HT/NT &amp; Eintarif).
                             </p>
                         </div>
-                        <a href="#tarife" class="octo-btn-outline" style="width:100%;box-sizing:border-box;">Tarife vergleichen</a>
+                        <a href="#rechner" data-switch-branch="waerme" class="octo-btn-outline" style="width:100%;box-sizing:border-box;">Zum Wärmestrom</a>
                     </div>
 
                     <div class="octo-card bg-deep">
@@ -2727,19 +2903,38 @@
             </div>
         </section>
 
-        <!-- 9. SECTION: "Ökostrom & Erdgas – Einfach wechseln, dauerhaft sparen" (Octopus 2 Horizontal Split Cards) -->
+        <!-- 9. SECTION: "Ökostrom, Wärmestrom (HT/NT) & Erdgas – Einfach wechseln, dauerhaft sparen" -->
         <section class="octo-band-surface" id="heizen-speichern">
             <div class="octo-container">
                 <div style="text-align:center;margin-bottom:32px;">
-                    <h2 class="octo-section-h2">Ökostrom &amp; Erdgas – Einfach wechseln, dauerhaft sparen</h2>
+                    <h2 class="octo-section-h2">Ökostrom, Wärmestrom (HT/NT) &amp; Erdgas – Einfach wechseln, dauerhaft sparen</h2>
                     <p class="octo-section-sub" style="margin-bottom:0;">Transparente Konditionen, gesetzlich garantierte Versorgungssicherheit und 0 € Wechselkosten.</p>
                 </div>
 
-                <!-- Card 1: Erdgas mit freiwilligem Klimaschutzbeitrag -->
+                <!-- Card 1: Wärmestrom für Wärmepumpe (§ 14a EnWG) & Nachtspeicherheizung (HT/NT) -->
                 <div class="octo-split-device-card">
                     <div class="octo-split-device-media octo-photo-filter">
-                        <img src="public/images/smart_step_oekogas.jpg" alt="Erdgas mit freiwilligem Klimaschutzbeitrag und Preisgarantie von Alpha Energie">
+                        <img src="public/images/smart_step_waermepumpe.jpg" alt="Wärmestrom für Wärmepumpe (§ 14a EnWG) und Nachtspeicherheizung (HT/NT) von Alpha Energie">
                     </div>
+                    <div class="octo-split-device-content">
+                        <h3 class="octo-card-h3" style="font-size:1.5rem;">Wärmestrom für Wärmepumpe (§ 14a EnWG) &amp; Nachtspeicherheizung (HT/NT)</h3>
+                        <p class="octo-card-p">
+                            Du heizt mit einer Wärmepumpe oder einer elektrischen Nachtspeicherheizung? Mit unseren speziellen Heizstromtarifen profitierst du von vergünstigten Arbeitspreisen, 100 % erneuerbarem Ökostrom (ok-power) und voller Kompatibilität für Doppeltarifzähler (HT/NT) sowie Eintarifzähler.
+                        </p>
+                        <ul class="octo-check-list" style="margin-bottom:8px;">
+                            <li><span class="octo-check-dot">✓</span><span>Für Wärmepumpen (§ 14a EnWG) &amp; Nachtspeicherheizungen (HT/NT Doppeltarif &amp; Eintarif)</span></li>
+                            <li><span class="octo-check-dot">✓</span><span>Reduzierte Netzentgelte und bis zu 24 Monate feste Preisgarantie</span></li>
+                            <li><span class="octo-check-dot">✓</span><span>Separate HT/NT-Verbrauchsberechnung direkt im Online-Tarifrechner</span></li>
+                        </ul>
+                        <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:8px;">
+                            <a href="#rechner" data-switch-branch="waerme" class="octo-btn-cta">Wärmestrom berechnen</a>
+                            <a href="waermestrom.html" class="octo-btn-outline">Details zu Wärmepumpe &amp; HT/NT</a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card 2: Erdgas mit freiwilligem Klimaschutzbeitrag -->
+                <div class="octo-split-device-card reverse">
                     <div class="octo-split-device-content">
                         <h3 class="octo-card-h3" style="font-size:1.5rem;">Erdgas mit freiwilligem Klimaschutzbeitrag &amp; Preisgarantie</h3>
                         <p class="octo-card-p">
@@ -2754,10 +2949,16 @@
                             <a href="oekogas.html" class="octo-btn-cta">Jetzt Erdgastarif sichern</a>
                         </div>
                     </div>
+                    <div class="octo-split-device-media octo-photo-filter">
+                        <img src="public/images/smart_step_oekogas.jpg" alt="Erdgas mit freiwilligem Klimaschutzbeitrag und Preisgarantie von Alpha Energie">
+                    </div>
                 </div>
 
-                <!-- Card 2: Ökostrom aus 100 % erneuerbaren Energien (ok-power) -->
-                <div class="octo-split-device-card reverse" style="margin-bottom:0;">
+                <!-- Card 3: Ökostrom aus 100 % erneuerbaren Energien (ok-power) -->
+                <div class="octo-split-device-card" style="margin-bottom:0;">
+                    <div class="octo-split-device-media octo-photo-filter">
+                        <img src="public/images/versorger_oekostrom_split.jpg" alt="Ökostrom aus 100 % erneuerbaren Energien für Privat- und Gewerbekunden">
+                    </div>
                     <div class="octo-split-device-content">
                         <h3 class="octo-card-h3" style="font-size:1.5rem;">Ökostrom aus 100 % erneuerbaren Energien mit ok-power Gütesiegel</h3>
                         <p class="octo-card-p">
@@ -2767,9 +2968,6 @@
                             <a href="oekostrom.html" class="octo-btn-cta">Für Privatkunden</a>
                             <a href="gewerbekunden.html" class="octo-btn-outline">Für Gewerbekunden</a>
                         </div>
-                    </div>
-                    <div class="octo-split-device-media octo-photo-filter">
-                        <img src="public/images/versorger_oekostrom_split.jpg" alt="Ökostrom aus 100 % erneuerbaren Energien für Privat- und Gewerbekunden">
                     </div>
                 </div>
             </div>
@@ -3070,12 +3268,13 @@
                 <div class="octo-bottom-offer-box">
                     <div>
                         <h3 class="octo-card-h3" style="font-size:1.55rem;margin-bottom:6px;">Hol' dir jetzt dein Angebot</h3>
-                        <p class="octo-card-p">Gib deine Postleitzahl ein und sieh sofort deine persönliche Ersparnis für Ökostrom oder Erdgas.</p>
+                        <p class="octo-card-p">Gib deine Postleitzahl ein und sieh sofort deine persönliche Ersparnis für Ökostrom, Wärmestrom (HT/NT) oder Erdgas.</p>
                     </div>
 
                     <form id="bottomQuickOfferForm" class="octo-bottom-offer-form">
                         <select id="bottomOfferBranch" class="octo-bottom-offer-select" aria-label="Sparte wählen">
                             <option value="strom">Ökostrom</option>
+                            <option value="waerme">Wärmestrom (Wärmepumpe &amp; HT/NT)</option>
                             <option value="gas">Erdgas</option>
                         </select>
                         <input type="text" id="bottomOfferPlz" class="octo-bottom-offer-input" placeholder="Deine Postleitzahl (z.B. 44379)" maxlength="5" pattern="[0-9]{5}" required>
@@ -3199,6 +3398,7 @@
                     <span>Verträge hier widerrufen</span>
                 </button>
                 <a href="oekostrom.html">Ökostrom (100 % erneuerbar)</a>
+                <a href="waermestrom.html">Wärmestrom (Wärmepumpe &amp; HT/NT)</a>
                 <a href="oekogas.html">Erdgas mit Klimaschutzbeitrag</a>
                 <a href="gewerbekunden.html">Gewerbekunden (B2B)</a>
                 <a href="#rechner">Strom- &amp; Gasrechner</a>
@@ -3355,6 +3555,17 @@
                         <input type="text" id="orderMeterNumber" class="calc-input" placeholder="z. B. 1EMH0012345678" required style="color:#1e293b;background:#fff;">
                     </div>
 
+                    <div id="orderWaermeMeterBox" class="form-group" style="display: none; margin-bottom: 1rem; background: #fffdf9; border: 1.5px solid #fed7aa; border-radius: 10px; padding: 0.85rem 1rem;">
+                        <label for="orderMeterType" class="calc-label" style="color:#9a3412; font-weight:800; margin-bottom:0.4rem; display:block;">Zählerart für Wärmepumpe / Nachtspeicher (HT/NT) *</label>
+                        <select id="orderMeterType" class="calc-input" style="color:#1e293b;background:#fff;">
+                            <option value="htnt">Doppeltarifzähler (HT/NT – Hochtarif &amp; Niedertarif)</option>
+                            <option value="et">Eintarifzähler (ET – Gemeinsamer oder separater Zähler)</option>
+                        </select>
+                        <div id="orderWaermeHtNtSummary" style="font-size:0.78rem; color:#c2410c; font-weight:700; margin-top:0.4rem;">
+                            Wärmepumpe (§ 14a EnWG) &amp; Nachtspeicherheizung • HT/NT-Aufteilung wird automatisch übernommen.
+                        </div>
+                    </div>
+
                     <div class="form-group" style="margin-bottom: 1rem;">
                         <label for="orderPrevProvider" class="calc-label" style="color:#1e293b;">Bisheriger Energieversorger (optional)</label>
                         <input type="text" id="orderPrevProvider" class="calc-input" placeholder="z. B. DEW21, E.ON, Vattenfall" style="color:#1e293b;background:#fff;">
@@ -3499,6 +3710,7 @@
                                     <label for="cancelContractType" class="calc-label" style="color:#1e293b;font-size:0.82rem;font-weight:700;">Vertragsart / Sparte *</label>
                                     <select id="cancelContractType" class="calc-input" required style="color:#1e293b;background:#fff;height:42px;">
                                         <option value="Stromliefervertrag (Ökostrom)">Stromliefervertrag (Ökostrom)</option>
+                                        <option value="Wärmestromliefervertrag (Wärmepumpe / HT-NT)">Wärmestromliefervertrag (Wärmepumpe / HT-NT)</option>
                                         <option value="Gasliefervertrag (Erdgas)">Gasliefervertrag (Erdgas)</option>
                                         <option value="Strom- und Gasliefervertrag">Strom- und Gasliefervertrag</option>
                                     </select>

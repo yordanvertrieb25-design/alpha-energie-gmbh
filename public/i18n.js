@@ -2804,7 +2804,7 @@
             }
             if (lang === 'de') {
                 if (branch === 'waerme') {
-                    noticeEl.textContent = 'Wärmestrom nach § 14a EnWG • Bis zu 25 % reduzierte Netzentgelte für Wärmepumpen';
+                    noticeEl.textContent = 'Wärmepumpe (§ 14a EnWG) & Nachtspeicherheizung (HT/NT) • 100 % Ökostrom mit bis zu 24M Preisgarantie';
                 } else if (branch === 'gas') {
                     noticeEl.textContent = 'Erdgas mit freiwilligem Klimaschutzbeitrag • 24 Monate volle Preisgarantie';
                 } else {
@@ -2827,7 +2827,7 @@
     function getBranchNotice(branch, lang) {
         const l = lang || currentLang;
         if (l === 'de') {
-            if (branch === 'waerme') return 'Wärmestrom nach § 14a EnWG • Bis zu 25 % reduzierte Netzentgelte für Wärmepumpen';
+            if (branch === 'waerme') return 'Wärmepumpe (§ 14a EnWG) & Nachtspeicherheizung (HT/NT) • 100 % Ökostrom mit bis zu 24M Preisgarantie';
             if (branch === 'gas') return 'Erdgas mit freiwilligem Klimaschutzbeitrag • 24 Monate volle Preisgarantie';
             return 'Ökostrom aus 100 % erneuerbaren Energien • 24 Monate volle Preisgarantie';
         }

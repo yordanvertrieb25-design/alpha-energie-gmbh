@@ -295,11 +295,20 @@ app.post('/api/tarife/calculate', async (req, res) => {
             return res.json(rlmResult);
         }
 
-        const { plz, consumption, currentAbschlag, branch = 'strom', orderflowToken, useFallbackOnly } = req.body;
-        const isGas = branch === 'gas';
-        const defaultKwh = isGas ? 12000 : 2500;
-        const defaultAbschlag = isGas ? 115 : 95;
-        const kwh = Math.max(500, parseInt(consumption, 10) || defaultKwh);
+        const { plz, consumption, consumptionHt, consumptionNt, meterType, currentAbschlag, branch = 'strom', orderflowToken, useFallbackOnly } = req.body;
+        const normalizedBranch = branch === 'gas' ? 'gas' : (branch === 'waerme' ? 'waerme' : 'strom');
+        const isGas = normalizedBranch === 'gas';
+        const isWaerme = normalizedBranch === 'waerme';
+        const defaultKwh = isGas ? 12000 : (isWaerme ? 6000 : 2500);
+        const defaultAbschlag = isGas ? 115 : (isWaerme ? 165 : 95);
+        const parsedHt = parseInt(consumptionHt, 10) || 0;
+        const parsedNt = parseInt(consumptionNt, 10) || 0;
+        const htNtSum = parsedHt + parsedNt;
+        const kwh = Math.max(500, (isWaerme && htNtSum >= 500) ? htNtSum : (parseInt(consumption, 10) || defaultKwh));
+        const resolvedMeterType = isGas ? 'gas' : (isWaerme ? (meterType === 'et' ? 'et' : 'htnt') : 'et');
+        const resolvedMeterTypeId = isGas ? 3 : (resolvedMeterType === 'htnt' ? 2 : 1);
+        const resolvedHt = isWaerme ? (parsedHt > 0 ? parsedHt : (resolvedMeterType === 'et' ? kwh : Math.round(kwh * 0.6))) : kwh;
+        const resolvedNt = isWaerme ? (resolvedMeterType === 'et' ? 0 : (parsedNt > 0 ? parsedNt : Math.max(0, kwh - resolvedHt))) : 0;
         const abschlagOld = parseFloat(currentAbschlag) || defaultAbschlag;
         const cleanPlz = String(plz || '44379').replace(/\D/g, '').slice(0, 5);
 
@@ -309,8 +318,11 @@ app.post('/api/tarife/calculate', async (req, res) => {
                 const liveFirstcon = await firstconService.calculateLiveTariffs({
                     plz: cleanPlz,
                     consumption: kwh,
+                    consumptionHt: resolvedHt,
+                    consumptionNt: resolvedNt,
+                    meterType: resolvedMeterType,
                     currentAbschlag: abschlagOld,
-                    branch: isGas ? 'gas' : 'strom',
+                    branch: normalizedBranch,
                     token: orderflowToken
                 });
                 if (liveFirstcon && Array.isArray(liveFirstcon.tariffs) && liveFirstcon.tariffs.length > 0) {
@@ -392,6 +404,72 @@ app.post('/api/tarife/calculate', async (req, res) => {
             }
         ];
 
+        const waermeTariffs = [
+            {
+                id: 'alpha-basic',
+                firstconTariffId: 279,
+                firstconName: 'Alpha Basic 24',
+                name: 'ALPHA BASIC 24 WÄRME',
+                badge: 'Wärmepumpe & Nachtspeicher (HT/NT)',
+                isBestseller: false,
+                workingPriceCt: 33.66,
+                basePriceEurMonth: 29.40,
+                basePriceEur: 29.40,
+                bonusEur: 0,
+                priceGuaranteeMonths: 24,
+                contractTermMonths: 24,
+                ecoCertificate: 'Ökostrom aus 100 % erneuerbaren Energien',
+                features: [
+                    '24 Monate volle Preisgarantie',
+                    'Für Wärmepumpe (§ 14a EnWG) & Nachtspeicherheizung (HT/NT)',
+                    'Geeignet für Doppeltarifzähler (HT/NT) & Eintarifzähler',
+                    'Ökostrom aus 100 % erneuerbaren Energien'
+                ]
+            },
+            {
+                id: 'alpha-time',
+                firstconTariffId: 280,
+                firstconName: 'Alpha Time 24',
+                name: 'ALPHA TIME 24 WÄRME',
+                badge: 'Bestseller • § 14a EnWG & HT/NT',
+                isBestseller: true,
+                workingPriceCt: 34.85,
+                basePriceEurMonth: 29.40,
+                basePriceEur: 29.40,
+                bonusEur: 0,
+                priceGuaranteeMonths: 24,
+                contractTermMonths: 24,
+                ecoCertificate: 'Ökostrom aus 100 % erneuerbaren Energien',
+                features: [
+                    '24 Monate volle Preisgarantie',
+                    'Für Wärmepumpe (§ 14a EnWG) & Nachtspeicherheizung (HT/NT)',
+                    'Geeignet für Doppeltarifzähler (HT/NT) & Eintarifzähler',
+                    'Ökostrom aus 100 % erneuerbaren Energien'
+                ]
+            },
+            {
+                id: 'alpha-premium',
+                firstconTariffId: 281,
+                firstconName: 'Alpha Premium 24',
+                name: 'ALPHA PREMIUM 24 WÄRME',
+                badge: '24 Monate Preisschutz • HT/NT Komfort',
+                isBestseller: false,
+                workingPriceCt: 36.04,
+                basePriceEurMonth: 29.40,
+                basePriceEur: 29.40,
+                bonusEur: 0,
+                priceGuaranteeMonths: 24,
+                contractTermMonths: 24,
+                ecoCertificate: 'Ökostrom aus 100 % erneuerbaren Energien',
+                features: [
+                    '24 Monate volle Preisgarantie',
+                    'Für Wärmepumpe (§ 14a EnWG) & Nachtspeicherheizung (HT/NT)',
+                    'Geeignet für Doppeltarifzähler (HT/NT) & Eintarifzähler',
+                    'Ökostrom aus 100 % erneuerbaren Energien'
+                ]
+            }
+        ];
+
         const gasTariffs = [
             {
                 id: 'alpha-basic',
@@ -458,7 +536,7 @@ app.post('/api/tarife/calculate', async (req, res) => {
             }
         ];
 
-        const tariffs = isGas ? gasTariffs : stromTariffs;
+        const tariffs = isGas ? gasTariffs : (isWaerme ? waermeTariffs : stromTariffs);
         const refGrundversorgerYearly = isGas
             ? (kwh * 0.215) + (29.50 * 12)
             : (kwh * 0.415) + (29.90 * 12);
@@ -471,6 +549,11 @@ app.post('/api/tarife/calculate', async (req, res) => {
 
             return {
                 ...t,
+                branch: normalizedBranch,
+                meterType: resolvedMeterType,
+                meterTypeId: resolvedMeterTypeId,
+                consumptionHt: resolvedHt,
+                consumptionNt: resolvedNt,
                 monthlyPayment,
                 grossYearlyEur: Math.round(rawYearly * 100) / 100,
                 savingsEur: savings,
@@ -487,8 +570,12 @@ app.post('/api/tarife/calculate', async (req, res) => {
             firstconConnected: true,
             plz: cleanPlz,
             consumption: kwh,
+            consumptionHt: resolvedHt,
+            consumptionNt: resolvedNt,
+            meterType: resolvedMeterType,
+            meterTypeId: resolvedMeterTypeId,
             currentAbschlag: abschlagOld,
-            branch: isGas ? 'gas' : 'strom',
+            branch: normalizedBranch,
             maxSavings,
             tariffs: calculatedTariffs
         });

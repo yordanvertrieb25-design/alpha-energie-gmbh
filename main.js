@@ -862,12 +862,97 @@ document.addEventListener("DOMContentLoaded", async () => {
             }
         };
 
+        const waermeTariffSpecs = {
+            'alpha-basic': {
+                firstconTariffId: 279,
+                name: 'ALPHA BASIC 24 WÄRME',
+                badge: 'Wärmepumpe & HT/NT',
+                workingPriceCt: 29.85,
+                basePriceEur: 19.90,
+                bonus: 0,
+                guaranteeMonths: 24,
+                features: [
+                    '24 Monate volle Preisgarantie',
+                    'Für Wärmepumpe (§ 14a EnWG) & Nachtspeicherheizung (HT/NT)',
+                    'Ökostrom aus 100 % erneuerbaren Energien',
+                    'Kostenloser & automatischer Wechselservice'
+                ]
+            },
+            'alpha-time': {
+                firstconTariffId: 280,
+                name: 'ALPHA TIME 24 WÄRME',
+                badge: 'Bestseller Wärmepumpe & HT/NT',
+                workingPriceCt: 30.85,
+                basePriceEur: 19.90,
+                bonus: 0,
+                guaranteeMonths: 24,
+                features: [
+                    '24 Monate volle Preisgarantie',
+                    'Für Wärmepumpe (§ 14a EnWG) & Nachtspeicherheizung (HT/NT)',
+                    'Ökostrom aus 100 % erneuerbaren Energien',
+                    'Kostenloser & automatischer Wechselservice'
+                ]
+            },
+            'alpha-premium': {
+                firstconTariffId: 281,
+                name: 'ALPHA PREMIUM 24 WÄRME',
+                badge: '24 Monate Preisschutz & VIP',
+                workingPriceCt: 31.85,
+                basePriceEur: 19.90,
+                bonus: 0,
+                guaranteeMonths: 24,
+                features: [
+                    '24 Monate volle Preisgarantie',
+                    'Für Wärmepumpe (§ 14a EnWG) & Nachtspeicherheizung (HT/NT)',
+                    'Ökostrom aus 100 % erneuerbaren Energien',
+                    'Kostenloser & automatischer Wechselservice'
+                ]
+            }
+        };
+
+        const calcWaermeHtNtRow = document.getElementById('calcWaermeHtNtRow');
+        const calcKwhHt = document.getElementById('calcKwhHt');
+        const calcKwhNt = document.getElementById('calcKwhNt');
+        const calcHtInputBox = document.getElementById('calcHtInputBox');
+        const calcNtInputBox = document.getElementById('calcNtInputBox');
+        const meterTypeBtns = document.querySelectorAll('.octo-meter-type-btn');
+        let currentMeterType = 'htnt';
+
+        function syncHtNtFromTotalKwh(totalKwhVal) {
+            const total = Math.max(500, Number(totalKwhVal) || 6000);
+            if (currentMeterType === 'et') {
+                if (calcKwhHt) calcKwhHt.value = String(total);
+                if (calcKwhNt) calcKwhNt.value = '0';
+            } else {
+                const ht = Math.round(total * 0.6);
+                const nt = Math.max(0, total - ht);
+                if (calcKwhHt) calcKwhHt.value = String(ht);
+                if (calcKwhNt) calcKwhNt.value = String(nt);
+            }
+        }
+
+        function getCurrentHtNtValues(fallbackTotalKwh) {
+            const total = Math.max(500, Number(fallbackTotalKwh) || 6000);
+            if (currentMeterType === 'et') {
+                return { ht: total, nt: 0, meterType: 'et' };
+            }
+            const rawHt = calcKwhHt ? parseInt(calcKwhHt.value, 10) : NaN;
+            const rawNt = calcKwhNt ? parseInt(calcKwhNt.value, 10) : NaN;
+            if (!isNaN(rawHt) && !isNaN(rawNt) && (rawHt + rawNt) > 0) {
+                return { ht: Math.max(0, rawHt), nt: Math.max(0, rawNt), meterType: 'htnt' };
+            }
+            const ht = Math.round(total * 0.6);
+            return { ht, nt: Math.max(0, total - ht), meterType: 'htnt' };
+        }
+
         let userHasEnteredKwh = false;
         window.markUserCalculated = () => { userHasEnteredKwh = true; };
 
         function getActiveSpecs(branchOverride) {
             const b = branchOverride || currentBranch;
-            return (b === 'gas') ? gasTariffSpecs : stromTariffSpecs;
+            if (b === 'gas') return gasTariffSpecs;
+            if (b === 'waerme') return waermeTariffSpecs;
+            return stromTariffSpecs;
         }
 
         // Backward-compatible reference
@@ -876,8 +961,8 @@ document.addEventListener("DOMContentLoaded", async () => {
         function recalculateTariffs() {
             if (!calcKwh) return;
             const currentSpecs = getActiveSpecs();
-            const defaultKwh = currentBranch === 'gas' ? 12000 : 2500;
-            const defaultAbschlag = currentBranch === 'gas' ? 115 : 95;
+            const defaultKwh = currentBranch === 'gas' ? 12000 : (currentBranch === 'waerme' ? 6000 : 2500);
+            const defaultAbschlag = currentBranch === 'gas' ? 115 : (currentBranch === 'waerme' ? 165 : 95);
             const rawKwh = (calcKwh && calcKwh.value) ? calcKwh.value.toString().replace(/\D/g, '').trim() : '';
             const parsedKwh = rawKwh ? parseInt(rawKwh, 10) : NaN;
             const kwh = (!isNaN(parsedKwh) && parsedKwh > 0) ? Math.max(500, parsedKwh) : defaultKwh;
@@ -886,7 +971,9 @@ document.addEventListener("DOMContentLoaded", async () => {
             const parsedAbschlag = rawAbschlag ? parseFloat(rawAbschlag) : NaN;
             const refGrundversorgerYearly = currentBranch === 'gas'
                 ? (kwh * 0.215) + (29.50 * 12)
-                : (kwh * 0.415) + (29.90 * 12);
+                : (currentBranch === 'waerme'
+                    ? (kwh * 0.375) + (24.90 * 12)
+                    : (kwh * 0.415) + (29.90 * 12));
             const currentYearly = (!isNaN(parsedAbschlag) && parsedAbschlag > 0)
                 ? Math.max(parsedAbschlag * 12, refGrundversorgerYearly)
                 : refGrundversorgerYearly;
@@ -906,6 +993,11 @@ document.addEventListener("DOMContentLoaded", async () => {
                     en: '24 months full price guarantee',
                     tr: '24 ay tam fiyat garantisi',
                     ar: 'ضمان سعر كامل لمدة 24 شهراً'
+                },
+                'Für Wärmepumpe (§ 14a EnWG) & Nachtspeicherheizung (HT/NT)': {
+                    en: 'For heat pumps (§ 14a EnWG) & night storage heaters (HT/NT)',
+                    tr: 'Isı pompası (§ 14a EnWG) & gece depolamalı ısıtıcılar (HT/NT) için',
+                    ar: 'لمضخات الحرارة (§ 14a EnWG) وسخانات التخزين الليلي (HT/NT)'
                 },
                 'Ökostrom aus 100 % erneuerbaren Energien (ok-power)': {
                     en: 'Green electricity from 100% renewable energy (ok-power)',
@@ -965,6 +1057,11 @@ document.addEventListener("DOMContentLoaded", async () => {
                     'alpha-time': { de: '24 Monate volle Preisgarantie', en: '24 Months Full Price Guarantee', tr: '24 Ay Tam Fiyat Garantisi', ar: 'ضمان سعر كامل لمدة 24 شهراً' },
                     'alpha-premium': { de: '24 Monate Preisschutz & VIP', en: '24-Month Price Protection & VIP', tr: '24 Ay Fiyat Koruması & VIP', ar: 'حماية السعر لمدة 24 شهراً وخدمة VIP' }
                 },
+                waerme: {
+                    'alpha-basic': { de: 'Wärmepumpe & HT/NT', en: 'Heat Pump & HT/NT', tr: 'Isı Pompası & HT/NT', ar: 'مضخة حرارية و HT/NT' },
+                    'alpha-time': { de: 'Bestseller Wärmepumpe & HT/NT', en: 'Bestseller Heat Pump & HT/NT', tr: 'Çok Satan Isı Pompası & HT/NT', ar: 'الأكثر مبيعاً للمضخات الحرارية و HT/NT' },
+                    'alpha-premium': { de: '24 Monate Preisschutz & VIP', en: '24-Month Price Protection & VIP', tr: '24 Ay Fiyat Koruması & VIP', ar: 'حماية السعر لمدة 24 شهراً وخدمة VIP' }
+                },
                 gas: {
                     'alpha-basic': { de: 'Fair & Preisstabil', en: 'Fair & Price-Stable', tr: 'Adil & Fiyat İstikrarlı', ar: 'عادل ومستقر السعر' },
                     'alpha-time': { de: 'Bestseller & Spar-Vorteil', en: 'Bestseller & Savings Advantage', tr: 'Çok Satan & Tasarruf Avantajı', ar: 'الأكثر مبيعاً وميزة التوفير' },
@@ -1006,7 +1103,8 @@ document.addEventListener("DOMContentLoaded", async () => {
 
                     const badgeEl = cardEl.querySelector('.tariff-badge');
                     if (badgeEl) {
-                        const branchBadges = TARIFF_BADGE_BY_CARD[currentBranch === 'gas' ? 'gas' : 'strom'];
+                        const branchKey = currentBranch === 'gas' ? 'gas' : (currentBranch === 'waerme' ? 'waerme' : 'strom');
+                        const branchBadges = TARIFF_BADGE_BY_CARD[branchKey];
                         const mappedBadge = branchBadges && branchBadges[id] ? branchBadges[id][curLang] : null;
                         badgeEl.textContent = mappedBadge || spec.badge;
                     }
@@ -1050,7 +1148,13 @@ document.addEventListener("DOMContentLoaded", async () => {
                     }
                 }
                 if (kwhEl) {
-                    if (window.i18n && typeof window.i18n.formatKwhDesc === 'function') {
+                    if (currentBranch === 'waerme') {
+                        const htNt = getCurrentHtNtValues(kwh);
+                        const meterTag = htNt.meterType === 'et'
+                            ? 'Eintarif'
+                            : `HT ${htNt.ht.toLocaleString('de-DE')} / NT ${htNt.nt.toLocaleString('de-DE')} kWh`;
+                        kwhEl.textContent = `${kwh.toLocaleString('de-DE')} kWh/Jahr (${meterTag}) • ${activeWorkCt.toFixed(2).replace('.', ',')} ct/kWh • ${activeBaseEur.toFixed(2).replace('.', ',')} € Grundpreis`;
+                    } else if (window.i18n && typeof window.i18n.formatKwhDesc === 'function') {
                         kwhEl.textContent = window.i18n.formatKwhDesc(kwh, activeWorkCt);
                     } else {
                         kwhEl.textContent = `${kwh.toLocaleString('de-DE')} kWh/Jahr • ${activeWorkCt.toFixed(2).replace('.', ',')} ct/kWh • ${activeBaseEur.toFixed(2).replace('.', ',')} € Grundpreis`;
@@ -1058,19 +1162,25 @@ document.addEventListener("DOMContentLoaded", async () => {
                 }
 
                 // Store computed values in data-attributes of ALL matching action buttons on the page
+                const htNtMeta = currentBranch === 'waerme' ? getCurrentHtNtValues(kwh) : null;
                 document.querySelectorAll(`[data-select-tariff="${id}"]`).forEach(btn => {
                     btn.setAttribute('data-monthly', monthlyPayment);
                     btn.setAttribute('data-kwh', kwh);
                     btn.setAttribute('data-savings', savings);
                     btn.setAttribute('data-name', spec.name);
                     btn.setAttribute('data-branch', currentBranch);
+                    if (htNtMeta) {
+                        btn.setAttribute('data-meter-type', htNtMeta.meterType);
+                        btn.setAttribute('data-kwh-ht', htNtMeta.ht);
+                        btn.setAttribute('data-kwh-nt', htNtMeta.nt);
+                    }
                     if (spec.firstconTariffId) btn.setAttribute('data-firstcon-tariff-id', spec.firstconTariffId);
                     if (spec.energyGridNumber) btn.setAttribute('data-energy-grid', spec.energyGridNumber);
                 });
             }
 
             if (calcSavingsValue) {
-                const displaySavings = maxSavings > 0 ? maxSavings : (currentBranch === 'gas' ? 240 : 202);
+                const displaySavings = maxSavings > 0 ? maxSavings : (currentBranch === 'gas' ? 240 : (currentBranch === 'waerme' ? 310 : 202));
                 if (window.i18n && typeof window.i18n.formatMaxSavings === 'function') {
                     calcSavingsValue.textContent = window.i18n.formatMaxSavings(displaySavings);
                 } else {
@@ -1139,8 +1249,8 @@ document.addEventListener("DOMContentLoaded", async () => {
 
             const effectivePlz = /^\d{5}$/.test(rawPlz) ? rawPlz : '44379';
 
-            const defaultKwh = activeBranch === 'gas' ? 12000 : 2500;
-            const defaultAbschlag = activeBranch === 'gas' ? 115 : 95;
+            const defaultKwh = activeBranch === 'gas' ? 12000 : (activeBranch === 'waerme' ? 6000 : 2500);
+            const defaultAbschlag = activeBranch === 'gas' ? 115 : (activeBranch === 'waerme' ? 165 : 95);
             const rawKwh = kwhOverride !== undefined
                 ? String(kwhOverride).replace(/\D/g, '').trim()
                 : ((calcKwh && calcKwh.value) ? calcKwh.value.toString().replace(/\D/g, '').trim() : '');
@@ -1156,6 +1266,8 @@ document.addEventListener("DOMContentLoaded", async () => {
                 populateStreetDatalist(rawPlz, activeBranch);
             }
 
+            const htNtData = activeBranch === 'waerme' ? getCurrentHtNtValues(kwh) : null;
+
             try {
                 const res = await fetch('/api/tarife/calculate', {
                     method: 'POST',
@@ -1163,6 +1275,9 @@ document.addEventListener("DOMContentLoaded", async () => {
                     body: JSON.stringify({
                         plz: effectivePlz,
                         consumption: kwh,
+                        consumptionHt: htNtData ? htNtData.ht : undefined,
+                        consumptionNt: htNtData ? htNtData.nt : undefined,
+                        meterType: htNtData ? htNtData.meterType : 'et',
                         currentAbschlag: currentMonthlyEuro,
                         currentMonthlyEuro,
                         branch: activeBranch,
@@ -1249,7 +1364,8 @@ document.addEventListener("DOMContentLoaded", async () => {
                                 }
                                 const badgeEl = cardEl.querySelector('.tariff-badge');
                                 if (badgeEl) {
-                                    const badgeMap = window.__TARIFF_BADGE_BY_CARD && window.__TARIFF_BADGE_BY_CARD[activeBranch === 'gas' ? 'gas' : 'strom'];
+                                    const branchKey = activeBranch === 'gas' ? 'gas' : (activeBranch === 'waerme' ? 'waerme' : 'strom');
+                                    const badgeMap = window.__TARIFF_BADGE_BY_CARD && window.__TARIFF_BADGE_BY_CARD[branchKey];
                                     const mappedBadge = badgeMap && badgeMap[t.id] ? badgeMap[t.id][curLang] : null;
                                     badgeEl.textContent = mappedBadge || t.badge || (spec && spec.badge) || '';
                                 }
@@ -1296,7 +1412,12 @@ document.addEventListener("DOMContentLoaded", async () => {
                                 }
                             }
                             if (kwhEl && typeof t.workingPriceCt === 'number') {
-                                if (window.i18n && typeof window.i18n.formatKwhDesc === 'function') {
+                                if (activeBranch === 'waerme' && htNtData) {
+                                    const meterTag = htNtData.meterType === 'et'
+                                        ? 'Eintarif'
+                                        : `HT ${htNtData.ht.toLocaleString('de-DE')} / NT ${htNtData.nt.toLocaleString('de-DE')} kWh`;
+                                    kwhEl.textContent = `${kwh.toLocaleString('de-DE')} kWh/Jahr (${meterTag}) • ${t.workingPriceCt.toFixed(2).replace('.', ',')} ct/kWh • ${baseM.toFixed(2).replace('.', ',')} € Grundpreis`;
+                                } else if (window.i18n && typeof window.i18n.formatKwhDesc === 'function') {
                                     kwhEl.textContent = window.i18n.formatKwhDesc(kwh, t.workingPriceCt);
                                 } else {
                                     kwhEl.textContent = `${kwh.toLocaleString('de-DE')} kWh/Jahr • ${t.workingPriceCt.toFixed(2).replace('.', ',')} ct/kWh • ${baseM.toFixed(2).replace('.', ',')} € Grundpreis`;
@@ -1396,15 +1517,77 @@ document.addEventListener("DOMContentLoaded", async () => {
                     const btnKwh = parseInt(b.getAttribute('data-kwh'), 10);
                     b.classList.toggle('active', Boolean(typedKwh && btnKwh === typedKwh));
                 });
-                recalculateTariffs();
-                const defaultKwh = currentBranch === 'gas' ? 12000 : 2500;
+                const defaultKwh = currentBranch === 'gas' ? 12000 : (currentBranch === 'waerme' ? 6000 : 2500);
                 const kwh = (typedKwh && typedKwh > 0) ? Math.max(500, typedKwh) : defaultKwh;
+                if (currentBranch === 'waerme') {
+                    syncHtNtFromTotalKwh(kwh);
+                }
+                recalculateTariffs();
                 sync3DSceneConsumption(kwh);
                 if (calcPlz && /^\d{5}$/.test(calcPlz.value)) {
                     syncLiveFirstconCalculation(calcPlz.value, kwh, currentBranch);
                 }
             });
         }
+
+        function handleHtNtSplitInput() {
+            userHasEnteredKwh = true;
+            const htVal = Math.max(0, parseInt(calcKwhHt && calcKwhHt.value ? calcKwhHt.value : '0', 10) || 0);
+            const ntVal = currentMeterType === 'et'
+                ? 0
+                : Math.max(0, parseInt(calcKwhNt && calcKwhNt.value ? calcKwhNt.value : '0', 10) || 0);
+            const totalKwh = Math.max(500, htVal + ntVal);
+            if (calcKwh) {
+                calcKwh.value = String(totalKwh);
+            }
+            householdBtns.forEach(b => {
+                const btnKwh = parseInt(b.getAttribute('data-kwh'), 10);
+                b.classList.toggle('active', btnKwh === totalKwh);
+            });
+            recalculateTariffs();
+            sync3DSceneConsumption(totalKwh);
+            if (calcPlz && /^\d{5}$/.test(calcPlz.value)) {
+                syncLiveFirstconCalculation(calcPlz.value, totalKwh, currentBranch);
+            }
+        }
+
+        if (calcKwhHt) {
+            calcKwhHt.addEventListener('input', handleHtNtSplitInput);
+        }
+        if (calcKwhNt) {
+            calcKwhNt.addEventListener('input', handleHtNtSplitInput);
+        }
+
+        meterTypeBtns.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
+                meterTypeBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentMeterType = btn.getAttribute('data-meter-type') || 'htnt';
+                const totalKwh = Math.max(500, parseInt(calcKwh && calcKwh.value ? calcKwh.value : '6000', 10) || 6000);
+                const htLabel = calcHtInputBox ? calcHtInputBox.querySelector('label') : null;
+                if (currentMeterType === 'et') {
+                    if (htLabel) htLabel.textContent = 'Gesamtverbrauch Wärmestrom (Eintarif)';
+                    if (calcNtInputBox) calcNtInputBox.style.opacity = '0.45';
+                    if (calcKwhNt) {
+                        calcKwhNt.value = '0';
+                        calcKwhNt.disabled = true;
+                    }
+                    if (calcKwhHt) calcKwhHt.value = String(totalKwh);
+                } else {
+                    if (htLabel) htLabel.textContent = 'Hochtarif (HT – Tagstrom)';
+                    if (calcNtInputBox) calcNtInputBox.style.opacity = '1';
+                    if (calcKwhNt) calcKwhNt.disabled = false;
+                    syncHtNtFromTotalKwh(totalKwh);
+                }
+                const orderMeterTypeEl = document.getElementById('orderMeterType');
+                if (orderMeterTypeEl) orderMeterTypeEl.value = currentMeterType;
+                recalculateTariffs();
+                if (calcPlz && /^\d{5}$/.test(calcPlz.value)) {
+                    syncLiveFirstconCalculation(calcPlz.value, totalKwh, currentBranch);
+                }
+            });
+        });
 
         if (calcAbschlag) {
             calcAbschlag.addEventListener('input', () => {
@@ -1426,6 +1609,9 @@ document.addEventListener("DOMContentLoaded", async () => {
                 const kwh = btn.getAttribute('data-kwh');
                 if (calcKwh && kwh) {
                     calcKwh.value = kwh;
+                    if (currentBranch === 'waerme') {
+                        syncHtNtFromTotalKwh(parseInt(kwh, 10));
+                    }
                     recalculateTariffs();
                     sync3DSceneConsumption(parseInt(kwh, 10));
                     if (calcPlz && /^\d{5}$/.test(calcPlz.value)) {
@@ -1437,6 +1623,38 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         function getPresetLabelsForBranch(branch, lang) {
             const l = lang || ((window.i18n && typeof window.i18n.getLanguage === 'function') ? window.i18n.getLanguage() : 'de');
+            if (branch === 'waerme') {
+                if (l === 'en') {
+                    return [
+                        { label: 'Heat Pump S', sub: '4,000 kWh', kwh: 4000 },
+                        { label: 'Heat Pump M', sub: '6,000 kWh', kwh: 6000 },
+                        { label: 'Night Storage', sub: '8,000 kWh', kwh: 8000 },
+                        { label: 'Large System', sub: '12,000 kWh', kwh: 12000 }
+                    ];
+                }
+                if (l === 'tr') {
+                    return [
+                        { label: 'Isı Pompası S', sub: '4.000 kWh', kwh: 4000 },
+                        { label: 'Isı Pompası M', sub: '6.000 kWh', kwh: 6000 },
+                        { label: 'Gece Depolama', sub: '8.000 kWh', kwh: 8000 },
+                        { label: 'Büyük Sistem', sub: '12.000 kWh', kwh: 12000 }
+                    ];
+                }
+                if (l === 'ar') {
+                    return [
+                        { label: 'مضخة حرارية S', sub: '4.000 ك.و.س', kwh: 4000 },
+                        { label: 'مضخة حرارية M', sub: '6.000 ك.و.س', kwh: 6000 },
+                        { label: 'تخزين ليلي HT/NT', sub: '8.000 ك.و.س', kwh: 8000 },
+                        { label: 'نظام كبير', sub: '12.000 ك.و.س', kwh: 12000 }
+                    ];
+                }
+                return [
+                    { label: 'WP Kompakt', sub: '4.000 kWh', kwh: 4000 },
+                    { label: 'Wärmepumpe', sub: '6.000 kWh', kwh: 6000 },
+                    { label: 'Nachtspeicher', sub: '8.000 kWh', kwh: 8000 },
+                    { label: 'Großanlage', sub: '12.000 kWh', kwh: 12000 }
+                ];
+            }
             if (branch === 'gas') {
                 if (l === 'en') {
                     return [
@@ -1523,6 +1741,8 @@ document.addEventListener("DOMContentLoaded", async () => {
             if (calcKwh && (!calcKwh.value || calcKwh.value.toString().trim() === '')) {
                 if (branch === 'gas') {
                     calcKwh.placeholder = curLang === 'en' ? 'e.g. 12,000' : (curLang === 'tr' ? 'örn. 12.000' : (curLang === 'ar' ? 'مثلاً 12000' : 'z. B. 12.000'));
+                } else if (branch === 'waerme') {
+                    calcKwh.placeholder = curLang === 'en' ? 'e.g. 6,000' : (curLang === 'tr' ? 'örn. 6.000' : (curLang === 'ar' ? 'مثلاً 6000' : 'z. B. 6.000'));
                 } else {
                     calcKwh.placeholder = curLang === 'en' ? 'e.g. 2,500' : (curLang === 'tr' ? 'örn. 2.500' : (curLang === 'ar' ? 'مثلاً 2500' : 'z. B. 2.500'));
                 }
@@ -1540,9 +1760,13 @@ document.addEventListener("DOMContentLoaded", async () => {
                 const noticeText = document.getElementById('calcBranchNoticeText');
                 const hasUserKwh = Boolean(calcKwh && calcKwh.value && calcKwh.value.toString().trim() !== '');
 
+                if (calcWaermeHtNtRow) {
+                    calcWaermeHtNtRow.style.display = currentBranch === 'waerme' ? 'block' : 'none';
+                }
+
                 if (currentBranch === 'gas') {
                     if (hasUserKwh) {
-                        if (calcKwh.value === '2500' || calcKwh.value === '1500' || calcKwh.value === '3500' || calcKwh.value === '4500') {
+                        if (['1500', '2500', '3500', '4500', '4000', '6000', '8000'].includes(calcKwh.value)) {
                             calcKwh.value = '12000';
                         }
                     }
@@ -1552,10 +1776,23 @@ document.addEventListener("DOMContentLoaded", async () => {
                             ? window.i18n.getBranchNotice('gas')
                             : 'Erdgas mit freiwilligem Klimaschutzbeitrag • 24 Monate volle Preisgarantie';
                     }
+                } else if (currentBranch === 'waerme') {
+                    if (hasUserKwh) {
+                        if (['1500', '2500', '3500', '4500', '5000', '12000', '18000', '25000'].includes(calcKwh.value)) {
+                            calcKwh.value = '6000';
+                        }
+                    }
+                    syncHtNtFromTotalKwh(parseInt(calcKwh ? calcKwh.value : '6000', 10) || 6000);
+                    updateHouseholdPresets('waerme');
+                    if (noticeText) {
+                        noticeText.textContent = (window.i18n && typeof window.i18n.getBranchNotice === 'function')
+                            ? window.i18n.getBranchNotice('waerme')
+                            : 'Wärmestrom für Wärmepumpe (§ 14a EnWG) & Nachtspeicher (HT/NT) • 24 Monate volle Preisgarantie';
+                    }
                 } else {
                     currentBranch = 'strom';
                     if (hasUserKwh) {
-                        if (calcKwh.value === '12000' || calcKwh.value === '5000' || calcKwh.value === '18000' || calcKwh.value === '25000') {
+                        if (['4000', '5000', '6000', '8000', '12000', '18000', '25000'].includes(calcKwh.value)) {
                             calcKwh.value = '2500';
                         }
                     }
@@ -1570,7 +1807,8 @@ document.addEventListener("DOMContentLoaded", async () => {
 
                 // Synchronize 3D scene mode and consumption
                 sync3DSceneMode(currentBranch);
-                const currentKwhVal = Math.max(500, parseInt(calcKwh && calcKwh.value ? calcKwh.value : (currentBranch === 'gas' ? 12000 : 2500), 10) || 2500);
+                const defaultBranchKwh = currentBranch === 'gas' ? 12000 : (currentBranch === 'waerme' ? 6000 : 2500);
+                const currentKwhVal = Math.max(500, parseInt(calcKwh && calcKwh.value ? calcKwh.value : defaultBranchKwh, 10) || defaultBranchKwh);
                 sync3DSceneConsumption(currentKwhVal);
                 if (calcPlz && /^\d{5}$/.test(calcPlz.value)) {
                     syncLiveFirstconCalculation(calcPlz.value, currentKwhVal, currentBranch);
@@ -1578,8 +1816,24 @@ document.addEventListener("DOMContentLoaded", async () => {
             });
         });
 
-        // Two-way sync: Clicking 3D HUD mode buttons switches calculator tab
+        // Two-way sync: Clicking 3D HUD mode buttons or [data-switch-branch] CTAs switches calculator tab
         document.addEventListener('click', (e) => {
+            const switchBranchLink = e.target.closest('[data-switch-branch]');
+            if (switchBranchLink) {
+                const targetBranch = switchBranchLink.getAttribute('data-switch-branch');
+                if (targetBranch) {
+                    const matchingTab = document.querySelector(`.calc-tab-btn[data-branch="${targetBranch}"]`);
+                    if (matchingTab) {
+                        e.preventDefault();
+                        matchingTab.click();
+                        const rechnerTarget = document.getElementById('rechner') || document.getElementById('tarifrechner');
+                        if (rechnerTarget) {
+                            rechnerTarget.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        }
+                    }
+                }
+            }
+
             const hudBtn = e.target.closest('#alpha-versorger-canvas .hud-tab, #versorger-flow-canvas .hud-tab, .versorger-flow-card .hud-tab');
             if (hudBtn) {
                 const targetMode = hudBtn.getAttribute('data-mode');
@@ -1718,9 +1972,12 @@ document.addEventListener("DOMContentLoaded", async () => {
         try {
             const urlParams = new URLSearchParams(window.location.search);
             const urlPlz = urlParams.get('plz');
-            const urlBranch = urlParams.get('branch');
+            const rawUrlBranch = (urlParams.get('branch') || '').toLowerCase();
+            const urlBranch = (rawUrlBranch === 'waerme' || rawUrlBranch === 'waermestrom' || rawUrlBranch === 'waermepumpe' || rawUrlBranch === 'htnt')
+                ? 'waerme'
+                : rawUrlBranch;
             const urlKwh = urlParams.get('kwh');
-            if (urlBranch && (urlBranch === 'gas' || urlBranch === 'strom')) {
+            if (urlBranch && (urlBranch === 'gas' || urlBranch === 'strom' || urlBranch === 'waerme')) {
                 const targetTab = document.querySelector(`.calc-tab-btn[data-branch="${urlBranch}"]`);
                 if (targetTab) targetTab.click();
             }
@@ -1730,6 +1987,9 @@ document.addEventListener("DOMContentLoaded", async () => {
             }
             if (urlKwh && calcKwh) {
                 calcKwh.value = urlKwh.replace(/\D/g, '');
+                if (currentBranch === 'waerme') {
+                    syncHtNtFromTotalKwh(parseInt(calcKwh.value, 10) || 6000);
+                }
                 userHasEnteredKwh = true;
             }
         } catch (err) {}
@@ -1851,6 +2111,27 @@ document.addEventListener("DOMContentLoaded", async () => {
                     sub: curLang === 'en' ? '25,000 kWh' : '25.000 kWh',
                     kwh: 25000
                 }
+            ] : (branch === 'waerme' ? [
+                {
+                    label: curLang === 'en' ? 'Heat Pump S' : (curLang === 'tr' ? 'Isı Pompası S' : (curLang === 'ar' ? 'مضخة حرارية S' : 'WP Kompakt')),
+                    sub: curLang === 'en' ? '4,000 kWh' : '4.000 kWh',
+                    kwh: 4000
+                },
+                {
+                    label: curLang === 'en' ? 'Heat Pump M' : (curLang === 'tr' ? 'Isı Pompası M' : (curLang === 'ar' ? 'مضخة حرارية M' : 'Wärmepumpe')),
+                    sub: curLang === 'en' ? '6,000 kWh' : '6.000 kWh',
+                    kwh: 6000
+                },
+                {
+                    label: curLang === 'en' ? 'Night Storage' : (curLang === 'tr' ? 'Gece Depolama' : (curLang === 'ar' ? 'تخزين ليلي' : 'Nachtspeicher')),
+                    sub: curLang === 'en' ? '8,000 kWh' : '8.000 kWh',
+                    kwh: 8000
+                },
+                {
+                    label: curLang === 'en' ? 'Large System' : (curLang === 'tr' ? 'Büyük Sistem' : (curLang === 'ar' ? 'نظام كبير' : 'Großanlage')),
+                    sub: curLang === 'en' ? '12,000 kWh' : '12.000 kWh',
+                    kwh: 12000
+                }
             ] : [
                 {
                     label: curLang === 'en' ? '1 Person' : (curLang === 'tr' ? '1 Kişi' : (curLang === 'ar' ? 'شخص واحد' : '1 Person')),
@@ -1872,7 +2153,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                     sub: curLang === 'en' ? '4,500 kWh' : '4.500 kWh',
                     kwh: 4500
                 }
-            ];
+            ]);
             modalPresetBtns.forEach((btn, idx) => {
                 if (presets[idx]) {
                     btn.setAttribute('data-modal-kwh', String(presets[idx].kwh));
@@ -1885,6 +2166,8 @@ document.addEventListener("DOMContentLoaded", async () => {
             if (modalCalcKwh) {
                 if (branch === 'gas') {
                     modalCalcKwh.placeholder = curLang === 'en' ? 'e.g. 12000' : (curLang === 'tr' ? 'Örn. 12000' : (curLang === 'ar' ? 'مثال: 12000' : 'z. B. 12000'));
+                } else if (branch === 'waerme') {
+                    modalCalcKwh.placeholder = curLang === 'en' ? 'e.g. 6000' : (curLang === 'tr' ? 'Örn. 6000' : (curLang === 'ar' ? 'مثال: 6000' : 'z. B. 6000'));
                 } else {
                     modalCalcKwh.placeholder = curLang === 'en' ? 'e.g. 2500' : (curLang === 'tr' ? 'Örn. 2500' : (curLang === 'ar' ? 'مثال: 2500' : 'z. B. 2500'));
                 }
@@ -1976,13 +2259,27 @@ document.addEventListener("DOMContentLoaded", async () => {
 
                 const refYearly = branch === 'gas'
                     ? (parsedKwh * 0.215) + (29.50 * 12)
-                    : (parsedKwh * 0.415) + (29.90 * 12);
+                    : (branch === 'waerme'
+                        ? (parsedKwh * 0.375) + (24.90 * 12)
+                        : (parsedKwh * 0.415) + (29.90 * 12));
                 const savings = Math.max(40, Math.round(refYearly - rawYearly));
 
                 selectedOrderData.consumption = String(parsedKwh);
                 selectedOrderData.monthlyPayment = String(monthlyPayment);
                 selectedOrderData.savings = String(savings);
                 selectedOrderData.userEnteredModalKwh = parsedKwh;
+                if (branch === 'waerme') {
+                    const htNt = getCurrentHtNtValues(parsedKwh);
+                    selectedOrderData.consumptionHt = htNt.ht;
+                    selectedOrderData.consumptionNt = htNt.nt;
+                    selectedOrderData.meterType = htNt.meterType;
+                    const waermeSumEl = document.getElementById('orderWaermeHtNtSummary');
+                    if (waermeSumEl) {
+                        waermeSumEl.textContent = htNt.meterType === 'et'
+                            ? `Eintarifzähler (ET) • Gesamtverbrauch: ${parsedKwh.toLocaleString('de-DE')} kWh/Jahr`
+                            : `Doppeltarifzähler (HT/NT) • HT: ${htNt.ht.toLocaleString('de-DE')} kWh/Jahr | NT: ${htNt.nt.toLocaleString('de-DE')} kWh/Jahr`;
+                    }
+                }
                 if (spec.firstconTariffId) selectedOrderData.firstconTariffId = spec.firstconTariffId;
                 if (spec.energyGridNumber) selectedOrderData.energyGridNumber = spec.energyGridNumber;
 
@@ -2016,6 +2313,9 @@ document.addEventListener("DOMContentLoaded", async () => {
                 // Sync back to main page calculator
                 if (calcKwh && calcKwh.value !== String(parsedKwh)) {
                     calcKwh.value = String(parsedKwh);
+                    if (branch === 'waerme') {
+                        syncHtNtFromTotalKwh(parsedKwh);
+                    }
                     userHasEnteredKwh = true;
                     recalculateTariffs();
                 }
@@ -2140,11 +2440,16 @@ document.addEventListener("DOMContentLoaded", async () => {
                 ? rawMainKwh
                 : (selectedOrderData.userEnteredModalKwh || null);
 
+            const htNt = branch === 'waerme' ? getCurrentHtNtValues(prefilledKwh || 6000) : null;
+
             selectedOrderData = {
                 tariffId: validTariffId,
                 tariffName: spec.name,
                 branch: branch,
                 consumption: prefilledKwh ? String(prefilledKwh) : '',
+                consumptionHt: htNt ? htNt.ht : undefined,
+                consumptionNt: htNt ? htNt.nt : undefined,
+                meterType: htNt ? htNt.meterType : 'et',
                 monthlyPayment: '',
                 savings: '',
                 plz: mainPlz,
@@ -2152,6 +2457,15 @@ document.addEventListener("DOMContentLoaded", async () => {
                 firstconTariffId: (btnElement && btnElement.getAttribute('data-firstcon-tariff-id')) || spec.firstconTariffId || null,
                 energyGridNumber: (btnElement && btnElement.getAttribute('data-energy-grid')) || spec.energyGridNumber || null
             };
+
+            const orderWaermeMeterBox = document.getElementById('orderWaermeMeterBox');
+            const orderMeterType = document.getElementById('orderMeterType');
+            if (orderWaermeMeterBox) {
+                orderWaermeMeterBox.style.display = branch === 'waerme' ? 'block' : 'none';
+            }
+            if (orderMeterType && htNt) {
+                orderMeterType.value = htNt.meterType;
+            }
 
             updateModalPresetsForBranch(branch);
 
@@ -2274,6 +2588,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                 const plz = document.getElementById('orderPlz');
                 const city = document.getElementById('orderCity');
                 const meter = document.getElementById('orderMeterNumber');
+                const orderMeterType = document.getElementById('orderMeterType');
                 const prevProvider = document.getElementById('orderPrevProvider');
                 const cancelOld = document.getElementById('orderCancelOld');
 
@@ -2287,6 +2602,9 @@ document.addEventListener("DOMContentLoaded", async () => {
                 selectedOrderData.plz = plz.value.trim();
                 selectedOrderData.city = city.value.trim();
                 selectedOrderData.meterNumber = meter.value.trim();
+                if (selectedOrderData.branch === 'waerme' && orderMeterType) {
+                    selectedOrderData.meterType = orderMeterType.value || 'htnt';
+                }
                 selectedOrderData.currentProvider = prevProvider ? prevProvider.value.trim() : '';
                 selectedOrderData.cancelOldContract = cancelOld ? cancelOld.checked : true;
 

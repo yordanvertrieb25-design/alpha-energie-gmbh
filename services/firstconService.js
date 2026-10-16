@@ -304,28 +304,46 @@ function mapFirstconTariffToSlotId(fcTariff) {
 /**
  * Calculates live tariffs & prices directly from Firstcon Orderflow API v2.
  */
-async function calculateLiveTariffs({ plz, consumption, currentAbschlag, branch = 'strom', token }) {
-    const isGas = branch === 'gas';
+async function calculateLiveTariffs({ plz, consumption, consumptionHt, consumptionNt, meterType, currentAbschlag, branch = 'strom', token }) {
+    const normalizedBranch = branch === 'gas' ? 'gas' : (branch === 'waerme' ? 'waerme' : 'strom');
+    const isGas = normalizedBranch === 'gas';
+    const isWaerme = normalizedBranch === 'waerme';
     const energyCategoryId = isGas ? 2 : 1;
-    const defaultKwh = isGas ? 12000 : 2500;
-    const kwh = Math.max(500, parseInt(consumption, 10) || defaultKwh);
+    const defaultKwh = isGas ? 12000 : (isWaerme ? 6000 : 2500);
+    const parsedHt = parseInt(consumptionHt, 10) || 0;
+    const parsedNt = parseInt(consumptionNt, 10) || 0;
+    const htNtSum = parsedHt + parsedNt;
+    const kwh = Math.max(500, (isWaerme && htNtSum >= 500) ? htNtSum : (parseInt(consumption, 10) || defaultKwh));
+    const resolvedMeterType = isGas ? 'gas' : (isWaerme ? (meterType === 'et' ? 'et' : 'htnt') : 'et');
+    const resolvedMeterTypeId = isGas ? 3 : (resolvedMeterType === 'htnt' ? 2 : 1);
+    const resolvedHt = isWaerme ? (parsedHt > 0 ? parsedHt : (resolvedMeterType === 'et' ? kwh : Math.round(kwh * 0.6))) : kwh;
+    const resolvedNt = isWaerme ? (resolvedMeterType === 'et' ? 0 : (parsedNt > 0 ? parsedNt : Math.max(0, kwh - resolvedHt))) : 0;
     const cleanPlz = String(plz || '44379').replace(/\D/g, '').slice(0, 5) || '44379';
 
     // 1. Resolve grid and tariffs in parallel
     let [gridInfo, fcTariffs] = await Promise.all([
-        findEnergyGrid(cleanPlz, branch, token),
-        getFirstconTariffs(branch, token)
+        findEnergyGrid(cleanPlz, normalizedBranch, token),
+        getFirstconTariffs(normalizedBranch, token)
     ]);
 
     if ((!gridInfo || !gridInfo.energyGridNumber) && cleanPlz !== '44379') {
-        gridInfo = await findEnergyGrid('44379', branch, token);
+        gridInfo = await findEnergyGrid('44379', normalizedBranch, token);
     }
 
     if (!gridInfo || !gridInfo.energyGridNumber || !fcTariffs || fcTariffs.length === 0) {
         return null;
     }
 
-    const tariffIds = fcTariffs.map(t => t.TariffId).filter(Boolean);
+    // If Firstcon provides dedicated IsHeatFlowTariff tariffs, prefer them for branch === 'waerme'
+    let activeFcTariffs = fcTariffs;
+    if (isWaerme) {
+        const heatFlowOnly = fcTariffs.filter(t => t && t.IsHeatFlowTariff === true);
+        if (heatFlowOnly.length > 0) {
+            activeFcTariffs = heatFlowOnly;
+        }
+    }
+
+    const tariffIds = activeFcTariffs.map(t => t.TariffId).filter(Boolean);
 
     // 2. Fetch live prices for the resolved EnergyGridNumber & Consumption
     const pricesRes = await firstconRequest('POST', '/Tariff/GetPrices', {
@@ -389,6 +407,25 @@ async function calculateLiveTariffs({ plz, consumption, currentAbschlag, branch 
             isBestseller: false,
             ecoCertificate: 'Erdgas mit freiwilligem Klimaschutzbeitrag'
         }
+    } : (isWaerme ? {
+        'alpha-basic': {
+            name: 'ALPHA BASIC 24 WÄRME',
+            badge: 'Wärmepumpe & Nachtspeicher (HT/NT)',
+            isBestseller: false,
+            ecoCertificate: 'Ökostrom aus 100 % erneuerbaren Energien'
+        },
+        'alpha-time': {
+            name: 'ALPHA TIME 24 WÄRME',
+            badge: 'Bestseller • § 14a EnWG & HT/NT',
+            isBestseller: true,
+            ecoCertificate: 'Ökostrom aus 100 % erneuerbaren Energien'
+        },
+        'alpha-premium': {
+            name: 'ALPHA PREMIUM 24 WÄRME',
+            badge: '24 Monate Preisschutz • HT/NT Komfort',
+            isBestseller: false,
+            ecoCertificate: 'Ökostrom aus 100 % erneuerbaren Energien'
+        }
     } : {
         'alpha-basic': {
             name: 'ALPHA BASIC 24',
@@ -408,11 +445,11 @@ async function calculateLiveTariffs({ plz, consumption, currentAbschlag, branch 
             isBestseller: false,
             ecoCertificate: 'Ökostrom aus 100 % erneuerbaren Energien'
         }
-    };
+    });
 
     // Order tariffs consistently first: alpha-basic (0), alpha-time (1), alpha-premium (2)
     const orderRank = { 'alpha-basic': 1, 'alpha-time': 2, 'alpha-premium': 3 };
-    const orderedFcTariffs = [...fcTariffs].sort((a, b) => {
+    const orderedFcTariffs = [...activeFcTariffs].sort((a, b) => {
         const slotA = mapFirstconTariffToSlotId(a);
         const slotB = mapFirstconTariffToSlotId(b);
         return (orderRank[slotA] || 99) - (orderRank[slotB] || 99);
@@ -439,12 +476,17 @@ async function calculateLiveTariffs({ plz, consumption, currentAbschlag, branch 
             'Erdgas mit freiwilligem Klimaschutzbeitrag',
             'Förderung ausgewählter Klimaschutzprojekte',
             'Kostenloser & automatischer Wechselservice'
+        ] : (isWaerme ? [
+            `${fcTariff.PriceGuaranteeDuration || 24} Monate volle Preisgarantie`,
+            'Für Wärmepumpe (§ 14a EnWG) & Nachtspeicherheizung (HT/NT)',
+            'Geeignet für Doppeltarifzähler (HT/NT) & Eintarifzähler',
+            'Ökostrom aus 100 % erneuerbaren Energien'
         ] : [
             `${fcTariff.PriceGuaranteeDuration || 24} Monate volle Preisgarantie`,
             'Ökostrom aus 100 % erneuerbaren Energien',
             'Monatlich kündbar nach der Erstlaufzeit',
             'Kostenloser Wechselservice & Abmeldung'
-        ];
+        ]);
 
         const rawFcFeatures = Array.isArray(fcTariff.AdditionalFeatures)
             ? fcTariff.AdditionalFeatures
@@ -463,7 +505,10 @@ async function calculateLiveTariffs({ plz, consumption, currentAbschlag, branch 
                 })
             : [];
 
-        const mergedFeatures = [
+        const mergedFeatures = isWaerme ? [
+            ...defaultFeatures,
+            ...rawFcFeatures
+        ] : [
             `${fcTariff.PriceGuaranteeDuration || 24} Monate volle Preisgarantie`,
             ...rawFcFeatures,
             ...defaultFeatures
@@ -484,10 +529,17 @@ async function calculateLiveTariffs({ plz, consumption, currentAbschlag, branch 
             brandName: fcTariff.BrandName || 'Alpha Energie',
             energyGridNumber: gridInfo.energyGridNumber,
             city: gridInfo.city,
+            branch: normalizedBranch,
+            meterType: resolvedMeterType,
+            meterTypeId: resolvedMeterTypeId,
+            consumptionHt: resolvedHt,
+            consumptionNt: resolvedNt,
             name: meta.name,
             badge: meta.badge,
             isBestseller: meta.isBestseller,
             workingPriceCt,
+            workingPriceHtCt: workingPriceCt,
+            workingPriceNtCt: workingPriceCt,
             workingPriceNetCt: Number(price.PricePerUnitNet) || 0,
             basePriceEurMonth,
             basePriceEur: basePriceEurMonth,
@@ -517,7 +569,11 @@ async function calculateLiveTariffs({ plz, consumption, currentAbschlag, branch 
         city: gridInfo.city,
         energyGridNumber: gridInfo.energyGridNumber,
         consumption: kwh,
-        branch: isGas ? 'gas' : 'strom',
+        consumptionHt: resolvedHt,
+        consumptionNt: resolvedNt,
+        meterType: resolvedMeterType,
+        meterTypeId: resolvedMeterTypeId,
+        branch: normalizedBranch,
         maxSavings,
         tariffs: mappedTariffs
     };
@@ -545,17 +601,28 @@ function formatBirthdayForFirstcon(birthDateStr) {
  */
 async function submitOrderToFirstcon(orderPayload) {
     const token = sanitizeIntegrationToken(orderPayload.orderflowToken);
-    const isGas = orderPayload.branch === 'gas';
+    const normalizedBranch = orderPayload.branch === 'gas' ? 'gas' : (orderPayload.branch === 'waerme' ? 'waerme' : 'strom');
+    const isGas = normalizedBranch === 'gas';
+    const isWaerme = normalizedBranch === 'waerme';
     const energyCategoryId = isGas ? 2 : 1;
     const cleanPlz = String(orderPayload.plz || '44379').replace(/\D/g, '').slice(0, 5) || '44379';
-    const kwh = Math.max(500, parseInt(orderPayload.consumption, 10) || (isGas ? 12000 : 2500));
+    const parsedHt = parseInt(orderPayload.consumptionHt, 10) || 0;
+    const parsedNt = parseInt(orderPayload.consumptionNt, 10) || 0;
+    const htNtSum = parsedHt + parsedNt;
+    const kwh = Math.max(500, (isWaerme && htNtSum >= 500) ? htNtSum : (parseInt(orderPayload.consumption, 10) || (isGas ? 12000 : (isWaerme ? 6000 : 2500))));
     const cleanIban = String(orderPayload.iban || '').replace(/\s+/g, '').toUpperCase();
+    const resolvedMeterTypeId = isGas
+        ? 3
+        : ((orderPayload.meterType === 'htnt' || Number(orderPayload.meterTypeId) === 2 || (isWaerme && orderPayload.meterType !== 'et')) ? 2 : 1);
 
     // 1. Calculate / fetch live Firstcon tariff & price details for the customer's PLZ & kWh
     const liveCalc = await calculateLiveTariffs({
         plz: cleanPlz,
         consumption: kwh,
-        branch: orderPayload.branch || 'strom',
+        consumptionHt: parsedHt,
+        consumptionNt: parsedNt,
+        meterType: orderPayload.meterType,
+        branch: normalizedBranch,
         token
     });
 
@@ -615,7 +682,7 @@ async function submitOrderToFirstcon(orderPayload) {
         SendMailOrderConfirmation: true,
         Meter: {
             MeterNumber: String(orderPayload.meterNumber || '').trim(),
-            MeterTypeId: isGas ? 3 : 1
+            MeterTypeId: resolvedMeterTypeId
         },
         PaymentViaSepa: Boolean(cleanIban),
         PriceDetails: {
