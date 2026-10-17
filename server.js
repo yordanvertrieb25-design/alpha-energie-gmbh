@@ -109,9 +109,25 @@ faviconAssets.forEach(asset => {
     });
 });
 
+// Dedicated route for /versorger (must be before express.static with extensions: ['html'])
+app.get(['/versorger', '/versorger.html'], (req, res) => {
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
+    res.sendFile(path.join(__dirname, 'versorger.html'));
+});
+
+const staticNoCacheHeaders = (res, filePath) => {
+    if (/\.(html|css|js)$/i.test(filePath)) {
+        res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+        res.setHeader('Pragma', 'no-cache');
+        res.setHeader('Expires', '0');
+    }
+};
+
 // Serve static files from the root directory
-app.use(express.static(path.join(__dirname, 'public'))); // For future public assets if needed
-app.use(express.static(__dirname, { extensions: ['html'] })); // Serving the HTML files from the root
+app.use(express.static(path.join(__dirname, 'public'), { setHeaders: staticNoCacheHeaders })); // For future public assets if needed
+app.use(express.static(__dirname, { extensions: ['html'], setHeaders: staticNoCacheHeaders })); // Serving the HTML files from the root
 
 // Dedicated route for hero image to ensure 100% availability
 app.get('/clean_energy_home.jpg', (req, res) => {
@@ -141,12 +157,6 @@ app.get('/ok-power-siegel.png', (req, res) => {
         return res.sendFile(rootFile);
     }
     res.status(404).send('Not Found');
-});
-
-// Dedicated route for /versorger
-app.get('/versorger', (req, res) => {
-    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
-    res.sendFile(path.join(__dirname, 'versorger.html'));
 });
 
 // --- API ROUTES ---

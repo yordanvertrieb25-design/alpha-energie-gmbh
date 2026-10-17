@@ -9263,6 +9263,114 @@ input#calcPlz {
         width: 40px !important;
         height: 40px !important;
     }
+
+    html body .digital-modal-backdrop {
+        padding: 4px !important;
+        align-items: flex-start !important;
+    }
+
+    html body .digital-modal {
+        width: 100% !important;
+        max-width: 100% !important;
+        border-radius: 14px !important;
+        max-height: 96vh !important;
+        margin: auto 0 !important;
+    }
+
+    html body .digital-modal .modal-header-bar {
+        padding: 12px 14px !important;
+        gap: 10px !important;
+    }
+
+    html body .digital-modal .modal-header-title {
+        font-size: 0.98rem !important;
+        line-height: 1.25 !important;
+    }
+
+    html body .digital-modal .modal-body {
+        padding: 10px !important;
+        max-height: 86vh !important;
+    }
+
+    html body #legalCancelModal .modal-body > div:first-child {
+        gap: 6px !important;
+        padding: 4px !important;
+        margin-bottom: 10px !important;
+    }
+
+    html body #cancelModeTabKuendigung,
+    html body #cancelModeTabWiderruf {
+        padding: 8px 6px !important;
+        font-size: 0.76rem !important;
+        line-height: 1.2 !important;
+    }
+
+    html body #formLegalCancel > div[style*="border-radius"],
+    html body #orderSummaryCard,
+    html body #modalInlineCalcBox {
+        padding: 10px !important;
+        margin-bottom: 10px !important;
+        border-radius: 10px !important;
+    }
+
+    html body .digital-modal .modal-inline-grid-2,
+    html body .digital-modal .form-grid,
+    html body #formLegalCancel div[style*="grid-template-columns"] {
+        grid-template-columns: minmax(0, 1fr) !important;
+        gap: 10px !important;
+    }
+
+    html body #modalPresetBtnsContainer {
+        grid-template-columns: repeat(2, 1fr) !important;
+    }
 }
+
+html body .digital-modal .modal-close-btn {
+    flex: 0 0 34px !important;
+    width: 34px !important;
+    height: 34px !important;
+    min-width: 34px !important;
+    min-height: 34px !important;
+    padding: 0 !important;
+    border-radius: 50% !important;
+    line-height: 1 !important;
+}
+
+html body .digital-modal .calc-input,
+html body .digital-modal input.calc-input,
+html body .digital-modal select.calc-input {
+    padding: 0 12px !important;
+    height: 46px !important;
+    min-height: 46px !important;
+    line-height: 1.25 !important;
+    font-size: 16px !important;
+    box-sizing: border-box !important;
+    width: 100% !important;
+    text-indent: 0 !important;
+}
+
+html body .digital-modal textarea.calc-input {
+    padding: 10px 12px !important;
+    min-height: 76px !important;
+    height: auto !important;
+    line-height: 1.35 !important;
+    font-size: 16px !important;
+    box-sizing: border-box !important;
+    width: 100% !important;
+    text-indent: 0 !important;
+}
+
+html body .digital-modal select.calc-input {
+    padding-right: 30px !important;
+}
+
+html body .digital-modal #modalCalcPlz.calc-input {
+    padding-right: 118px !important;
+}
+
+html body .digital-modal #modalCalcKwh.calc-input {
+    padding-right: 54px !important;
+}
+
 
 
