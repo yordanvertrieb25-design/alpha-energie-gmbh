@@ -4141,6 +4141,7 @@ body.alpha-modal-open {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    gap: 12px;
 }
 
 .modal-header-title {
@@ -4148,17 +4149,23 @@ body.alpha-modal-open {
     font-weight: 700;
     color: #ffffff;
     margin: 0;
+    line-height: 1.3;
 }
 
 .modal-close-btn {
     background: rgba(255, 255, 255, 0.15);
     border: none;
     color: #ffffff;
-    width: 32px;
-    height: 32px;
+    width: 34px;
+    height: 34px;
+    min-width: 34px;
+    min-height: 34px;
+    flex: 0 0 34px;
+    padding: 0;
     border-radius: 50%;
     cursor: pointer;
-    font-size: 1.2rem;
+    font-size: 1.25rem;
+    line-height: 1;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -4167,6 +4174,32 @@ body.alpha-modal-open {
 
 .modal-close-btn:hover {
     background: rgba(255, 255, 255, 0.3);
+}
+
+/* Fix .calc-input inside modals (no left icon wrapper inside modals -> remove 2.75rem left padding & vertical clipping) */
+.digital-modal .calc-input,
+.digital-modal input.calc-input,
+.digital-modal select.calc-input {
+    padding: 0 12px !important;
+    height: 46px !important;
+    min-height: 46px !important;
+    line-height: 1.25 !important;
+    font-size: 16px !important;
+    box-sizing: border-box !important;
+    width: 100% !important;
+    text-indent: 0 !important;
+}
+
+.digital-modal select.calc-input {
+    padding-right: 30px !important;
+}
+
+.digital-modal #modalCalcPlz.calc-input {
+    padding-right: 118px !important;
+}
+
+.digital-modal #modalCalcKwh.calc-input {
+    padding-right: 54px !important;
 }
 
 .modal-progress-bar {
@@ -4250,9 +4283,56 @@ body.alpha-modal-open {
     margin-top: 2px;
 }
 
-@media (max-width: 560px) {
-    .modal-inline-grid-2 {
-        grid-template-columns: 1fr !important;
+@media (max-width: 640px) {
+    .digital-modal-backdrop {
+        padding: 8px !important;
+        align-items: flex-start !important;
+    }
+    .digital-modal {
+        width: 100% !important;
+        max-width: 100% !important;
+        border-radius: 16px !important;
+        max-height: 95vh !important;
+        margin: auto 0 !important;
+    }
+    .digital-modal .modal-header-bar {
+        padding: 12px 14px !important;
+        gap: 10px !important;
+    }
+    .digital-modal .modal-header-title {
+        font-size: 1rem !important;
+        line-height: 1.25 !important;
+    }
+    .digital-modal .modal-body {
+        padding: 12px !important;
+        max-height: 85vh !important;
+    }
+    .digital-modal .progress-step {
+        padding: 8px 4px !important;
+        font-size: 0.72rem !important;
+    }
+    #legalCancelModal .modal-body > div:first-child {
+        gap: 6px !important;
+        padding: 5px !important;
+        margin-bottom: 12px !important;
+    }
+    #cancelModeTabKuendigung,
+    #cancelModeTabWiderruf {
+        padding: 8px 8px !important;
+        font-size: 0.78rem !important;
+        line-height: 1.22 !important;
+    }
+    #formLegalCancel > div[style*="border-radius:12px"],
+    #orderSummaryCard,
+    #modalInlineCalcBox {
+        padding: 12px !important;
+        margin-bottom: 12px !important;
+    }
+    .digital-modal .modal-inline-grid-2,
+    .digital-modal .form-grid,
+    #formLegalCancel div[style*="display:grid"] {
+        grid-template-columns: minmax(0, 1fr) !important;
+        gap: 10px !important;
     }
     #modalPresetBtnsContainer {
         grid-template-columns: repeat(2, 1fr) !important;
