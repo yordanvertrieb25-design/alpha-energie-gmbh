@@ -4095,11 +4095,12 @@ section {
 }
 
 /* --- Multi-Step Digital Order Modal --- */
-html.alpha-modal-open,
-html.alpha-modal-open body,
-body.alpha-modal-open {
-    overflow: hidden !important;
-    overscroll-behavior: none !important;
+@media (min-width: 769px) {
+    html.alpha-modal-open body,
+    body.alpha-modal-open {
+        overflow: hidden !important;
+        overscroll-behavior: none !important;
+    }
 }
 
 .digital-modal-backdrop {
@@ -4107,9 +4108,12 @@ body.alpha-modal-open {
     position: fixed;
     top: 0;
     left: 0;
-    width: 100vw;
-    height: 100vh;
-    background: rgba(10, 31, 68, 0.7);
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    height: 100%;
+    height: 100dvh;
+    background: rgba(10, 31, 68, 0.78);
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
     z-index: 99999;
@@ -4118,6 +4122,20 @@ body.alpha-modal-open {
     padding: 1.5rem;
     overflow-y: auto;
     overscroll-behavior: contain !important;
+}
+
+.digital-modal-backdrop::before {
+    content: "";
+    position: fixed;
+    top: -250px;
+    left: -50px;
+    right: -50px;
+    bottom: -250px;
+    background: rgba(10, 31, 68, 0.78);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    pointer-events: none;
+    z-index: -1;
 }
 
 .digital-modal {
@@ -4129,7 +4147,8 @@ body.alpha-modal-open {
     border: 1px solid rgba(255, 122, 0, 0.2);
     overflow: hidden;
     position: relative;
-    max-height: 92vh;
+    z-index: 1;
+    max-height: 92dvh;
     display: flex;
     flex-direction: column;
 }
@@ -4285,15 +4304,23 @@ body.alpha-modal-open {
 
 @media (max-width: 640px) {
     .digital-modal-backdrop {
-        padding: 8px !important;
-        align-items: flex-start !important;
+        padding: 12px 10px !important;
+        align-items: center !important;
+        justify-content: center !important;
+        top: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        bottom: 0 !important;
+        width: 100% !important;
+        height: 100% !important;
+        height: 100dvh !important;
     }
     .digital-modal {
         width: 100% !important;
         max-width: 100% !important;
         border-radius: 16px !important;
-        max-height: 95vh !important;
-        margin: auto 0 !important;
+        max-height: calc(100dvh - 28px) !important;
+        margin: 0 auto !important;
     }
     .digital-modal .modal-header-bar {
         padding: 12px 14px !important;
@@ -4305,7 +4332,7 @@ body.alpha-modal-open {
     }
     .digital-modal .modal-body {
         padding: 12px !important;
-        max-height: 85vh !important;
+        max-height: calc(100dvh - 96px) !important;
     }
     .digital-modal .progress-step {
         padding: 8px 4px !important;
@@ -9311,16 +9338,24 @@ input#calcPlz {
     }
 
     html body .digital-modal-backdrop {
-        padding: 4px !important;
-        align-items: flex-start !important;
+        padding: 12px 10px !important;
+        align-items: center !important;
+        justify-content: center !important;
+        top: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        bottom: 0 !important;
+        width: 100% !important;
+        height: 100% !important;
+        height: 100dvh !important;
     }
 
     html body .digital-modal {
         width: 100% !important;
         max-width: 100% !important;
-        border-radius: 14px !important;
-        max-height: 96vh !important;
-        margin: auto 0 !important;
+        border-radius: 16px !important;
+        max-height: calc(100dvh - 28px) !important;
+        margin: 0 auto !important;
     }
 
     html body .digital-modal .modal-header-bar {
@@ -9334,8 +9369,8 @@ input#calcPlz {
     }
 
     html body .digital-modal .modal-body {
-        padding: 10px !important;
-        max-height: 86vh !important;
+        padding: 12px !important;
+        max-height: calc(100dvh - 96px) !important;
     }
 
     html body #legalCancelModal .modal-body > div:first-child {

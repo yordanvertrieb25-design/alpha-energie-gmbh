@@ -29,9 +29,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
 
     <!-- Base Stylesheet & Scripts -->
-    <link rel="stylesheet" href="style.css?v=20261017-nocontrols1">
-    <script src="i18n.js?v=20261017-nocontrols1" defer></script>
-    <script src="main.js?v=20261017-nocontrols1" defer></script>
+    <link rel="stylesheet" href="style.css?v=20261017-modalfix1">
+    <script src="i18n.js?v=20261017-modalfix1" defer></script>
+    <script src="main.js?v=20261017-modalfix1" defer></script>
 
     <style>
         :root {
@@ -1721,11 +1721,12 @@
         }
 
         /* 4. Strict Modal Scroll Lock & Interactive Step-1 Inquiry Styles */
-        html.alpha-modal-open,
-        html.alpha-modal-open body,
-        body.alpha-modal-open {
-            overflow: hidden !important;
-            overscroll-behavior: none !important;
+        @media (min-width: 769px) {
+            html.alpha-modal-open body,
+            body.alpha-modal-open {
+                overflow: hidden !important;
+                overscroll-behavior: none !important;
+            }
         }
 
         .digital-modal-backdrop {
@@ -3168,7 +3169,7 @@
                 if (typeof window.lockAlphaModalScroll === 'function') {
                     window.lockAlphaModalScroll();
                 } else {
-                    document.documentElement.style.overflow = 'hidden';
+                    
                     document.body.style.overflow = 'hidden';
                 }
             });

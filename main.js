@@ -2051,14 +2051,15 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         // --- Global Strict Scroll Lock for Modals ---
         function lockAlphaModalScroll() {
-            const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
-            if (scrollbarWidth > 0) {
-                document.body.style.paddingRight = `${scrollbarWidth}px`;
-            }
             document.documentElement.classList.add('alpha-modal-open');
             document.body.classList.add('alpha-modal-open');
-            document.documentElement.style.setProperty('overflow', 'hidden', 'important');
-            document.body.style.setProperty('overflow', 'hidden', 'important');
+            if (window.innerWidth > 768) {
+                const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
+                if (scrollbarWidth > 0) {
+                    document.body.style.paddingRight = `${scrollbarWidth}px`;
+                }
+                document.body.style.setProperty('overflow', 'hidden', 'important');
+            }
         }
 
         function unlockAlphaModalScroll() {

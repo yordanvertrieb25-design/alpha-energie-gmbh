@@ -88,9 +88,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
     <!-- Base Styles & Scripts -->
-    <link rel="stylesheet" href="style.css?v=20261017-nocontrols1">
-    <script src="i18n.js?v=20261017-nocontrols1" defer></script>
-    <script src="main.js?v=20261017-nocontrols1" defer></script>
+    <link rel="stylesheet" href="style.css?v=20261017-modalfix1">
+    <script src="i18n.js?v=20261017-modalfix1" defer></script>
+    <script src="main.js?v=20261017-modalfix1" defer></script>
 
     <!-- Octopus Energy Clone Architecture in Alpha Energie Orange Palette -->
     <style>
@@ -2555,11 +2555,12 @@
         }
 
         /* 4. Strict Modal Scroll Lock & Interactive Step-1 Inquiry Styles */
-        html.alpha-modal-open,
-        html.alpha-modal-open body,
-        body.alpha-modal-open {
-            overflow: hidden !important;
-            overscroll-behavior: none !important;
+        @media (min-width: 769px) {
+            html.alpha-modal-open body,
+            body.alpha-modal-open {
+                overflow: hidden !important;
+                overscroll-behavior: none !important;
+            }
         }
 
         .digital-modal-backdrop {
@@ -2650,15 +2651,23 @@
 
         @media (max-width: 640px) {
             .digital-modal-backdrop {
-                padding: 4px !important;
-                align-items: flex-start !important;
+                padding: 12px 10px !important;
+                align-items: center !important;
+                justify-content: center !important;
+                top: 0 !important;
+                left: 0 !important;
+                right: 0 !important;
+                bottom: 0 !important;
+                width: 100% !important;
+                height: 100% !important;
+                height: 100dvh !important;
             }
             .digital-modal {
                 width: 100% !important;
                 max-width: 100% !important;
-                border-radius: 14px !important;
-                max-height: 96vh !important;
-                margin: auto 0 !important;
+                border-radius: 16px !important;
+                max-height: calc(100dvh - 28px) !important;
+                margin: 0 auto !important;
             }
             .digital-modal .modal-header-bar {
                 padding: 12px 14px !important;
@@ -2669,8 +2678,8 @@
                 line-height: 1.25 !important;
             }
             .digital-modal .modal-body {
-                padding: 10px !important;
-                max-height: 86vh !important;
+                padding: 12px !important;
+                max-height: calc(100dvh - 96px) !important;
             }
             .digital-modal .progress-step {
                 padding: 8px 4px !important;
@@ -4561,7 +4570,7 @@
                 if (typeof window.lockAlphaModalScroll === 'function') {
                     window.lockAlphaModalScroll();
                 } else {
-                    document.documentElement.style.overflow = 'hidden';
+                    
                     document.body.style.overflow = 'hidden';
                 }
             });
