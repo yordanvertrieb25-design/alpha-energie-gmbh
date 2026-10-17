@@ -9059,8 +9059,21 @@ input#calcPlz {
         gap: 8px !important;
     }
 
-    html body.octo-orange-body .octo-consumption-group.is-htnt-mode #calcHtNtSplitInputs {
+    html body.octo-orange-body #calcHtNtSplitInputs.octo-waerme-htnt-grid {
+        display: none !important;
         grid-column: 1 / -1 !important;
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+        gap: 8px !important;
+        align-items: stretch !important;
+    }
+
+    html body.octo-orange-body .octo-consumption-group.is-htnt-mode #calcHtNtSplitInputs.octo-waerme-htnt-grid {
+        display: grid !important;
+        grid-column: 1 / -1 !important;
+    }
+
+    html body.octo-orange-body .octo-consumption-group.is-htnt-mode #calcSingleKwhBox {
+        display: none !important;
     }
 
     html body.octo-orange-body .octo-consumption-group.is-htnt-mode #calcAbschlagBox {
@@ -9154,28 +9167,39 @@ input#calcPlz {
         grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
         width: 100% !important;
         box-sizing: border-box !important;
-        gap: 4px !important;
-        padding: 4px !important;
-        border-radius: 12px !important;
+        gap: 6px !important;
+        padding: 5px !important;
+        border-radius: 14px !important;
     }
 
     html body.octo-orange-body .octo-meter-type-btn {
-        font-size: 0.74rem !important;
-        padding: 8px 6px !important;
-        height: auto !important;
-        min-height: 38px !important;
+        padding: 5px 10px !important;
+        height: 46px !important;
+        min-height: 46px !important;
         text-align: center !important;
         white-space: nowrap !important;
         width: 100% !important;
         box-sizing: border-box !important;
-        border-radius: 9px !important;
+        border-radius: 10px !important;
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 2px !important;
     }
 
-    html body.octo-orange-body .octo-waerme-htnt-grid {
-        display: grid !important;
-        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-        gap: 8px !important;
-        align-items: end !important;
+    html body.octo-orange-body .octo-meter-type-btn .meter-btn-label {
+        font-size: 0.78rem !important;
+        font-weight: 700 !important;
+        line-height: 1.15 !important;
+        white-space: nowrap !important;
+    }
+
+    html body.octo-orange-body .octo-meter-type-btn .meter-btn-sub {
+        font-size: 0.66rem !important;
+        font-weight: 600 !important;
+        line-height: 1.15 !important;
+        white-space: nowrap !important;
     }
 
     html body.octo-orange-body .octo-htnt-input-pill {
@@ -9187,14 +9211,18 @@ input#calcPlz {
         gap: 5px !important;
         margin: 0 !important;
         box-sizing: border-box !important;
+        justify-content: flex-end !important;
     }
 
     html body.octo-orange-body .octo-htnt-mini-label {
-        display: block !important;
-        font-size: 0.74rem !important;
+        display: flex !important;
+        align-items: center !important;
+        height: 20px !important;
+        min-height: 20px !important;
+        font-size: 0.78rem !important;
         font-weight: 700 !important;
         line-height: 1.2 !important;
-        white-space: normal !important;
+        white-space: nowrap !important;
         margin: 0 !important;
         color: var(--octo-text-light) !important;
     }
