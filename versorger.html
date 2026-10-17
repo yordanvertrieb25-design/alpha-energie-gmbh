@@ -1901,13 +1901,50 @@
                 word-break: break-word !important;
             }
             .octo-calc-body {
-                padding: 16px 14px 16px !important;
+                padding: 14px 12px 14px !important;
+            }
+            .octo-calc-row {
+                gap: 10px !important;
+            }
+            .octo-calc-col-label {
+                font-size: 0.84rem !important;
+                margin-bottom: 6px !important;
+            }
+            .octo-input-box {
+                height: 46px !important;
+                padding: 0 9px !important;
+            }
+            .octo-input-field {
+                font-size: 0.86rem !important;
+            }
+            .octo-input-field::-webkit-outer-spin-button,
+            .octo-input-field::-webkit-inner-spin-button {
+                -webkit-appearance: none !important;
+                margin: 0 !important;
+            }
+            .octo-input-field[type="number"] {
+                -moz-appearance: textfield !important;
+                appearance: textfield !important;
+            }
+            .octo-consumption-group {
+                display: grid !important;
+                grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+                gap: 8px !important;
+            }
+            .octo-consumption-group .octo-unit-tag,
+            .octo-htnt-input-pill .octo-unit-tag {
+                font-size: 0.68rem !important;
+                margin-left: 3px !important;
+                flex-shrink: 0 !important;
+                white-space: nowrap !important;
             }
             .octo-preset-pills {
-                grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
-                height: 54px !important;
-                padding: 3px !important;
-                gap: 3px !important;
+                grid-column: 1 / -1 !important;
+                display: grid !important;
+                grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+                height: auto !important;
+                padding: 5px !important;
+                gap: 5px !important;
                 width: 100% !important;
                 box-sizing: border-box !important;
                 overflow: hidden !important;
@@ -1917,21 +1954,32 @@
                 min-width: 0 !important;
                 max-width: 100% !important;
                 width: 100% !important;
-                flex: 1 1 0% !important;
-                padding: 2px 2px !important;
+                height: 44px !important;
+                min-height: 44px !important;
+                flex: 1 1 auto !important;
+                padding: 4px 8px !important;
                 overflow: hidden !important;
             }
             body.octo-orange-body .octo-preset-btn .household-btn-label {
-                font-size: 0.71rem !important;
+                font-size: 0.8rem !important;
+                line-height: 1.15 !important;
+                white-space: nowrap !important;
             }
             body.octo-orange-body .octo-preset-btn .household-btn-sub {
-                font-size: 0.59rem !important;
+                font-size: 0.67rem !important;
+                line-height: 1.15 !important;
+                white-space: nowrap !important;
+            }
+            .octo-btn-cta.calc-submit-btn {
+                height: 48px !important;
             }
             .octo-calc-footer-bar {
                 flex-direction: column !important;
                 align-items: stretch !important;
                 text-align: center !important;
                 gap: 8px !important;
+                margin-top: 12px !important;
+                padding-top: 10px !important;
             }
             .octo-savings-pill {
                 justify-content: center !important;
@@ -1941,14 +1989,68 @@
                 padding: 7px 12px !important;
                 font-size: 0.8rem !important;
             }
-            .octo-waerme-htnt-grid {
-                flex-direction: column;
-                align-items: flex-start;
+            .octo-waerme-htnt-row {
+                margin-top: 10px !important;
+                padding: 10px 10px !important;
             }
-            .octo-htnt-input-pill {
-                flex-wrap: wrap;
+            .octo-waerme-htnt-header {
+                gap: 8px !important;
+                margin-bottom: 8px !important;
+            }
+            .octo-waerme-htnt-title {
+                font-size: 0.75rem !important;
+                line-height: 1.25 !important;
+            }
+            .octo-waerme-meter-pills {
+                display: grid !important;
+                grid-template-columns: 1.18fr 0.82fr !important;
                 width: 100% !important;
                 box-sizing: border-box !important;
+                gap: 3px !important;
+                padding: 3px !important;
+            }
+            .octo-meter-type-btn {
+                font-size: 0.67rem !important;
+                padding: 6px 4px !important;
+                text-align: center !important;
+                white-space: nowrap !important;
+                width: 100% !important;
+                box-sizing: border-box !important;
+                letter-spacing: -0.01em !important;
+            }
+            .octo-waerme-htnt-grid {
+                display: grid !important;
+                grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+                gap: 8px !important;
+                align-items: end !important;
+            }
+            .octo-htnt-input-pill {
+                flex: none !important;
+                width: 100% !important;
+                max-width: 100% !important;
+                height: auto !important;
+                min-height: 0 !important;
+                gap: 4px !important;
+                margin: 0 !important;
+                box-sizing: border-box !important;
+            }
+            .octo-htnt-input-pill label {
+                font-size: 0.72rem !important;
+                line-height: 1.2 !important;
+                white-space: normal !important;
+                margin: 0 !important;
+            }
+            .octo-htnt-input-pill .octo-input-box {
+                height: 44px !important;
+                padding: 0 8px !important;
+            }
+            .octo-htnt-info-badge {
+                grid-column: 1 / -1 !important;
+                flex: none !important;
+                height: auto !important;
+                font-size: 0.68rem !important;
+                line-height: 1.3 !important;
+                margin-top: 2px !important;
             }
             .octo-awards-row,
             .octo-grid-4 {
@@ -2074,63 +2176,67 @@
 
         @media (max-width: 640px) {
             .octo-hero-right-with-peeking-wolf {
-                margin-left: 72px !important;
-                max-width: calc(100% - 72px) !important;
-                width: calc(100% - 72px) !important;
+                margin-left: 98px !important;
+                max-width: calc(100% - 98px) !important;
+                width: calc(100% - 98px) !important;
                 margin-bottom: 24px !important;
+                box-sizing: border-box !important;
             }
             .octo-hero-peeking-wolf {
-                left: 4px !important;
-                top: 52% !important;
-                transform: translate(-80%, -50%) !important;
+                left: 2px !important;
+                top: 50% !important;
+                transform: translate(-90%, -50%) !important;
             }
             .octo-peeking-wolf-img {
-                height: 132px !important;
+                height: 142px !important;
             }
             .octo-peeking-wolf-pill {
-                left: 2px !important;
-                transform: none !important;
-                bottom: -30px !important;
-                font-size: 0.66rem !important;
-                padding: 3px 9px !important;
+                left: 44% !important;
+                transform: translateX(-50%) !important;
+                bottom: -26px !important;
+                font-size: 0.64rem !important;
+                padding: 3px 8px !important;
             }
             .octo-stage-visual-card {
-                aspect-ratio: 16 / 11 !important;
-                min-height: 195px !important;
+                width: 100% !important;
+                max-width: 100% !important;
+                box-sizing: border-box !important;
+                aspect-ratio: 4 / 3 !important;
+                min-height: 180px !important;
             }
             .octo-stage-badge-top {
-                top: 8px !important;
-                right: 8px !important;
-                font-size: 0.72rem !important;
-                padding: 4px 10px !important;
+                top: 6px !important;
+                right: 6px !important;
+                font-size: 0.65rem !important;
+                padding: 3px 8px !important;
             }
             .octo-stage-overlay-pill {
-                left: 8px !important;
-                right: 8px !important;
-                bottom: 8px !important;
-                padding: 8px 10px !important;
-                gap: 6px !important;
-                border-radius: 11px !important;
+                left: 6px !important;
+                right: 6px !important;
+                bottom: 6px !important;
+                padding: 6px 8px !important;
+                gap: 4px !important;
+                border-radius: 10px !important;
             }
             .octo-stage-overlay-pill > div > div:first-child {
-                font-size: 0.78rem !important;
-                line-height: 1.2 !important;
+                font-size: 0.72rem !important;
+                line-height: 1.15 !important;
             }
             .octo-stage-overlay-pill > div > div:last-child {
-                font-size: 0.68rem !important;
-                line-height: 1.2 !important;
+                font-size: 0.61rem !important;
+                line-height: 1.15 !important;
             }
             .octo-stage-overlay-pill > span {
-                font-size: 0.68rem !important;
-                padding: 4px 7px !important;
+                font-size: 0.61rem !important;
+                padding: 3px 6px !important;
                 flex-shrink: 0 !important;
             }
             .ai-media-info-btn--hero-photo {
-                bottom: 66px !important;
-                right: 8px !important;
-                height: 22px !important;
-                padding: 0 7px !important;
-                font-size: 0.64rem !important;
+                bottom: 56px !important;
+                right: 6px !important;
+                height: 20px !important;
+                padding: 0 6px !important;
+                font-size: 0.6rem !important;
             }
         }
 
@@ -2610,7 +2716,7 @@
                                             <span class="octo-unit-tag">kWh/Jahr</span>
                                         </div>
                                     </div>
-                                    <div class="octo-htnt-info-badge" style="flex-basis: 100%; font-size: 0.71rem; line-height: 1.35; color: #78716c; margin-top: 2px;">
+                                    <div class="octo-htnt-info-badge" style="font-size: 0.71rem; line-height: 1.35; color: #78716c; margin-top: 2px;">
                                         ✓ Geeignet für Wärmepumpen (steuerbare Verbrauchseinrichtung § 14a EnWG) &amp; Nachtspeicherheizungen mit Doppeltarifzähler (HT/NT) oder Eintarifzähler.
                                     </div>
                                 </div>
