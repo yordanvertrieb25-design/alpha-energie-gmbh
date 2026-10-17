@@ -8790,6 +8790,12 @@ input#calcPlz {
 }
 
 @media (max-width: 768px) {
+    html body input,
+    html body select,
+    html body textarea {
+        font-size: 16px !important;
+    }
+
     html body .page-header,
     html body .subpage-hero,
     html body .hero-section {
@@ -8905,8 +8911,47 @@ input#calcPlz {
         padding: 0 9px !important;
     }
 
+    html body input,
+    html body select,
+    html body textarea,
     html body.octo-orange-body .octo-input-field {
-        font-size: 0.86rem !important;
+        font-size: 16px !important;
+    }
+
+    html body.octo-orange-body .octo-consumption-group .octo-input-field::placeholder {
+        font-size: 0.85rem !important;
+    }
+
+    html body.octo-orange-body .octo-bottom-offer-box {
+        padding: 22px 18px !important;
+        gap: 18px !important;
+    }
+
+    html body.octo-orange-body .octo-bottom-offer-form {
+        flex-direction: column !important;
+        height: auto !important;
+        gap: 0 !important;
+    }
+
+    html body.octo-orange-body .octo-bottom-offer-select,
+    html body.octo-orange-body .octo-bottom-offer-input,
+    html body.octo-orange-body .octo-bottom-offer-btn {
+        flex: 0 0 50px !important;
+        height: 50px !important;
+        min-height: 50px !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+        font-size: 16px !important;
+    }
+
+    html body.octo-orange-body .octo-bottom-offer-select {
+        border-right: none !important;
+        border-bottom: 1px solid rgba(249, 178, 51, 0.5) !important;
+    }
+
+    html body.octo-orange-body .octo-bottom-offer-input {
+        border-bottom: 1px solid rgba(249, 178, 51, 0.5) !important;
+        background: #ffffff !important;
     }
 
     html body.octo-orange-body .octo-input-field::-webkit-outer-spin-button,

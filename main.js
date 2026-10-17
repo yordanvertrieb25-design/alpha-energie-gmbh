@@ -5074,6 +5074,23 @@ document.addEventListener("DOMContentLoaded", async () => {
     } else {
         initAiMediaInfoBadges();
     }
+
+    // Prevent mobile browsers (iOS Safari / Chrome Mobile) from auto-zooming when focusing any input/select/textarea
+    (function preventMobileInputZoom() {
+        const vp = document.querySelector('meta[name="viewport"]');
+        if (vp) {
+            const content = vp.getAttribute('content') || 'width=device-width, initial-scale=1.0';
+            if (!content.includes('maximum-scale')) {
+                vp.setAttribute('content', content + ', maximum-scale=1.0');
+            }
+        }
+        if (!document.getElementById('alpha-no-input-zoom-style')) {
+            const st = document.createElement('style');
+            st.id = 'alpha-no-input-zoom-style';
+            st.textContent = '@media (max-width: 768px) { input, select, textarea, .octo-input-field, .octo-bottom-offer-select, .octo-bottom-offer-input, .octo-newsletter-input { font-size: 16px !important; } }';
+            document.head.appendChild(st);
+        }
+    })();
 })();
 
 

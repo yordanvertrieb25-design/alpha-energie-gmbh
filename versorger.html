@@ -2,7 +2,7 @@
 <html lang="de">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
     <title>Ökostrom aus 100 % erneuerbaren Energien &amp; Erdgas | Alpha Energie</title>
     <meta name="description" content="Alpha Energie: Ökostrom aus 100 % erneuerbaren Energien (ok-power) und Erdgas mit freiwilligem Klimaschutzbeitrag deutschlandweit mit bis zu 24 Monaten Preisgarantie. Jetzt in 3 Minuten wechseln &amp; sparen!">
     <link rel="canonical" href="https://alpha-energie.de/versorger">
@@ -88,9 +88,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
     <!-- Base Styles & Scripts -->
-    <link rel="stylesheet" href="style.css?v=20261017-wolf3">
-    <script src="i18n.js?v=20261017-wolf3" defer></script>
-    <script src="main.js?v=20261017-wolf3" defer></script>
+    <link rel="stylesheet" href="style.css?v=20261017-nozoom">
+    <script src="i18n.js?v=20261017-nozoom" defer></script>
+    <script src="main.js?v=20261017-nozoom" defer></script>
 
     <!-- Octopus Energy Clone Architecture in Alpha Energie Orange Palette -->
     <style>
@@ -1914,8 +1914,15 @@
                 height: 46px !important;
                 padding: 0 9px !important;
             }
-            .octo-input-field {
-                font-size: 0.86rem !important;
+            .octo-input-field,
+            input.octo-input-field,
+            body.octo-orange-body input,
+            body.octo-orange-body select,
+            body.octo-orange-body textarea {
+                font-size: 16px !important;
+            }
+            .octo-consumption-group .octo-input-field::placeholder {
+                font-size: 0.85rem !important;
             }
             .octo-input-field::-webkit-outer-spin-button,
             .octo-input-field::-webkit-inner-spin-button {
@@ -2056,15 +2063,32 @@
             .octo-grid-4 {
                 grid-template-columns: minmax(0, 1fr) !important;
             }
+            .octo-bottom-offer-box {
+                padding: 22px 18px !important;
+                gap: 18px !important;
+            }
             .octo-bottom-offer-form {
-                flex-direction: column;
-                height: auto;
+                flex-direction: column !important;
+                height: auto !important;
+                gap: 0 !important;
             }
             .octo-bottom-offer-select,
             .octo-bottom-offer-input,
             .octo-bottom-offer-btn {
-                height: 48px;
-                width: 100%;
+                flex: 0 0 50px !important;
+                height: 50px !important;
+                min-height: 50px !important;
+                width: 100% !important;
+                box-sizing: border-box !important;
+                font-size: 16px !important;
+            }
+            .octo-bottom-offer-select {
+                border-right: none !important;
+                border-bottom: 1px solid rgba(249, 178, 51, 0.5) !important;
+            }
+            .octo-bottom-offer-input {
+                border-bottom: 1px solid rgba(249, 178, 51, 0.5) !important;
+                background: #ffffff !important;
             }
             .octo-footer-contact-split {
                 flex-direction: column;
@@ -3644,7 +3668,7 @@
                             <option value="waerme">Wärmestrom (Wärmepumpe &amp; HT/NT)</option>
                             <option value="gas">Erdgas</option>
                         </select>
-                        <input type="text" id="bottomOfferPlz" class="octo-bottom-offer-input" placeholder="Deine Postleitzahl (z.B. 44379)" maxlength="5" pattern="[0-9]{5}" required>
+                        <input type="text" id="bottomOfferPlz" class="octo-bottom-offer-input" placeholder="Deine Postleitzahl (z.B. 44379)" maxlength="5" pattern="[0-9]{5}" inputmode="numeric" required>
                         <button type="submit" class="octo-bottom-offer-btn">Angebot einholen</button>
                     </form>
                 </div>
