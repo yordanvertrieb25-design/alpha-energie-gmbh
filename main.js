@@ -4077,8 +4077,8 @@ document.addEventListener("DOMContentLoaded", async () => {
             const ORIGIN_ROWS = L.originRows;
 
             const dpr = Math.min(window.devicePixelRatio || 1, 3);
-            const parentWidth = canvas.parentElement ? canvas.parentElement.clientWidth : 760;
-            const logicalW = Math.max(320, Math.min(860, parentWidth || 760));
+            const rawParentW = canvas.parentElement ? canvas.parentElement.clientWidth - 8 : 760;
+            const logicalW = Math.max(240, Math.min(860, rawParentW > 0 ? rawParentW : 760));
             const isCompact = logicalW < 560;
             const scale = logicalW / 780;
 
@@ -4087,8 +4087,9 @@ document.addEventListener("DOMContentLoaded", async () => {
             if (canvas.width !== Math.round(logicalW * dpr) || canvas.height !== Math.round(logicalH * dpr)) {
                 canvas.width = Math.round(logicalW * dpr);
                 canvas.height = Math.round(logicalH * dpr);
-                canvas.style.width = logicalW + 'px';
-                canvas.style.height = logicalH + 'px';
+                canvas.style.width = '100%';
+                canvas.style.maxWidth = logicalW + 'px';
+                canvas.style.height = 'auto';
             }
 
             const ctx = canvas.getContext('2d');
@@ -4342,14 +4343,14 @@ document.addEventListener("DOMContentLoaded", async () => {
 
             // 3. Legal Subtitle & Source Note (exact text from Firstcon Stromkennzeichnung)
             ctx.fillStyle = '#1e293b';
-            ctx.font = `700 ${Math.round(13 * s)}px 'Plus Jakarta Sans', 'Sora', system-ui, sans-serif`;
+            ctx.font = `700 ${Math.round((isCompact ? 11.5 : 13) * s)}px 'Plus Jakarta Sans', 'Sora', system-ui, sans-serif`;
             ctx.textAlign = 'left';
             ctx.textBaseline = 'top';
-            ctx.fillText(L.legalSub, 28 * s, legalY);
+            ctx.fillText(L.legalSub, 28 * s, legalY, W - 56 * s);
 
             ctx.fillStyle = '#475569';
-            ctx.font = `500 ${Math.round(11.5 * s)}px 'Plus Jakarta Sans', 'Sora', system-ui, sans-serif`;
-            ctx.fillText(L.sourceNote, 28 * s, legalY + 20 * s);
+            ctx.font = `500 ${Math.round((isCompact ? 10.5 : 11.5) * s)}px 'Plus Jakarta Sans', 'Sora', system-ui, sans-serif`;
+            ctx.fillText(L.sourceNote, 28 * s, legalY + 20 * s, W - 56 * s);
 
             // 4. Bottom Table: "Lieferländer der Herkunftsnachweise"
             const tableX = 28 * s;
@@ -4382,12 +4383,12 @@ document.addEventListener("DOMContentLoaded", async () => {
 
             // Header Labels
             ctx.fillStyle = '#ffffff';
-            ctx.font = `800 ${Math.round(12 * s)}px 'Sora', system-ui, sans-serif`;
+            ctx.font = `800 ${Math.round((isCompact ? 10.5 : 12) * s)}px 'Sora', system-ui, sans-serif`;
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
-            ctx.fillText(L.thCountry, tableX + col1W / 2, tableY + headerH / 2);
-            ctx.fillText(L.thShare, tableX + col1W + col2W / 2, tableY + headerH / 2);
-            ctx.fillText(L.thSource, tableX + col1W + col2W + col3W / 2, tableY + headerH / 2);
+            ctx.fillText(L.thCountry, tableX + col1W / 2, tableY + headerH / 2, col1W - 10 * s);
+            ctx.fillText(L.thShare, tableX + col1W + col2W / 2, tableY + headerH / 2, col2W - 8 * s);
+            ctx.fillText(L.thSource, tableX + col1W + col2W + col3W / 2, tableY + headerH / 2, col3W - 10 * s);
 
             // Rows
             ORIGIN_ROWS.forEach((row, rIdx) => {
