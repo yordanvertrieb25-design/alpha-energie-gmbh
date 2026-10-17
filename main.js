@@ -911,12 +911,15 @@ document.addEventListener("DOMContentLoaded", async () => {
         };
 
         const calcWaermeHtNtRow = document.getElementById('calcWaermeHtNtRow');
+        const calcConsumptionGroup = document.getElementById('calcConsumptionGroup');
+        const calcSingleKwhBox = document.getElementById('calcSingleKwhBox');
+        const calcHtNtSplitInputs = document.getElementById('calcHtNtSplitInputs');
         const calcKwhHt = document.getElementById('calcKwhHt');
         const calcKwhNt = document.getElementById('calcKwhNt');
         const calcHtInputBox = document.getElementById('calcHtInputBox');
         const calcNtInputBox = document.getElementById('calcNtInputBox');
         const meterTypeBtns = document.querySelectorAll('.octo-meter-type-btn');
-        let currentMeterType = 'htnt';
+        let currentMeterType = 'et';
 
         function syncHtNtFromTotalKwh(totalKwhVal) {
             const total = Math.max(500, Number(totalKwhVal) || 6000);
@@ -924,10 +927,40 @@ document.addEventListener("DOMContentLoaded", async () => {
                 if (calcKwhHt) calcKwhHt.value = String(total);
                 if (calcKwhNt) calcKwhNt.value = '0';
             } else {
-                const ht = Math.round(total * 0.6);
+                const ht = Math.round(total * 0.25);
                 const nt = Math.max(0, total - ht);
                 if (calcKwhHt) calcKwhHt.value = String(ht);
                 if (calcKwhNt) calcKwhNt.value = String(nt);
+            }
+        }
+
+        function updateMeterTypeUI() {
+            const isWaerme = currentBranch === 'waerme';
+            const isHtNt = isWaerme && currentMeterType === 'htnt';
+            if (calcWaermeHtNtRow) {
+                calcWaermeHtNtRow.style.display = isWaerme ? 'flex' : 'none';
+            }
+            meterTypeBtns.forEach(b => {
+                b.classList.toggle('active', b.getAttribute('data-meter-type') === currentMeterType);
+            });
+            if (calcConsumptionGroup) {
+                calcConsumptionGroup.classList.toggle('is-htnt-mode', isHtNt);
+            }
+            if (calcSingleKwhBox) {
+                calcSingleKwhBox.style.display = isHtNt ? 'none' : 'flex';
+            }
+            if (calcKwh) {
+                calcKwh.required = !isHtNt;
+            }
+            if (calcHtNtSplitInputs) {
+                calcHtNtSplitInputs.style.display = isHtNt ? 'grid' : 'none';
+            }
+            if (calcKwhNt) {
+                calcKwhNt.disabled = false;
+            }
+            const orderMeterTypeEl = document.getElementById('orderMeterType');
+            if (orderMeterTypeEl) {
+                orderMeterTypeEl.value = currentMeterType;
             }
         }
 
@@ -941,7 +974,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             if (!isNaN(rawHt) && !isNaN(rawNt) && (rawHt + rawNt) > 0) {
                 return { ht: Math.max(0, rawHt), nt: Math.max(0, rawNt), meterType: 'htnt' };
             }
-            const ht = Math.round(total * 0.6);
+            const ht = Math.round(total * 0.25);
             return { ht, nt: Math.max(0, total - ht), meterType: 'htnt' };
         }
 
@@ -1561,27 +1594,10 @@ document.addEventListener("DOMContentLoaded", async () => {
         meterTypeBtns.forEach(btn => {
             btn.addEventListener('click', (e) => {
                 e.preventDefault();
-                meterTypeBtns.forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-                currentMeterType = btn.getAttribute('data-meter-type') || 'htnt';
+                currentMeterType = btn.getAttribute('data-meter-type') || 'et';
                 const totalKwh = Math.max(500, parseInt(calcKwh && calcKwh.value ? calcKwh.value : '6000', 10) || 6000);
-                const htLabel = calcHtInputBox ? calcHtInputBox.querySelector('label') : null;
-                if (currentMeterType === 'et') {
-                    if (htLabel) htLabel.textContent = 'Gesamtverbrauch Wärmestrom (Eintarif)';
-                    if (calcNtInputBox) calcNtInputBox.style.opacity = '0.45';
-                    if (calcKwhNt) {
-                        calcKwhNt.value = '0';
-                        calcKwhNt.disabled = true;
-                    }
-                    if (calcKwhHt) calcKwhHt.value = String(totalKwh);
-                } else {
-                    if (htLabel) htLabel.textContent = 'Hochtarif (HT – Tagstrom)';
-                    if (calcNtInputBox) calcNtInputBox.style.opacity = '1';
-                    if (calcKwhNt) calcKwhNt.disabled = false;
-                    syncHtNtFromTotalKwh(totalKwh);
-                }
-                const orderMeterTypeEl = document.getElementById('orderMeterType');
-                if (orderMeterTypeEl) orderMeterTypeEl.value = currentMeterType;
+                syncHtNtFromTotalKwh(totalKwh);
+                updateMeterTypeUI();
                 recalculateTariffs();
                 if (calcPlz && /^\d{5}$/.test(calcPlz.value)) {
                     syncLiveFirstconCalculation(calcPlz.value, totalKwh, currentBranch);
@@ -1610,7 +1626,13 @@ document.addEventListener("DOMContentLoaded", async () => {
                 if (calcKwh && kwh) {
                     calcKwh.value = kwh;
                     if (currentBranch === 'waerme') {
+                        if (kwh === '4000' || kwh === '6000') {
+                            currentMeterType = 'et';
+                        } else if (kwh === '8000') {
+                            currentMeterType = 'htnt';
+                        }
                         syncHtNtFromTotalKwh(parseInt(kwh, 10));
+                        updateMeterTypeUI();
                     }
                     recalculateTariffs();
                     sync3DSceneConsumption(parseInt(kwh, 10));
@@ -1760,10 +1782,6 @@ document.addEventListener("DOMContentLoaded", async () => {
                 const noticeText = document.getElementById('calcBranchNoticeText');
                 const hasUserKwh = Boolean(calcKwh && calcKwh.value && calcKwh.value.toString().trim() !== '');
 
-                if (calcWaermeHtNtRow) {
-                    calcWaermeHtNtRow.style.display = currentBranch === 'waerme' ? 'block' : 'none';
-                }
-
                 if (currentBranch === 'gas') {
                     if (hasUserKwh) {
                         if (['1500', '2500', '3500', '4500', '4000', '6000', '8000'].includes(calcKwh.value)) {
@@ -1803,6 +1821,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                             : 'Ökostrom aus 100 % erneuerbaren Energien • 24 Monate volle Preisgarantie';
                     }
                 }
+                updateMeterTypeUI();
                 recalculateTariffs();
 
                 // Synchronize 3D scene mode and consumption
@@ -1977,6 +1996,9 @@ document.addEventListener("DOMContentLoaded", async () => {
                 ? 'waerme'
                 : rawUrlBranch;
             const urlKwh = urlParams.get('kwh');
+            if (rawUrlBranch === 'htnt') {
+                currentMeterType = 'htnt';
+            }
             if (urlBranch && (urlBranch === 'gas' || urlBranch === 'strom' || urlBranch === 'waerme')) {
                 const targetTab = document.querySelector(`.calc-tab-btn[data-branch="${urlBranch}"]`);
                 if (targetTab) targetTab.click();
@@ -1988,13 +2010,16 @@ document.addEventListener("DOMContentLoaded", async () => {
             if (urlKwh && calcKwh) {
                 calcKwh.value = urlKwh.replace(/\D/g, '');
                 if (currentBranch === 'waerme') {
+                    if (calcKwh.value === '8000') currentMeterType = 'htnt';
                     syncHtNtFromTotalKwh(parseInt(calcKwh.value, 10) || 6000);
+                    updateMeterTypeUI();
                 }
                 userHasEnteredKwh = true;
             }
         } catch (err) {}
 
         // Initial run
+        updateMeterTypeUI();
         recalculateTariffs();
         syncLiveFirstconCalculation((calcPlz && /^\d{5}$/.test(calcPlz.value)) ? calcPlz.value : '44379', undefined, currentBranch);
 

@@ -88,9 +88,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
     <!-- Base Styles & Scripts -->
-    <link rel="stylesheet" href="style.css?v=20261017-modal2">
-    <script src="i18n.js?v=20261017-modal2" defer></script>
-    <script src="main.js?v=20261017-modal2" defer></script>
+    <link rel="stylesheet" href="style.css?v=20261017-waerme3">
+    <script src="i18n.js?v=20261017-waerme3" defer></script>
+    <script src="main.js?v=20261017-waerme3" defer></script>
 
     <!-- Octopus Energy Clone Architecture in Alpha Energie Orange Palette -->
     <style>
@@ -570,41 +570,40 @@
             background: #fbd996 !important;
         }
 
-        /* Wärmepumpe & Nachtspeicher (HT/NT) Calculator Bar */
-        .octo-waerme-htnt-row {
-            margin-top: 14px;
-            padding: 12px 16px;
-            background: #ffffff;
-            border: 1.5px solid rgba(249, 178, 51, 0.65);
-            border-radius: 12px;
-            box-shadow: 0 4px 14px rgba(233, 94, 36, 0.06);
-        }
-
-        .octo-waerme-htnt-header,
-        .octo-waerme-htnt-inner {
+        /* Wärmepumpe & Nachtspeicher (HT/NT) Integrated Zählerart Switcher & Split Inputs */
+        .octo-calc-col-header {
             display: flex;
             align-items: center;
             justify-content: space-between;
             gap: 12px;
-            flex-wrap: wrap;
             margin-bottom: 10px;
+            min-height: 24px;
         }
 
-        .octo-waerme-meter-col {
+        .octo-calc-col-header .octo-calc-col-label {
+            margin-bottom: 0 !important;
+        }
+
+        .octo-waerme-htnt-row {
             display: flex;
             align-items: center;
-            gap: 10px;
-            flex-wrap: wrap;
+            gap: 8px;
+            margin: 0;
+            padding: 0;
+            background: transparent;
+            border: none;
+            box-shadow: none;
         }
 
         .octo-waerme-htnt-title,
         .octo-waerme-label {
             display: inline-flex;
             align-items: center;
-            gap: 6px;
+            gap: 5px;
             font-size: 0.8rem;
             font-weight: 700;
             color: #9a3412;
+            white-space: nowrap;
         }
 
         .octo-waerme-meter-pills {
@@ -612,9 +611,8 @@
             background: #fff9eb;
             padding: 3px;
             border-radius: 10px;
-            border: 1px solid rgba(249, 178, 51, 0.55);
-            gap: 4px;
-            flex-wrap: wrap;
+            border: 1.4px solid rgba(249, 178, 51, 0.65);
+            gap: 3px;
             width: fit-content;
         }
 
@@ -623,12 +621,13 @@
             background: transparent;
             color: #78350f;
             font-family: inherit;
-            font-size: 0.78rem;
+            font-size: 0.76rem;
             font-weight: 700;
-            padding: 5px 11px;
+            padding: 4px 10px;
             border-radius: 7px;
             cursor: pointer;
             transition: all 0.18s ease;
+            white-space: nowrap;
         }
 
         .octo-meter-type-btn.active {
@@ -637,51 +636,53 @@
             box-shadow: 0 2px 8px rgba(233, 94, 36, 0.25);
         }
 
-        .octo-waerme-htnt-grid,
-        .octo-waerme-split-col {
-            display: flex;
-            flex-direction: row;
-            align-items: flex-end;
-            gap: 14px;
-            flex-wrap: wrap;
+        .octo-waerme-htnt-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 8px;
+            align-items: center;
+            min-width: 0;
         }
 
         .octo-htnt-input-pill {
             display: flex;
             flex-direction: column;
             align-items: stretch;
-            gap: 6px;
-            background: transparent;
-            border: none;
-            padding: 0;
-            width: 245px;
-            max-width: 100%;
-            flex: 0 1 245px;
+            gap: 4px;
+            min-width: 0;
+            width: 100%;
         }
 
-        .octo-htnt-input-pill label {
-            display: block;
-            font-size: 0.84rem;
-            font-weight: 600;
+        .octo-htnt-mini-label {
+            display: none;
+            font-size: 0.75rem;
+            font-weight: 700;
             color: var(--octo-text-light);
-            white-space: nowrap;
             margin: 0;
         }
 
+        .octo-htnt-inline-tag {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(249, 178, 51, 0.24);
+            color: #9a3412;
+            font-size: 0.68rem;
+            font-weight: 800;
+            padding: 2px 6px;
+            border-radius: 6px;
+            margin-right: 6px;
+            flex-shrink: 0;
+            pointer-events: none;
+            user-select: none;
+        }
+
         .octo-htnt-input-pill .octo-input-box {
-            height: 52px;
+            height: 58px;
             border-radius: 14px;
             background: var(--octo-bg-deep);
             border: 1.6px solid var(--octo-border-orange);
-            padding: 0 12px;
-        }
-
-        .octo-htnt-info-badge {
-            flex-basis: 100%;
-            font-size: 0.71rem !important;
-            line-height: 1.35;
-            color: #78716c;
-            margin-top: 2px;
+            padding: 0 10px;
         }
 
         /* Horizontal Calculator Body */
@@ -774,13 +775,17 @@
             user-select: none;
         }
 
-        /* Middle Column: Preset Pills + kWh/Jahr + Abschlag */
+        /* Middle Column: Preset Pills + kWh/Jahr (or HT+NT) + Abschlag */
         .octo-consumption-group {
             display: grid;
             grid-template-columns: minmax(410px, 2.5fr) minmax(128px, 0.7fr) minmax(134px, 0.75fr);
             gap: 10px;
             align-items: center;
             min-width: 0;
+        }
+
+        .octo-consumption-group.is-htnt-mode {
+            grid-template-columns: minmax(360px, 1.85fr) minmax(248px, 1.45fr) minmax(124px, 0.65fr);
         }
 
         .octo-preset-pills {
@@ -1801,8 +1806,47 @@
             .octo-calc-row {
                 grid-template-columns: minmax(0, 1fr) !important;
             }
-            .octo-consumption-group {
+            .octo-calc-col-header {
+                flex-direction: column-reverse !important;
+                align-items: stretch !important;
+                gap: 10px !important;
+                margin-bottom: 6px !important;
+            }
+            .octo-waerme-htnt-row {
+                flex-direction: column !important;
+                align-items: stretch !important;
+                gap: 6px !important;
+                width: 100% !important;
+            }
+            .octo-waerme-htnt-title {
+                font-size: 0.88rem !important;
+                font-weight: 600 !important;
+                color: var(--octo-text-light) !important;
+            }
+            .octo-waerme-meter-pills {
+                display: grid !important;
+                grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+                width: 100% !important;
+                box-sizing: border-box !important;
+                padding: 4px !important;
+                gap: 4px !important;
+            }
+            .octo-meter-type-btn {
+                width: 100% !important;
+                height: 38px !important;
+                display: flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+            }
+            .octo-consumption-group,
+            .octo-consumption-group.is-htnt-mode {
                 grid-template-columns: minmax(0, 1fr) !important;
+            }
+            .octo-htnt-mini-label {
+                display: block !important;
+            }
+            .octo-htnt-inline-tag {
+                display: none !important;
             }
             .octo-awards-row,
             .octo-grid-4 {
@@ -1933,10 +1977,17 @@
                 -moz-appearance: textfield !important;
                 appearance: textfield !important;
             }
-            .octo-consumption-group {
+            .octo-consumption-group,
+            .octo-consumption-group.is-htnt-mode {
                 display: grid !important;
                 grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
                 gap: 8px !important;
+            }
+            .octo-consumption-group.is-htnt-mode #calcHtNtSplitInputs {
+                grid-column: 1 / -1 !important;
+            }
+            .octo-consumption-group.is-htnt-mode #calcAbschlagBox {
+                grid-column: 1 / -1 !important;
             }
             .octo-consumption-group .octo-unit-tag,
             .octo-htnt-input-pill .octo-unit-tag {
@@ -1997,33 +2048,33 @@
                 font-size: 0.8rem !important;
             }
             .octo-waerme-htnt-row {
-                margin-top: 10px !important;
-                padding: 10px 10px !important;
-            }
-            .octo-waerme-htnt-header {
-                gap: 8px !important;
-                margin-bottom: 8px !important;
+                margin: 0 !important;
+                padding: 0 !important;
             }
             .octo-waerme-htnt-title {
-                font-size: 0.75rem !important;
-                line-height: 1.25 !important;
+                font-size: 0.84rem !important;
+                font-weight: 600 !important;
+                color: var(--octo-text-light) !important;
             }
             .octo-waerme-meter-pills {
                 display: grid !important;
-                grid-template-columns: 1.18fr 0.82fr !important;
+                grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
                 width: 100% !important;
                 box-sizing: border-box !important;
-                gap: 3px !important;
-                padding: 3px !important;
+                gap: 4px !important;
+                padding: 4px !important;
+                border-radius: 12px !important;
             }
             .octo-meter-type-btn {
-                font-size: 0.67rem !important;
-                padding: 6px 4px !important;
+                font-size: 0.74rem !important;
+                padding: 8px 6px !important;
+                height: auto !important;
+                min-height: 38px !important;
                 text-align: center !important;
                 white-space: nowrap !important;
                 width: 100% !important;
                 box-sizing: border-box !important;
-                letter-spacing: -0.01em !important;
+                border-radius: 9px !important;
             }
             .octo-waerme-htnt-grid {
                 display: grid !important;
@@ -2037,27 +2088,25 @@
                 max-width: 100% !important;
                 height: auto !important;
                 min-height: 0 !important;
-                gap: 4px !important;
+                gap: 5px !important;
                 margin: 0 !important;
                 box-sizing: border-box !important;
             }
-            .octo-htnt-input-pill label {
-                font-size: 0.72rem !important;
+            .octo-htnt-mini-label {
+                display: block !important;
+                font-size: 0.74rem !important;
+                font-weight: 700 !important;
                 line-height: 1.2 !important;
                 white-space: normal !important;
                 margin: 0 !important;
+                color: var(--octo-text-light) !important;
+            }
+            .octo-htnt-inline-tag {
+                display: none !important;
             }
             .octo-htnt-input-pill .octo-input-box {
-                height: 44px !important;
-                padding: 0 8px !important;
-            }
-            .octo-htnt-info-badge {
-                grid-column: 1 / -1 !important;
-                flex: none !important;
-                height: auto !important;
-                font-size: 0.68rem !important;
-                line-height: 1.3 !important;
-                margin-top: 2px !important;
+                height: 46px !important;
+                padding: 0 9px !important;
             }
             .octo-awards-row,
             .octo-grid-4 {
@@ -2781,10 +2830,21 @@
                                     </div>
                                 </div>
 
-                                <!-- Col 2: Jahresverbrauch (Wenig | Mittel | Viel + kWh/Jahr + Abschlag) -->
+                                <!-- Col 2: Zählerart (bei Wärmestrom) + Jahresverbrauch -->
                                 <div>
-                                    <label for="calcKwh" class="octo-calc-col-label">Jahresverbrauch</label>
-                                    <div class="octo-consumption-group">
+                                    <div class="octo-calc-col-header">
+                                        <label for="calcKwh" class="octo-calc-col-label">Jahresverbrauch</label>
+                                        <!-- Zählerart-Umschalter (nur sichtbar im Tab Wärmestrom & HT/NT) -->
+                                        <div id="calcWaermeHtNtRow" class="octo-waerme-htnt-row" style="display: none;">
+                                            <span class="octo-waerme-htnt-title">Zählerart</span>
+                                            <div class="octo-waerme-meter-pills" role="group" aria-label="Zählerart wählen">
+                                                <button type="button" class="octo-meter-type-btn active" data-meter-type="et">Eintarifzähler (ET)</button>
+                                                <button type="button" class="octo-meter-type-btn" data-meter-type="htnt">Doppeltarifzähler (HT/NT)</button>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div id="calcConsumptionGroup" class="octo-consumption-group">
                                         <div class="octo-preset-pills">
                                             <button type="button" class="octo-preset-btn household-btn" data-kwh="1500">
                                                 <span class="household-btn-label">Wenig</span>
@@ -2804,57 +2864,45 @@
                                             </button>
                                         </div>
 
-                                        <div class="octo-input-box" onclick="var inp=this.querySelector('input');if(inp&&document.activeElement!==inp){inp.focus();}">
+                                        <!-- Standard 1-Feld Verbrauchseingabe (Ökostrom, Erdgas & Wärmestrom Eintarif ET) -->
+                                        <div id="calcSingleKwhBox" class="octo-input-box" onclick="var inp=this.querySelector('input');if(inp&&document.activeElement!==inp){inp.focus();}">
                                             <input type="number" id="calcKwh" class="octo-input-field" value="2500" placeholder="2500" min="500" max="100000" required>
                                             <span class="octo-unit-tag">kWh/Jahr</span>
                                         </div>
 
-                                        <div class="octo-input-box" title="Aktueller monatlicher Abschlag beim Vorversorger" onclick="var inp=this.querySelector('input');if(inp&&document.activeElement!==inp){inp.focus();}">
+                                        <!-- Doppeltarif 2-Feld Verbrauchseingabe (NUR sichtbar bei Wärmestrom + Doppeltarif HT/NT) -->
+                                        <div id="calcHtNtSplitInputs" class="octo-waerme-htnt-grid" style="display: none;">
+                                            <div class="octo-htnt-input-pill" id="calcHtInputBox">
+                                                <label for="calcKwhHt" class="octo-htnt-mini-label">Hochtarif (HT – Tagstrom)</label>
+                                                <div class="octo-input-box" onclick="var inp=this.querySelector('input');if(inp&&document.activeElement!==inp){inp.focus();}">
+                                                    <span class="octo-htnt-inline-tag">HT</span>
+                                                    <input type="number" id="calcKwhHt" class="octo-input-field" value="1500" placeholder="1500" min="0" max="100000" step="100">
+                                                    <span class="octo-unit-tag">kWh/Jahr</span>
+                                                </div>
+                                            </div>
+                                            <div class="octo-htnt-input-pill" id="calcNtInputBox">
+                                                <label for="calcKwhNt" class="octo-htnt-mini-label">Niedertarif (NT – Nachtstrom)</label>
+                                                <div class="octo-input-box" onclick="var inp=this.querySelector('input');if(inp&&document.activeElement!==inp){inp.focus();}">
+                                                    <span class="octo-htnt-inline-tag">NT</span>
+                                                    <input type="number" id="calcKwhNt" class="octo-input-field" value="4500" placeholder="4500" min="0" max="100000" step="100">
+                                                    <span class="octo-unit-tag">kWh/Jahr</span>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div id="calcAbschlagBox" class="octo-input-box" title="Aktueller monatlicher Abschlag beim Vorversorger" onclick="var inp=this.querySelector('input');if(inp&&document.activeElement!==inp){inp.focus();}">
                                             <input type="number" id="calcAbschlag" class="octo-input-field" placeholder="Abschlag" min="20" max="2000">
                                             <span class="octo-unit-tag">€/Monat</span>
                                         </div>
                                     </div>
                                 </div>
 
-                                <!-- Col 3: Submit CTA -->
+                                <!-- Col 3: Submit CTA (Immer ganz unten / rechts am Ende!) -->
                                 <div>
                                     <button type="submit" class="octo-btn-cta calc-submit-btn" style="width: 100%;">
                                         <span>Tarif finden</span>
                                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
                                     </button>
-                                </div>
-                            </div>
-
-                            <!-- Wärmepumpe & Nachtspeicher (HT/NT) Zusatzleiste -->
-                            <div id="calcWaermeHtNtRow" class="octo-waerme-htnt-row" style="display: none;">
-                                <div class="octo-waerme-htnt-header" style="display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 10px;">
-                                    <div class="octo-waerme-htnt-title" style="display: inline-flex; align-items: center; gap: 6px; font-size: 0.8rem; font-weight: 700; color: #9a3412;">
-                                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#e95e24" stroke-width="2.4"><path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z"></path></svg>
-                                        <span>Wärmepumpe (§ 14a EnWG) &amp; Nachtspeicherheizung (HT/NT)</span>
-                                    </div>
-                                    <div class="octo-waerme-meter-pills" role="group" aria-label="Zählerart wählen" style="width: fit-content;">
-                                        <button type="button" class="octo-meter-type-btn active" data-meter-type="htnt">Doppeltarifzähler (HT/NT)</button>
-                                        <button type="button" class="octo-meter-type-btn" data-meter-type="et">Eintarifzähler (ET)</button>
-                                    </div>
-                                </div>
-                                <div id="calcHtNtSplitInputs" class="octo-waerme-htnt-grid">
-                                    <div class="octo-htnt-input-pill" id="calcHtInputBox">
-                                        <label for="calcKwhHt" class="octo-calc-col-label">Hochtarif (HT – Tagstrom)</label>
-                                        <div class="octo-input-box" onclick="var inp=this.querySelector('input');if(inp&&document.activeElement!==inp){inp.focus();}">
-                                            <input type="number" id="calcKwhHt" class="octo-input-field" value="3600" placeholder="3600" min="0" max="100000" step="100">
-                                            <span class="octo-unit-tag">kWh/Jahr</span>
-                                        </div>
-                                    </div>
-                                    <div class="octo-htnt-input-pill" id="calcNtInputBox">
-                                        <label for="calcKwhNt" class="octo-calc-col-label">Niedertarif (NT – Nacht-/Wärmestrom)</label>
-                                        <div class="octo-input-box" onclick="var inp=this.querySelector('input');if(inp&&document.activeElement!==inp){inp.focus();}">
-                                            <input type="number" id="calcKwhNt" class="octo-input-field" value="2400" placeholder="2400" min="0" max="100000" step="100">
-                                            <span class="octo-unit-tag">kWh/Jahr</span>
-                                        </div>
-                                    </div>
-                                    <div class="octo-htnt-info-badge" style="font-size: 0.71rem; line-height: 1.35; color: #78716c; margin-top: 2px;">
-                                        ✓ Geeignet für Wärmepumpen (steuerbare Verbrauchseinrichtung § 14a EnWG) &amp; Nachtspeicherheizungen mit Doppeltarifzähler (HT/NT) oder Eintarifzähler.
-                                    </div>
                                 </div>
                             </div>
 
@@ -4033,11 +4081,11 @@
                     <div id="orderWaermeMeterBox" class="form-group" style="display: none; margin-bottom: 1rem; background: #fffdf9; border: 1.5px solid #fed7aa; border-radius: 10px; padding: 0.85rem 1rem;">
                         <label for="orderMeterType" class="calc-label" style="color:#9a3412; font-weight:800; margin-bottom:0.4rem; display:block;">Zählerart für Wärmepumpe / Nachtspeicher (HT/NT) *</label>
                         <select id="orderMeterType" class="calc-input" style="color:#1e293b;background:#fff;">
+                            <option value="et">Eintarifzähler (ET – Wärmepumpe / 1 Zählwerk)</option>
                             <option value="htnt">Doppeltarifzähler (HT/NT – Hochtarif &amp; Niedertarif)</option>
-                            <option value="et">Eintarifzähler (ET – Gemeinsamer oder separater Zähler)</option>
                         </select>
                         <div id="orderWaermeHtNtSummary" style="font-size:0.78rem; color:#c2410c; font-weight:700; margin-top:0.4rem;">
-                            Wärmepumpe (§ 14a EnWG) &amp; Nachtspeicherheizung • HT/NT-Aufteilung wird automatisch übernommen.
+                            Wärmepumpe (§ 14a EnWG) &amp; Nachtspeicherheizung • Zählerart wird automatisch übernommen.
                         </div>
                     </div>
 

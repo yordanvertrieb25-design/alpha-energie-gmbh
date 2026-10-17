@@ -29,9 +29,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
 
     <!-- Base Stylesheet & Scripts -->
-    <link rel="stylesheet" href="style.css?v=20261017-modal2">
-    <script src="i18n.js?v=20261017-modal2" defer></script>
-    <script src="main.js?v=20261017-modal2" defer></script>
+    <link rel="stylesheet" href="style.css?v=20261017-waerme3">
+    <script src="i18n.js?v=20261017-waerme3" defer></script>
+    <script src="main.js?v=20261017-waerme3" defer></script>
 
     <style>
         :root {
@@ -2739,6 +2739,17 @@
                     <div class="form-group" style="margin-bottom: 1rem;">
                         <label for="orderMeterNumber" class="calc-label" style="color:#1e293b;">Zählernummer * (am Strom- oder Gaszähler)</label>
                         <input type="text" id="orderMeterNumber" class="calc-input" placeholder="z. B. 1EMH0012345678" required style="color:#1e293b;background:#fff;">
+                    </div>
+
+                    <div id="orderWaermeMeterBox" class="form-group" style="display: none; margin-bottom: 1rem; background: #fffdf9; border: 1.5px solid #fed7aa; border-radius: 10px; padding: 0.85rem 1rem;">
+                        <label for="orderMeterType" class="calc-label" style="color:#9a3412; font-weight:800; margin-bottom:0.4rem; display:block;">Zählerart für Wärmepumpe / Nachtspeicher (HT/NT) *</label>
+                        <select id="orderMeterType" class="calc-input" style="color:#1e293b;background:#fff;">
+                            <option value="et">Eintarifzähler (ET – Wärmepumpe / 1 Zählwerk)</option>
+                            <option value="htnt">Doppeltarifzähler (HT/NT – Hochtarif &amp; Niedertarif)</option>
+                        </select>
+                        <div id="orderWaermeHtNtSummary" style="font-size:0.78rem; color:#c2410c; font-weight:700; margin-top:0.4rem;">
+                            Wärmepumpe (§ 14a EnWG) &amp; Nachtspeicherheizung • Zählerart wird automatisch übernommen.
+                        </div>
                     </div>
 
                     <div class="form-group" style="margin-bottom: 1rem;">
