@@ -1188,7 +1188,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                             : `HT ${htNt.ht.toLocaleString('de-DE')} / NT ${htNt.nt.toLocaleString('de-DE')} kWh`;
                         kwhEl.textContent = `${kwh.toLocaleString('de-DE')} kWh/Jahr (${meterTag}) • ${activeWorkCt.toFixed(2).replace('.', ',')} ct/kWh • ${activeBaseEur.toFixed(2).replace('.', ',')} € Grundpreis`;
                     } else if (window.i18n && typeof window.i18n.formatKwhDesc === 'function') {
-                        kwhEl.textContent = window.i18n.formatKwhDesc(kwh, activeWorkCt);
+                        kwhEl.textContent = window.i18n.formatKwhDesc(kwh, activeWorkCt, activeBaseEur);
                     } else {
                         kwhEl.textContent = `${kwh.toLocaleString('de-DE')} kWh/Jahr • ${activeWorkCt.toFixed(2).replace('.', ',')} ct/kWh • ${activeBaseEur.toFixed(2).replace('.', ',')} € Grundpreis`;
                     }
@@ -1451,7 +1451,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                                         : `HT ${htNtData.ht.toLocaleString('de-DE')} / NT ${htNtData.nt.toLocaleString('de-DE')} kWh`;
                                     kwhEl.textContent = `${kwh.toLocaleString('de-DE')} kWh/Jahr (${meterTag}) • ${t.workingPriceCt.toFixed(2).replace('.', ',')} ct/kWh • ${baseM.toFixed(2).replace('.', ',')} € Grundpreis`;
                                 } else if (window.i18n && typeof window.i18n.formatKwhDesc === 'function') {
-                                    kwhEl.textContent = window.i18n.formatKwhDesc(kwh, t.workingPriceCt);
+                                    kwhEl.textContent = window.i18n.formatKwhDesc(kwh, t.workingPriceCt, baseM);
                                 } else {
                                     kwhEl.textContent = `${kwh.toLocaleString('de-DE')} kWh/Jahr • ${t.workingPriceCt.toFixed(2).replace('.', ',')} ct/kWh • ${baseM.toFixed(2).replace('.', ',')} € Grundpreis`;
                                 }
@@ -1824,6 +1824,12 @@ document.addEventListener("DOMContentLoaded", async () => {
                 updateMeterTypeUI();
                 recalculateTariffs();
 
+                const tarifeSectionOnTabSwitch = document.getElementById('tarife');
+                if (tarifeSectionOnTabSwitch && tarifeSectionOnTabSwitch.classList.contains('octo-tarife-section')) {
+                    tarifeSectionOnTabSwitch.classList.remove('is-tarife-visible');
+                    tarifeSectionOnTabSwitch.style.display = 'none';
+                }
+
                 // Synchronize 3D scene mode and consumption
                 sync3DSceneMode(currentBranch);
                 const defaultBranchKwh = currentBranch === 'gas' ? 12000 : (currentBranch === 'waerme' ? 6000 : 2500);
@@ -1837,6 +1843,20 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         // Two-way sync: Clicking 3D HUD mode buttons or [data-switch-branch] CTAs switches calculator tab
         document.addEventListener('click', (e) => {
+            const tarifeLink = e.target.closest('a[href="#tarife"], a[href="versorger.html#tarife"]');
+            if (tarifeLink) {
+                const tarifeSection = document.getElementById('tarife');
+                const rechnerTarget = document.getElementById('rechner') || document.getElementById('tarifrechner');
+                if (tarifeSection && tarifeSection.classList.contains('octo-tarife-section') && !tarifeSection.classList.contains('is-tarife-visible') && rechnerTarget) {
+                    e.preventDefault();
+                    rechnerTarget.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    if (calcPlz) {
+                        setTimeout(() => calcPlz.focus(), 350);
+                    }
+                    return;
+                }
+            }
+
             const switchBranchLink = e.target.closest('[data-switch-branch]');
             if (switchBranchLink) {
                 const targetBranch = switchBranchLink.getAttribute('data-switch-branch');
@@ -1982,7 +2002,9 @@ document.addEventListener("DOMContentLoaded", async () => {
                 }
                 const tarifeSection = document.getElementById('tarife');
                 if (tarifeSection) {
-                    tarifeSection.scrollIntoView({ behavior: 'smooth' });
+                    tarifeSection.style.display = 'block';
+                    tarifeSection.classList.add('is-tarife-visible');
+                    tarifeSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
                 }
             });
         }

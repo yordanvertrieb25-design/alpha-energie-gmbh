@@ -2884,12 +2884,17 @@
     /**
      * Format kWh and ct/kWh description
      */
-    function formatKwhDesc(kwh, ctPerKwh, lang) {
+    function formatKwhDesc(kwh, ctPerKwh, basePriceEur, lang) {
         const l = lang || currentLang;
         const locale = l === 'en' ? 'en-US' : (l === 'tr' ? 'tr-TR' : 'de-DE');
         const kwhFormatted = Number(kwh).toLocaleString(locale);
         const ctFormatted = l === 'en' ? ctPerKwh.toFixed(2) : ctPerKwh.toFixed(2).replace('.', ',');
         const unit = l === 'en' ? 'kWh/year' : (l === 'tr' ? 'kWh/yıl' : (l === 'ar' ? 'ك.و.س/سنة' : 'kWh/Jahr'));
+        if (typeof basePriceEur === 'number' && !isNaN(basePriceEur)) {
+            const baseFormatted = l === 'en' ? basePriceEur.toFixed(2) : basePriceEur.toFixed(2).replace('.', ',');
+            const baseLabel = l === 'en' ? '€/mo base price' : (l === 'tr' ? '€/ay sabit ücret' : (l === 'ar' ? '€ رسوم أساسية/شهر' : '€ Grundpreis'));
+            return `${kwhFormatted} ${unit} • ${ctFormatted} ct/kWh • ${baseFormatted} ${baseLabel}`;
+        }
         return `${kwhFormatted} ${unit} • ${ctFormatted} ct/kWh`;
     }
 
