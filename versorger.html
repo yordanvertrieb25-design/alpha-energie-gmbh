@@ -88,9 +88,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
     <!-- Base Styles & Scripts -->
-    <link rel="stylesheet" href="style.css?v=20261017-waerme5">
-    <script src="i18n.js?v=20261017-waerme5" defer></script>
-    <script src="main.js?v=20261017-waerme5" defer></script>
+    <link rel="stylesheet" href="style.css?v=20261017-nocontrols1">
+    <script src="i18n.js?v=20261017-nocontrols1" defer></script>
+    <script src="main.js?v=20261017-nocontrols1" defer></script>
 
     <!-- Octopus Energy Clone Architecture in Alpha Energie Orange Palette -->
     <style>
@@ -1492,6 +1492,24 @@
             background: #fffdf9;
             display: block;
             flex: 1 1 auto;
+            pointer-events: none !important;
+            -webkit-touch-callout: none !important;
+            user-select: none !important;
+        }
+
+        .octo-about-media-card video::-webkit-media-controls,
+        .octo-about-media-card video::-webkit-media-controls-enclosure,
+        .octo-about-media-card video::-webkit-media-controls-panel,
+        .octo-about-media-card video::-webkit-media-controls-play-button,
+        .octo-about-media-card video::-webkit-media-controls-start-playback-button,
+        .octo-about-media-card video::-webkit-media-controls-overlay-play-button,
+        .octo-about-media-card video::-internal-media-controls-overlay-cast-button {
+            display: none !important;
+            -webkit-appearance: none !important;
+            opacity: 0 !important;
+            pointer-events: none !important;
+            width: 0 !important;
+            height: 0 !important;
         }
 
         .octo-about-stack {
@@ -3756,15 +3774,15 @@
                 <div class="octo-about-grid">
                     <!-- Top: Full-Width 16:9 Widescreen Video with Sound -->
                     <div class="octo-about-media-card" style="position:relative;">
-                        <div style="position:relative;width:100%;">
-                            <video id="intro-video" class="autoplay-on-scroll" data-with-sound="true" autoplay loop controls playsinline disablePictureInPicture>
+                        <div id="introVideoContainer" style="position:relative;width:100%;cursor:pointer;">
+                            <video id="intro-video" class="autoplay-on-scroll" data-with-sound="true" autoplay loop muted playsinline webkit-playsinline disablePictureInPicture disableRemotePlayback controlslist="nodownload nofullscreen noremoteplayback" style="pointer-events:none;">
                                 <source src="public/versorger_wolf_wechsel.mp4?v=20261015-sound" type="video/mp4">
                                 <source src="versorger_wolf_wechsel.mp4?v=20261015-sound" type="video/mp4">
                                 <source src="public/b2c_tarifberatung.mp4?v=20261015-sound" type="video/mp4">
                             </video>
                             <button type="button" id="introVideoSoundBtn" aria-label="Ton ein- oder ausschalten" style="position:absolute;top:14px;right:14px;z-index:12;background:rgba(28,25,23,0.82);backdrop-filter:blur(8px);color:#ffffff;border:1.5px solid rgba(249,178,51,0.85);border-radius:999px;padding:7px 14px;font-size:0.8rem;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:6px;box-shadow:0 6px 18px rgba(0,0,0,0.28);transition:all 0.2s ease;">
-                                <span id="introVideoSoundIcon">🔊</span>
-                                <span id="introVideoSoundLabel">Ton an</span>
+                                <span id="introVideoSoundIcon">🔇</span>
+                                <span id="introVideoSoundLabel">Ton aktivieren</span>
                             </button>
                         </div>
                         <div style="background:#fffdf9;border-top:1px solid rgba(249,178,51,0.38);padding:10px 20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;font-size:0.8rem;font-weight:700;color:#44403c;">
@@ -4560,18 +4578,24 @@
             });
         }
 
-        // 4. Enable sound on Versorgerseite bottom video (#intro-video)
+        // 4. Enable sound on Versorgerseite bottom video (#intro-video) without iOS/Android native controls
         var introVid = document.getElementById('intro-video');
+        var introVidContainer = document.getElementById('introVideoContainer');
         var soundBtn = document.getElementById('introVideoSoundBtn');
         var soundIcon = document.getElementById('introVideoSoundIcon');
         var soundLabel = document.getElementById('introVideoSoundLabel');
 
         if (introVid) {
-            introVid.muted = false;
-            introVid.defaultMuted = false;
-            introVid.volume = 1.0;
+            introVid.controls = false;
+            introVid.removeAttribute('controls');
+            introVid.playsInline = true;
+            introVid.setAttribute('playsinline', '');
+            introVid.setAttribute('webkit-playsinline', '');
+            introVid.disablePictureInPicture = true;
 
             function syncSoundUi() {
+                introVid.controls = false;
+                introVid.removeAttribute('controls');
                 var isMuted = introVid.muted || introVid.volume === 0;
                 var curLang = (window.i18n && typeof window.i18n.getLanguage === 'function') ? window.i18n.getLanguage() : 'de';
                 var labelMuted = curLang === 'en' ? 'Enable sound' : (curLang === 'tr' ? 'Sesi aç' : (curLang === 'ar' ? 'تفعيل الصوت' : 'Ton aktivieren'));
@@ -4585,42 +4609,43 @@
                 }
             }
 
+            function toggleIntroVideoSound(e) {
+                if (e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                }
+                introVid.controls = false;
+                introVid.removeAttribute('controls');
+                if (introVid.muted || introVid.volume === 0) {
+                    introVid.dataset.userMuted = 'false';
+                    introVid.dataset.userUnmuted = 'true';
+                    introVid.muted = false;
+                    introVid.defaultMuted = false;
+                    introVid.volume = 1.0;
+                    introVid.play().catch(function() {
+                        introVid.muted = true;
+                        introVid.play().catch(function(){});
+                    });
+                } else {
+                    introVid.dataset.userMuted = 'true';
+                    introVid.dataset.userUnmuted = 'false';
+                    introVid.muted = true;
+                    introVid.play().catch(function(){});
+                }
+                syncSoundUi();
+            }
+
             introVid.addEventListener('volumechange', syncSoundUi);
             introVid.addEventListener('play', syncSoundUi);
             window.addEventListener('languageChanged', syncSoundUi);
             syncSoundUi();
 
             if (soundBtn) {
-                soundBtn.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    if (introVid.muted || introVid.volume === 0) {
-                        introVid.dataset.userMuted = 'false';
-                        introVid.muted = false;
-                        introVid.volume = 1.0;
-                        introVid.play().catch(function(){});
-                    } else {
-                        introVid.dataset.userMuted = 'true';
-                        introVid.muted = true;
-                    }
-                    syncSoundUi();
-                });
+                soundBtn.addEventListener('click', toggleIntroVideoSound);
             }
-
-            // Automatically unmute on first user interaction if browser initially forced muted autoplay
-            var autoUnmuteOnInteraction = function() {
-                if (introVid.dataset.userMuted !== 'true' && introVid.muted) {
-                    introVid.muted = false;
-                    introVid.volume = 1.0;
-                    syncSoundUi();
-                }
-                document.removeEventListener('click', autoUnmuteOnInteraction);
-                document.removeEventListener('touchstart', autoUnmuteOnInteraction);
-                document.removeEventListener('keydown', autoUnmuteOnInteraction);
-            };
-            document.addEventListener('click', autoUnmuteOnInteraction, { passive: true });
-            document.addEventListener('touchstart', autoUnmuteOnInteraction, { passive: true });
-            document.addEventListener('keydown', autoUnmuteOnInteraction, { passive: true });
+            if (introVidContainer) {
+                introVidContainer.addEventListener('click', toggleIntroVideoSound);
+            }
         }
     });
     </script>

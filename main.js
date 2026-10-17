@@ -630,31 +630,29 @@ document.addEventListener("DOMContentLoaded", async () => {
         });
     }
 
-    // 6. Autoplay videos on scroll (supports sound when data-with-sound="true")
+    // 6. Autoplay videos on scroll (supports sound when data-with-sound="true", without native iOS/Android controls)
     const scrollVideos = document.querySelectorAll('.autoplay-on-scroll');
     if (scrollVideos.length > 0) {
         const videoObserver = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 const video = entry.target;
+                video.controls = false;
+                video.removeAttribute('controls');
                 const wantsSound = video.getAttribute('data-with-sound') === 'true' || video.id === 'intro-video';
                 if (entry.isIntersecting) {
-                    if (wantsSound) {
-                        if (video.dataset.userMuted !== 'true') {
-                            video.muted = false;
-                            video.defaultMuted = false;
-                            video.volume = 1.0;
-                        }
-                        video.play().catch(() => {
-                            // Browser blocked unmuted autoplay before first interaction: start playing and unmute on next click
-                            video.muted = true;
-                            video.play().catch(e => console.log("Video play blocked:", e));
-                        });
+                    if (wantsSound && video.dataset.userUnmuted === 'true' && video.dataset.userMuted !== 'true') {
+                        video.muted = false;
+                        video.defaultMuted = false;
+                        video.volume = 1.0;
                     } else {
                         video.muted = true;
                         video.defaultMuted = true;
-                        video.volume = 0;
-                        video.play().catch(e => console.log("Video play blocked:", e));
                     }
+                    video.play().catch(() => {
+                        video.muted = true;
+                        video.defaultMuted = true;
+                        video.play().catch(e => console.log("Video play blocked:", e));
+                    });
                 } else {
                     // Pause if out of view
                     video.pause();
@@ -663,6 +661,12 @@ document.addEventListener("DOMContentLoaded", async () => {
         }, { threshold: 0.15 });
 
         scrollVideos.forEach(video => {
+            video.controls = false;
+            video.removeAttribute('controls');
+            video.playsInline = true;
+            video.setAttribute('playsinline', '');
+            video.setAttribute('webkit-playsinline', '');
+            video.disablePictureInPicture = true;
             const wantsSound = video.getAttribute('data-with-sound') === 'true' || video.id === 'intro-video';
             if (!wantsSound) {
                 video.muted = true;
@@ -675,9 +679,9 @@ document.addEventListener("DOMContentLoaded", async () => {
                     }
                 });
             } else {
-                video.muted = false;
-                video.defaultMuted = false;
-                video.volume = 1.0;
+                // Start muted so iOS/Android inline autoplay starts immediately without showing native play overlays
+                video.muted = true;
+                video.defaultMuted = true;
             }
             videoObserver.observe(video);
         });

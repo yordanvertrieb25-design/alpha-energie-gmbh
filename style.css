@@ -9418,5 +9418,33 @@ html body .digital-modal #modalCalcKwh.calc-input {
     padding-right: 54px !important;
 }
 
+/* Suppress native iOS Safari & Android Chrome video player controls/buttons completely */
+video.autoplay-on-scroll,
+video#intro-video,
+video.hero-video-inline {
+    pointer-events: none !important;
+    -webkit-touch-callout: none !important;
+    user-select: none !important;
+}
 
-
+video::-webkit-media-controls,
+video::-webkit-media-controls-enclosure,
+video::-webkit-media-controls-panel,
+video::-webkit-media-controls-play-button,
+video::-webkit-media-controls-start-playback-button,
+video::-webkit-media-controls-overlay-play-button,
+video::-webkit-media-controls-timeline,
+video::-webkit-media-controls-current-time-display,
+video::-webkit-media-controls-time-remaining-display,
+video::-webkit-media-controls-mute-button,
+video::-webkit-media-controls-toggle-closed-captions-button,
+video::-webkit-media-controls-volume-slider,
+video::-webkit-media-controls-fullscreen-button,
+video::-internal-media-controls-overlay-cast-button {
+    display: none !important;
+    -webkit-appearance: none !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+    width: 0 !important;
+    height: 0 !important;
+}
