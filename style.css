@@ -8514,7 +8514,9 @@ html.swal2-height-auto:not(.alpha-modal-open) {
 
 .ai-media-info-btn--mascot,
 .ai-media-info-btn--inline-pill,
-.ai-media-info-btn[data-ai-type="mascot"] {
+.ai-media-info-btn--video,
+.ai-media-info-btn[data-ai-type="mascot"],
+.ai-media-info-btn[data-ai-type="video"] {
     display: none !important;
 }
 

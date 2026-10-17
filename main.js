@@ -4747,7 +4747,9 @@ document.addEventListener("DOMContentLoaded", async () => {
             }
             .ai-media-info-btn--mascot,
             .ai-media-info-btn--inline-pill,
-            .ai-media-info-btn[data-ai-type="mascot"] {
+            .ai-media-info-btn--video,
+            .ai-media-info-btn[data-ai-type="mascot"],
+            .ai-media-info-btn[data-ai-type="video"] {
                 display: none !important;
             }
             .ai-media-info-popover {
@@ -5028,26 +5030,15 @@ document.addEventListener("DOMContentLoaded", async () => {
     function initAiMediaInfoBadges() {
         ensureAiInfoStyles();
 
-        // Remove any legacy mascot AI badges if present
-        document.querySelectorAll('.ai-media-info-btn[data-ai-type="mascot"], .ai-media-info-btn--mascot, .ai-media-info-btn--inline-pill').forEach((btn) => {
+        // Remove any legacy mascot or animated mascot video AI badges if present
+        document.querySelectorAll('.ai-media-info-btn[data-ai-type="mascot"], .ai-media-info-btn[data-ai-type="video"], .ai-media-info-btn--mascot, .ai-media-info-btn--video, .ai-media-info-btn--inline-pill').forEach((btn) => {
             btn.remove();
         });
 
         // 1. Bind any already-present static .ai-media-info-btn buttons in HTML
         document.querySelectorAll('.ai-media-info-btn').forEach(bindButton);
 
-        // 2. Equip all <video> elements
-        document.querySelectorAll('video').forEach((video) => {
-            const wrapper = video.parentElement;
-            if (!wrapper) return;
-            if (wrapper.querySelector('.ai-media-info-btn')) return;
-            const computedPos = window.getComputedStyle(wrapper).position;
-            if (computedPos === 'static') wrapper.style.position = 'relative';
-            const btn = createInfoButton('video', 'ai-media-info-btn--video', 'KI-Video');
-            wrapper.appendChild(btn);
-        });
-
-        // 3. Equip all AI-generated photo <img> elements (never Wolf mascots)
+        // 2. Equip all AI-generated photo <img> elements (never Wolf mascots or mascot videos)
         document.querySelectorAll('img').forEach((img) => {
             const aiKind = isAiGeneratedImage(img);
             if (!aiKind) return;
