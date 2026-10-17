@@ -9064,29 +9064,45 @@ input#calcPlz {
     }
 
     html body.octo-orange-body .octo-hero-right-with-peeking-wolf {
-        margin-left: 98px !important;
-        max-width: calc(100% - 98px) !important;
-        width: calc(100% - 98px) !important;
-        margin-bottom: 24px !important;
+        margin-left: 78px !important;
+        max-width: calc(100% - 78px) !important;
+        width: calc(100% - 78px) !important;
+        margin-bottom: 4px !important;
         box-sizing: border-box !important;
     }
 
     html body.octo-orange-body .octo-hero-peeking-wolf {
         left: 2px !important;
-        top: 50% !important;
+        top: 45% !important;
         transform: translate(-90%, -50%) !important;
     }
 
     html body.octo-orange-body .octo-peeking-wolf-img {
-        height: 142px !important;
+        height: 116px !important;
+        clip-path: inset(0 0 13% 0) !important;
     }
 
     html body.octo-orange-body .octo-peeking-wolf-pill {
         left: 44% !important;
         transform: translateX(-50%) !important;
-        bottom: -26px !important;
-        font-size: 0.64rem !important;
-        padding: 3px 8px !important;
+        bottom: 7px !important;
+        font-size: 0.44rem !important;
+        line-height: 1.1 !important;
+        padding: 2px 5.5px !important;
+        gap: 2px !important;
+        border-width: 1px !important;
+        letter-spacing: -0.01em !important;
+        box-shadow: 0 2px 6px rgba(28, 25, 23, 0.2) !important;
+    }
+
+    html body.octo-orange-body .octo-section-mascot-box {
+        padding: 8px 12px !important;
+        gap: 10px !important;
+        border-radius: 14px !important;
+    }
+
+    html body.octo-orange-body .octo-section-mascot-box .octo-mascot-img {
+        height: 84px !important;
     }
 
     html body.octo-orange-body .octo-stage-visual-card {
