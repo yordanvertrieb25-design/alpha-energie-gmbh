@@ -1506,6 +1506,7 @@ app.post('/api/order/submit', async (req, res) => {
             internalOrderNumber: orderNumber,
             partnerCode: attribution.partnerCode,
             commissionAmount: attribution.commissionAmount,
+            partnerAttribution: attribution,
             firstcon: firstconResult,
             message: 'Ihr Auftrag wurde erfolgreich an Firstcon übermittelt! Sie erhalten Ihre Auftragsbestätigung inkl. Vertragsunterlagen per E-Mail.'
         });
@@ -3469,11 +3470,10 @@ const authenticatePartner = async (req, res, next) => {
 // Seed default demo partners for instant testing & verification
 async function ensureDemoPartnersSeeded() {
     try {
-        const count = await prisma.partnerUser.count();
-        if (count > 0) return;
-
-        const agency = await prisma.partnerUser.create({
-            data: {
+        const agency = await prisma.partnerUser.upsert({
+            where: { partnerCode: 'AG-NRW01' },
+            update: {},
+            create: {
                 partnerCode: 'AG-NRW01',
                 email: 'agentur@alpha-energie.de',
                 passwordHash: hashPartnerPassword('Alpha2026!'),
@@ -3502,8 +3502,10 @@ async function ensureDemoPartnersSeeded() {
             }
         });
 
-        const d2dPartner = await prisma.partnerUser.create({
-            data: {
+        const d2dPartner = await prisma.partnerUser.upsert({
+            where: { partnerCode: 'VP-D2D100' },
+            update: {},
+            create: {
                 partnerCode: 'VP-D2D100',
                 email: 'd2d@alpha-energie.de',
                 passwordHash: hashPartnerPassword('Alpha2026!'),
@@ -3529,8 +3531,10 @@ async function ensureDemoPartnersSeeded() {
             }
         });
 
-        const affiliatePartner = await prisma.partnerUser.create({
-            data: {
+        const affiliatePartner = await prisma.partnerUser.upsert({
+            where: { partnerCode: 'AFF-MAX24' },
+            update: {},
+            create: {
                 partnerCode: 'AFF-MAX24',
                 email: 'affiliate@alpha-energie.de',
                 passwordHash: hashPartnerPassword('Alpha2026!'),
@@ -3557,8 +3561,10 @@ async function ensureDemoPartnersSeeded() {
             }
         });
 
-        const tippgeberPartner = await prisma.partnerUser.create({
-            data: {
+        const tippgeberPartner = await prisma.partnerUser.upsert({
+            where: { partnerCode: 'TIP-ANNA' },
+            update: {},
+            create: {
                 partnerCode: 'TIP-ANNA',
                 email: 'tippgeber@alpha-energie.de',
                 passwordHash: hashPartnerPassword('Alpha2026!'),
@@ -3583,6 +3589,28 @@ async function ensureDemoPartnersSeeded() {
                 parentPartnerId: agency.id
             }
         });
+
+        await prisma.commissionPayout.upsert({
+            where: { payoutNumber: 'GS-2026-1001' },
+            update: {},
+            create: {
+                payoutNumber: 'GS-2026-1001',
+                partnerId: affiliatePartner.id,
+                periodLabel: 'Laufende Abrechnung 2026',
+                ordersCount: 1,
+                netAmount: 55.0,
+                vatAmount: 10.45,
+                grossAmount: 65.45,
+                status: 'PAID',
+                iban: affiliatePartner.iban,
+                bic: affiliatePartner.bic,
+                bankName: affiliatePartner.bankName,
+                paidAt: new Date()
+            }
+        }).catch(() => {});
+
+        const existingDemoOrder = await prisma.energyOrder.findUnique({ where: { orderNumber: 'AE-2026-810241' } });
+        if (existingDemoOrder) return;
 
         await prisma.affiliateLink.upsert({
             where: { code: 'AFF-MAX24' },
@@ -3685,23 +3713,6 @@ async function ensureDemoPartnersSeeded() {
                 notes: 'Inhaber wünscht Rückruf vormittags wegen Filial-Stromvertrag',
                 status: 'QUALIFIED',
                 commissionAmount: 35.0
-            }
-        });
-
-        await prisma.commissionPayout.create({
-            data: {
-                payoutNumber: 'GS-2026-1001',
-                partnerId: affiliatePartner.id,
-                periodLabel: 'Laufende Abrechnung 2026',
-                ordersCount: 1,
-                netAmount: 55.0,
-                vatAmount: 10.45,
-                grossAmount: 65.45,
-                status: 'PAID',
-                iban: affiliatePartner.iban,
-                bic: affiliatePartner.bic,
-                bankName: affiliatePartner.bankName,
-                paidAt: new Date()
             }
         });
 
@@ -3813,11 +3824,15 @@ app.post('/api/partner/register', async (req, res) => {
         let bankName = body.bankName || null;
         if (ibanClean) {
             const check = firstconService.validateIbanMod97(ibanClean);
-            if (check.valid) {
-                ibanClean = check.clean;
-                bic = bic || check.bic;
-                bankName = bankName || check.bankName;
+            if (!check.valid) {
+                return res.status(400).json({
+                    success: false,
+                    error: 'Die angegebene IBAN ist ungültig (ISO-7064 Mod-97 Prüfsummenfehler).'
+                });
             }
+            ibanClean = check.clean;
+            bic = bic || check.bic;
+            bankName = bankName || check.bankName;
         }
 
         const newPartner = await prisma.partnerUser.create({

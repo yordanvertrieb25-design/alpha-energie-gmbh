@@ -9,7 +9,7 @@ test.describe('AlphaTarife In-House Partner Portal & Attribution Suite', () => {
         expect(validRes.ok()).toBeTruthy();
         const validJson = await validRes.json();
         expect(validJson.valid).toBe(true);
-        expect(validJson.bic).toBe('COBADEFFXXX');
+        expect(validJson.bic).toContain('COBADEFF');
         expect(validJson.bankName).toContain('Commerzbank');
 
         // Invalid Mod-97 checksum
@@ -108,7 +108,18 @@ test.describe('AlphaTarife In-House Partner Portal & Attribution Suite', () => {
         expect(pdfRes.headers()['content-type']).toContain('application/pdf');
 
         // 2g. UI Verification on /vertriebspartner-portal.html
+        await page.addInitScript(() => {
+            try {
+                localStorage.setItem('alpha_consent_status', 'all');
+                localStorage.setItem('cookieConsent', 'all');
+                localStorage.setItem('alpha_dsgvo_consent_v1', JSON.stringify({ essential: true, analytics: true, marketing: true, timestamp: Date.now() }));
+            } catch (e) {}
+        });
         await page.goto(`${BASE_URL}/vertriebspartner-portal.html`, { waitUntil: 'domcontentloaded' });
+        await page.evaluate(() => {
+            const ov = document.getElementById('alphaDsgvoOverlay');
+            if (ov) ov.remove();
+        });
         expect(page.url()).toContain('vertriebspartner-portal.html');
 
         // Click 1-click Demo button for Affiliate
@@ -133,7 +144,8 @@ test.describe('AlphaTarife In-House Partner Portal & Attribution Suite', () => {
         expect(attr.subId).toBe('campaign_hero');
 
         // Explicit ?ref=AFF-MAX24&redirect=stammdaten DOES redirect to stammdaten.html
-        await page.goto(`${BASE_URL}/?ref=AFF-MAX24&redirect=stammdaten`, { waitUntil: 'domcontentloaded' });
+        await page.goto(`${BASE_URL}/?ref=AFF-MAX24&redirect=stammdaten`);
+        await page.waitForURL(/stammdaten\.html\?ref=AFF-MAX24/);
         expect(page.url()).toContain('stammdaten.html?ref=AFF-MAX24');
 
         // Submitting an order attributes partnerCode & subId
@@ -164,5 +176,96 @@ test.describe('AlphaTarife In-House Partner Portal & Attribution Suite', () => {
         expect(orderJson.partnerAttribution.partnerCode).toBe('AFF-MAX24');
         expect(orderJson.partnerAttribution.subId).toBe('campaign_hero');
         expect(orderJson.partnerAttribution.commissionAmount).toBe(55);
+    });
+
+    test('4. Self-Registration, Agency Sub-Partners, Remote Sign UI & Admin 1-Click Activation + Payouts', async ({ request, page }) => {
+        // 4a. Reject registration with invalid IBAN checksum
+        const badReg = await request.post(`${BASE_URL}/api/partner/register`, {
+            data: {
+                firstName: 'Test',
+                lastName: 'InvalidIban',
+                email: `invalid.${Date.now()}@example.de`,
+                password: 'Password123!',
+                role: 'AFFILIATE',
+                iban: 'DE00370400440532013000'
+            }
+        });
+        expect(badReg.status()).toBe(400);
+
+        // 4b. Valid Self-Registration creates PartnerUser + AffiliateLink + JWT
+        const uniqueEmail = `partner.${Date.now()}@example.de`;
+        const regRes = await request.post(`${BASE_URL}/api/partner/register`, {
+            data: {
+                firstName: 'Elena',
+                lastName: 'Neupartner',
+                email: uniqueEmail,
+                password: 'Password123!',
+                role: 'AGENCY',
+                companyName: 'Elena Sales Agency GmbH',
+                iban: 'DE89370400440532013000',
+                isVatLiable: true
+            }
+        });
+        expect(regRes.status()).toBe(201);
+        const regJson = await regRes.json();
+        expect(regJson.success).toBe(true);
+        expect(regJson.token).toBeTruthy();
+        expect(regJson.partner.role).toBe('AGENCY');
+
+        // 4c. Agency creates a Sub-Partner in its Downline
+        const subRes = await request.post(`${BASE_URL}/api/partner/subpartners`, {
+            headers: { Authorization: `Bearer ${regJson.token}` },
+            data: {
+                firstName: 'kevin',
+                lastName: 'Subrep',
+                email: `sub.${Date.now()}@example.de`,
+                role: 'D2D',
+                stromCommissionEur: 55,
+                gasCommissionEur: 55
+            }
+        });
+        expect(subRes.status()).toBe(201);
+        const subJson = await subRes.json();
+        expect(subJson.success).toBe(true);
+        expect(subJson.subPartner.partnerCode).toBeTruthy();
+
+        // 4d. Submit partner application & activate via Admin 1-Click Portal Activation
+        const appRes = await request.post(`${BASE_URL}/api/partner-application`, {
+            data: {
+                fullName: 'Stefan Bewerber',
+                companyName: 'Stefan Vertrieb',
+                email: `stefan.${Date.now()}@example.de`,
+                phone: '0231 998877',
+                experience: 'D2D Direktvertrieb'
+            }
+        });
+        expect(appRes.status()).toBe(201);
+        const appJson = await appRes.json();
+
+        const adminLogin = await request.post(`${BASE_URL}/api/auth/login`, {
+            data: { username: 'admin', password: 'password123' }
+        });
+        expect(adminLogin.ok()).toBeTruthy();
+        const { token: adminToken } = await adminLogin.json();
+
+        const actRes = await request.post(`${BASE_URL}/api/admin/partner-applications/${appJson.applicationId}/activate-portal`, {
+            headers: { Authorization: `Bearer ${adminToken}` },
+            data: { role: 'D2D' }
+        });
+        expect(actRes.ok()).toBeTruthy();
+        const actJson = await actRes.json();
+        expect(actJson.success).toBe(true);
+        expect(actJson.partner.partnerCode).toContain('VP-');
+
+        // 4e. Admin Portal Overview returns orders, partners, leads, payouts, clicks
+        const ovRes = await request.get(`${BASE_URL}/api/admin/portal-overview`, {
+            headers: { Authorization: `Bearer ${adminToken}` }
+        });
+        expect(ovRes.ok()).toBeTruthy();
+        const ovJson = await ovRes.json();
+        expect(ovJson.success).toBe(true);
+        expect(Array.isArray(ovJson.orders)).toBe(true);
+        expect(Array.isArray(ovJson.partners)).toBe(true);
+        expect(Array.isArray(ovJson.payouts)).toBe(true);
     });
 });

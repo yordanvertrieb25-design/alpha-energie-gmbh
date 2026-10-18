@@ -301,15 +301,24 @@ function mapFirstconTariffToSlotId(fcTariff) {
     return 'alpha-basic';
 }
 
+function normalizeFirstconBranch(branch) {
+    const raw = String(branch || 'strom').toLowerCase().trim();
+    if (raw === 'gas' || raw === 'oekogas' || raw === 'erdgas') return 'gas';
+    if (raw === 'waerme' || raw === 'waermestrom' || raw === 'waermepumpe' || raw === 'htnt') return 'waerme';
+    if (raw === 'ladestrom' || raw === 'autostrom' || raw === 'wallbox' || raw === 'mobility') return 'ladestrom';
+    return 'strom';
+}
+
 /**
  * Calculates live tariffs & prices directly from Firstcon Orderflow API v2.
  */
 async function calculateLiveTariffs({ plz, consumption, consumptionHt, consumptionNt, meterType, currentAbschlag, branch = 'strom', token }) {
-    const normalizedBranch = branch === 'gas' ? 'gas' : (branch === 'waerme' ? 'waerme' : 'strom');
+    const normalizedBranch = normalizeFirstconBranch(branch);
     const isGas = normalizedBranch === 'gas';
     const isWaerme = normalizedBranch === 'waerme';
+    const isLadestrom = normalizedBranch === 'ladestrom';
     const energyCategoryId = isGas ? 2 : 1;
-    const defaultKwh = isGas ? 12000 : (isWaerme ? 6000 : 2500);
+    const defaultKwh = isGas ? 12000 : (isWaerme ? 6000 : (isLadestrom ? 2500 : 2500));
     const parsedHt = parseInt(consumptionHt, 10) || 0;
     const parsedNt = parseInt(consumptionNt, 10) || 0;
     const htNtSum = parsedHt + parsedNt;
@@ -334,12 +343,17 @@ async function calculateLiveTariffs({ plz, consumption, consumptionHt, consumpti
         return null;
     }
 
-    // If Firstcon provides dedicated IsHeatFlowTariff tariffs, prefer them for branch === 'waerme'
+    // If Firstcon provides dedicated IsHeatFlowTariff or IsMobilityTariff tariffs, prefer them
     let activeFcTariffs = fcTariffs;
     if (isWaerme) {
         const heatFlowOnly = fcTariffs.filter(t => t && t.IsHeatFlowTariff === true);
         if (heatFlowOnly.length > 0) {
             activeFcTariffs = heatFlowOnly;
+        }
+    } else if (isLadestrom) {
+        const mobilityOnly = fcTariffs.filter(t => t && t.IsMobilityTariff === true);
+        if (mobilityOnly.length > 0) {
+            activeFcTariffs = mobilityOnly;
         }
     }
 
@@ -426,6 +440,25 @@ async function calculateLiveTariffs({ plz, consumption, consumptionHt, consumpti
             isBestseller: false,
             ecoCertificate: 'Ökostrom aus 100 % erneuerbaren Energien'
         }
+    } : (isLadestrom ? {
+        'alpha-basic': {
+            name: 'ALPHA BASIC 24 LADESTROM',
+            badge: 'Wallbox & E-Auto (§ 14a EnWG)',
+            isBestseller: false,
+            ecoCertificate: 'Ökostrom aus 100 % erneuerbaren Energien'
+        },
+        'alpha-time': {
+            name: 'ALPHA TIME 24 LADESTROM',
+            badge: 'Bestseller • Wallbox & E-Auto',
+            isBestseller: true,
+            ecoCertificate: 'Ökostrom aus 100 % erneuerbaren Energien'
+        },
+        'alpha-premium': {
+            name: 'ALPHA PREMIUM 24 LADESTROM',
+            badge: '24 Monate Preisschutz • Ladestrom VIP',
+            isBestseller: false,
+            ecoCertificate: 'Ökostrom aus 100 % erneuerbaren Energien'
+        }
     } : {
         'alpha-basic': {
             name: 'ALPHA BASIC 24',
@@ -445,7 +478,7 @@ async function calculateLiveTariffs({ plz, consumption, consumptionHt, consumpti
             isBestseller: false,
             ecoCertificate: 'Ökostrom aus 100 % erneuerbaren Energien'
         }
-    });
+    }));
 
     // Order tariffs consistently first: alpha-basic (0), alpha-time (1), alpha-premium (2)
     const orderRank = { 'alpha-basic': 1, 'alpha-time': 2, 'alpha-premium': 3 };
@@ -483,12 +516,17 @@ async function calculateLiveTariffs({ plz, consumption, consumptionHt, consumpti
             'Für Wärmepumpe (§ 14a EnWG) & Nachtspeicherheizung (HT/NT)',
             'Geeignet für Doppeltarifzähler (HT/NT) & Eintarifzähler',
             'Ökostrom aus 100 % erneuerbaren Energien'
+        ] : (isLadestrom ? [
+            `${fcTariff.PriceGuaranteeDuration || 24} Monate volle Preisgarantie`,
+            'Für Heim-Wallbox (11 kW / 22 kW) & Elektroauto (§ 14a EnWG)',
+            'Ökostrom aus 100 % erneuerbaren Energien (ok-power+)',
+            'Kostenloser & automatischer Wechselservice'
         ] : [
             `${fcTariff.PriceGuaranteeDuration || 24} Monate volle Preisgarantie`,
             'Ökostrom aus 100 % erneuerbaren Energien',
             'Monatlich kündbar nach der Erstlaufzeit',
             'Kostenloser Wechselservice & Abmeldung'
-        ]);
+        ]));
 
         const rawFcFeatures = Array.isArray(fcTariff.AdditionalFeatures)
             ? fcTariff.AdditionalFeatures
@@ -507,7 +545,7 @@ async function calculateLiveTariffs({ plz, consumption, consumptionHt, consumpti
                 })
             : [];
 
-        const mergedFeatures = isWaerme ? [
+        const mergedFeatures = (isWaerme || isLadestrom) ? [
             ...defaultFeatures,
             ...rawFcFeatures
         ] : [
@@ -604,7 +642,7 @@ function formatBirthdayForFirstcon(birthDateStr) {
  */
 async function submitOrderToFirstcon(orderPayload) {
     const token = sanitizeIntegrationToken(orderPayload.orderflowToken);
-    const normalizedBranch = orderPayload.branch === 'gas' ? 'gas' : (orderPayload.branch === 'waerme' ? 'waerme' : 'strom');
+    const normalizedBranch = normalizeFirstconBranch(orderPayload.branch);
     const isGas = normalizedBranch === 'gas';
     const isWaerme = normalizedBranch === 'waerme';
     const energyCategoryId = isGas ? 2 : 1;

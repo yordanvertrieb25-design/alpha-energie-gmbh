@@ -88,9 +88,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
     <!-- Base Styles & Scripts -->
-    <link rel="stylesheet" href="style.css?v=fc2026v10">
-    <script src="i18n.js?v=fc2026v10" defer></script>
-    <script src="main.js?v=fc2026v10" defer></script>
+    <link rel="stylesheet" href="style.css?v=fc2026v11">
+    <script src="i18n.js?v=fc2026v11" defer></script>
+    <script src="main.js?v=fc2026v11" defer></script>
 
     <!-- Octopus Energy Clone Architecture in Alpha Energie Orange Palette -->
     <style>
@@ -696,11 +696,11 @@
             justify-content: center;
             background: rgba(249, 178, 51, 0.24);
             color: #9a3412;
-            font-size: 0.68rem;
+            font-size: 0.66rem;
             font-weight: 800;
-            padding: 2px 6px;
+            padding: 2px 5px;
             border-radius: 6px;
-            margin-right: 6px;
+            margin-right: 5px;
             flex-shrink: 0;
             pointer-events: none;
             user-select: none;
@@ -711,19 +711,30 @@
             border-radius: 14px;
             background: var(--octo-bg-deep);
             border: 1.6px solid var(--octo-border-orange);
-            padding: 0 10px;
+            padding: 0 8px;
+        }
+
+        .octo-htnt-input-pill .octo-input-field {
+            font-size: 0.94rem;
+            font-weight: 700;
+            min-width: 38px;
+        }
+
+        .octo-htnt-input-pill .octo-unit-tag {
+            font-size: 0.7rem;
+            margin-left: 3px;
         }
 
         /* Horizontal Calculator Body */
         .octo-calc-body {
-            padding: 24px 28px 20px;
+            padding: 20px 20px 18px;
             background: var(--octo-bg-surface);
         }
 
         .octo-calc-row {
             display: grid;
-            grid-template-columns: minmax(195px, 215px) minmax(0, 1fr) 172px;
-            gap: 12px;
+            grid-template-columns: minmax(170px, 190px) minmax(0, 1fr) 156px;
+            gap: 10px;
             align-items: end;
         }
 
@@ -743,7 +754,7 @@
             height: 58px;
             display: flex;
             align-items: center;
-            padding: 0 12px;
+            padding: 0 11px;
             box-sizing: border-box;
             min-width: 0;
             cursor: text;
@@ -784,8 +795,8 @@
         }
 
         #calcPlz.octo-input-field {
-            flex: 1 1 60px;
-            min-width: 60px;
+            flex: 1 1 56px;
+            min-width: 56px;
             width: 100%;
             height: 100%;
             align-self: stretch;
@@ -798,7 +809,7 @@
         }
 
         #calcAbschlag::placeholder {
-            font-size: 0.74rem !important;
+            font-size: 0.72rem !important;
             font-weight: 600 !important;
             letter-spacing: -0.015em !important;
         }
@@ -814,7 +825,7 @@
             margin-left: 6px;
             flex: 0 1 auto;
             min-width: 0;
-            max-width: calc(100% - 66px);
+            max-width: calc(100% - 62px);
             overflow: hidden;
             text-overflow: ellipsis;
             pointer-events: none;
@@ -824,14 +835,14 @@
         /* Middle Column: Preset Pills + kWh/Jahr (or HT+NT) + Abschlag */
         .octo-consumption-group {
             display: grid;
-            grid-template-columns: minmax(335px, 1.75fr) minmax(126px, 0.66fr) minmax(205px, 1.1fr);
-            gap: 10px;
+            grid-template-columns: minmax(316px, 1.72fr) minmax(130px, 0.72fr) minmax(170px, 0.96fr);
+            gap: 8px;
             align-items: center;
             min-width: 0;
         }
 
         .octo-consumption-group.is-htnt-mode {
-            grid-template-columns: minmax(310px, 1.45fr) minmax(234px, 1.25fr) minmax(196px, 1fr);
+            grid-template-columns: minmax(316px, 1.48fr) minmax(244px, 1.25fr) minmax(158px, 0.82fr);
         }
 
         .octo-preset-pills {
@@ -841,11 +852,12 @@
             background: var(--octo-bg-deep);
             border: 1.6px solid var(--octo-border-orange);
             border-radius: 14px;
-            padding: 4px;
+            padding: 3px;
             height: 58px;
             box-sizing: border-box;
-            gap: 4px;
+            gap: 3px;
             min-width: 0;
+            overflow: hidden;
         }
 
         body.octo-orange-body .octo-preset-btn,
@@ -855,11 +867,11 @@
             border: none !important;
             border-radius: 10px !important;
             height: 100% !important;
-            flex: 1 0 auto !important;
-            min-width: max-content !important;
-            padding: 0 8px !important;
+            flex: 1 1 auto !important;
+            min-width: 0 !important;
+            padding: 0 5px !important;
             font-family: inherit !important;
-            font-size: 0.78rem !important;
+            font-size: 0.73rem !important;
             font-weight: 700 !important;
             cursor: pointer;
             transition: all 0.2s ease;
@@ -869,25 +881,29 @@
             justify-content: center !important;
             line-height: 1.15 !important;
             white-space: nowrap;
+            overflow: hidden !important;
             box-shadow: none !important;
         }
 
         body.octo-orange-body .octo-preset-btn .household-btn-label {
             color: inherit !important;
-            font-size: 0.78rem !important;
+            font-size: 0.73rem !important;
             font-weight: 700 !important;
+            letter-spacing: -0.015em !important;
             white-space: nowrap;
-            overflow: visible !important;
-            text-overflow: clip !important;
+            max-width: 100% !important;
+            overflow: hidden !important;
+            text-overflow: ellipsis !important;
         }
 
         body.octo-orange-body .octo-preset-btn .household-btn-sub {
-            font-size: 0.64rem !important;
+            font-size: 0.62rem !important;
             color: var(--octo-text-muted) !important;
             font-weight: 500 !important;
             white-space: nowrap;
-            overflow: visible !important;
-            text-overflow: clip !important;
+            max-width: 100% !important;
+            overflow: hidden !important;
+            text-overflow: ellipsis !important;
         }
 
         body.octo-orange-body .octo-preset-btn.active,
@@ -902,7 +918,7 @@
 
         .octo-unit-tag {
             color: var(--octo-text-muted);
-            font-size: 0.76rem;
+            font-size: 0.75rem;
             font-weight: 600;
             white-space: nowrap;
             margin-left: 4px;
@@ -1866,6 +1882,16 @@
         }
 
         /* Responsive Mobile & Tablet Adjustments */
+        @media (max-width: 1250px) {
+            .octo-calc-row {
+                grid-template-columns: minmax(0, 1fr) !important;
+            }
+            .octo-consumption-group,
+            .octo-consumption-group.is-htnt-mode {
+                grid-template-columns: minmax(310px, 1.48fr) minmax(240px, 1.25fr) minmax(160px, 0.85fr);
+            }
+        }
+
         @media (max-width: 1024px) {
             body.octo-orange-body #main-header.octo-header .octo-header-right,
             .octo-header-right.header-actions {
@@ -3099,7 +3125,7 @@
                                                 <div class="octo-input-box" onclick="var inp=this.querySelector('input');if(inp&&document.activeElement!==inp){inp.focus();}">
                                                     <span class="octo-htnt-inline-tag">HT</span>
                                                     <input type="number" id="calcKwhHt" class="octo-input-field" value="1500" placeholder="1500" min="0" max="100000" step="100">
-                                                    <span class="octo-unit-tag">kWh/Jahr</span>
+                                                    <span class="octo-unit-tag">kWh</span>
                                                 </div>
                                             </div>
                                             <div class="octo-htnt-input-pill" id="calcNtInputBox">
@@ -3107,7 +3133,7 @@
                                                 <div class="octo-input-box" onclick="var inp=this.querySelector('input');if(inp&&document.activeElement!==inp){inp.focus();}">
                                                     <span class="octo-htnt-inline-tag">NT</span>
                                                     <input type="number" id="calcKwhNt" class="octo-input-field" value="4500" placeholder="4500" min="0" max="100000" step="100">
-                                                    <span class="octo-unit-tag">kWh/Jahr</span>
+                                                    <span class="octo-unit-tag">kWh</span>
                                                 </div>
                                             </div>
                                         </div>
