@@ -2915,13 +2915,21 @@
         return `${kwhFormatted} ${unit} • ${ctFormatted} ct/kWh`;
     }
 
-    function formatKwhDescHtml(kwh, ctPerKwh, basePriceEur, lang, meterTag) {
+    function formatKwhDescHtml(kwh, ctPerKwh, basePriceEur, lang, meterTag, htCt, ntCt) {
         const l = lang || currentLang;
         const locale = l === 'en' ? 'en-US' : (l === 'tr' ? 'tr-TR' : 'de-DE');
         const kwhFormatted = Number(kwh).toLocaleString(locale);
         const ctFormatted = l === 'en' ? ctPerKwh.toFixed(2) : ctPerKwh.toFixed(2).replace('.', ',');
+        const hasDualHtNt = typeof htCt === 'number' && typeof ntCt === 'number' && Math.abs(htCt - ntCt) > 0.005;
+        const htFormatted = hasDualHtNt ? (l === 'en' ? htCt.toFixed(2) : htCt.toFixed(2).replace('.', ',')) : '';
+        const ntFormatted = hasDualHtNt ? (l === 'en' ? ntCt.toFixed(2) : ntCt.toFixed(2).replace('.', ',')) : '';
         const unit = l === 'en' ? 'kWh/year' : (l === 'tr' ? 'kWh/yıl' : (l === 'ar' ? 'ك.و.س/سنة' : 'kWh/Jahr'));
-        const workLabel = l === 'en' ? 'Working Price' : (l === 'tr' ? 'Birim Fiyat' : (l === 'ar' ? 'سعر الاستهلاك' : 'Arbeitspreis'));
+        const workLabel = hasDualHtNt
+            ? (l === 'en' ? 'Working Price (HT / NT)' : (l === 'tr' ? 'Birim Fiyat (HT / NT)' : (l === 'ar' ? 'سعر الاستهلاك (HT / NT)' : 'Arbeitspreis (HT / NT)')))
+            : (l === 'en' ? 'Working Price' : (l === 'tr' ? 'Birim Fiyat' : (l === 'ar' ? 'سعر الاستهلاك' : 'Arbeitspreis')));
+        const workValDisplay = hasDualHtNt
+            ? `HT ${htFormatted} / NT ${ntFormatted} ct/kWh`
+            : `${ctFormatted} ct/kWh`;
         const baseLabel = l === 'en' ? 'Base Price' : (l === 'tr' ? 'Sabit Ücret' : (l === 'ar' ? 'الرسوم الأساسية' : 'Grundpreis'));
         const baseValNum = (typeof basePriceEur === 'number' && !isNaN(basePriceEur)) ? basePriceEur : 29.40;
         const baseFormatted = l === 'en' ? baseValNum.toFixed(2) : baseValNum.toFixed(2).replace('.', ',');
@@ -2941,7 +2949,7 @@
                 <div class="tariff-rate-grid">
                     <div class="tariff-rate-cell">
                         <span class="tariff-rate-label">${workLabel}</span>
-                        <strong class="tariff-rate-val">${ctFormatted} ct/kWh</strong>
+                        <strong class="tariff-rate-val">${workValDisplay}</strong>
                     </div>
                     <div class="tariff-rate-cell">
                         <span class="tariff-rate-label">${baseLabel}</span>

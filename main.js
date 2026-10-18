@@ -958,9 +958,12 @@ document.addEventListener("DOMContentLoaded", async () => {
                 firstconTariffId: 279,
                 name: 'ALPHA BASIC 24 WÄRME',
                 badge: 'Wärmepumpe & HT/NT',
-                workingPriceCt: 33.66,
-                basePriceEur: 29.40,
-                basePriceYearGross: 352.85,
+                workingPriceCt: 27.76,
+                workingPriceEtCt: 27.76,
+                workingPriceHtCt: 28.95,
+                workingPriceNtCt: 25.97,
+                basePriceEur: 16.90,
+                basePriceYearGross: 202.80,
                 bonus: 0,
                 guaranteeMonths: 24,
                 features: [
@@ -974,9 +977,12 @@ document.addEventListener("DOMContentLoaded", async () => {
                 firstconTariffId: 280,
                 name: 'ALPHA TIME 24 WÄRME',
                 badge: 'Bestseller Wärmepumpe & HT/NT',
-                workingPriceCt: 34.85,
-                basePriceEur: 29.40,
-                basePriceYearGross: 352.85,
+                workingPriceCt: 28.95,
+                workingPriceEtCt: 28.95,
+                workingPriceHtCt: 30.14,
+                workingPriceNtCt: 27.16,
+                basePriceEur: 16.90,
+                basePriceYearGross: 202.80,
                 bonus: 0,
                 guaranteeMonths: 24,
                 features: [
@@ -990,9 +996,12 @@ document.addEventListener("DOMContentLoaded", async () => {
                 firstconTariffId: 281,
                 name: 'ALPHA PREMIUM 24 WÄRME',
                 badge: '24 Monate Preisschutz & VIP',
-                workingPriceCt: 36.04,
-                basePriceEur: 29.40,
-                basePriceYearGross: 352.85,
+                workingPriceCt: 30.14,
+                workingPriceEtCt: 30.14,
+                workingPriceHtCt: 31.33,
+                workingPriceNtCt: 28.35,
+                basePriceEur: 16.90,
+                basePriceYearGross: 202.80,
                 bonus: 0,
                 guaranteeMonths: 24,
                 features: [
@@ -1009,9 +1018,9 @@ document.addEventListener("DOMContentLoaded", async () => {
                 firstconTariffId: 279,
                 name: 'ALPHA BASIC 24 LADESTROM',
                 badge: 'Wallbox & E-Auto (§ 14a EnWG)',
-                workingPriceCt: 33.66,
-                basePriceEur: 29.40,
-                basePriceYearGross: 352.85,
+                workingPriceCt: 28.95,
+                basePriceEur: 18.90,
+                basePriceYearGross: 226.80,
                 bonus: 0,
                 guaranteeMonths: 24,
                 features: [
@@ -1025,9 +1034,9 @@ document.addEventListener("DOMContentLoaded", async () => {
                 firstconTariffId: 280,
                 name: 'ALPHA TIME 24 LADESTROM',
                 badge: 'Bestseller • Wallbox & E-Auto',
-                workingPriceCt: 34.85,
-                basePriceEur: 29.40,
-                basePriceYearGross: 352.85,
+                workingPriceCt: 30.14,
+                basePriceEur: 18.90,
+                basePriceYearGross: 226.80,
                 bonus: 0,
                 guaranteeMonths: 24,
                 features: [
@@ -1041,9 +1050,9 @@ document.addEventListener("DOMContentLoaded", async () => {
                 firstconTariffId: 281,
                 name: 'ALPHA PREMIUM 24 LADESTROM',
                 badge: '24 Monate Preisschutz • E-Mobility',
-                workingPriceCt: 36.04,
-                basePriceEur: 29.40,
-                basePriceYearGross: 352.85,
+                workingPriceCt: 31.33,
+                basePriceEur: 18.90,
+                basePriceYearGross: 226.80,
                 bonus: 0,
                 guaranteeMonths: 24,
                 features: [
@@ -1276,18 +1285,42 @@ document.addEventListener("DOMContentLoaded", async () => {
             window.__TARIFF_BADGE_BY_CARD = TARIFF_BADGE_BY_CARD;
 
             for (const [id, spec] of Object.entries(currentSpecs)) {
-                const activeWorkCt = (typeof spec.liveWorkingPriceCt === 'number') ? spec.liveWorkingPriceCt : spec.workingPriceCt;
+                const htNtLocal = currentBranch === 'waerme' ? getCurrentHtNtValues(kwh) : null;
+                const isDualHtNt = Boolean(currentBranch === 'waerme' && htNtLocal && htNtLocal.meterType === 'htnt');
+                const activeEtCt = (typeof spec.liveWorkingPriceEtCt === 'number')
+                    ? spec.liveWorkingPriceEtCt
+                    : ((typeof spec.workingPriceEtCt === 'number') ? spec.workingPriceEtCt : spec.workingPriceCt);
+                const activeHtCt = (typeof spec.liveWorkingPriceHtCt === 'number')
+                    ? spec.liveWorkingPriceHtCt
+                    : ((typeof spec.workingPriceHtCt === 'number') ? spec.workingPriceHtCt : activeEtCt);
+                const activeNtCt = (typeof spec.liveWorkingPriceNtCt === 'number')
+                    ? spec.liveWorkingPriceNtCt
+                    : ((typeof spec.workingPriceNtCt === 'number') ? spec.workingPriceNtCt : activeEtCt);
+                let activeWorkCt = (typeof spec.liveWorkingPriceCt === 'number') ? spec.liveWorkingPriceCt : spec.workingPriceCt;
+                if (currentBranch === 'waerme') {
+                    if (isDualHtNt) {
+                        const dualWorkEur = (htNtLocal.ht * (activeHtCt / 100)) + (htNtLocal.nt * (activeNtCt / 100));
+                        activeWorkCt = Math.round(((dualWorkEur / kwh) * 100) * 100) / 100;
+                    } else {
+                        activeWorkCt = activeEtCt;
+                    }
+                }
                 const activeBaseEur = (typeof spec.liveBasePriceEur === 'number') ? spec.liveBasePriceEur : spec.basePriceEur;
                 const activeBaseYearGross = (typeof spec.liveBasePriceYearGross === 'number' && spec.liveBasePriceYearGross > 0)
                     ? spec.liveBasePriceYearGross
                     : (spec.basePriceYearGross || (activeBaseEur * 12));
-                const annualWorkingCost = kwh * (activeWorkCt / 100);
-                const rawYearly = (spec.liveKwh === kwh && typeof spec.liveGrossYearlyEur === 'number')
+                const annualWorkingCost = isDualHtNt
+                    ? ((htNtLocal.ht * (activeHtCt / 100)) + (htNtLocal.nt * (activeNtCt / 100)))
+                    : (kwh * (activeWorkCt / 100));
+                const canUseLiveTotals = spec.liveKwh === kwh
+                    && (!htNtLocal || spec.liveMeterType === htNtLocal.meterType)
+                    && typeof spec.liveGrossYearlyEur === 'number';
+                const rawYearly = canUseLiveTotals
                     ? spec.liveGrossYearlyEur
                     : (Math.round((annualWorkingCost + activeBaseYearGross) * 100) / 100);
                 const netFirstYear = rawYearly;
                 const totalMonthGross = Math.round((netFirstYear / 12) * 100) / 100;
-                const monthlyPayment = (spec.liveKwh === kwh && typeof spec.liveMonthlyPayment === 'number')
+                const monthlyPayment = (canUseLiveTotals && typeof spec.liveMonthlyPayment === 'number')
                     ? spec.liveMonthlyPayment
                     : Math.ceil(totalMonthGross);
                 const savings = Math.max(40, Math.round(currentYearly - netFirstYear));
@@ -1352,16 +1385,27 @@ document.addEventListener("DOMContentLoaded", async () => {
                     }
                     if (kwhEl) {
                         let meterTag = '';
-                        if (currentBranch === 'waerme') {
-                            const htNt = getCurrentHtNtValues(kwh);
-                            meterTag = htNt.meterType === 'et'
+                        if (currentBranch === 'waerme' && htNtLocal) {
+                            meterTag = htNtLocal.meterType === 'et'
                                 ? (curLang === 'en' ? 'Single-Rate' : (curLang === 'tr' ? 'Tek Zamanlı' : (curLang === 'ar' ? 'تعرفة موحدة' : 'Eintarif')))
-                                : `HT ${htNt.ht.toLocaleString('de-DE')} / NT ${htNt.nt.toLocaleString('de-DE')} kWh`;
+                                : `HT ${htNtLocal.ht.toLocaleString('de-DE')} / NT ${htNtLocal.nt.toLocaleString('de-DE')} kWh`;
                         }
                         if (window.i18n && typeof window.i18n.formatKwhDescHtml === 'function') {
-                            kwhEl.innerHTML = window.i18n.formatKwhDescHtml(kwh, activeWorkCt, activeBaseEur, curLang, meterTag);
+                            kwhEl.innerHTML = window.i18n.formatKwhDescHtml(
+                                kwh,
+                                activeWorkCt,
+                                activeBaseEur,
+                                curLang,
+                                meterTag,
+                                isDualHtNt ? activeHtCt : undefined,
+                                isDualHtNt ? activeNtCt : undefined
+                            );
                         } else {
                             const meterBadgeHtml = meterTag ? `<span class="tariff-rate-meter-badge">${meterTag}</span>` : '';
+                            const workLabel = isDualHtNt ? 'Arbeitspreis (HT / NT)' : 'Arbeitspreis';
+                            const workVal = isDualHtNt
+                                ? `HT ${activeHtCt.toFixed(2).replace('.', ',')} / NT ${activeNtCt.toFixed(2).replace('.', ',')} ct/kWh`
+                                : `${activeWorkCt.toFixed(2).replace('.', ',')} ct/kWh`;
                             kwhEl.innerHTML = `
                                 <div class="tariff-rate-breakdown">
                                     <div class="tariff-rate-consumption">
@@ -1370,8 +1414,8 @@ document.addEventListener("DOMContentLoaded", async () => {
                                     </div>
                                     <div class="tariff-rate-grid">
                                         <div class="tariff-rate-cell">
-                                            <span class="tariff-rate-label">Arbeitspreis</span>
-                                            <strong class="tariff-rate-val">${activeWorkCt.toFixed(2).replace('.', ',')} ct/kWh</strong>
+                                            <span class="tariff-rate-label">${workLabel}</span>
+                                            <strong class="tariff-rate-val">${workVal}</strong>
                                         </div>
                                         <div class="tariff-rate-cell">
                                             <span class="tariff-rate-label">Grundpreis</span>
@@ -1622,6 +1666,16 @@ document.addEventListener("DOMContentLoaded", async () => {
                             spec.firstconTariffId = t.firstconTariffId || spec.firstconTariffId;
                             spec.energyGridNumber = t.energyGridNumber || data.energyGridNumber || spec.energyGridNumber;
                             spec.liveWorkingPriceCt = t.workingPriceCt;
+                            if (typeof t.workingPriceEtCt === 'number') {
+                                spec.liveWorkingPriceEtCt = t.workingPriceEtCt;
+                            }
+                            if (typeof t.workingPriceHtCt === 'number') {
+                                spec.liveWorkingPriceHtCt = t.workingPriceHtCt;
+                            }
+                            if (typeof t.workingPriceNtCt === 'number') {
+                                spec.liveWorkingPriceNtCt = t.workingPriceNtCt;
+                            }
+                            spec.liveMeterType = t.meterType || (htNtData ? htNtData.meterType : 'et');
                             spec.liveBasePriceEur = baseM;
                             if (typeof t.basePriceYearGross === 'number' && t.basePriceYearGross > 0) {
                                 spec.liveBasePriceYearGross = t.basePriceYearGross;
@@ -1646,10 +1700,18 @@ document.addEventListener("DOMContentLoaded", async () => {
                             maxLiveSavings = sav;
                         }
 
-                        // Sync subpage tariff cards on oekostrom.html / oekogas.html if present
+                        // Sync subpage tariff cards on oekostrom.html / oekogas.html / waermestrom.html if present
                         document.querySelectorAll(`[data-fc-subpage-work="${t.id}"]`).forEach(el => {
-                            if (typeof t.workingPriceCt === 'number') {
-                                el.textContent = `${t.workingPriceCt.toFixed(2).replace('.', ',')} Cent / kWh`;
+                            const etOrWork = (activeBranch === 'waerme' && typeof t.workingPriceEtCt === 'number')
+                                ? t.workingPriceEtCt
+                                : t.workingPriceCt;
+                            if (typeof etOrWork === 'number') {
+                                el.textContent = `${etOrWork.toFixed(2).replace('.', ',')} Cent / kWh`;
+                            }
+                        });
+                        document.querySelectorAll(`[data-fc-subpage-htnt="${t.id}"]`).forEach(el => {
+                            if (typeof t.workingPriceHtCt === 'number' && typeof t.workingPriceNtCt === 'number') {
+                                el.textContent = `HT ${t.workingPriceHtCt.toFixed(2).replace('.', ',')} / NT ${t.workingPriceNtCt.toFixed(2).replace('.', ',')} ct/kWh`;
                             }
                         });
                         document.querySelectorAll(`[data-fc-subpage-base="${t.id}"]`).forEach(el => {
@@ -1716,15 +1778,28 @@ document.addEventListener("DOMContentLoaded", async () => {
                             }
                             if (kwhEl && typeof t.workingPriceCt === 'number') {
                                 let meterTag = '';
+                                const isDualLive = Boolean(activeBranch === 'waerme' && htNtData && htNtData.meterType === 'htnt');
                                 if (activeBranch === 'waerme' && htNtData) {
                                     meterTag = htNtData.meterType === 'et'
                                         ? (curLang === 'en' ? 'Single-Rate' : (curLang === 'tr' ? 'Tek Zamanlı' : (curLang === 'ar' ? 'تعرفة موحدة' : 'Eintarif')))
                                         : `HT ${htNtData.ht.toLocaleString('de-DE')} / NT ${htNtData.nt.toLocaleString('de-DE')} kWh`;
                                 }
                                 if (window.i18n && typeof window.i18n.formatKwhDescHtml === 'function') {
-                                    kwhEl.innerHTML = window.i18n.formatKwhDescHtml(kwh, t.workingPriceCt, baseM, curLang, meterTag);
+                                    kwhEl.innerHTML = window.i18n.formatKwhDescHtml(
+                                        kwh,
+                                        t.workingPriceCt,
+                                        baseM,
+                                        curLang,
+                                        meterTag,
+                                        isDualLive ? t.workingPriceHtCt : undefined,
+                                        isDualLive ? t.workingPriceNtCt : undefined
+                                    );
                                 } else {
                                     const meterBadgeHtml = meterTag ? `<span class="tariff-rate-meter-badge">${meterTag}</span>` : '';
+                                    const workLabel = isDualLive ? 'Arbeitspreis (HT / NT)' : 'Arbeitspreis';
+                                    const workVal = (isDualLive && typeof t.workingPriceHtCt === 'number' && typeof t.workingPriceNtCt === 'number')
+                                        ? `HT ${t.workingPriceHtCt.toFixed(2).replace('.', ',')} / NT ${t.workingPriceNtCt.toFixed(2).replace('.', ',')} ct/kWh`
+                                        : `${t.workingPriceCt.toFixed(2).replace('.', ',')} ct/kWh`;
                                     kwhEl.innerHTML = `
                                         <div class="tariff-rate-breakdown">
                                             <div class="tariff-rate-consumption">
@@ -1733,8 +1808,8 @@ document.addEventListener("DOMContentLoaded", async () => {
                                             </div>
                                             <div class="tariff-rate-grid">
                                                 <div class="tariff-rate-cell">
-                                                    <span class="tariff-rate-label">Arbeitspreis</span>
-                                                    <strong class="tariff-rate-val">${t.workingPriceCt.toFixed(2).replace('.', ',')} ct/kWh</strong>
+                                                    <span class="tariff-rate-label">${workLabel}</span>
+                                                    <strong class="tariff-rate-val">${workVal}</strong>
                                                 </div>
                                                 <div class="tariff-rate-cell">
                                                     <span class="tariff-rate-label">Grundpreis</span>
@@ -2399,24 +2474,29 @@ document.addEventListener("DOMContentLoaded", async () => {
             });
         }
 
-        // Subpage inline PLZ lookup inputs (oekostrom.html, oekogas.html)
+        // Subpage inline PLZ lookup inputs (oekostrom.html, oekogas.html, waermestrom.html)
         function resetSubpageTariffPlaceholders() {
             document.querySelectorAll('[data-fc-subpage-work]').forEach(el => {
                 el.textContent = 'Bitte PLZ eingeben';
                 el.style.fontSize = '1.35rem';
+            });
+            document.querySelectorAll('[data-fc-subpage-htnt]').forEach(el => {
+                el.textContent = 'HT / NT nach PLZ-Eingabe';
             });
             document.querySelectorAll('[data-fc-subpage-base]').forEach(el => {
                 el.textContent = 'Nach PLZ-Eingabe';
             });
             document.querySelectorAll('[data-subpage-calc-link]').forEach(link => {
                 const br = link.getAttribute('data-subpage-calc-link') || 'strom';
-                link.href = br === 'gas' ? 'versorger.html?branch=gas#rechner' : 'versorger.html#rechner';
+                link.href = br === 'gas'
+                    ? 'versorger.html?branch=gas#rechner'
+                    : (br === 'waerme' ? 'versorger.html?branch=waerme#rechner' : 'versorger.html#rechner');
             });
         }
 
         document.querySelectorAll('[data-subpage-plz-input]').forEach(inp => {
             const subBranch = inp.getAttribute('data-subpage-plz-input') || 'strom';
-            const subDefaultKwh = subBranch === 'gas' ? 12000 : 2500;
+            const subDefaultKwh = subBranch === 'gas' ? 12000 : (subBranch === 'waerme' ? 6000 : 2500);
             inp.addEventListener('input', () => {
                 const clean = inp.value.replace(/\D/g, '').slice(0, 5);
                 inp.value = clean;
@@ -2444,7 +2524,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         document.querySelectorAll('[data-subpage-plz-btn]').forEach(btn => {
             const subBranch = btn.getAttribute('data-subpage-plz-btn') || 'strom';
-            const subDefaultKwh = subBranch === 'gas' ? 12000 : 2500;
+            const subDefaultKwh = subBranch === 'gas' ? 12000 : (subBranch === 'waerme' ? 6000 : 2500);
             btn.addEventListener('click', () => {
                 const inp = document.querySelector(`[data-subpage-plz-input="${subBranch}"]`);
                 if (!inp) return;
@@ -2783,19 +2863,34 @@ document.addEventListener("DOMContentLoaded", async () => {
                 btn.classList.toggle('active', Boolean(isKwhValid && btnKwh === parsedKwh));
             });
 
-            const activeWorkCt = (typeof spec.liveWorkingPriceCt === 'number') ? spec.liveWorkingPriceCt : spec.workingPriceCt;
+            const htNtVals = branch === 'waerme' ? getCurrentHtNtValues(isKwhValid ? parsedKwh : 6000) : null;
+            const isWaermeHtNt = branch === 'waerme' && htNtVals && htNtVals.meterType === 'htnt';
+            const activeHtCt = isWaermeHtNt
+                ? ((typeof spec.liveWorkingPriceHtCt === 'number') ? spec.liveWorkingPriceHtCt : (spec.workingPriceHtCt || spec.workingPriceCt))
+                : null;
+            const activeNtCt = isWaermeHtNt
+                ? ((typeof spec.liveWorkingPriceNtCt === 'number') ? spec.liveWorkingPriceNtCt : (spec.workingPriceNtCt || spec.workingPriceCt))
+                : null;
+            const activeWorkCt = (branch === 'waerme' && !isWaermeHtNt)
+                ? ((typeof spec.liveWorkingPriceEtCt === 'number') ? spec.liveWorkingPriceEtCt : (spec.workingPriceEtCt || spec.workingPriceCt))
+                : ((typeof spec.liveWorkingPriceCt === 'number') ? spec.liveWorkingPriceCt : spec.workingPriceCt);
             const activeBaseEur = (typeof spec.liveBasePriceEur === 'number') ? spec.liveBasePriceEur : spec.basePriceEur;
             const activeBaseYearGross = (typeof spec.liveBasePriceYearGross === 'number' && spec.liveBasePriceYearGross > 0)
                 ? spec.liveBasePriceYearGross
                 : (spec.basePriceYearGross || (activeBaseEur * 12));
+            const rateFormattedLabel = (isWaermeHtNt && activeHtCt !== null && activeNtCt !== null)
+                ? `HT ${activeHtCt.toFixed(2).replace('.', ',')} / NT ${activeNtCt.toFixed(2).replace('.', ',')} ct/kWh`
+                : `${activeWorkCt.toFixed(2).replace('.', ',')} ct/kWh`;
 
             if (isKwhValid) {
-                const annualWorkingCost = parsedKwh * (activeWorkCt / 100);
-                const rawYearly = (spec.liveKwh === parsedKwh && typeof spec.liveGrossYearlyEur === 'number')
+                const annualWorkingCost = (isWaermeHtNt && activeHtCt !== null && activeNtCt !== null)
+                    ? ((htNtVals.ht * activeHtCt + htNtVals.nt * activeNtCt) / 100)
+                    : (parsedKwh * (activeWorkCt / 100));
+                const rawYearly = (spec.liveKwh === parsedKwh && spec.liveMeterType === (htNtVals ? htNtVals.meterType : 'et') && typeof spec.liveGrossYearlyEur === 'number')
                     ? spec.liveGrossYearlyEur
                     : (Math.round((annualWorkingCost + activeBaseYearGross) * 100) / 100);
                 const totalMonthGross = Math.round((rawYearly / 12) * 100) / 100;
-                const monthlyPayment = (spec.liveKwh === parsedKwh && typeof spec.liveMonthlyPayment === 'number')
+                const monthlyPayment = (spec.liveKwh === parsedKwh && spec.liveMeterType === (htNtVals ? htNtVals.meterType : 'et') && typeof spec.liveMonthlyPayment === 'number')
                     ? spec.liveMonthlyPayment
                     : Math.ceil(totalMonthGross);
 
@@ -2810,16 +2905,15 @@ document.addEventListener("DOMContentLoaded", async () => {
                 selectedOrderData.monthlyPayment = isPlzValid ? String(monthlyPayment) : '';
                 selectedOrderData.savings = isPlzValid ? String(savings) : '';
                 selectedOrderData.userEnteredModalKwh = parsedKwh;
-                if (branch === 'waerme') {
-                    const htNt = getCurrentHtNtValues(parsedKwh);
-                    selectedOrderData.consumptionHt = htNt.ht;
-                    selectedOrderData.consumptionNt = htNt.nt;
-                    selectedOrderData.meterType = htNt.meterType;
+                if (branch === 'waerme' && htNtVals) {
+                    selectedOrderData.consumptionHt = htNtVals.ht;
+                    selectedOrderData.consumptionNt = htNtVals.nt;
+                    selectedOrderData.meterType = htNtVals.meterType;
                     const waermeSumEl = document.getElementById('orderWaermeHtNtSummary');
                     if (waermeSumEl) {
-                        waermeSumEl.textContent = htNt.meterType === 'et'
+                        waermeSumEl.textContent = htNtVals.meterType === 'et'
                             ? `Eintarifzähler (ET) • Gesamtverbrauch: ${parsedKwh.toLocaleString('de-DE')} kWh/Jahr`
-                            : `Doppeltarifzähler (HT/NT) • HT: ${htNt.ht.toLocaleString('de-DE')} kWh/Jahr | NT: ${htNt.nt.toLocaleString('de-DE')} kWh/Jahr`;
+                            : `Doppeltarifzähler (HT/NT) • HT: ${htNtVals.ht.toLocaleString('de-DE')} kWh/Jahr | NT: ${htNtVals.nt.toLocaleString('de-DE')} kWh/Jahr`;
                     }
                 }
                 if (spec.firstconTariffId) selectedOrderData.firstconTariffId = spec.firstconTariffId;
@@ -2841,16 +2935,15 @@ document.addEventListener("DOMContentLoaded", async () => {
                         monthlyEl.style.color = '#0a1f44';
                     }
                     if (savingsEl) {
-                        const rateFormatted = activeWorkCt.toFixed(2).replace('.', ',');
                         const baseFormatted = activeBaseEur.toFixed(2).replace('.', ',');
                         if (curLang === 'en') {
-                            savingsEl.textContent = `Save up to €${savings} / year (${rateFormatted} ct/kWh • €${baseFormatted}/mo base)`;
+                            savingsEl.textContent = `Save up to €${savings} / year (${rateFormattedLabel} • €${baseFormatted}/mo base)`;
                         } else if (curLang === 'tr') {
-                            savingsEl.textContent = `Yılda ${savings} €'ya varan tasarruf (${rateFormatted} ct/kWh)`;
+                            savingsEl.textContent = `Yılda ${savings} €'ya varan tasarruf (${rateFormattedLabel})`;
                         } else if (curLang === 'ar') {
-                            savingsEl.textContent = `وفّر حتى ${savings} € / سنة (${rateFormatted} ct/kWh)`;
+                            savingsEl.textContent = `وفّر حتى ${savings} € / سنة (${rateFormattedLabel})`;
                         } else {
-                            savingsEl.textContent = `Bis zu ${savings.toLocaleString('de-DE')} € / Jahr sparen (${rateFormatted} ct/kWh • ${baseFormatted} € Grundpreis)`;
+                            savingsEl.textContent = `Bis zu ${savings.toLocaleString('de-DE')} € / Jahr sparen (${rateFormattedLabel} • ${baseFormatted} € Grundpreis)`;
                         }
                     }
                 } else {
@@ -2895,16 +2988,15 @@ document.addEventListener("DOMContentLoaded", async () => {
                 }
                 if (savingsEl) {
                     if (isPlzValid) {
-                        const rateFormatted = activeWorkCt.toFixed(2).replace('.', ',');
                         const baseFormatted = activeBaseEur.toFixed(2).replace('.', ',');
                         if (curLang === 'en') {
-                            savingsEl.textContent = `⚡ Rates: ${rateFormatted} ct/kWh • €${baseFormatted}/month base price – please enter consumption below`;
+                            savingsEl.textContent = `⚡ Rates: ${rateFormattedLabel} • €${baseFormatted}/month base price – please enter consumption below`;
                         } else if (curLang === 'tr') {
-                            savingsEl.textContent = `⚡ Koşullar: ${rateFormatted} ct/kWh • ${baseFormatted} €/Ay sabit ücret – lütfen aşağıya tüketim girin`;
+                            savingsEl.textContent = `⚡ Koşullar: ${rateFormattedLabel} • ${baseFormatted} €/Ay sabit ücret – lütfen aşağıya tüketim girin`;
                         } else if (curLang === 'ar') {
-                            savingsEl.textContent = `⚡ الشروط: ${rateFormatted} سنت/ك.و.س • ${baseFormatted} €/شهر سعر أساسي – يرجى إدخال الاستهلاك أدناه`;
+                            savingsEl.textContent = `⚡ الشروط: ${rateFormattedLabel} • ${baseFormatted} €/شهر سعر أساسي – يرجى إدخال الاستهلاك أدناه`;
                         } else {
-                            savingsEl.textContent = `⚡ Konditionen: ${rateFormatted} ct/kWh • ${baseFormatted} €/Monat Grundpreis – bitte unten Verbrauch angeben`;
+                            savingsEl.textContent = `⚡ Konditionen: ${rateFormattedLabel} • ${baseFormatted} €/Monat Grundpreis – bitte unten Verbrauch angeben`;
                         }
                     } else {
                         savingsEl.textContent = curLang === 'en'

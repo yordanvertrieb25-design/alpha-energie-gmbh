@@ -29,9 +29,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
 
     <!-- Base Stylesheet & Scripts -->
-    <link rel="stylesheet" href="style.css?v=fc2026v14">
-    <script src="i18n.js?v=fc2026v14" defer></script>
-    <script src="main.js?v=fc2026v14" defer></script>
+    <link rel="stylesheet" href="style.css?v=20261018_fcwaerme1">
+    <script src="i18n.js?v=20261018_fcwaerme1" defer></script>
+    <script src="main.js?v=20261018_fcwaerme1" defer></script>
 
     <style>
         :root {
@@ -2311,14 +2311,14 @@
             <div class="container">
                 <div class="trust-bar-grid">
                     <div class="trust-stat">
-                        <div class="stat-number">Bis -25%</div>
+                        <div class="stat-number">Bis -60%</div>
                         <div class="stat-label">Netzentgelt-Rabatt</div>
                         <p class="stat-desc">Gesetzlich garantiert nach § 14a EnWG</p>
                     </div>
                     <div class="trust-stat">
-                        <div class="stat-number">PLZ-genau</div>
-                        <div class="stat-label">Fairer Arbeitspreis</div>
-                        <p class="stat-desc">Individuell nach deiner PLZ</p>
+                        <div class="stat-number">ET &amp; HT/NT</div>
+                        <div class="stat-label">Ein- &amp; Doppeltarif</div>
+                        <p class="stat-desc">Für Wärmepumpe &amp; Nachtspeicher</p>
                     </div>
                     <div class="trust-stat">
                         <div class="stat-number">24 Mon.</div>
@@ -2327,8 +2327,111 @@
                     </div>
                     <div class="trust-stat">
                         <div class="stat-number">100%</div>
-                        <div class="stat-label">Ökostrom inklusive</div>
+                        <div class="stat-label">Öko-Wärmestrom</div>
                         <p class="stat-desc">Klimaschonend heizen</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- WÄRMESTROM TARIF-PAKETE (LIVE FIRSTCON WÄRMESTROM) -->
+        <section id="tarife" class="octo-section octo-section-cream">
+            <div class="octo-container">
+                <div class="octo-section-header-with-mascot">
+                    <div class="octo-section-header-text">
+                        <span class="octo-pill-badge">Unsere 3 Wärmestrom-Tarife (§ 14a EnWG &amp; HT/NT)</span>
+                        <h2 class="octo-section-h2" style="margin-bottom:8px;">Wähle den Wärmestrom-Tarif für deine Wärmepumpe oder Speicherheizung</h2>
+                        <p class="octo-section-sub">Reduzierte § 14a EnWG Netzentgelte und Konzessionsabgabe – wahlweise für Eintarifzähler (ET) oder Doppeltarifzähler (HT/NT).</p>
+                    </div>
+                    <div class="octo-section-mascot-box" aria-hidden="true">
+                        <div class="octo-mascot-speech">
+                            <span class="octo-mascot-speech-tag">🔥 Wärmestrom-Vorteil</span>
+                            <span class="octo-mascot-speech-text">Deutlich günstiger als Haushaltsstrom dank reduziertem § 14a Netzentgelt!</span>
+                        </div>
+                        <img src="wolf-mascot-pointing.png?v=wolf2" alt="Alpha-Wolf zeigt auf Wärmestrom Tarife" class="octo-mascot-img" loading="eager">
+                    </div>
+                </div>
+
+                <!-- Inline PLZ-Abfrage (Live Firstcon Wärmestrom-Preise nach PLZ-Eingabe) -->
+                <div style="background:#ffffff;border:2px solid rgba(233,94,36,0.38);border-radius:18px;padding:18px 22px;margin-bottom:28px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;box-shadow:0 10px 28px rgba(233,94,36,0.08);">
+                    <div style="display:flex;align-items:center;gap:12px;">
+                        <span style="display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;border-radius:12px;background:#fff7ed;color:#e95e24;font-size:1.25rem;flex-shrink:0;">📍</span>
+                        <div>
+                            <div style="font-size:1rem;font-weight:800;color:#1c1917;">Postleitzahl eingeben für deinen exakten Wärmestrom-Tarifpreis</div>
+                            <div style="font-size:0.85rem;color:#57534e;">Da § 14a EnWG Netzentgelte regional unterschiedlich sind, werden Arbeits- (ET &amp; HT/NT) und Grundpreise live für deine PLZ abgerufen.</div>
+                        </div>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+                        <input type="text" data-subpage-plz-input="waerme" placeholder="Deine 5-stellige PLZ" maxlength="5" pattern="[0-9]{5}" inputmode="numeric" aria-label="Postleitzahl für Wärmestrom-Preisberechnung" style="height:46px;width:190px;padding:0 14px;border-radius:12px;border:1.5px solid rgba(233,94,36,0.55);font-size:0.98rem;font-weight:700;color:#1c1917;background:#fffdf9;outline:none;">
+                        <button type="button" data-subpage-plz-btn="waerme" class="octo-btn-solid-orange" style="height:46px;padding:0 20px;font-size:0.92rem;white-space:nowrap;">Wärmestrom-Preise anzeigen</button>
+                    </div>
+                </div>
+
+                <div class="octo-bento-grid-3">
+                    <!-- Tarif 1: ALPHA BASIC 24 WÄRME (Firstcon TariffId: 281) -->
+                    <div id="alpha-basic" class="octo-bento-card">
+                        <div>
+                            <span class="octo-pill-badge" style="margin-bottom:12px;">§ 14a EnWG • 24 Monate Preisgarantie</span>
+                            <h3 class="octo-card-h3" style="font-size:1.5rem;">ALPHA BASIC 24 WÄRME</h3>
+                            <p class="octo-card-p">Unser günstigster Heizstrom-Tarif für Wärmepumpen und Nachtspeicherheizungen mit 24 Monaten voller Preisgarantie.</p>
+                            <div style="background:#fffdf7;border:1.5px solid rgba(249,178,51,0.45);border-radius:16px;padding:16px;margin:18px 0;">
+                                <div style="font-size:0.82rem;color:#57534e;">Arbeitspreis Eintarif ET (brutto, PLZ-abhängig)</div>
+                                <div style="font-size:1.35rem;font-weight:800;color:#e95e24;" data-fc-subpage-work="alpha-basic">Bitte PLZ eingeben</div>
+                                <div style="font-size:0.82rem;font-weight:700;color:#9a3412;margin-top:4px;" data-fc-subpage-htnt="alpha-basic">HT / NT nach PLZ-Eingabe</div>
+                                <div style="font-size:0.85rem;color:#44403c;margin-top:4px;">Grundpreis: <strong data-fc-subpage-base="alpha-basic">Nach PLZ-Eingabe</strong></div>
+                            </div>
+                            <ul class="octo-check-list">
+                                <li>Reduzierte Netzentgelte nach § 14a EnWG</li>
+                                <li>Für Eintarifzähler (ET) &amp; Doppeltarifzähler (HT/NT)</li>
+                                <li>24 Monate volle Preisgarantie</li>
+                                <li>100 % Öko-Wärmestrom (ok-power+ zertifiziert)</li>
+                            </ul>
+                        </div>
+                        <a href="versorger.html?branch=waerme#rechner" data-subpage-calc-link="waerme" class="octo-btn-solid-orange" style="text-align:center;width:100%;">Wärmestrom berechnen &rarr;</a>
+                    </div>
+
+                    <!-- Tarif 2: ALPHA TIME 24 WÄRME (Firstcon TariffId: 280 - Bestseller) -->
+                    <div id="alpha-plus" class="octo-bento-card featured">
+                        <div>
+                            <span class="octo-pill-badge" style="background:#e95e24;color:#fff;margin-bottom:12px;">★ Bestseller • Wärmepumpe &amp; HT/NT</span>
+                            <h3 class="octo-card-h3" style="font-size:1.5rem;">ALPHA TIME 24 WÄRME</h3>
+                            <p class="octo-card-p">Maximale Heizkosten-Sicherheit über zwei volle Heizperioden – ideal für moderne Wärmepumpen und Zweitarifzähler (HT/NT).</p>
+                            <div style="background:#ffffff;border:1.5px solid rgba(233,94,36,0.45);border-radius:16px;padding:16px;margin:18px 0;">
+                                <div style="font-size:0.82rem;color:#57534e;">Arbeitspreis Eintarif ET (brutto, PLZ-abhängig)</div>
+                                <div style="font-size:1.35rem;font-weight:800;color:#e95e24;" data-fc-subpage-work="alpha-time">Bitte PLZ eingeben</div>
+                                <div style="font-size:0.82rem;font-weight:700;color:#9a3412;margin-top:4px;" data-fc-subpage-htnt="alpha-time">HT / NT nach PLZ-Eingabe</div>
+                                <div style="font-size:0.85rem;color:#44403c;margin-top:4px;">Grundpreis: <strong data-fc-subpage-base="alpha-time">Nach PLZ-Eingabe</strong></div>
+                            </div>
+                            <ul class="octo-check-list">
+                                <li>Reduzierte Netzentgelte nach § 14a EnWG</li>
+                                <li>Unterstützt Kaskadenmessung &amp; HT/NT Doppeltarif</li>
+                                <li>24 Monate volle Preisgarantie</li>
+                                <li>100 % Öko-Wärmestrom (ok-power+ zertifiziert)</li>
+                            </ul>
+                        </div>
+                        <a href="versorger.html?branch=waerme#rechner" data-subpage-calc-link="waerme" class="octo-btn-solid-orange" style="text-align:center;width:100%;">Bestseller berechnen &rarr;</a>
+                    </div>
+
+                    <!-- Tarif 3: ALPHA PREMIUM 24 WÄRME (Firstcon TariffId: 279) -->
+                    <div id="alpha-premium" class="octo-bento-card">
+                        <div>
+                            <span class="octo-pill-badge" style="margin-bottom:12px;">24 Monate Preisschutz &amp; VIP-Service</span>
+                            <h3 class="octo-card-h3" style="font-size:1.5rem;">ALPHA PREMIUM 24 WÄRME</h3>
+                            <p class="octo-card-p">Rundum-Sorglos-Heizstrom mit persönlicher Messkonzept-Beratung und 24 Monaten voller Preisgarantie.</p>
+                            <div style="background:#fffdf7;border:1.5px solid rgba(249,178,51,0.45);border-radius:16px;padding:16px;margin:18px 0;">
+                                <div style="font-size:0.82rem;color:#57534e;">Arbeitspreis Eintarif ET (brutto, PLZ-abhängig)</div>
+                                <div style="font-size:1.35rem;font-weight:800;color:#e95e24;" data-fc-subpage-work="alpha-premium">Bitte PLZ eingeben</div>
+                                <div style="font-size:0.82rem;font-weight:700;color:#9a3412;margin-top:4px;" data-fc-subpage-htnt="alpha-premium">HT / NT nach PLZ-Eingabe</div>
+                                <div style="font-size:0.85rem;color:#44403c;margin-top:4px;">Grundpreis: <strong data-fc-subpage-base="alpha-premium">Nach PLZ-Eingabe</strong></div>
+                            </div>
+                            <ul class="octo-check-list">
+                                <li>Reduzierte Netzentgelte nach § 14a EnWG</li>
+                                <li>Priorisierter Kundenservice &amp; Messkonzept-Support</li>
+                                <li>24 Monate volle Preisgarantie</li>
+                                <li>100 % Öko-Wärmestrom (ok-power+ zertifiziert)</li>
+                            </ul>
+                        </div>
+                        <a href="versorger.html?branch=waerme#rechner" data-subpage-calc-link="waerme" class="octo-btn-solid-orange" style="text-align:center;width:100%;">Premium-Tarif berechnen &rarr;</a>
                     </div>
                 </div>
             </div>

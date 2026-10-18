@@ -484,9 +484,13 @@ app.all('/api/tarife/calculate', async (req, res) => {
                 name: 'ALPHA BASIC 24 WÄRME',
                 badge: 'Wärmepumpe & Nachtspeicher (HT/NT)',
                 isBestseller: false,
-                workingPriceCt: 33.66,
-                basePriceEurMonth: 29.40,
-                basePriceEur: 29.40,
+                workingPriceCt: 27.76,
+                workingPriceEtCt: 27.76,
+                workingPriceHtCt: 28.95,
+                workingPriceNtCt: 25.97,
+                basePriceEurMonth: 16.90,
+                basePriceEur: 16.90,
+                basePriceYearGross: 202.80,
                 bonusEur: 0,
                 priceGuaranteeMonths: 24,
                 contractTermMonths: 24,
@@ -505,9 +509,13 @@ app.all('/api/tarife/calculate', async (req, res) => {
                 name: 'ALPHA TIME 24 WÄRME',
                 badge: 'Bestseller • § 14a EnWG & HT/NT',
                 isBestseller: true,
-                workingPriceCt: 34.85,
-                basePriceEurMonth: 29.40,
-                basePriceEur: 29.40,
+                workingPriceCt: 28.95,
+                workingPriceEtCt: 28.95,
+                workingPriceHtCt: 30.14,
+                workingPriceNtCt: 27.16,
+                basePriceEurMonth: 16.90,
+                basePriceEur: 16.90,
+                basePriceYearGross: 202.80,
                 bonusEur: 0,
                 priceGuaranteeMonths: 24,
                 contractTermMonths: 24,
@@ -526,9 +534,13 @@ app.all('/api/tarife/calculate', async (req, res) => {
                 name: 'ALPHA PREMIUM 24 WÄRME',
                 badge: '24 Monate Preisschutz • HT/NT Komfort',
                 isBestseller: false,
-                workingPriceCt: 36.04,
-                basePriceEurMonth: 29.40,
-                basePriceEur: 29.40,
+                workingPriceCt: 30.14,
+                workingPriceEtCt: 30.14,
+                workingPriceHtCt: 31.33,
+                workingPriceNtCt: 28.35,
+                basePriceEurMonth: 16.90,
+                basePriceEur: 16.90,
+                basePriceYearGross: 202.80,
                 bonusEur: 0,
                 priceGuaranteeMonths: 24,
                 contractTermMonths: 24,
@@ -550,9 +562,10 @@ app.all('/api/tarife/calculate', async (req, res) => {
                 name: 'ALPHA BASIC 24 LADESTROM',
                 badge: 'Wallbox & E-Auto (§ 14a EnWG)',
                 isBestseller: false,
-                workingPriceCt: 33.66,
-                basePriceEurMonth: 29.40,
-                basePriceEur: 29.40,
+                workingPriceCt: 28.95,
+                basePriceEurMonth: 18.90,
+                basePriceEur: 18.90,
+                basePriceYearGross: 226.80,
                 bonusEur: 0,
                 priceGuaranteeMonths: 24,
                 contractTermMonths: 24,
@@ -571,9 +584,10 @@ app.all('/api/tarife/calculate', async (req, res) => {
                 name: 'ALPHA TIME 24 LADESTROM',
                 badge: 'Bestseller • Wallbox & E-Auto',
                 isBestseller: true,
-                workingPriceCt: 34.85,
-                basePriceEurMonth: 29.40,
-                basePriceEur: 29.40,
+                workingPriceCt: 30.14,
+                basePriceEurMonth: 18.90,
+                basePriceEur: 18.90,
+                basePriceYearGross: 226.80,
                 bonusEur: 0,
                 priceGuaranteeMonths: 24,
                 contractTermMonths: 24,
@@ -592,9 +606,10 @@ app.all('/api/tarife/calculate', async (req, res) => {
                 name: 'ALPHA PREMIUM 24 LADESTROM',
                 badge: '24 Monate Preisschutz • E-Mobility',
                 isBestseller: false,
-                workingPriceCt: 36.04,
-                basePriceEurMonth: 29.40,
-                basePriceEur: 29.40,
+                workingPriceCt: 31.33,
+                basePriceEurMonth: 18.90,
+                basePriceEur: 18.90,
+                basePriceYearGross: 226.80,
                 bonusEur: 0,
                 priceGuaranteeMonths: 24,
                 contractTermMonths: 24,
@@ -681,18 +696,27 @@ app.all('/api/tarife/calculate', async (req, res) => {
         const tariffs = isGas ? gasTariffs : (isWaerme ? waermeTariffs : (isLadestrom ? ladestromTariffs : stromTariffs));
         const refGrundversorgerYearly = isGas
             ? (kwh * 0.215) + (29.50 * 12)
-            : (kwh * 0.415) + (29.90 * 12);
+            : (isWaerme
+                ? (kwh * 0.375) + (24.90 * 12)
+                : (kwh * 0.415) + (29.90 * 12));
         const yearlyOld = Math.max(abschlagOld * 12, refGrundversorgerYearly);
 
         const calculatedTariffs = tariffs.map(t => {
-            const baseYearGross = t.basePriceYearGross || (isGas ? 338.98 : 352.85);
-            const rawYearly = Math.round(((kwh * (t.workingPriceCt / 100)) + baseYearGross) * 100) / 100;
+            const baseYearGross = t.basePriceYearGross || (isGas ? 338.98 : (isWaerme ? 202.80 : (isLadestrom ? 226.80 : 352.85)));
+            let effectiveWorkingPriceCt = t.workingPriceCt;
+            let annualWorkGross = kwh * (t.workingPriceCt / 100);
+            if (isWaerme && resolvedMeterType === 'htnt' && typeof t.workingPriceHtCt === 'number' && typeof t.workingPriceNtCt === 'number') {
+                annualWorkGross = (resolvedHt * (t.workingPriceHtCt / 100)) + (resolvedNt * (t.workingPriceNtCt / 100));
+                effectiveWorkingPriceCt = Math.round(((annualWorkGross / kwh) * 100) * 100) / 100;
+            }
+            const rawYearly = Math.round((annualWorkGross + baseYearGross) * 100) / 100;
             const totalPricePerMonthGross = Math.round((rawYearly / 12) * 100) / 100;
             const monthlyPayment = Math.ceil(totalPricePerMonthGross);
             const savings = Math.max(40, Math.round(yearlyOld - rawYearly));
 
             return {
                 ...t,
+                workingPriceCt: effectiveWorkingPriceCt,
                 basePriceYearGross: baseYearGross,
                 branch: normalizedBranch,
                 meterType: resolvedMeterType,
