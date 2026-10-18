@@ -21,8 +21,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
 
     <!-- CSS and JS -->
-    <link rel="stylesheet" href="style.css?v=fc2026v13">
-    <script src="main.js?v=fc2026v13" defer></script>
+    <link rel="stylesheet" href="style.css?v=fc2026v14">
+    <script src="main.js?v=fc2026v14" defer></script>
     <script src="partner-portal.js?v=20261018_portal2" defer></script>
 
     <style>
@@ -362,14 +362,6 @@
 
     <!-- Main Content -->
     <main id="main-content">
-        <!-- Page Header -->
-        <section class="page-header">
-            <div class="container">
-                <h1 style="color: white; font-size: clamp(2rem, 4.5vw, 3.4rem); margin-bottom: 0.85rem; line-height: 1.2;">AlphaTarife Partner-Portal (VP)</h1>
-                <p style="font-size: 1.12rem; max-width: 820px; margin: 0 auto; color: white; opacity: 0.92;">D2D-Direktabschluss mit eSign, 90-Tage Affiliate- &amp; Sub-ID-Tracking, Tippgeber-Prämien und Agentur-Downlines in Echtzeit.</p>
-            </div>
-        </section>
-
         <!-- SECTION A: Remote Customer eSign Mode (?sign=TOKEN) -->
         <section id="remoteSignSection" class="section-pad" style="display: none; background-color: var(--bg-alt);">
             <div class="container">
@@ -399,171 +391,91 @@
             </div>
         </section>
 
-        <!-- SECTION B: Public Partner Auth & Live Commission Calculator -->
-        <section id="publicPortalAuthSection" class="section-pad" style="background-color: var(--bg-alt);">
+        <!-- SECTION B: Clean Centered Partner Login Screen -->
+        <section id="publicPortalAuthSection" class="section-pad" style="background: linear-gradient(180deg, #0a1f44 0%, #132c5c 100%); min-height: calc(100vh - 140px); display: flex; align-items: center; padding: 3.5rem 0;">
             <div class="container">
-                <div class="portal-layout">
-                    <!-- Left Column: Partner Archetypes & Live Commission Calculator -->
-                    <div style="min-width: 0;">
-                        <span class="badge">In-House Partner-Ökosystem</span>
-                        <h2 class="section-title" style="margin-left: 0; text-align: left; margin-bottom: 1.35rem;">4 Vertriebswege – 1 zentrales Partner-Cockpit</h2>
-
-                        <div class="portal-feature-list">
-                            <div class="portal-feature-item">
-                                <div class="portal-feature-icon">D2D</div>
-                                <div>
-                                    <h3 class="portal-feature-title">D2D-Außendienst &amp; Direktberater (Tablet eSign)</h3>
-                                    <p style="color: var(--text-muted); font-size: 0.9rem; line-height: 1.55; margin: 0;">Tagesaktuelle Strom-, Gas- &amp; Wärmestrom-Tarife nach PLZ berechnen, IBAN in Echtzeit prüfen und Kunden direkt auf dem Smartphone/Tablet unterschreiben lassen oder per Remote-Sign-Link abschließen.</p>
-                                </div>
-                            </div>
-                            <div class="portal-feature-item">
-                                <div class="portal-feature-icon">AFF</div>
-                                <div>
-                                    <h3 class="portal-feature-title">Affiliate-Marketer, Influencer &amp; Vergleichsseiten</h3>
-                                    <p style="color: var(--text-muted); font-size: 0.9rem; line-height: 1.55; margin: 0;">90-Tage-Cookie &amp; LocalStorage-Attribution, eigener Sub-ID-Kampagnen-Generator (Meta, Google, TikTok), QR-Code-Generator und einbettbares Tarifrechner-Widget.</p>
-                                </div>
-                            </div>
-                            <div class="portal-feature-item">
-                                <div class="portal-feature-icon">TIP</div>
-                                <div>
-                                    <h3 class="portal-feature-title">Tippgeber &amp; Immobilien-/Hausverwaltungen</h3>
-                                    <p style="color: var(--text-muted); font-size: 0.9rem; line-height: 1.55; margin: 0;">Kontaktdaten in 30 Sekunden einreichen – unser Innendienst übernimmt die komplette Tarifberatung und Sie erhalten Ihre Tippgeber-Prämie automatisch gutgeschrieben.</p>
-                                </div>
-                            </div>
-                            <div class="portal-feature-item">
-                                <div class="portal-feature-icon">AG</div>
-                                <div>
-                                    <h3 class="portal-feature-title">Vertriebsagenturen &amp; Strukturvertriebe (Downline)</h3>
-                                    <p style="color: var(--text-muted); font-size: 0.9rem; line-height: 1.55; margin: 0;">Unterpartner mit wenigen Klicks anlegen, individuelle Provisionsstufen vergeben und an jedem Team-Abschluss automatische Override-Provisionen verdienen.</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Live Commission Potential Calculator -->
-                        <div class="comm-calc-box">
-                            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 0.9rem;">
-                                <strong style="font-size: 1.05rem;">Live-Provisionsrechner</strong>
-                                <span id="commCalcDealsValue" style="background: #ff7a00; color: #fff; font-weight: 800; font-size: 0.82rem; padding: 4px 10px; border-radius: 999px;">30 Verträge / Monat</span>
-                            </div>
-                            <div class="form-grid-2" style="margin-bottom: 1rem;">
-                                <div>
-                                    <label for="commCalcRoleSelect" style="font-size: 0.8rem; color: #cbd5e1; display: block; margin-bottom: 4px;">Partner-Modell:</label>
-                                    <select id="commCalcRoleSelect" style="width: 100%; padding: 8px 10px; border-radius: 8px; border: 1px solid #334155; background: #0f172a; color: #fff; font-weight: 600;">
-                                        <option value="D2D">D2D Außendienst (65 € / Vertrag)</option>
-                                        <option value="AFFILIATE">Affiliate / Online (55 € / Vertrag)</option>
-                                        <option value="TIPPGEBER">Tippgeber (35 € / Empfehlung)</option>
-                                        <option value="AGENCY">Vertriebsagentur (75 € + 15 € Override)</option>
-                                    </select>
-                                </div>
-                                <div>
-                                    <label for="commCalcDealsSlider" style="font-size: 0.8rem; color: #cbd5e1; display: block; margin-bottom: 4px;">Abschlüsse pro Monat (1 – 200):</label>
-                                    <input type="range" id="commCalcDealsSlider" min="1" max="200" value="30" style="width: 100%; margin-top: 8px; accent-color: #ff7a00;">
-                                </div>
-                            </div>
-                            <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; background: rgba(255,255,255,0.08); padding: 12px 14px; border-radius: 12px;">
-                                <div>
-                                    <div style="font-size: 0.76rem; color: #cbd5e1;">Monatliches Potenzial</div>
-                                    <div id="commCalcMonthlyEur" style="font-size: 1.35rem; font-weight: 800; color: #ff7a00;">1.950,00 €</div>
-                                </div>
-                                <div>
-                                    <div style="font-size: 0.76rem; color: #cbd5e1;">Jährliches Potenzial</div>
-                                    <div id="commCalcYearlyEur" style="font-size: 1.35rem; font-weight: 800; color: #4ade80;">23.400,00 €</div>
-                                </div>
-                            </div>
-                            <div id="commCalcRateHint" style="font-size: 0.78rem; color: #94a3b8; margin-top: 8px;">65 € Direktprovision pro Strom-/Gasvertrag</div>
-                        </div>
+                <div class="portal-form-container" style="max-width: 500px; margin: 0 auto;">
+                    <div style="text-align: center; margin-bottom: 1.75rem;">
+                        <span class="badge" style="background: rgba(255, 122, 0, 0.18); color: #ff9838; border: 1px solid rgba(255, 122, 0, 0.35);">AlphaTarife Partner-Portal</span>
+                        <h1 style="color: #ffffff; font-size: clamp(1.65rem, 3.2vw, 2.2rem); margin: 0.65rem 0 0.45rem 0; line-height: 1.25;">Partner-Anmeldung</h1>
+                        <p style="color: #cbd5e1; font-size: 0.94rem; margin: 0;">Melden Sie sich an, um auf Ihr persönliches Partner-Cockpit, Ihren eigenen Tracking-Code und Ihre Abrechnungen zuzugreifen.</p>
                     </div>
 
-                    <!-- Right Column: Login & Instant Registration Card -->
-                    <div class="portal-form-container">
-                        <div class="auth-card">
-                            <div class="auth-tabs">
-                                <div class="auth-tab active" onclick="switchTab('login')">Partner-Login</div>
-                                <div class="auth-tab" onclick="switchTab('register')">Sofort-Registrierung</div>
-                            </div>
+                    <div class="auth-card" style="box-shadow: 0 24px 50px rgba(0, 0, 0, 0.28);">
+                        <div class="auth-tabs">
+                            <div class="auth-tab active" onclick="switchTab('login')">Partner-Login</div>
+                            <div class="auth-tab" onclick="switchTab('register')">Partner-Zugang erstellen</div>
+                        </div>
 
-                            <!-- Login Content -->
-                            <div id="login-form" class="auth-content active">
-                                <div style="margin-bottom: 1.15rem;">
-                                    <div style="font-size: 0.78rem; font-weight: 700; color: #475569; margin-bottom: 0.45rem; text-transform: uppercase; letter-spacing: 0.4px;">1-Klick Demo-Zugang wählen:</div>
-                                    <div class="demo-role-grid">
-                                        <button type="button" class="demo-role-btn" data-demo-role="D2D">⚡ D2D Berater<br><span style="font-weight:500;color:#64748b;font-size:0.72rem;">Code: VP-D2D100</span></button>
-                                        <button type="button" class="demo-role-btn" data-demo-role="AFFILIATE">🔗 Affiliate Marketer<br><span style="font-weight:500;color:#64748b;font-size:0.72rem;">Code: AFF-MAX24</span></button>
-                                        <button type="button" class="demo-role-btn" data-demo-role="TIPPGEBER">🤝 Tippgeber<br><span style="font-weight:500;color:#64748b;font-size:0.72rem;">Code: TIP-ANNA</span></button>
-                                        <button type="button" class="demo-role-btn" data-demo-role="AGENCY">🏢 Vertriebsagentur<br><span style="font-weight:500;color:#64748b;font-size:0.72rem;">Code: AG-NRW01</span></button>
+                        <!-- Login Content -->
+                        <div id="login-form" class="auth-content active">
+                            <div id="portalLoginError" style="display: none; background: #fee2e2; color: #b91c1c; padding: 10px 12px; border-radius: 8px; font-size: 0.85rem; font-weight: 600; margin-bottom: 1rem;"></div>
+
+                            <form id="partnerLoginFormEl">
+                                <div class="form-group">
+                                    <label for="login-email">E-Mail-Adresse</label>
+                                    <input type="text" id="login-email" required placeholder="name@beispiel.de" autocomplete="username">
+                                </div>
+                                <div class="form-group">
+                                    <label for="login-password">Passwort</label>
+                                    <input type="password" id="login-password" required placeholder="Ihr Passwort" autocomplete="current-password">
+                                </div>
+                                <button type="submit" id="btnPartnerLoginSubmit" class="btn btn-secondary" style="width: 100%; border: none; padding: 0.95rem; cursor: pointer; margin-top: 0.35rem;">Anmelden &amp; Cockpit öffnen</button>
+                            </form>
+
+                            <div style="margin-top: 1.25rem; padding-top: 1rem; border-top: 1px solid #e2e8f0; text-align: center; font-size: 0.84rem; color: #64748b;">
+                                Noch kein Partner-Konto? <a href="#" onclick="switchTab('register'); return false;" style="color: var(--accent-orange); font-weight: 700; text-decoration: none;">Jetzt kostenlos registrieren</a> – Ihr persönlicher Partner-Code wird automatisch für Sie erstellt.
+                            </div>
+                        </div>
+
+                        <!-- Register Content -->
+                        <div id="register-form" class="auth-content">
+                            <div id="portalRegisterError" style="display: none; background: #fee2e2; color: #b91c1c; padding: 10px 12px; border-radius: 8px; font-size: 0.85rem; font-weight: 600; margin-bottom: 1rem;"></div>
+
+                            <form id="partnerRegisterFormEl">
+                                <div class="form-group">
+                                    <label for="reg-role">Ihr Vertriebsmodell</label>
+                                    <select id="reg-role">
+                                        <option value="D2D">D2D Außendienst / Direktvertrieb</option>
+                                        <option value="AFFILIATE">Affiliate / Online-Marketing</option>
+                                        <option value="TIPPGEBER">Tippgeber / Empfehler</option>
+                                        <option value="AGENCY">Vertriebsagentur / Teamleiter</option>
+                                    </select>
+                                </div>
+                                <div class="form-grid-2">
+                                    <div class="form-group">
+                                        <label for="reg-name">Vollständiger Name *</label>
+                                        <input type="text" id="reg-name" required placeholder="Max Mustermann">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="reg-company">Firma / Agentur (optional)</label>
+                                        <input type="text" id="reg-company" placeholder="Muster Vertrieb GmbH">
                                     </div>
                                 </div>
-
-                                <div id="portalLoginError" style="display: none; background: #fee2e2; color: #b91c1c; padding: 10px 12px; border-radius: 8px; font-size: 0.85rem; font-weight: 600; margin-bottom: 1rem;"></div>
-
-                                <form id="partnerLoginFormEl">
+                                <div class="form-grid-2">
                                     <div class="form-group">
-                                        <label for="login-email">E-Mail-Adresse oder Partner-Code</label>
-                                        <input type="text" id="login-email" required placeholder="z. B. d2d@alpha-energie.de oder VP-D2D100">
+                                        <label for="reg-email">E-Mail-Adresse *</label>
+                                        <input type="email" id="reg-email" required placeholder="name@beispiel.de">
                                     </div>
                                     <div class="form-group">
-                                        <label for="login-password">Passwort</label>
-                                        <input type="password" id="login-password" required placeholder="Passwort (Demo: Alpha2026!)">
+                                        <label for="reg-tel">Telefonnummer *</label>
+                                        <input type="tel" id="reg-tel" required placeholder="0170 1234567">
                                     </div>
-                                    <button type="submit" id="btnPartnerLoginSubmit" class="btn btn-secondary" style="width: 100%; border: none; padding: 0.95rem; cursor: pointer;">Ins Partner-Cockpit einloggen</button>
-                                </form>
-                            </div>
-
-                            <!-- Register Content -->
-                            <div id="register-form" class="auth-content">
-                                <div id="portalRegisterError" style="display: none; background: #fee2e2; color: #b91c1c; padding: 10px 12px; border-radius: 8px; font-size: 0.85rem; font-weight: 600; margin-bottom: 1rem;"></div>
-
-                                <form id="partnerRegisterFormEl">
-                                    <div class="form-group">
-                                        <label for="reg-role">Gewünschtes Partner-Modell</label>
-                                        <select id="reg-role">
-                                            <option value="D2D">D2D Außendienst / Direktvertrieb (65 € / Vertrag)</option>
-                                            <option value="AFFILIATE">Affiliate / Online-Marketing (55 € / Vertrag)</option>
-                                            <option value="TIPPGEBER">Tippgeber / Empfehler (35 € / Empfehlung)</option>
-                                            <option value="AGENCY">Vertriebsagentur / Teamleiter (75 € + Override)</option>
-                                        </select>
-                                    </div>
-                                    <div class="form-grid-2">
-                                        <div class="form-group">
-                                            <label for="reg-name">Vollständiger Name *</label>
-                                            <input type="text" id="reg-name" required placeholder="Max Mustermann">
-                                        </div>
-                                        <div class="form-group">
-                                            <label for="reg-company">Firma / Agentur (optional)</label>
-                                            <input type="text" id="reg-company" placeholder="Muster Vertrieb GmbH">
-                                        </div>
-                                    </div>
-                                    <div class="form-grid-2">
-                                        <div class="form-group">
-                                            <label for="reg-email">E-Mail-Adresse *</label>
-                                            <input type="email" id="reg-email" required placeholder="name@beispiel.de">
-                                        </div>
-                                        <div class="form-group">
-                                            <label for="reg-tel">Telefonnummer *</label>
-                                            <input type="tel" id="reg-tel" required placeholder="0170 1234567">
-                                        </div>
-                                    </div>
-                                    <div class="form-grid-2">
-                                        <div class="form-group">
-                                            <label for="reg-password">Passwort festlegen (mind. 6 Zeichen) *</label>
-                                            <input type="password" id="reg-password" required minlength="6" placeholder="Sicheres Passwort">
-                                        </div>
-                                        <div class="form-group">
-                                            <label for="reg-parent-code">Werber / Agentur-Code (optional)</label>
-                                            <input type="text" id="reg-parent-code" placeholder="z. B. AG-NRW01">
-                                        </div>
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="reg-iban">IBAN für Provisionsauszahlungen (optional, Live-Prüfung)</label>
-                                        <input type="text" id="reg-iban" placeholder="DE89 3704 0044 0532 0130 00">
-                                        <div id="regIbanStatusBadge" style="display: none; font-size: 0.78rem; font-weight: 700; margin-top: 4px;"></div>
-                                    </div>
-                                    <div style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 1rem; line-height: 1.4;">
-                                        Mit dem Absenden wird Ihr Partner-Account inkl. persönlichem Partner-Code sofort freigeschaltet und Sie stimmen unserer <a href="datenschutz.html" style="color: var(--accent-orange); text-decoration: underline;">Datenschutzerklärung</a> zu.
-                                    </div>
-                                    <button type="submit" id="btnPartnerRegisterSubmit" class="btn btn-secondary" style="width: 100%; border: none; padding: 0.95rem; cursor: pointer;">Sofort Partner-Zugang erstellen</button>
-                                </form>
-                            </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="reg-password">Passwort festlegen (mind. 6 Zeichen) *</label>
+                                    <input type="password" id="reg-password" required minlength="6" placeholder="Sicheres Passwort wählen">
+                                </div>
+                                <div class="form-group">
+                                    <label for="reg-iban">IBAN für Provisionsauszahlungen (optional, Live-Prüfung)</label>
+                                    <input type="text" id="reg-iban" placeholder="DE89 3704 0044 0532 0130 00">
+                                    <div id="regIbanStatusBadge" style="display: none; font-size: 0.78rem; font-weight: 700; margin-top: 4px;"></div>
+                                </div>
+                                <div style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 1rem; line-height: 1.4;">
+                                    Nach dem Absenden wird Ihr persönlicher Partner-Code automatisch generiert und Ihr Account sofort freigeschaltet. Mit der Registrierung stimmen Sie unserer <a href="datenschutz.html" style="color: var(--accent-orange); text-decoration: underline;">Datenschutzerklärung</a> zu.
+                                </div>
+                                <button type="submit" id="btnPartnerRegisterSubmit" class="btn btn-secondary" style="width: 100%; border: none; padding: 0.95rem; cursor: pointer;">Partner-Zugang &amp; eigenen Code erstellen</button>
+                            </form>
                         </div>
                     </div>
                 </div>
@@ -664,8 +576,8 @@
                                 </select>
                             </div>
                             <div class="form-group" style="margin-bottom: 0;">
-                                <label for="d2dCalcPlz">Postleitzahl (Lieferstelle)</label>
-                                <input type="text" id="d2dCalcPlz" value="44379" maxlength="5" placeholder="z. B. 44379">
+                                <label for="d2dCalcPlz">Postleitzahl (Lieferstelle) *</label>
+                                <input type="text" id="d2dCalcPlz" value="" maxlength="5" placeholder="5-stellige PLZ eingeben" required>
                             </div>
                             <div class="form-group" style="margin-bottom: 0;">
                                 <label for="d2dCalcKwh">Jahresverbrauch (kWh)</label>
@@ -680,7 +592,7 @@
                     <div class="cockpit-card">
                         <h3 style="margin: 0 0 0.5rem 0; color: #0a1f44;">Schritt 2: Kundenauftrag &amp; Digitale Unterschrift (Tablet eSign / Remote-Link)</h3>
                         <div id="d2dSelectedTariffBanner" style="background: #fff7ed; border: 1px solid #fed7aa; color: #9a3412; padding: 10px 14px; border-radius: 10px; font-weight: 700; font-size: 0.9rem; margin-bottom: 1.2rem;">
-                            Gewählter Tarif: AlphaStrom Smart 24 (Standard) – oder oben Live-Tarif berechnen
+                            Bitte oben zuerst die Postleitzahl eingeben und den Live-Tarif berechnen
                         </div>
 
                         <form id="d2dDirectOrderForm">
@@ -721,17 +633,17 @@
                             <div class="form-grid-3">
                                 <div class="form-group">
                                     <label for="d2dOrderStreet">Straße *</label>
-                                    <input type="text" id="d2dOrderStreet" required placeholder="Alter Hellweg">
+                                    <input type="text" id="d2dOrderStreet" required placeholder="Straße">
                                 </div>
                                 <div class="form-group">
                                     <label for="d2dOrderHouseNr">Hausnummer *</label>
-                                    <input type="text" id="d2dOrderHouseNr" required placeholder="50">
+                                    <input type="text" id="d2dOrderHouseNr" required placeholder="Nr.">
                                 </div>
                                 <div class="form-group">
                                     <label for="d2dOrderPlz">PLZ &amp; Ort *</label>
                                     <div style="display: flex; gap: 6px;">
-                                        <input type="text" id="d2dOrderPlz" value="44379" required style="width: 95px;">
-                                        <input type="text" id="d2dOrderCity" value="Dortmund" required style="flex: 1;">
+                                        <input type="text" id="d2dOrderPlz" value="" placeholder="PLZ" required style="width: 95px;">
+                                        <input type="text" id="d2dOrderCity" value="" placeholder="Ort" required style="flex: 1;">
                                     </div>
                                 </div>
                             </div>

@@ -1331,49 +1331,103 @@ document.addEventListener("DOMContentLoaded", async () => {
                 const priceEl = document.getElementById(`price-${id}`);
                 const savingsEl = document.getElementById(`savings-${id}`);
                 const kwhEl = document.getElementById(`kwh-desc-${id}`);
+                const hasValidPlz = Boolean(calcPlz && /^\d{5}$/.test(calcPlz.value.replace(/\D/g, '')));
 
-                if (priceEl) {
-                    if (window.i18n && typeof window.i18n.formatMonthlyPrice === 'function') {
-                        priceEl.innerHTML = window.i18n.formatMonthlyPrice(monthlyPayment);
-                    } else {
-                        priceEl.innerHTML = `${monthlyPayment} €<span> / Monat</span>`;
+                if (hasValidPlz) {
+                    if (priceEl) {
+                        if (window.i18n && typeof window.i18n.formatMonthlyPrice === 'function') {
+                            priceEl.innerHTML = window.i18n.formatMonthlyPrice(monthlyPayment);
+                        } else {
+                            priceEl.innerHTML = `${monthlyPayment} €<span> / Monat</span>`;
+                        }
                     }
-                }
-                if (savingsEl) {
-                    if (window.i18n && typeof window.i18n.formatSavings === 'function') {
-                        savingsEl.textContent = savings > 0 
-                            ? window.i18n.formatSavings(savings) 
-                            : window.i18n.formatGuarantee(spec.guaranteeMonths);
-                    } else {
-                        savingsEl.textContent = savings > 0 ? `Bis zu ${savings} € / Jahr sparen` : `Faire ${spec.guaranteeMonths} Monate Preisgarantie`;
+                    if (savingsEl) {
+                        if (window.i18n && typeof window.i18n.formatSavings === 'function') {
+                            savingsEl.textContent = savings > 0 
+                                ? window.i18n.formatSavings(savings) 
+                                : window.i18n.formatGuarantee(spec.guaranteeMonths);
+                        } else {
+                            savingsEl.textContent = savings > 0 ? `Bis zu ${savings} € / Jahr sparen` : `Faire ${spec.guaranteeMonths} Monate Preisgarantie`;
+                        }
                     }
-                }
-                if (kwhEl) {
-                    let meterTag = '';
-                    if (currentBranch === 'waerme') {
-                        const htNt = getCurrentHtNtValues(kwh);
-                        meterTag = htNt.meterType === 'et'
-                            ? (curLang === 'en' ? 'Single-Rate' : (curLang === 'tr' ? 'Tek Zamanlı' : (curLang === 'ar' ? 'تعرفة موحدة' : 'Eintarif')))
-                            : `HT ${htNt.ht.toLocaleString('de-DE')} / NT ${htNt.nt.toLocaleString('de-DE')} kWh`;
+                    if (kwhEl) {
+                        let meterTag = '';
+                        if (currentBranch === 'waerme') {
+                            const htNt = getCurrentHtNtValues(kwh);
+                            meterTag = htNt.meterType === 'et'
+                                ? (curLang === 'en' ? 'Single-Rate' : (curLang === 'tr' ? 'Tek Zamanlı' : (curLang === 'ar' ? 'تعرفة موحدة' : 'Eintarif')))
+                                : `HT ${htNt.ht.toLocaleString('de-DE')} / NT ${htNt.nt.toLocaleString('de-DE')} kWh`;
+                        }
+                        if (window.i18n && typeof window.i18n.formatKwhDescHtml === 'function') {
+                            kwhEl.innerHTML = window.i18n.formatKwhDescHtml(kwh, activeWorkCt, activeBaseEur, curLang, meterTag);
+                        } else {
+                            const meterBadgeHtml = meterTag ? `<span class="tariff-rate-meter-badge">${meterTag}</span>` : '';
+                            kwhEl.innerHTML = `
+                                <div class="tariff-rate-breakdown">
+                                    <div class="tariff-rate-consumption">
+                                        <span class="tariff-rate-kwh-val">${kwh.toLocaleString('de-DE')} kWh/Jahr</span>
+                                        ${meterBadgeHtml}
+                                    </div>
+                                    <div class="tariff-rate-grid">
+                                        <div class="tariff-rate-cell">
+                                            <span class="tariff-rate-label">Arbeitspreis</span>
+                                            <strong class="tariff-rate-val">${activeWorkCt.toFixed(2).replace('.', ',')} ct/kWh</strong>
+                                        </div>
+                                        <div class="tariff-rate-cell">
+                                            <span class="tariff-rate-label">Grundpreis</span>
+                                            <strong class="tariff-rate-val">${activeBaseEur.toFixed(2).replace('.', ',')} € / Monat</strong>
+                                        </div>
+                                    </div>
+                                </div>
+                            `;
+                        }
                     }
-                    if (window.i18n && typeof window.i18n.formatKwhDescHtml === 'function') {
-                        kwhEl.innerHTML = window.i18n.formatKwhDescHtml(kwh, activeWorkCt, activeBaseEur, curLang, meterTag);
-                    } else {
+                } else {
+                    if (priceEl) {
+                        priceEl.innerHTML = curLang === 'en'
+                            ? 'Enter<span> postcode</span>'
+                            : (curLang === 'tr'
+                                ? 'Posta kodu<span> girin</span>'
+                                : (curLang === 'ar'
+                                    ? 'أدخل<span> الرمز البريدي</span>'
+                                    : 'Bitte PLZ<span> eingeben</span>'));
+                    }
+                    if (savingsEl) {
+                        savingsEl.textContent = curLang === 'en'
+                            ? 'Exact tariff price after postcode entry'
+                            : (curLang === 'tr'
+                                ? 'Posta kodu girildikten sonra net fiyat'
+                                : (curLang === 'ar'
+                                    ? 'السعر الدقيق بعد إدخال الرمز البريدي'
+                                    : 'Exakter Tarifpreis nach PLZ-Eingabe'));
+                    }
+                    if (kwhEl) {
+                        let meterTag = '';
+                        if (currentBranch === 'waerme') {
+                            const htNt = getCurrentHtNtValues(kwh);
+                            meterTag = htNt.meterType === 'et'
+                                ? (curLang === 'en' ? 'Single-Rate' : (curLang === 'tr' ? 'Tek Zamanlı' : (curLang === 'ar' ? 'تعرفة موحدة' : 'Eintarif')))
+                                : `HT ${htNt.ht.toLocaleString('de-DE')} / NT ${htNt.nt.toLocaleString('de-DE')} kWh`;
+                        }
                         const meterBadgeHtml = meterTag ? `<span class="tariff-rate-meter-badge">${meterTag}</span>` : '';
+                        const workLabel = curLang === 'en' ? 'Working Price' : (curLang === 'tr' ? 'Birim Fiyat' : (curLang === 'ar' ? 'سعر الاستهلاك' : 'Arbeitspreis'));
+                        const baseLabel = curLang === 'en' ? 'Base Price' : (curLang === 'tr' ? 'Sabit Ücret' : (curLang === 'ar' ? 'الرسوم الأساسية' : 'Grundpreis'));
+                        const plzPlaceholder = curLang === 'en' ? 'After postcode' : (curLang === 'tr' ? 'Posta kodu sonrası' : (curLang === 'ar' ? 'بعد الرمز البريدي' : 'Nach PLZ-Eingabe'));
+                        const unit = curLang === 'en' ? 'kWh/year' : (curLang === 'tr' ? 'kWh/yıl' : (curLang === 'ar' ? 'ك.و.س/سنة' : 'kWh/Jahr'));
                         kwhEl.innerHTML = `
                             <div class="tariff-rate-breakdown">
                                 <div class="tariff-rate-consumption">
-                                    <span class="tariff-rate-kwh-val">${kwh.toLocaleString('de-DE')} kWh/Jahr</span>
+                                    <span class="tariff-rate-kwh-val">${kwh.toLocaleString('de-DE')} ${unit}</span>
                                     ${meterBadgeHtml}
                                 </div>
                                 <div class="tariff-rate-grid">
                                     <div class="tariff-rate-cell">
-                                        <span class="tariff-rate-label">Arbeitspreis</span>
-                                        <strong class="tariff-rate-val">${activeWorkCt.toFixed(2).replace('.', ',')} ct/kWh</strong>
+                                        <span class="tariff-rate-label">${workLabel}</span>
+                                        <strong class="tariff-rate-val">${plzPlaceholder}</strong>
                                     </div>
                                     <div class="tariff-rate-cell">
-                                        <span class="tariff-rate-label">Grundpreis</span>
-                                        <strong class="tariff-rate-val">${activeBaseEur.toFixed(2).replace('.', ',')} € / Monat</strong>
+                                        <span class="tariff-rate-label">${baseLabel}</span>
+                                        <strong class="tariff-rate-val">${plzPlaceholder}</strong>
                                     </div>
                                 </div>
                             </div>
@@ -1384,9 +1438,9 @@ document.addEventListener("DOMContentLoaded", async () => {
                 // Store computed values in data-attributes of ALL matching action buttons on the page
                 const htNtMeta = currentBranch === 'waerme' ? getCurrentHtNtValues(kwh) : null;
                 document.querySelectorAll(`[data-select-tariff="${id}"]`).forEach(btn => {
-                    btn.setAttribute('data-monthly', monthlyPayment);
+                    btn.setAttribute('data-monthly', hasValidPlz ? monthlyPayment : '');
                     btn.setAttribute('data-kwh', kwh);
-                    btn.setAttribute('data-savings', savings);
+                    btn.setAttribute('data-savings', hasValidPlz ? savings : '');
                     btn.setAttribute('data-name', spec.name);
                     btn.setAttribute('data-branch', currentBranch);
                     if (htNtMeta) {
@@ -1463,11 +1517,20 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         async function syncLiveFirstconCalculation(plzOverride, kwhOverride, branchOverride) {
             const activeBranch = branchOverride || currentBranch || 'strom';
+            const subpagePlzInput = document.querySelector(`[data-subpage-plz-input="${activeBranch}"], [data-subpage-plz-input]`);
+            const modalPlzEl = document.getElementById('modalCalcPlz');
             const rawPlz = plzOverride !== undefined
                 ? String(plzOverride).replace(/\D/g, '').slice(0, 5)
-                : ((calcPlz && calcPlz.value) ? calcPlz.value.replace(/\D/g, '').slice(0, 5) : '44379');
+                : ((calcPlz && calcPlz.value)
+                    ? calcPlz.value.replace(/\D/g, '').slice(0, 5)
+                    : ((modalPlzEl && modalPlzEl.value)
+                        ? modalPlzEl.value.replace(/\D/g, '').slice(0, 5)
+                        : ((subpagePlzInput && subpagePlzInput.value) ? subpagePlzInput.value.replace(/\D/g, '').slice(0, 5) : '')));
 
-            const effectivePlz = /^\d{5}$/.test(rawPlz) ? rawPlz : '44379';
+            if (!/^\d{5}$/.test(rawPlz)) {
+                return null;
+            }
+            const effectivePlz = rawPlz;
 
             const defaultKwh = activeBranch === 'gas' ? 12000 : (activeBranch === 'waerme' ? 6000 : 2500);
             const defaultAbschlag = activeBranch === 'gas' ? 115 : (activeBranch === 'waerme' ? 165 : 95);
@@ -1482,9 +1545,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             const currentMonthlyEuro = (!isNaN(parsedAbschlag) && parsedAbschlag > 0) ? parsedAbschlag : defaultAbschlag;
 
             const reqId = ++liveCalcRequestSeq;
-            if (/^\d{5}$/.test(rawPlz)) {
-                populateStreetDatalist(rawPlz, activeBranch);
-            }
+            populateStreetDatalist(rawPlz, activeBranch);
 
             const htNtData = activeBranch === 'waerme' ? getCurrentHtNtValues(kwh) : null;
 
@@ -1795,6 +1856,11 @@ document.addEventListener("DOMContentLoaded", async () => {
                     syncLiveFirstconCalculation(val, undefined, currentBranch);
                 } else {
                     recalculateTariffs();
+                    const tarifeSec = document.getElementById('tarife');
+                    if (tarifeSec && tarifeSec.classList.contains('octo-tarife-section')) {
+                        tarifeSec.classList.remove('is-tarife-visible');
+                        tarifeSec.style.display = 'none';
+                    }
                 }
             });
         }
@@ -1815,8 +1881,10 @@ document.addEventListener("DOMContentLoaded", async () => {
                 }
                 recalculateTariffs();
                 sync3DSceneConsumption(kwh);
-                const activePlz = (calcPlz && /^\d{5}$/.test(calcPlz.value)) ? calcPlz.value : '44379';
-                syncLiveFirstconCalculation(activePlz, kwh, currentBranch);
+                const activePlz = (calcPlz && /^\d{5}$/.test(calcPlz.value)) ? calcPlz.value : '';
+                if (activePlz) {
+                    syncLiveFirstconCalculation(activePlz, kwh, currentBranch);
+                }
             });
         }
 
@@ -1836,8 +1904,10 @@ document.addEventListener("DOMContentLoaded", async () => {
             });
             recalculateTariffs();
             sync3DSceneConsumption(totalKwh);
-            const activePlz = (calcPlz && /^\d{5}$/.test(calcPlz.value)) ? calcPlz.value : '44379';
-            syncLiveFirstconCalculation(activePlz, totalKwh, currentBranch);
+            const activePlz = (calcPlz && /^\d{5}$/.test(calcPlz.value)) ? calcPlz.value : '';
+            if (activePlz) {
+                syncLiveFirstconCalculation(activePlz, totalKwh, currentBranch);
+            }
         }
 
         if (calcKwhHt) {
@@ -1855,8 +1925,10 @@ document.addEventListener("DOMContentLoaded", async () => {
                 syncHtNtFromTotalKwh(totalKwh);
                 updateMeterTypeUI();
                 recalculateTariffs();
-                const activePlz = (calcPlz && /^\d{5}$/.test(calcPlz.value)) ? calcPlz.value : '44379';
-                syncLiveFirstconCalculation(activePlz, totalKwh, currentBranch);
+                const activePlz = (calcPlz && /^\d{5}$/.test(calcPlz.value)) ? calcPlz.value : '';
+                if (activePlz) {
+                    syncLiveFirstconCalculation(activePlz, totalKwh, currentBranch);
+                }
             });
         });
 
@@ -1864,8 +1936,10 @@ document.addEventListener("DOMContentLoaded", async () => {
             calcAbschlag.addEventListener('input', () => {
                 userHasEnteredKwh = true;
                 recalculateTariffs();
-                const activePlz = (calcPlz && /^\d{5}$/.test(calcPlz.value)) ? calcPlz.value : '44379';
-                syncLiveFirstconCalculation(activePlz, undefined, currentBranch);
+                const activePlz = (calcPlz && /^\d{5}$/.test(calcPlz.value)) ? calcPlz.value : '';
+                if (activePlz) {
+                    syncLiveFirstconCalculation(activePlz, undefined, currentBranch);
+                }
             });
         }
 
@@ -1890,8 +1964,10 @@ document.addEventListener("DOMContentLoaded", async () => {
                     }
                     recalculateTariffs();
                     sync3DSceneConsumption(parseInt(kwh, 10));
-                    const activePlz = (calcPlz && /^\d{5}$/.test(calcPlz.value)) ? calcPlz.value : '44379';
-                    syncLiveFirstconCalculation(activePlz, parseInt(kwh, 10), currentBranch);
+                    const activePlz = (calcPlz && /^\d{5}$/.test(calcPlz.value)) ? calcPlz.value : '';
+                    if (activePlz) {
+                        syncLiveFirstconCalculation(activePlz, parseInt(kwh, 10), currentBranch);
+                    }
                 }
             });
         });
@@ -2132,8 +2208,10 @@ document.addEventListener("DOMContentLoaded", async () => {
                 const defaultBranchKwh = currentBranch === 'gas' ? 12000 : (currentBranch === 'waerme' ? 6000 : 2500);
                 const currentKwhVal = Math.max(500, parseInt(calcKwh && calcKwh.value ? calcKwh.value : defaultBranchKwh, 10) || defaultBranchKwh);
                 sync3DSceneConsumption(currentKwhVal);
-                const activePlz = (calcPlz && /^\d{5}$/.test(calcPlz.value)) ? calcPlz.value : '44379';
-                syncLiveFirstconCalculation(activePlz, currentKwhVal, currentBranch);
+                const activePlz = (calcPlz && /^\d{5}$/.test(calcPlz.value)) ? calcPlz.value : '';
+                if (activePlz) {
+                    syncLiveFirstconCalculation(activePlz, currentKwhVal, currentBranch);
+                }
             });
         });
 
@@ -2240,8 +2318,10 @@ document.addEventListener("DOMContentLoaded", async () => {
                     });
                     recalculateTariffs();
                     sync3DSceneConsumption(kwhVal);
-                    const activePlz = (calcPlz && /^\d{5}$/.test(calcPlz.value)) ? calcPlz.value : '44379';
-                    syncLiveFirstconCalculation(activePlz, kwhVal, currentBranch);
+                    const activePlz = (calcPlz && /^\d{5}$/.test(calcPlz.value)) ? calcPlz.value : '';
+                    if (activePlz) {
+                        syncLiveFirstconCalculation(activePlz, kwhVal, currentBranch);
+                    }
                 }
             }
         });
@@ -2291,12 +2371,25 @@ document.addEventListener("DOMContentLoaded", async () => {
         setTimeout(handleSceneReady, 250);
 
         if (rechnerForm) {
-            rechnerForm.addEventListener('submit', (e) => {
+            rechnerForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
+                const activePlz = (calcPlz && /^\d{5}$/.test(calcPlz.value.replace(/\D/g, '')))
+                    ? calcPlz.value.replace(/\D/g, '').slice(0, 5)
+                    : '';
+                if (!activePlz) {
+                    if (calcPlz) {
+                        calcPlz.focus();
+                        const box = calcPlz.closest('.octo-input-box');
+                        if (box) {
+                            box.style.borderColor = '#ef4444';
+                            setTimeout(() => { box.style.borderColor = ''; }, 2000);
+                        }
+                    }
+                    return;
+                }
                 userHasEnteredKwh = true;
                 recalculateTariffs();
-                const activePlz = (calcPlz && /^\d{5}$/.test(calcPlz.value)) ? calcPlz.value : '44379';
-                syncLiveFirstconCalculation(activePlz, undefined, currentBranch);
+                await syncLiveFirstconCalculation(activePlz, undefined, currentBranch);
                 const tarifeSection = document.getElementById('tarife');
                 if (tarifeSection) {
                     tarifeSection.style.display = 'block';
@@ -2305,6 +2398,71 @@ document.addEventListener("DOMContentLoaded", async () => {
                 }
             });
         }
+
+        // Subpage inline PLZ lookup inputs (oekostrom.html, oekogas.html)
+        function resetSubpageTariffPlaceholders() {
+            document.querySelectorAll('[data-fc-subpage-work]').forEach(el => {
+                el.textContent = 'Bitte PLZ eingeben';
+                el.style.fontSize = '1.35rem';
+            });
+            document.querySelectorAll('[data-fc-subpage-base]').forEach(el => {
+                el.textContent = 'Nach PLZ-Eingabe';
+            });
+            document.querySelectorAll('[data-subpage-calc-link]').forEach(link => {
+                const br = link.getAttribute('data-subpage-calc-link') || 'strom';
+                link.href = br === 'gas' ? 'versorger.html?branch=gas#rechner' : 'versorger.html#rechner';
+            });
+        }
+
+        document.querySelectorAll('[data-subpage-plz-input]').forEach(inp => {
+            const subBranch = inp.getAttribute('data-subpage-plz-input') || 'strom';
+            const subDefaultKwh = subBranch === 'gas' ? 12000 : 2500;
+            inp.addEventListener('input', () => {
+                const clean = inp.value.replace(/\D/g, '').slice(0, 5);
+                inp.value = clean;
+                inp.style.borderColor = 'rgba(233,94,36,0.55)';
+                if (clean.length === 5) {
+                    document.querySelectorAll('[data-fc-subpage-work]').forEach(el => {
+                        el.style.fontSize = '1.75rem';
+                    });
+                    document.querySelectorAll(`[data-subpage-calc-link="${subBranch}"]`).forEach(link => {
+                        link.href = `versorger.html?plz=${clean}&branch=${subBranch}#rechner`;
+                    });
+                    syncLiveFirstconCalculation(clean, subDefaultKwh, subBranch);
+                } else {
+                    resetSubpageTariffPlaceholders();
+                }
+            });
+            inp.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    const btn = document.querySelector(`[data-subpage-plz-btn="${subBranch}"]`);
+                    if (btn) btn.click();
+                }
+            });
+        });
+
+        document.querySelectorAll('[data-subpage-plz-btn]').forEach(btn => {
+            const subBranch = btn.getAttribute('data-subpage-plz-btn') || 'strom';
+            const subDefaultKwh = subBranch === 'gas' ? 12000 : 2500;
+            btn.addEventListener('click', () => {
+                const inp = document.querySelector(`[data-subpage-plz-input="${subBranch}"]`);
+                if (!inp) return;
+                const clean = inp.value.replace(/\D/g, '').slice(0, 5);
+                if (clean.length === 5) {
+                    document.querySelectorAll('[data-fc-subpage-work]').forEach(el => {
+                        el.style.fontSize = '1.75rem';
+                    });
+                    document.querySelectorAll(`[data-subpage-calc-link="${subBranch}"]`).forEach(link => {
+                        link.href = `versorger.html?plz=${clean}&branch=${subBranch}#rechner`;
+                    });
+                    syncLiveFirstconCalculation(clean, subDefaultKwh, subBranch);
+                } else {
+                    inp.style.borderColor = '#ef4444';
+                    inp.focus();
+                }
+            });
+        });
 
         // Check URL parameters (?plz=...&branch=...&kwh=...)
         try {
@@ -2324,9 +2482,16 @@ document.addEventListener("DOMContentLoaded", async () => {
                 const targetTab = document.querySelector(`.calc-tab-btn[data-branch="${urlBranch}"]`);
                 if (targetTab) targetTab.click();
             }
-            if (urlPlz && calcPlz) {
-                calcPlz.value = urlPlz.replace(/\D/g, '').slice(0, 5);
-                calcPlz.dispatchEvent(new Event('input', { bubbles: true }));
+            if (urlPlz) {
+                const cleanUrlPlz = urlPlz.replace(/\D/g, '').slice(0, 5);
+                if (calcPlz) {
+                    calcPlz.value = cleanUrlPlz;
+                    calcPlz.dispatchEvent(new Event('input', { bubbles: true }));
+                }
+                document.querySelectorAll('[data-subpage-plz-input]').forEach(subInp => {
+                    subInp.value = cleanUrlPlz;
+                    subInp.dispatchEvent(new Event('input', { bubbles: true }));
+                });
             }
             if (urlKwh && calcKwh) {
                 calcKwh.value = urlKwh.replace(/\D/g, '');
@@ -2339,10 +2504,12 @@ document.addEventListener("DOMContentLoaded", async () => {
             }
         } catch (err) {}
 
-        // Initial run
+        // Initial run (never auto-calculates without a valid 5-digit PLZ)
         updateMeterTypeUI();
         recalculateTariffs();
-        syncLiveFirstconCalculation((calcPlz && /^\d{5}$/.test(calcPlz.value)) ? calcPlz.value : '44379', undefined, currentBranch);
+        if (calcPlz && /^\d{5}$/.test(calcPlz.value)) {
+            syncLiveFirstconCalculation(calcPlz.value, undefined, currentBranch);
+        }
 
         // --- Global Strict Scroll Lock for Modals ---
         function lockAlphaModalScroll() {
@@ -2606,7 +2773,9 @@ document.addEventListener("DOMContentLoaded", async () => {
             const isKwhValid = !isNaN(parsedKwh) && parsedKwh >= 500;
             const isPlzValid = /^\d{5}$/.test(plzVal);
 
-            syncLiveFirstconCalculation(isPlzValid ? plzVal : '44379', isKwhValid ? parsedKwh : undefined, branch);
+            if (isPlzValid) {
+                syncLiveFirstconCalculation(plzVal, isKwhValid ? parsedKwh : undefined, branch);
+            }
 
             // Highlight matching preset button
             modalPresetBtns.forEach(btn => {
@@ -2638,8 +2807,8 @@ document.addEventListener("DOMContentLoaded", async () => {
                 const savings = Math.max(40, Math.round(refYearly - rawYearly));
 
                 selectedOrderData.consumption = String(parsedKwh);
-                selectedOrderData.monthlyPayment = String(monthlyPayment);
-                selectedOrderData.savings = String(savings);
+                selectedOrderData.monthlyPayment = isPlzValid ? String(monthlyPayment) : '';
+                selectedOrderData.savings = isPlzValid ? String(savings) : '';
                 selectedOrderData.userEnteredModalKwh = parsedKwh;
                 if (branch === 'waerme') {
                     const htNt = getCurrentHtNtValues(parsedKwh);
@@ -2656,30 +2825,47 @@ document.addEventListener("DOMContentLoaded", async () => {
                 if (spec.firstconTariffId) selectedOrderData.firstconTariffId = spec.firstconTariffId;
                 if (spec.energyGridNumber) selectedOrderData.energyGridNumber = spec.energyGridNumber;
 
-                if (monthlyEl) {
-                    const suffix = curLang === 'en' ? ' / month' : (curLang === 'tr' ? ' / ay' : (curLang === 'ar' ? ' / شهر' : ' / Monat'));
-                    const prefix = curLang === 'en' ? '€' : '';
-                    const post = curLang === 'en' ? '' : ' €';
-                    monthlyEl.textContent = `${prefix}${monthlyPayment}${post}${suffix}`;
-                    monthlyEl.style.color = '#0a1f44';
-                }
                 if (kwhEl) {
                     const locale = curLang === 'en' ? 'en-US' : (curLang === 'tr' ? 'tr-TR' : 'de-DE');
                     const kwhUnit = curLang === 'en' ? 'kWh / year' : (curLang === 'tr' ? 'kWh / yıl' : (curLang === 'ar' ? 'ك.و.س / سنة' : 'kWh / Jahr'));
                     kwhEl.textContent = `${parsedKwh.toLocaleString(locale)} ${kwhUnit}`;
                     kwhEl.style.color = '#0a1f44';
                 }
-                if (savingsEl) {
-                    const rateFormatted = activeWorkCt.toFixed(2).replace('.', ',');
-                    const baseFormatted = activeBaseEur.toFixed(2).replace('.', ',');
-                    if (curLang === 'en') {
-                        savingsEl.textContent = `Save up to €${savings} / year (${rateFormatted} ct/kWh • €${baseFormatted}/mo base)`;
-                    } else if (curLang === 'tr') {
-                        savingsEl.textContent = `Yılda ${savings} €'ya varan tasarruf (${rateFormatted} ct/kWh)`;
-                    } else if (curLang === 'ar') {
-                        savingsEl.textContent = `وفّر حتى ${savings} € / سنة (${rateFormatted} ct/kWh)`;
-                    } else {
-                        savingsEl.textContent = `Bis zu ${savings.toLocaleString('de-DE')} € / Jahr sparen (${rateFormatted} ct/kWh • ${baseFormatted} € Grundpreis)`;
+
+                if (isPlzValid) {
+                    if (monthlyEl) {
+                        const suffix = curLang === 'en' ? ' / month' : (curLang === 'tr' ? ' / ay' : (curLang === 'ar' ? ' / شهر' : ' / Monat'));
+                        const prefix = curLang === 'en' ? '€' : '';
+                        const post = curLang === 'en' ? '' : ' €';
+                        monthlyEl.textContent = `${prefix}${monthlyPayment}${post}${suffix}`;
+                        monthlyEl.style.color = '#0a1f44';
+                    }
+                    if (savingsEl) {
+                        const rateFormatted = activeWorkCt.toFixed(2).replace('.', ',');
+                        const baseFormatted = activeBaseEur.toFixed(2).replace('.', ',');
+                        if (curLang === 'en') {
+                            savingsEl.textContent = `Save up to €${savings} / year (${rateFormatted} ct/kWh • €${baseFormatted}/mo base)`;
+                        } else if (curLang === 'tr') {
+                            savingsEl.textContent = `Yılda ${savings} €'ya varan tasarruf (${rateFormatted} ct/kWh)`;
+                        } else if (curLang === 'ar') {
+                            savingsEl.textContent = `وفّر حتى ${savings} € / سنة (${rateFormatted} ct/kWh)`;
+                        } else {
+                            savingsEl.textContent = `Bis zu ${savings.toLocaleString('de-DE')} € / Jahr sparen (${rateFormatted} ct/kWh • ${baseFormatted} € Grundpreis)`;
+                        }
+                    }
+                } else {
+                    if (monthlyEl) {
+                        monthlyEl.textContent = curLang === 'en' ? 'Please enter postcode below' : (curLang === 'tr' ? 'Lütfen aşağıya posta kodu girin' : (curLang === 'ar' ? 'يرجى إدخال الرمز البريدي أدناه' : 'Bitte unten PLZ eingeben'));
+                        monthlyEl.style.color = '#ea580c';
+                    }
+                    if (savingsEl) {
+                        savingsEl.textContent = curLang === 'en'
+                            ? '⚡ Exact tariff price after entering your 5-digit postcode below'
+                            : (curLang === 'tr'
+                                ? '⚡ Net tarife fiyatı aşağıya 5 haneli posta kodunuz girildikten sonra gösterilir'
+                                : (curLang === 'ar'
+                                    ? '⚡ السعر الدقيق يظهر بعد إدخال الرمز البريدي المكون من 5 أرقام أدناه'
+                                    : '⚡ Exakter Tarifpreis wird nach Eingabe deiner 5-stelligen Postleitzahl angezeigt'));
                     }
                 }
 
@@ -2698,7 +2884,9 @@ document.addEventListener("DOMContentLoaded", async () => {
                 selectedOrderData.savings = '';
 
                 if (monthlyEl) {
-                    monthlyEl.textContent = curLang === 'en' ? 'Please select consumption below' : (curLang === 'tr' ? 'Lütfen aşağıdan tüketim seçin' : (curLang === 'ar' ? 'يرجى اختيار الاستهلاك أدناه' : 'Bitte unten Verbrauch wählen'));
+                    monthlyEl.textContent = !isPlzValid
+                        ? (curLang === 'en' ? 'Please enter postcode & consumption' : (curLang === 'tr' ? 'Lütfen posta kodu ve tüketim girin' : (curLang === 'ar' ? 'يرجى إدخال الرمز البريدي والاستهلاك' : 'Bitte PLZ & Verbrauch wählen')))
+                        : (curLang === 'en' ? 'Please select consumption below' : (curLang === 'tr' ? 'Lütfen aşağıdan tüketim seçin' : (curLang === 'ar' ? 'يرجى اختيار الاستهلاك أدناه' : 'Bitte unten Verbrauch wählen')));
                     monthlyEl.style.color = '#ea580c';
                 }
                 if (kwhEl) {
@@ -2706,16 +2894,26 @@ document.addEventListener("DOMContentLoaded", async () => {
                     kwhEl.style.color = '#ea580c';
                 }
                 if (savingsEl) {
-                    const rateFormatted = activeWorkCt.toFixed(2).replace('.', ',');
-                    const baseFormatted = activeBaseEur.toFixed(2).replace('.', ',');
-                    if (curLang === 'en') {
-                        savingsEl.textContent = `⚡ Rates: ${rateFormatted} ct/kWh • €${baseFormatted}/month base price – please enter consumption below`;
-                    } else if (curLang === 'tr') {
-                        savingsEl.textContent = `⚡ Koşullar: ${rateFormatted} ct/kWh • ${baseFormatted} €/Ay sabit ücret – lütfen aşağıya tüketim girin`;
-                    } else if (curLang === 'ar') {
-                        savingsEl.textContent = `⚡ الشروط: ${rateFormatted} سنت/ك.و.س • ${baseFormatted} €/شهر سعر أساسي – يرجى إدخال الاستهلاك أدناه`;
+                    if (isPlzValid) {
+                        const rateFormatted = activeWorkCt.toFixed(2).replace('.', ',');
+                        const baseFormatted = activeBaseEur.toFixed(2).replace('.', ',');
+                        if (curLang === 'en') {
+                            savingsEl.textContent = `⚡ Rates: ${rateFormatted} ct/kWh • €${baseFormatted}/month base price – please enter consumption below`;
+                        } else if (curLang === 'tr') {
+                            savingsEl.textContent = `⚡ Koşullar: ${rateFormatted} ct/kWh • ${baseFormatted} €/Ay sabit ücret – lütfen aşağıya tüketim girin`;
+                        } else if (curLang === 'ar') {
+                            savingsEl.textContent = `⚡ الشروط: ${rateFormatted} سنت/ك.و.س • ${baseFormatted} €/شهر سعر أساسي – يرجى إدخال الاستهلاك أدناه`;
+                        } else {
+                            savingsEl.textContent = `⚡ Konditionen: ${rateFormatted} ct/kWh • ${baseFormatted} €/Monat Grundpreis – bitte unten Verbrauch angeben`;
+                        }
                     } else {
-                        savingsEl.textContent = `⚡ Konditionen: ${rateFormatted} ct/kWh • ${baseFormatted} €/Monat Grundpreis – bitte unten Verbrauch angeben`;
+                        savingsEl.textContent = curLang === 'en'
+                            ? '⚡ Exact tariff price after entering your 5-digit postcode & consumption below'
+                            : (curLang === 'tr'
+                                ? '⚡ Net tarife fiyatı aşağıya 5 haneli posta kodu ve tüketim girildikten sonra gösterilir'
+                                : (curLang === 'ar'
+                                    ? '⚡ السعر الدقيق يظهر بعد إدخال الرمز البريدي المكون من 5 أرقام والاستهلاك أدناه'
+                                    : '⚡ Bitte gib unten kurz deine PLZ & deinen Jahresverbrauch an'));
                     }
                 }
             }

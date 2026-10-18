@@ -629,7 +629,14 @@
         const resultsGrid = document.getElementById('d2dTariffResultsGrid');
 
         async function runD2dCalculation() {
-            const plz = (plzInput?.value || '44379').replace(/\D/g, '').slice(0, 5) || '44379';
+            const plz = (plzInput?.value || '').replace(/\D/g, '').slice(0, 5);
+            if (!/^\d{5}$/.test(plz)) {
+                if (resultsGrid) {
+                    resultsGrid.innerHTML = `<div style="padding:16px;color:#b91c1c;font-weight:700;">Bitte gib zuerst eine gültige 5-stellige Postleitzahl (Lieferstelle) ein, um die Tarifpreise zu berechnen.</div>`;
+                }
+                if (plzInput) plzInput.focus();
+                return;
+            }
             const branch = branchSel?.value || 'strom';
             const kwh = parseInt(kwhInput?.value, 10) || (branch === 'gas' ? 12000 : 3000);
 

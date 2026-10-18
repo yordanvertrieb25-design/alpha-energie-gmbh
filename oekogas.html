@@ -29,9 +29,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
 
     <!-- Base Stylesheet & Scripts -->
-    <link rel="stylesheet" href="style.css?v=fc2026v13">
-    <script src="i18n.js?v=fc2026v13" defer></script>
-    <script src="main.js?v=fc2026v13" defer></script>
+    <link rel="stylesheet" href="style.css?v=fc2026v14">
+    <script src="i18n.js?v=fc2026v14" defer></script>
+    <script src="main.js?v=fc2026v14" defer></script>
 
     <style>
         :root {
@@ -2392,6 +2392,21 @@
                     </div>
                 </div>
 
+                <!-- Inline PLZ-Abfrage (Preise erst nach PLZ-Eingabe) -->
+                <div style="background:#ffffff;border:2px solid rgba(233,94,36,0.38);border-radius:18px;padding:18px 22px;margin-bottom:28px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;box-shadow:0 10px 28px rgba(233,94,36,0.08);">
+                    <div style="display:flex;align-items:center;gap:12px;">
+                        <span style="display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;border-radius:12px;background:#fff7ed;color:#e95e24;font-size:1.25rem;flex-shrink:0;">📍</span>
+                        <div>
+                            <div style="font-size:1rem;font-weight:800;color:#1c1917;">Postleitzahl eingeben für deinen exakten Gastarif</div>
+                            <div style="font-size:0.85rem;color:#57534e;">Da Gas-Netzentgelte regional unterschiedlich sind, werden Arbeits- &amp; Grundpreise erst nach Eingabe deiner 5-stelligen PLZ angezeigt.</div>
+                        </div>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+                        <input type="text" data-subpage-plz-input="gas" placeholder="Deine 5-stellige PLZ" maxlength="5" pattern="[0-9]{5}" inputmode="numeric" aria-label="Postleitzahl für Erdgas-Preisberechnung" style="height:46px;width:190px;padding:0 14px;border-radius:12px;border:1.5px solid rgba(233,94,36,0.55);font-size:0.98rem;font-weight:700;color:#1c1917;background:#fffdf9;outline:none;">
+                        <button type="button" data-subpage-plz-btn="gas" class="octo-btn-solid-orange" style="height:46px;padding:0 20px;font-size:0.92rem;white-space:nowrap;">Preise anzeigen</button>
+                    </div>
+                </div>
+
                 <div class="octo-bento-grid-3">
                     <!-- Tarif 1: ALPHA BASIC 24 (Firstcon TariffId: 282) -->
                     <div class="octo-bento-card">
@@ -2401,8 +2416,8 @@
                             <p class="octo-card-p">Unser günstigster Einstiegstarif: Erdgas mit freiwilligem Klimaschutzbeitrag und 24 Monaten voller Preisgarantie.</p>
                             <div style="background:#fffdf7;border:1.5px solid rgba(249,178,51,0.45);border-radius:16px;padding:16px;margin:18px 0;">
                                 <div style="font-size:0.82rem;color:#57534e;">Arbeitspreis (brutto, PLZ-abhängig)</div>
-                                <div style="font-size:1.75rem;font-weight:800;color:#e95e24;" data-fc-subpage-work="alpha-basic">ab 16,52 Cent / kWh</div>
-                                <div style="font-size:0.85rem;color:#44403c;margin-top:4px;">Grundpreis: <strong data-fc-subpage-base="alpha-basic">ab 28,25 € / Monat</strong></div>
+                                <div style="font-size:1.35rem;font-weight:800;color:#e95e24;" data-fc-subpage-work="alpha-basic">Bitte PLZ eingeben</div>
+                                <div style="font-size:0.85rem;color:#44403c;margin-top:4px;">Grundpreis: <strong data-fc-subpage-base="alpha-basic">Nach PLZ-Eingabe</strong></div>
                             </div>
                             <ul class="octo-check-list">
                                 <li>24 Monate volle Preisgarantie</li>
@@ -2411,7 +2426,7 @@
                                 <li>Nahtloser Wechsel ohne Technikertermin</li>
                             </ul>
                         </div>
-                        <a href="versorger.html?branch=gas#rechner" class="octo-btn-solid-orange" style="text-align:center;width:100%;">Jetzt im Rechner berechnen &rarr;</a>
+                        <a href="versorger.html?branch=gas#rechner" data-subpage-calc-link="gas" class="octo-btn-solid-orange" style="text-align:center;width:100%;">Jetzt im Rechner berechnen &rarr;</a>
                     </div>
 
                     <!-- Tarif 2: ALPHA TIME 24 (Firstcon TariffId: 283 - Bestseller) -->
@@ -2422,8 +2437,8 @@
                             <p class="octo-card-p">Maximale Sicherheit für 24 Monate: 24 Monate Vertragslaufzeit und 24 Monate volle Preisgarantie über zwei volle Heizperioden.</p>
                             <div style="background:#ffffff;border:1.5px solid rgba(233,94,36,0.45);border-radius:16px;padding:16px;margin:18px 0;">
                                 <div style="font-size:0.82rem;color:#57534e;">Arbeitspreis (brutto, PLZ-abhängig)</div>
-                                <div style="font-size:1.75rem;font-weight:800;color:#e95e24;" data-fc-subpage-work="alpha-time">ab 17,71 Cent / kWh</div>
-                                <div style="font-size:0.85rem;color:#44403c;margin-top:4px;">Grundpreis: <strong data-fc-subpage-base="alpha-time">ab 28,25 € / Monat</strong></div>
+                                <div style="font-size:1.35rem;font-weight:800;color:#e95e24;" data-fc-subpage-work="alpha-time">Bitte PLZ eingeben</div>
+                                <div style="font-size:0.85rem;color:#44403c;margin-top:4px;">Grundpreis: <strong data-fc-subpage-base="alpha-time">Nach PLZ-Eingabe</strong></div>
                             </div>
                             <ul class="octo-check-list">
                                 <li>24 Monate volle Preisgarantie</li>
@@ -2432,7 +2447,7 @@
                                 <li>Keine Vorauskasse &amp; 0 € Wechselkosten</li>
                             </ul>
                         </div>
-                        <a href="versorger.html?branch=gas#rechner" class="octo-btn-solid-orange" style="text-align:center;width:100%;">Bestseller berechnen &rarr;</a>
+                        <a href="versorger.html?branch=gas#rechner" data-subpage-calc-link="gas" class="octo-btn-solid-orange" style="text-align:center;width:100%;">Bestseller berechnen &rarr;</a>
                     </div>
 
                     <!-- Tarif 3: ALPHA PREMIUM 24 (Firstcon TariffId: 284) -->
@@ -2443,8 +2458,8 @@
                             <p class="octo-card-p">Maximale Sicherheit und Planbarkeit durch 24 Monate volle Preisgarantie auf Erdgas mit freiwilligem Klimaschutzbeitrag.</p>
                             <div style="background:#fffdf7;border:1.5px solid rgba(249,178,51,0.45);border-radius:16px;padding:16px;margin:18px 0;">
                                 <div style="font-size:0.82rem;color:#57534e;">Arbeitspreis (brutto, PLZ-abhängig)</div>
-                                <div style="font-size:1.75rem;font-weight:800;color:#e95e24;" data-fc-subpage-work="alpha-premium">ab 18,90 Cent / kWh</div>
-                                <div style="font-size:0.85rem;color:#44403c;margin-top:4px;">Grundpreis: <strong data-fc-subpage-base="alpha-premium">ab 28,25 € / Monat</strong></div>
+                                <div style="font-size:1.35rem;font-weight:800;color:#e95e24;" data-fc-subpage-work="alpha-premium">Bitte PLZ eingeben</div>
+                                <div style="font-size:0.85rem;color:#44403c;margin-top:4px;">Grundpreis: <strong data-fc-subpage-base="alpha-premium">Nach PLZ-Eingabe</strong></div>
                             </div>
                             <ul class="octo-check-list">
                                 <li>24 Monate volle Preisgarantie</li>
@@ -2453,7 +2468,7 @@
                                 <li>Unterstützung zertifizierter Klimaschutzprojekte</li>
                             </ul>
                         </div>
-                        <a href="versorger.html?branch=gas#rechner" class="octo-btn-solid-orange" style="text-align:center;width:100%;">Premium-Gastarif berechnen &rarr;</a>
+                        <a href="versorger.html?branch=gas#rechner" data-subpage-calc-link="gas" class="octo-btn-solid-orange" style="text-align:center;width:100%;">Premium-Gastarif berechnen &rarr;</a>
                     </div>
                 </div>
             </div>
