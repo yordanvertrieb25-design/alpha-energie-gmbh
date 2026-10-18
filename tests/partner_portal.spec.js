@@ -1,3 +1,4 @@
+require('dotenv').config();
 const { test, expect } = require('@playwright/test');
 
 const BASE_URL = 'http://localhost:3000';
@@ -242,13 +243,13 @@ test.describe('AlphaTarife In-House Partner Portal & Attribution Suite', () => {
         expect(appRes.status()).toBe(201);
         const appJson = await appRes.json();
 
-        const adminLogin = await request.post(`${BASE_URL}/api/auth/login`, {
-            data: { username: 'admin', password: 'password123' }
+        const adminLogin = await request.post(`${BASE_URL}/api/admin/login`, {
+            data: { password: process.env.ADMIN_PASSWORD }
         });
         expect(adminLogin.ok()).toBeTruthy();
         const { token: adminToken } = await adminLogin.json();
 
-        const actRes = await request.post(`${BASE_URL}/api/admin/partner-applications/${appJson.applicationId}/activate-portal`, {
+        const actRes = await request.post(`${BASE_URL}/api/admin/partner-applications/${appJson.data.id}/activate-portal`, {
             headers: { Authorization: `Bearer ${adminToken}` },
             data: { role: 'D2D' }
         });

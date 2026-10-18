@@ -359,9 +359,17 @@ app.post('/api/tarife/calculate', async (req, res) => {
         }
 
         const { plz, consumption, consumptionHt, consumptionNt, meterType, currentAbschlag, branch = 'strom', orderflowToken, useFallbackOnly } = req.body;
-        const normalizedBranch = branch === 'gas' ? 'gas' : (branch === 'waerme' ? 'waerme' : 'strom');
+        const rawBranch = String(branch || 'strom').toLowerCase().trim();
+        const normalizedBranch = rawBranch === 'gas'
+            ? 'gas'
+            : (rawBranch === 'waerme'
+                ? 'waerme'
+                : ((rawBranch === 'ladestrom' || rawBranch === 'autostrom' || rawBranch === 'wallbox' || rawBranch === 'mobility')
+                    ? 'ladestrom'
+                    : 'strom'));
         const isGas = normalizedBranch === 'gas';
         const isWaerme = normalizedBranch === 'waerme';
+        const isLadestrom = normalizedBranch === 'ladestrom';
         const defaultKwh = isGas ? 12000 : (isWaerme ? 6000 : 2500);
         const defaultAbschlag = isGas ? 115 : (isWaerme ? 165 : 95);
         const parsedHt = parseInt(consumptionHt, 10) || 0;
@@ -533,6 +541,72 @@ app.post('/api/tarife/calculate', async (req, res) => {
             }
         ];
 
+        const ladestromTariffs = [
+            {
+                id: 'alpha-basic',
+                firstconTariffId: 279,
+                firstconName: 'Alpha Basic 24',
+                name: 'ALPHA BASIC 24 LADESTROM',
+                badge: 'Wallbox & E-Auto (§ 14a EnWG)',
+                isBestseller: false,
+                workingPriceCt: 33.66,
+                basePriceEurMonth: 29.40,
+                basePriceEur: 29.40,
+                bonusEur: 0,
+                priceGuaranteeMonths: 24,
+                contractTermMonths: 24,
+                ecoCertificate: 'Ökostrom aus 100 % erneuerbaren Energien',
+                features: [
+                    '24 Monate volle Preisgarantie',
+                    'Für Heim-Wallbox (11 kW / 22 kW) & Elektroauto (§ 14a EnWG)',
+                    'Ökostrom aus 100 % erneuerbaren Energien',
+                    'Kostenloser & automatischer Wechselservice'
+                ]
+            },
+            {
+                id: 'alpha-time',
+                firstconTariffId: 280,
+                firstconName: 'Alpha Time 24',
+                name: 'ALPHA TIME 24 LADESTROM',
+                badge: 'Bestseller • Wallbox & E-Auto',
+                isBestseller: true,
+                workingPriceCt: 34.85,
+                basePriceEurMonth: 29.40,
+                basePriceEur: 29.40,
+                bonusEur: 0,
+                priceGuaranteeMonths: 24,
+                contractTermMonths: 24,
+                ecoCertificate: 'Ökostrom aus 100 % erneuerbaren Energien',
+                features: [
+                    '24 Monate volle Preisgarantie',
+                    'Für Heim-Wallbox (11 kW / 22 kW) & Elektroauto (§ 14a EnWG)',
+                    'Attraktives Preis-Leistungs-Verhältnis mit 24 Monaten Planungssicherheit',
+                    'Ökostrom aus 100 % erneuerbaren Energien'
+                ]
+            },
+            {
+                id: 'alpha-premium',
+                firstconTariffId: 281,
+                firstconName: 'Alpha Premium 24',
+                name: 'ALPHA PREMIUM 24 LADESTROM',
+                badge: '24 Monate Preisschutz • E-Mobility',
+                isBestseller: false,
+                workingPriceCt: 36.04,
+                basePriceEurMonth: 29.40,
+                basePriceEur: 29.40,
+                bonusEur: 0,
+                priceGuaranteeMonths: 24,
+                contractTermMonths: 24,
+                ecoCertificate: 'Ökostrom aus 100 % erneuerbaren Energien',
+                features: [
+                    '24 Monate volle Preisgarantie',
+                    'Für Heim-Wallbox (11 kW / 22 kW) & Elektroauto (§ 14a EnWG)',
+                    'Sicherheit und Planbarkeit durch lange Preisgarantie',
+                    'Ökostrom aus 100 % erneuerbaren Energien'
+                ]
+            }
+        ];
+
         const isSmallGasTier = isGas && kwh <= 4000;
         const gasTariffs = [
             {
@@ -603,7 +677,7 @@ app.post('/api/tarife/calculate', async (req, res) => {
             }
         ];
 
-        const tariffs = isGas ? gasTariffs : (isWaerme ? waermeTariffs : stromTariffs);
+        const tariffs = isGas ? gasTariffs : (isWaerme ? waermeTariffs : (isLadestrom ? ladestromTariffs : stromTariffs));
         const refGrundversorgerYearly = isGas
             ? (kwh * 0.215) + (29.50 * 12)
             : (kwh * 0.415) + (29.90 * 12);
@@ -1288,7 +1362,7 @@ async function resolveOrderPartnerAttribution({ partnerCode, partnerId, subId, b
     const normBranch = String(branch || 'strom').toLowerCase();
     let commAmount = partner.stromCommissionEur || 55.0;
     if (normBranch === 'gas') commAmount = partner.gasCommissionEur || 55.0;
-    else if (normBranch === 'waerme') commAmount = partner.waermeCommissionEur || 65.0;
+    else if (normBranch === 'waerme' || normBranch === 'ladestrom') commAmount = partner.waermeCommissionEur || partner.stromCommissionEur || 60.0;
 
     let overridePartnerId = null;
     let overrideAmount = 0;
