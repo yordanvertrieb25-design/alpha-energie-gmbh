@@ -1004,6 +1004,57 @@ document.addEventListener("DOMContentLoaded", async () => {
             }
         };
 
+        const ladestromTariffSpecs = {
+            'alpha-basic': {
+                firstconTariffId: 279,
+                name: 'ALPHA BASIC 24 LADESTROM',
+                badge: 'Wallbox & E-Auto (§ 14a EnWG)',
+                workingPriceCt: 33.66,
+                basePriceEur: 29.40,
+                basePriceYearGross: 352.85,
+                bonus: 0,
+                guaranteeMonths: 24,
+                features: [
+                    '24 Monate volle Preisgarantie',
+                    'Für Heim-Wallbox (11 kW / 22 kW) & Elektroauto (§ 14a EnWG)',
+                    'Ökostrom aus 100 % erneuerbaren Energien',
+                    'Kostenloser & automatischer Wechselservice'
+                ]
+            },
+            'alpha-time': {
+                firstconTariffId: 280,
+                name: 'ALPHA TIME 24 LADESTROM',
+                badge: 'Bestseller • Wallbox & E-Auto',
+                workingPriceCt: 34.85,
+                basePriceEur: 29.40,
+                basePriceYearGross: 352.85,
+                bonus: 0,
+                guaranteeMonths: 24,
+                features: [
+                    '24 Monate volle Preisgarantie',
+                    'Für Heim-Wallbox (11 kW / 22 kW) & Elektroauto (§ 14a EnWG)',
+                    'Attraktives Preis-Leistungs-Verhältnis mit 24 Monaten Planungssicherheit',
+                    'Ökostrom aus 100 % erneuerbaren Energien'
+                ]
+            },
+            'alpha-premium': {
+                firstconTariffId: 281,
+                name: 'ALPHA PREMIUM 24 LADESTROM',
+                badge: '24 Monate Preisschutz • E-Mobility',
+                workingPriceCt: 36.04,
+                basePriceEur: 29.40,
+                basePriceYearGross: 352.85,
+                bonus: 0,
+                guaranteeMonths: 24,
+                features: [
+                    '24 Monate volle Preisgarantie',
+                    'Für Heim-Wallbox (11 kW / 22 kW) & Elektroauto (§ 14a EnWG)',
+                    'Sicherheit und Planbarkeit durch lange Preisgarantie',
+                    'Ökostrom aus 100 % erneuerbaren Energien'
+                ]
+            }
+        };
+
         const calcWaermeHtNtRow = document.getElementById('calcWaermeHtNtRow');
         const calcConsumptionGroup = document.getElementById('calcConsumptionGroup');
         const calcSingleKwhBox = document.getElementById('calcSingleKwhBox');
@@ -1079,6 +1130,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             const b = branchOverride || currentBranch;
             if (b === 'gas') return gasTariffSpecs;
             if (b === 'waerme') return waermeTariffSpecs;
+            if (b === 'ladestrom') return ladestromTariffSpecs;
             return stromTariffSpecs;
         }
 
@@ -1125,6 +1177,11 @@ document.addEventListener("DOMContentLoaded", async () => {
                     en: 'For heat pumps (§ 14a EnWG) & night storage heaters (HT/NT)',
                     tr: 'Isı pompası (§ 14a EnWG) & gece depolamalı ısıtıcılar (HT/NT) için',
                     ar: 'لمضخات الحرارة (§ 14a EnWG) وسخانات التخزين الليلي (HT/NT)'
+                },
+                'Für Heim-Wallbox (11 kW / 22 kW) & Elektroauto (§ 14a EnWG)': {
+                    en: 'For home wallboxes (11 kW / 22 kW) & electric vehicles (§ 14a EnWG)',
+                    tr: 'Ev tipi Wallbox (11 kW / 22 kW) & elektrikli araçlar (§ 14a EnWG) için',
+                    ar: 'لمحطات الشحن المنزلية Wallbox (11/22 ك.و) والسيارات الكهربائية (§ 14a EnWG)'
                 },
                 'Ökostrom aus 100 % erneuerbaren Energien (ok-power)': {
                     en: 'Green electricity from 100% renewable energy (ok-power)',
@@ -1189,6 +1246,11 @@ document.addEventListener("DOMContentLoaded", async () => {
                     'alpha-time': { de: 'Bestseller Wärmepumpe & HT/NT', en: 'Bestseller Heat Pump & HT/NT', tr: 'Çok Satan Isı Pompası & HT/NT', ar: 'الأكثر مبيعاً للمضخات الحرارية و HT/NT' },
                     'alpha-premium': { de: '24 Monate Preisschutz & VIP', en: '24-Month Price Protection & VIP', tr: '24 Ay Fiyat Koruması & VIP', ar: 'حماية السعر لمدة 24 شهراً وخدمة VIP' }
                 },
+                ladestrom: {
+                    'alpha-basic': { de: 'Wallbox & E-Auto (§ 14a EnWG)', en: 'Wallbox & EV (§ 14a EnWG)', tr: 'Wallbox & E-Araç (§ 14a EnWG)', ar: 'Wallbox والسيارة الكهربائية (§ 14a EnWG)' },
+                    'alpha-time': { de: 'Bestseller • Wallbox & E-Auto', en: 'Bestseller • Wallbox & EV', tr: 'Çok Satan • Wallbox & E-Araç', ar: 'الأكثر مبيعاً • Wallbox والسيارة الكهربائية' },
+                    'alpha-premium': { de: '24 Monate Preisschutz • E-Mobility', en: '24-Month Price Protection • E-Mobility', tr: '24 Ay Fiyat Koruması • E-Mobilite', ar: 'حماية السعر 24 شهراً • التنقل الكهربائي' }
+                },
                 gas: {
                     'alpha-basic': { de: 'Fair & Preisstabil', en: 'Fair & Price-Stable', tr: 'Adil & Fiyat İstikrarlı', ar: 'عادل ومستقر السعر' },
                     'alpha-time': { de: 'Bestseller & Spar-Vorteil', en: 'Bestseller & Savings Advantage', tr: 'Çok Satan & Tasarruf Avantajı', ar: 'الأكثر مبيعاً وميزة التوفير' },
@@ -1237,7 +1299,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
                     const badgeEl = cardEl.querySelector('.tariff-badge');
                     if (badgeEl) {
-                        const branchKey = currentBranch === 'gas' ? 'gas' : (currentBranch === 'waerme' ? 'waerme' : 'strom');
+                        const branchKey = currentBranch === 'gas' ? 'gas' : (currentBranch === 'waerme' ? 'waerme' : (currentBranch === 'ladestrom' ? 'ladestrom' : 'strom'));
                         const branchBadges = TARIFF_BADGE_BY_CARD[branchKey];
                         const mappedBadge = branchBadges && branchBadges[id] ? branchBadges[id][curLang] : null;
                         badgeEl.textContent = mappedBadge || spec.badge;
@@ -1539,7 +1601,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                                 }
                                 const badgeEl = cardEl.querySelector('.tariff-badge');
                                 if (badgeEl) {
-                                    const branchKey = activeBranch === 'gas' ? 'gas' : (activeBranch === 'waerme' ? 'waerme' : 'strom');
+                                    const branchKey = activeBranch === 'gas' ? 'gas' : (activeBranch === 'waerme' ? 'waerme' : (activeBranch === 'ladestrom' ? 'ladestrom' : 'strom'));
                                     const badgeMap = window.__TARIFF_BADGE_BY_CARD && window.__TARIFF_BADGE_BY_CARD[branchKey];
                                     const mappedBadge = badgeMap && badgeMap[t.id] ? badgeMap[t.id][curLang] : null;
                                     badgeEl.textContent = mappedBadge || t.badge || (spec && spec.badge) || '';
@@ -1831,6 +1893,38 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         function getPresetLabelsForBranch(branch, lang) {
             const l = lang || ((window.i18n && typeof window.i18n.getLanguage === 'function') ? window.i18n.getLanguage() : 'de');
+            if (branch === 'ladestrom') {
+                if (l === 'en') {
+                    return [
+                        { label: 'City EV', sub: '1,500 kWh', kwh: 1500 },
+                        { label: 'Wallbox S', sub: '2,500 kWh', kwh: 2500 },
+                        { label: 'Wallbox M', sub: '3,500 kWh', kwh: 3500 },
+                        { label: '2 EVs / Fleet', sub: '5,000 kWh', kwh: 5000 }
+                    ];
+                }
+                if (l === 'tr') {
+                    return [
+                        { label: 'Şehir E-Araç', sub: '1.500 kWh', kwh: 1500 },
+                        { label: 'Wallbox S', sub: '2.500 kWh', kwh: 2500 },
+                        { label: 'Wallbox M', sub: '3.500 kWh', kwh: 3500 },
+                        { label: '2 E-Araç', sub: '5.000 kWh', kwh: 5000 }
+                    ];
+                }
+                if (l === 'ar') {
+                    return [
+                        { label: 'سيارة مدينة', sub: '1.500 ك.و.س', kwh: 1500 },
+                        { label: 'Wallbox S', sub: '2.500 ك.و.س', kwh: 2500 },
+                        { label: 'Wallbox M', sub: '3.500 ك.و.س', kwh: 3500 },
+                        { label: 'سيارتان', sub: '5.000 ك.و.س', kwh: 5000 }
+                    ];
+                }
+                return [
+                    { label: 'City E-Auto', sub: '1.500 kWh', kwh: 1500 },
+                    { label: 'Wallbox', sub: '2.500 kWh', kwh: 2500 },
+                    { label: 'Vielfahrer', sub: '3.500 kWh', kwh: 3500 },
+                    { label: '2 E-Autos', sub: '5.000 kWh', kwh: 5000 }
+                ];
+            }
             if (branch === 'waerme') {
                 if (l === 'en') {
                     return [
@@ -1992,6 +2086,18 @@ document.addEventListener("DOMContentLoaded", async () => {
                         noticeText.textContent = (window.i18n && typeof window.i18n.getBranchNotice === 'function')
                             ? window.i18n.getBranchNotice('waerme')
                             : 'Wärmestrom für Wärmepumpe (§ 14a EnWG) & Nachtspeicher (HT/NT) • 24 Monate volle Preisgarantie';
+                    }
+                } else if (currentBranch === 'ladestrom') {
+                    if (hasUserKwh) {
+                        if (['4000', '4500', '6000', '8000', '12000', '18000', '25000'].includes(calcKwh.value)) {
+                            calcKwh.value = '2500';
+                        }
+                    }
+                    updateHouseholdPresets('ladestrom');
+                    if (noticeText) {
+                        noticeText.textContent = (window.i18n && typeof window.i18n.getBranchNotice === 'function')
+                            ? window.i18n.getBranchNotice('ladestrom')
+                            : '100 % Öko-Ladestrom für Wallbox (11 kW / 22 kW) & E-Auto (§ 14a EnWG) • 24 Monate volle Preisgarantie';
                     }
                 } else {
                     currentBranch = 'strom';

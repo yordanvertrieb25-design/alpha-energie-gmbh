@@ -8846,9 +8846,14 @@ input#calcPlz {
     html body .octo-calc-row {
         grid-template-columns: minmax(0, 1fr) !important;
     }
-    html body .octo-consumption-group,
+    html body .octo-consumption-group {
+        grid-template-columns: minmax(320px, 1.55fr) minmax(154px, 0.78fr) minmax(206px, 1.05fr);
+    }
     html body .octo-consumption-group.is-htnt-mode {
-        grid-template-columns: minmax(310px, 1.48fr) minmax(240px, 1.25fr) minmax(160px, 0.85fr);
+        grid-template-columns: minmax(0, 1.6fr) minmax(215px, 1fr);
+    }
+    html body .octo-consumption-group.is-htnt-mode .octo-preset-pills {
+        grid-column: 1 / -1;
     }
 }
 

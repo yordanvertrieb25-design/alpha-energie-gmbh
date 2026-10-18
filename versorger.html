@@ -88,9 +88,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
     <!-- Base Styles & Scripts -->
-    <link rel="stylesheet" href="style.css?v=fc2026v11">
-    <script src="i18n.js?v=fc2026v11" defer></script>
-    <script src="main.js?v=fc2026v11" defer></script>
+    <link rel="stylesheet" href="style.css?v=fc2026v12">
+    <script src="i18n.js?v=fc2026v12" defer></script>
+    <script src="main.js?v=fc2026v12" defer></script>
 
     <!-- Octopus Energy Clone Architecture in Alpha Energie Orange Palette -->
     <style>
@@ -835,14 +835,19 @@
         /* Middle Column: Preset Pills + kWh/Jahr (or HT+NT) + Abschlag */
         .octo-consumption-group {
             display: grid;
-            grid-template-columns: minmax(316px, 1.72fr) minmax(130px, 0.72fr) minmax(170px, 0.96fr);
-            gap: 8px;
+            grid-template-columns: minmax(345px, 1.55fr) minmax(154px, 0.78fr) minmax(206px, 1.05fr);
+            gap: 10px;
             align-items: center;
             min-width: 0;
         }
 
         .octo-consumption-group.is-htnt-mode {
-            grid-template-columns: minmax(316px, 1.48fr) minmax(244px, 1.25fr) minmax(158px, 0.82fr);
+            grid-template-columns: minmax(0, 1.6fr) minmax(215px, 1fr);
+            gap: 10px;
+        }
+
+        .octo-consumption-group.is-htnt-mode .octo-preset-pills {
+            grid-column: 1 / -1;
         }
 
         .octo-preset-pills {
@@ -852,10 +857,10 @@
             background: var(--octo-bg-deep);
             border: 1.6px solid var(--octo-border-orange);
             border-radius: 14px;
-            padding: 3px;
+            padding: 4px;
             height: 58px;
             box-sizing: border-box;
-            gap: 3px;
+            gap: 4px;
             min-width: 0;
             overflow: hidden;
         }
@@ -1886,9 +1891,14 @@
             .octo-calc-row {
                 grid-template-columns: minmax(0, 1fr) !important;
             }
-            .octo-consumption-group,
+            .octo-consumption-group {
+                grid-template-columns: minmax(320px, 1.55fr) minmax(154px, 0.78fr) minmax(206px, 1.05fr);
+            }
             .octo-consumption-group.is-htnt-mode {
-                grid-template-columns: minmax(310px, 1.48fr) minmax(240px, 1.25fr) minmax(160px, 0.85fr);
+                grid-template-columns: minmax(0, 1.6fr) minmax(215px, 1fr);
+            }
+            .octo-consumption-group.is-htnt-mode .octo-preset-pills {
+                grid-column: 1 / -1;
             }
         }
 
@@ -3125,7 +3135,7 @@
                                                 <div class="octo-input-box" onclick="var inp=this.querySelector('input');if(inp&&document.activeElement!==inp){inp.focus();}">
                                                     <span class="octo-htnt-inline-tag">HT</span>
                                                     <input type="number" id="calcKwhHt" class="octo-input-field" value="1500" placeholder="1500" min="0" max="100000" step="100">
-                                                    <span class="octo-unit-tag">kWh</span>
+                                                    <span class="octo-unit-tag">kWh/Jahr</span>
                                                 </div>
                                             </div>
                                             <div class="octo-htnt-input-pill" id="calcNtInputBox">
@@ -3133,7 +3143,7 @@
                                                 <div class="octo-input-box" onclick="var inp=this.querySelector('input');if(inp&&document.activeElement!==inp){inp.focus();}">
                                                     <span class="octo-htnt-inline-tag">NT</span>
                                                     <input type="number" id="calcKwhNt" class="octo-input-field" value="4500" placeholder="4500" min="0" max="100000" step="100">
-                                                    <span class="octo-unit-tag">kWh</span>
+                                                    <span class="octo-unit-tag">kWh/Jahr</span>
                                                 </div>
                                             </div>
                                         </div>

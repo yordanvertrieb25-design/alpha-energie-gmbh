@@ -2330,7 +2330,7 @@
         {"selector":".octo-stage-overlay-pill > div > div:nth-child(1), .octo-stage-overlay-pill > span:nth-child(1)","key":"octo_stage_pill_1"},
         {"selector":".octo-stage-overlay-pill > div > div:nth-child(2), .octo-stage-overlay-pill > span:nth-child(3)","key":"octo_stage_pill_2"},
         {"selector":".octo-stage-overlay-pill > span:last-child, .octo-stage-overlay-pill > span:nth-child(5)","key":"octo_stage_pill_3"},
-        {"selector":"#calcKwh + .octo-unit-tag, .octo-calc-col-kwh .octo-unit-tag","key":"octo_unit_kwh","all":true},
+        {"selector":"#calcKwh + .octo-unit-tag, #calcKwhHt + .octo-unit-tag, #calcKwhNt + .octo-unit-tag, .octo-calc-col-kwh .octo-unit-tag","key":"octo_unit_kwh","all":true},
         {"selector":"#calcAbschlag + .octo-unit-tag, .octo-calc-col-abschlag .octo-unit-tag","key":"octo_unit_eur","all":true},
         {"selector":"#tarife .octo-section-h2","key":"octo_tarife_h2"},
         {"selector":"#tarife .octo-section-sub","key":"octo_tarife_sub"},
