@@ -667,7 +667,7 @@
         function renderD2dTariffCards(tariffs, branch, kwh) {
             if (!resultsGrid) return;
             const partnerComm = currentPartner
-                ? (branch === 'gas' ? currentPartner.gasCommissionEur : (branch === 'waerme' ? currentPartner.waermeCommissionEur : currentPartner.stromCommissionEur))
+                ? (branch === 'gas' ? currentPartner.gasCommissionEur : ((branch === 'waerme' || branch === 'ladestrom') ? currentPartner.waermeCommissionEur : currentPartner.stromCommissionEur))
                 : 65;
 
             resultsGrid.innerHTML = tariffs.map((t, idx) => {
