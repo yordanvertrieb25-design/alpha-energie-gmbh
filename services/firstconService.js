@@ -95,7 +95,7 @@ async function authenticateOrderflow(customToken, forceRefresh = false) {
 /**
  * Helper to execute an authenticated Firstcon v2 request with automatic 401 token refresh.
  */
-async function firstconRequest(method, endpoint, { data, params, token } = {}) {
+async function firstconRequest(method, endpoint, { data, params, token, timeout = 12000 } = {}) {
     let auth = await authenticateOrderflow(token, false);
     const makeCall = async (jwt) => {
         return axios({
@@ -108,7 +108,7 @@ async function firstconRequest(method, endpoint, { data, params, token } = {}) {
                 'Content-Type': 'application/json',
                 'Accept': 'application/json'
             },
-            timeout: 8000,
+            timeout,
             validateStatus: () => true
         });
     };
@@ -641,15 +641,21 @@ async function submitOrderToFirstcon(orderPayload) {
             : (orderPayload.tariffId === 'alpha-premium' ? 281 : (orderPayload.tariffId === 'alpha-time' ? 280 : 279)));
 
     const fullName = `${orderPayload.firstName || ''} ${orderPayload.lastName || ''}`.trim();
+    const authInfo = await authenticateOrderflow(token, false).catch(() => null);
+    const resolvedBrandId = Number(authInfo?.payload?.BrandId) || 54;
+    const resolvedSalesPartnerId = Number(authInfo?.payload?.SalesPartnerId) || 13341;
 
     // 2. Verify bank account & obtain ClickwrapperId in parallel
+    // Note: /Tariff/GetClickWrapperId renders the PDF contract & SEPA documents on Firstcon's server (~15-18s)
     const [bankVerificationRes, clickWrapperRes] = await Promise.all([
         firstconRequest('POST', '/Verification/VerifyBankAccount', {
             token,
+            timeout: 15000,
             data: { iban: cleanIban }
         }).catch(() => ({ status: 0, data: null })),
         firstconRequest('POST', '/Tariff/GetClickWrapperId', {
             token,
+            timeout: 35000,
             data: {
                 energyCategoryId,
                 customerTypeId: 1,
@@ -662,13 +668,16 @@ async function submitOrderToFirstcon(orderPayload) {
     ]);
 
     const clickwrapperId = (clickWrapperRes && clickWrapperRes.status === 200 && typeof clickWrapperRes.data === 'string')
-        ? clickWrapperRes.data
+        ? clickWrapperRes.data.replace(/^"+|"+$/g, '').trim()
         : '';
 
     const salutationStr = String(orderPayload.salutation || 'Herr').toLowerCase();
     const salutationId = salutationStr.includes('frau') ? '2' : (salutationStr.includes('firma') || salutationStr.includes('familie') ? '5' : '1');
 
     const contractPayload = {
+        BrandId: resolvedBrandId,
+        SalesPartnerId: resolvedSalesPartnerId,
+        ExternalOrderNo: orderPayload.orderNumber ? String(orderPayload.orderNumber) : null,
         BankAccount: {
             AccountHolder: fullName,
             Bic: '',
@@ -713,7 +722,7 @@ async function submitOrderToFirstcon(orderPayload) {
             Title: ''
         },
         TariffId: firstconTariffId,
-        BonusId: '',
+        BonusId: null,
         VoucherNo: '',
         ClickwrapperId: clickwrapperId
     };
@@ -728,6 +737,7 @@ async function submitOrderToFirstcon(orderPayload) {
     // 3. Validate order against Firstcon /Validation endpoint
     const validationRes = await firstconRequest('POST', '/Validation', {
         token,
+        timeout: 20000,
         data: contractPayload
     });
 
@@ -739,6 +749,7 @@ async function submitOrderToFirstcon(orderPayload) {
     if (isValidated && !orderPayload.dryRun) {
         const contractRes = await firstconRequest('POST', '/Contract', {
             token,
+            timeout: 35000,
             data: contractPayload
         });
         if (contractRes.status === 200 || contractRes.status === 201) {
@@ -753,6 +764,7 @@ async function submitOrderToFirstcon(orderPayload) {
         energyGridNumber: liveCalc?.energyGridNumber || null,
         ibanValid: bankVerificationRes?.data?.IsValid ?? null,
         clickwrapperId,
+        sendMailOrderConfirmation: true,
         validated: isValidated,
         validationStatus: validationRes.status,
         validationMessage: validationRes.data,

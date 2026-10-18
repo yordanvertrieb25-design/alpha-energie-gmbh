@@ -1249,51 +1249,55 @@ app.post('/api/order/submit', async (req, res) => {
             };
         }
 
-        // Send confirmation email asynchronously if transporter is configured
-        try {
-            const transporter = getMailTransporter();
-            if (transporter && email) {
-                const subject = `Ihre Auftragsbestätigung bei Alpha Energie (Auftrags-Nr. ${orderNumber})`;
-                const mailHtml = `
-                    <div style="font-family: Arial, sans-serif; color: #1e293b; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 8px;">
-                        <h2 style="color: #0a1f44;">Herzlich willkommen bei der Alpha Energie GmbH!</h2>
-                        <p>Hallo ${escapeHtml(firstName)} ${escapeHtml(lastName)},</p>
-                        <p>vielen Dank für Ihr Vertrauen in Alpha Energie. Ihr Wechselauftrag ist erfolgreich bei uns eingegangen.</p>
-                        <div style="background: #f8fafc; border-left: 4px solid #ff7a00; padding: 15px; margin: 20px 0;">
-                            <p style="margin: 4px 0;"><strong>Auftragsnummer:</strong> ${orderNumber}</p>
-                            <p style="margin: 4px 0;"><strong>Gewählter Tarif:</strong> ${escapeHtml(tariffName)}</p>
-                            <p style="margin: 4px 0;"><strong>Zählernummer:</strong> ${escapeHtml(meterNumber)}</p>
-                            <p style="margin: 4px 0;"><strong>Monatlicher Abschlag:</strong> ${monthlyPayment} €</p>
-                            <p style="margin: 4px 0;"><strong>Lieferadresse:</strong> ${escapeHtml(street)} ${escapeHtml(houseNr)}, ${escapeHtml(plz)} ${escapeHtml(city)}</p>
+        // Customer confirmation email + order form is sent directly by Firstcon (SendMailOrderConfirmation: true + ClickwrapperId).
+        // Only send local fallback confirmation if Firstcon submission did not complete.
+        if (!firstconResult || !firstconResult.contractSubmitted) {
+            try {
+                const transporter = getMailTransporter();
+                if (transporter && email) {
+                    const subject = `Ihre Auftragsbestätigung bei Alpha Energie (Auftrags-Nr. ${orderNumber})`;
+                    const mailHtml = `
+                        <div style="font-family: Arial, sans-serif; color: #1e293b; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 8px;">
+                            <h2 style="color: #0a1f44;">Herzlich willkommen bei der Alpha Energie GmbH!</h2>
+                            <p>Hallo ${escapeHtml(firstName)} ${escapeHtml(lastName)},</p>
+                            <p>vielen Dank für Ihr Vertrauen in Alpha Energie. Ihr Wechselauftrag ist erfolgreich bei uns eingegangen.</p>
+                            <div style="background: #f8fafc; border-left: 4px solid #ff7a00; padding: 15px; margin: 20px 0;">
+                                <p style="margin: 4px 0;"><strong>Auftragsnummer:</strong> ${orderNumber}</p>
+                                <p style="margin: 4px 0;"><strong>Gewählter Tarif:</strong> ${escapeHtml(tariffName)}</p>
+                                <p style="margin: 4px 0;"><strong>Zählernummer:</strong> ${escapeHtml(meterNumber)}</p>
+                                <p style="margin: 4px 0;"><strong>Monatlicher Abschlag:</strong> ${monthlyPayment} €</p>
+                                <p style="margin: 4px 0;"><strong>Lieferadresse:</strong> ${escapeHtml(street)} ${escapeHtml(houseNr)}, ${escapeHtml(plz)} ${escapeHtml(city)}</p>
+                            </div>
+                            <h3 style="color: #0a1f44;">Wie geht es weiter?</h3>
+                            <ol style="line-height: 1.6;">
+                                <li>Wir prüfen Ihre Angaben und melden den Wechsel bei Ihrem örtlichen Netzbetreiber an.</li>
+                                <li>Falls gewünscht, kündigen wir Ihren bisherigen Vertrag kostenlos und fristgerecht.</li>
+                                <li>Sie erhalten rechtzeitig vor Lieferbeginn Ihre Vertragsbestätigung per Post oder E-Mail.</li>
+                            </ol>
+                            <p style="color: #64748b; font-size: 0.9rem; margin-top: 30px;">
+                                Alpha Energie GmbH • Alter Hellweg 50, 44379 Dortmund<br>
+                                Kundenservice: 0231 39989390 • E-Mail: info@alpha-energie.de
+                            </p>
                         </div>
-                        <h3 style="color: #0a1f44;">Wie geht es weiter?</h3>
-                        <ol style="line-height: 1.6;">
-                            <li>Wir prüfen Ihre Angaben und melden den Wechsel bei Ihrem örtlichen Netzbetreiber an.</li>
-                            <li>Falls gewünscht, kündigen wir Ihren bisherigen Vertrag kostenlos und fristgerecht.</li>
-                            <li>Sie erhalten rechtzeitig vor Lieferbeginn Ihre Vertragsbestätigung per Post oder E-Mail.</li>
-                        </ol>
-                        <p style="color: #64748b; font-size: 0.9rem; margin-top: 30px;">
-                            Alpha Energie GmbH • Alter Hellweg 50, 44379 Dortmund<br>
-                            Kundenservice: 0231 39989390 • E-Mail: info@alpha-energie.de
-                        </p>
-                    </div>
-                `;
-                transporter.sendMail({
-                    from: getSenderEmail(),
-                    to: email,
-                    subject,
-                    html: mailHtml
-                }).catch(err => console.error("Error sending order confirmation email:", err));
+                    `;
+                    transporter.sendMail({
+                        from: getSenderEmail(),
+                        to: email,
+                        subject,
+                        html: mailHtml
+                    }).catch(err => console.error("Error sending order confirmation email:", err));
+                }
+            } catch (mailErr) {
+                console.warn("Could not send confirmation email:", mailErr.message);
             }
-        } catch (mailErr) {
-            console.warn("Could not send confirmation email:", mailErr.message);
         }
 
         res.status(201).json({
             success: true,
-            orderNumber,
+            orderNumber: (firstconResult && firstconResult.firstconContractId) ? firstconResult.firstconContractId : orderNumber,
+            internalOrderNumber: orderNumber,
             firstcon: firstconResult,
-            message: 'Ihr Auftrag wurde erfolgreich erfasst! Wir kümmern uns um den reibungslosen Wechsel.'
+            message: 'Ihr Auftrag wurde erfolgreich an Firstcon übermittelt! Sie erhalten Ihre Auftragsbestätigung inkl. Vertragsunterlagen per E-Mail.'
         });
     } catch (error) {
         console.error("Order submission error:", error);
