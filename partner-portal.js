@@ -638,7 +638,8 @@
                 return;
             }
             const branch = branchSel?.value || 'strom';
-            const kwh = parseInt(kwhInput?.value, 10) || (branch === 'gas' ? 12000 : 3000);
+            const defaultBranchKwh = branch === 'gas' ? 12000 : (branch === 'waerme' ? 6000 : (branch === 'ladestrom' ? 2500 : 3000));
+            const kwh = parseInt(kwhInput?.value, 10) || defaultBranchKwh;
 
             if (resultsGrid) {
                 resultsGrid.innerHTML = `<div style="padding:16px;color:#475569;">Lade tagesaktuelle Firstcon-Tarife für PLZ ${escapeHtml(plz)} (${kwh.toLocaleString('de-DE')} kWh)...</div>`;
@@ -681,6 +682,15 @@
                 const isSel = selectedD2dTariff && selectedD2dTariff.id === t.id;
                 const workCt = Number(t.workingPriceCt || 0).toFixed(2).replace('.', ',');
                 const baseEur = Number(t.basePriceEurMonth || t.basePriceEur || 0).toFixed(2).replace('.', ',');
+                let rateDetail = `Arbeitspreis: <strong>${workCt} ct/kWh</strong> · Grundpreis: <strong>${baseEur} €/Mon.</strong>`;
+                if (branch === 'waerme' && typeof t.workingPriceHtCt === 'number' && typeof t.workingPriceNtCt === 'number') {
+                    const etCt = Number(t.workingPriceEtCt || t.workingPriceCt || 0).toFixed(2).replace('.', ',');
+                    const htCt = Number(t.workingPriceHtCt).toFixed(2).replace('.', ',');
+                    const ntCt = Number(t.workingPriceNtCt).toFixed(2).replace('.', ',');
+                    rateDetail = `ET: <strong>${etCt} ct</strong> · HT/NT: <strong>${htCt} / ${ntCt} ct/kWh</strong> · GP: <strong>${baseEur} €/Mon.</strong>`;
+                } else if (branch === 'ladestrom') {
+                    rateDetail = `Arbeitspreis (§ 14a EnWG): <strong>${workCt} ct/kWh</strong> · Grundpreis: <strong>${baseEur} €/Mon.</strong>`;
+                }
                 return `
                     <div class="d2d-tariff-card ${isSel ? 'selected' : ''}" data-d2d-tariff-idx="${idx}" style="border:2px solid ${isSel ? '#ff7a00' : '#e2e8f0'};border-radius:14px;padding:16px;background:${isSel ? '#fff7ed' : '#ffffff'};cursor:pointer;transition:all 0.2s;">
                         <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:8px;">
@@ -688,7 +698,7 @@
                             <span style="background:#dcfce7;color:#15803d;font-size:0.74rem;font-weight:700;padding:3px 8px;border-radius:999px;">+${formatEur(partnerComm)} Provision</span>
                         </div>
                         <div style="font-size:1.35rem;font-weight:800;color:#0a1f44;margin-bottom:6px;">${Number(t.monthlyPayment || 0)} € <span style="font-size:0.82rem;font-weight:500;color:#64748b;">/ Monat Abschlag</span></div>
-                        <div style="font-size:0.82rem;color:#475569;">Arbeitspreis: <strong>${workCt} ct/kWh</strong> · Grundpreis: <strong>${baseEur} €/Mon.</strong></div>
+                        <div style="font-size:0.82rem;color:#475569;">${rateDetail}</div>
                     </div>
                 `;
             }).join('');
@@ -712,6 +722,18 @@
             }
         }
 
+        if (branchSel) {
+            branchSel.addEventListener('change', () => {
+                const br = branchSel.value || 'strom';
+                if (kwhInput && ['2500', '3000', '6000', '12000'].includes(String(kwhInput.value))) {
+                    kwhInput.value = br === 'gas' ? '12000' : (br === 'waerme' ? '6000' : (br === 'ladestrom' ? '2500' : '3000'));
+                }
+                const currentPlz = (plzInput?.value || '').replace(/\D/g, '').slice(0, 5);
+                if (/^\d{5}$/.test(currentPlz)) {
+                    runD2dCalculation();
+                }
+            });
+        }
         if (calcBtn) calcBtn.addEventListener('click', runD2dCalculation);
 
         // Live IBAN check on D2D Order IBAN

@@ -360,14 +360,7 @@ app.all('/api/tarife/calculate', async (req, res) => {
         }
 
         const { plz, consumption, consumptionHt, consumptionNt, meterType, currentAbschlag, branch = 'strom', orderflowToken, useFallbackOnly } = params;
-        const rawBranch = String(branch || 'strom').toLowerCase().trim();
-        const normalizedBranch = rawBranch === 'gas'
-            ? 'gas'
-            : (rawBranch === 'waerme'
-                ? 'waerme'
-                : ((rawBranch === 'ladestrom' || rawBranch === 'autostrom' || rawBranch === 'wallbox' || rawBranch === 'mobility')
-                    ? 'ladestrom'
-                    : 'strom'));
+        const normalizedBranch = firstconService.normalizeFirstconBranch(branch);
         const isGas = normalizedBranch === 'gas';
         const isWaerme = normalizedBranch === 'waerme';
         const isLadestrom = normalizedBranch === 'ladestrom';
@@ -698,7 +691,9 @@ app.all('/api/tarife/calculate', async (req, res) => {
             ? (kwh * 0.215) + (29.50 * 12)
             : (isWaerme
                 ? (kwh * 0.375) + (24.90 * 12)
-                : (kwh * 0.415) + (29.90 * 12));
+                : (isLadestrom
+                    ? (kwh * 0.385) + (25.90 * 12)
+                    : (kwh * 0.415) + (29.90 * 12)));
         const yearlyOld = Math.max(abschlagOld * 12, refGrundversorgerYearly);
 
         const calculatedTariffs = tariffs.map(t => {

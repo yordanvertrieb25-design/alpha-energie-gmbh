@@ -1389,6 +1389,8 @@ document.addEventListener("DOMContentLoaded", async () => {
                             meterTag = htNtLocal.meterType === 'et'
                                 ? (curLang === 'en' ? 'Single-Rate' : (curLang === 'tr' ? 'Tek Zamanlı' : (curLang === 'ar' ? 'تعرفة موحدة' : 'Eintarif')))
                                 : `HT ${htNtLocal.ht.toLocaleString('de-DE')} / NT ${htNtLocal.nt.toLocaleString('de-DE')} kWh`;
+                        } else if (currentBranch === 'ladestrom') {
+                            meterTag = curLang === 'ar' ? 'شاحن § 14a EnWG' : 'Wallbox § 14a EnWG';
                         }
                         if (window.i18n && typeof window.i18n.formatKwhDescHtml === 'function') {
                             kwhEl.innerHTML = window.i18n.formatKwhDescHtml(
@@ -1783,6 +1785,8 @@ document.addEventListener("DOMContentLoaded", async () => {
                                     meterTag = htNtData.meterType === 'et'
                                         ? (curLang === 'en' ? 'Single-Rate' : (curLang === 'tr' ? 'Tek Zamanlı' : (curLang === 'ar' ? 'تعرفة موحدة' : 'Eintarif')))
                                         : `HT ${htNtData.ht.toLocaleString('de-DE')} / NT ${htNtData.nt.toLocaleString('de-DE')} kWh`;
+                                } else if (activeBranch === 'ladestrom') {
+                                    meterTag = curLang === 'ar' ? 'شاحن § 14a EnWG' : 'Wallbox § 14a EnWG';
                                 }
                                 if (window.i18n && typeof window.i18n.formatKwhDescHtml === 'function') {
                                     kwhEl.innerHTML = window.i18n.formatKwhDescHtml(
@@ -1826,6 +1830,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                             btn.setAttribute('data-monthly', t.monthlyPayment);
                             btn.setAttribute('data-kwh', kwh);
                             btn.setAttribute('data-savings', sav);
+                            btn.setAttribute('data-branch', activeBranch);
                             if (t.name) btn.setAttribute('data-name', t.name);
                             if (t.firstconTariffId) btn.setAttribute('data-firstcon-tariff-id', t.firstconTariffId);
                             if (t.energyGridNumber || data.energyGridNumber) {
@@ -2272,10 +2277,13 @@ document.addEventListener("DOMContentLoaded", async () => {
                 updateMeterTypeUI();
                 recalculateTariffs();
 
+                const activePlz = (calcPlz && /^\d{5}$/.test(calcPlz.value)) ? calcPlz.value : '';
                 const tarifeSectionOnTabSwitch = document.getElementById('tarife');
                 if (tarifeSectionOnTabSwitch && tarifeSectionOnTabSwitch.classList.contains('octo-tarife-section')) {
-                    tarifeSectionOnTabSwitch.classList.remove('is-tarife-visible');
-                    tarifeSectionOnTabSwitch.style.display = 'none';
+                    if (!activePlz) {
+                        tarifeSectionOnTabSwitch.classList.remove('is-tarife-visible');
+                        tarifeSectionOnTabSwitch.style.display = 'none';
+                    }
                 }
 
                 // Synchronize 3D scene mode and consumption
@@ -2283,7 +2291,6 @@ document.addEventListener("DOMContentLoaded", async () => {
                 const defaultBranchKwh = currentBranch === 'gas' ? 12000 : (currentBranch === 'waerme' ? 6000 : 2500);
                 const currentKwhVal = Math.max(500, parseInt(calcKwh && calcKwh.value ? calcKwh.value : defaultBranchKwh, 10) || defaultBranchKwh);
                 sync3DSceneConsumption(currentKwhVal);
-                const activePlz = (calcPlz && /^\d{5}$/.test(calcPlz.value)) ? calcPlz.value : '';
                 if (activePlz) {
                     syncLiveFirstconCalculation(activePlz, currentKwhVal, currentBranch);
                 }
@@ -2490,7 +2497,9 @@ document.addEventListener("DOMContentLoaded", async () => {
                 const br = link.getAttribute('data-subpage-calc-link') || 'strom';
                 link.href = br === 'gas'
                     ? 'versorger.html?branch=gas#rechner'
-                    : (br === 'waerme' ? 'versorger.html?branch=waerme#rechner' : 'versorger.html#rechner');
+                    : (br === 'waerme'
+                        ? 'versorger.html?branch=waerme#rechner'
+                        : (br === 'ladestrom' ? 'versorger.html?branch=ladestrom#rechner' : 'versorger.html#rechner'));
             });
         }
 
@@ -2572,6 +2581,13 @@ document.addEventListener("DOMContentLoaded", async () => {
                     subInp.value = cleanUrlPlz;
                     subInp.dispatchEvent(new Event('input', { bubbles: true }));
                 });
+                if (cleanUrlPlz.length === 5) {
+                    const tarifeSec = document.getElementById('tarife');
+                    if (tarifeSec && tarifeSec.classList.contains('octo-tarife-section')) {
+                        tarifeSec.style.display = 'block';
+                        tarifeSec.classList.add('is-tarife-visible');
+                    }
+                }
             }
             if (urlKwh && calcKwh) {
                 calcKwh.value = urlKwh.replace(/\D/g, '');
