@@ -8839,12 +8839,44 @@ input#calcPlz {
     user-select: none !important;
 }
 
+html body .octo-calc-row {
+    align-items: start;
+}
+
+html body .octo-calc-row > div:first-child {
+    align-self: start;
+}
+
+html body .octo-calc-row > div:first-child > .octo-calc-col-label {
+    display: flex;
+    align-items: center;
+    min-height: 24px;
+    margin-bottom: 10px;
+}
+
+html body .octo-calc-row.is-waerme-mode > div:first-child > .octo-calc-col-label,
+html body .octo-calc-row:has(#calcWaermeHtNtRow:not([style*="none"])) > div:first-child > .octo-calc-col-label,
+html body .octo-calc-row.is-waerme-mode .octo-calc-col-header,
+html body .octo-calc-row:has(#calcWaermeHtNtRow:not([style*="none"])) .octo-calc-col-header {
+    min-height: 38px;
+}
+
+html body .octo-calc-row > div:last-child {
+    align-self: end;
+}
+
 /* ==========================================================================
    GLOBAL MOBILE & TABLET RESPONSIVE HARDENING (ALL PAGES & SUBPAGES)
    ========================================================================== */
 @media (max-width: 1250px) {
     html body .octo-calc-row {
         grid-template-columns: minmax(0, 1fr) !important;
+    }
+    html body .octo-calc-row > div:first-child > .octo-calc-col-label,
+    html body .octo-calc-row.is-waerme-mode > div:first-child > .octo-calc-col-label,
+    html body .octo-calc-row:has(#calcWaermeHtNtRow:not([style*="none"])) > div:first-child > .octo-calc-col-label {
+        min-height: 0 !important;
+        height: auto !important;
     }
     html body .octo-consumption-group {
         grid-template-columns: minmax(320px, 1.55fr) minmax(154px, 0.78fr) minmax(206px, 1.05fr);

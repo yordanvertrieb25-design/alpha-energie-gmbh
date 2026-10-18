@@ -1,10 +1,12 @@
 {
-  "updatedAt": "2026-10-18T13:28:25.432Z",
+  "updatedAt": "2026-10-18T13:37:55.574Z",
+  "csrfToken": "f7116d973a3180a30a0bd269c889820087201509b9cc2954853d109fdd787008",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36",
   "cookies": {
     "PHPSESSID": "tul369tpk7gnnt4fq4li0as3v3",
     "feature_flag": "productfinder-energy-application",
-    "fe_typo_user": "4b3fa246edfaa4ca739a5cbc8b081d42",
-    "session": "3SHQWdQvD6gSuzIaXosVfZHqberFM-5V04dS_24xhwg",
-    "refresh_token": "6IZ5LF1H_QDwlyNyJVfOpqePXNCQDuln3mFPb4vudYCslmJh3TCracpx809lAqhg"
+    "fe_typo_user": "5c740b16afcdd2ec4836993e168f17bc",
+    "session": "3PuVJvnY_XLtGpAbm1av2TVXuh7OlETfioub4csvy0s",
+    "refresh_token": "h2KzNvoVjjPxqwrWuqJ0ty1ECuL3doa66IeEq40LIXfFsh3UyHL9j6HucBypfG6Y"
   }
 }

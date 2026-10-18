@@ -1533,6 +1533,15 @@ if (document.querySelector('.dashboard-container')) {
         }
     };
 
+    function escAdmin(str) {
+        return String(str == null ? '' : str)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+    }
+
     window.loadAdminPortalOverview = async function() {
         try {
             const res = await fetch(`${API_URL}/admin/portal-overview`, {
@@ -1558,36 +1567,36 @@ if (document.querySelector('.dashboard-container')) {
                     ordersTbody.innerHTML = orders.map(o => `
                         <tr>
                             <td>
-                                <strong>${o.orderNumber}</strong><br>
+                                <strong>${escAdmin(o.orderNumber)}</strong><br>
                                 <span style="font-size:0.75rem;color:#64748b;">${new Date(o.createdAt).toLocaleString('de-DE')}</span>
                             </td>
                             <td>
-                                <strong>${o.firstName} ${o.lastName}</strong><br>
-                                <span style="font-size:0.8rem;color:#475569;">${o.street} ${o.houseNr}, ${o.plz} ${o.city}</span>
+                                <strong>${escAdmin(o.firstName)} ${escAdmin(o.lastName)}</strong><br>
+                                <span style="font-size:0.8rem;color:#475569;">${escAdmin(o.street)} ${escAdmin(o.houseNr)}, ${escAdmin(o.plz)} ${escAdmin(o.city)}</span>
                             </td>
                             <td>
-                                <strong>${o.tariffName}</strong> (${String(o.branch || 'strom').toUpperCase()})<br>
-                                <span style="font-size:0.78rem;color:#64748b;">${Number(o.consumption || 0).toLocaleString('de-DE')} kWh · Zähler: ${o.meterNumber}</span>
+                                <strong>${escAdmin(o.tariffName)}</strong> (${escAdmin(String(o.branch || 'strom').toUpperCase())})<br>
+                                <span style="font-size:0.78rem;color:#64748b;">${Number(o.consumption || 0).toLocaleString('de-DE')} kWh · Zähler: ${escAdmin(o.meterNumber)}</span>
                             </td>
                             <td>
-                                <span style="font-family:monospace;font-size:0.78rem;">${o.iban || '-'}</span><br>
-                                <span style="font-size:0.75rem;color:${o.ibanValid ? '#16a34a' : '#64748b'};">${o.bankName || (o.ibanValid ? '✓ Mod-97 OK' : '')}</span>
+                                <span style="font-family:monospace;font-size:0.78rem;">${escAdmin(o.iban || '-')}</span><br>
+                                <span style="font-size:0.75rem;color:${o.ibanValid ? '#16a34a' : '#64748b'};">${escAdmin(o.bankName || (o.ibanValid ? '✓ Mod-97 OK' : ''))}</span>
                             </td>
                             <td>
-                                <strong>${o.partnerCode || 'Direkt (Online)'}</strong><br>
-                                <span style="font-size:0.75rem;color:#64748b;">Kanal: ${o.orderSource || 'ONLINE'}${o.subId ? ' · Sub: ' + o.subId : ''}</span>
+                                <strong>${escAdmin(o.partnerCode || 'Direkt (Online)')}</strong><br>
+                                <span style="font-size:0.75rem;color:#64748b;">Kanal: ${escAdmin(o.orderSource || 'ONLINE')}${o.subId ? ' · Sub: ' + escAdmin(o.subId) : ''}</span>
                             </td>
                             <td>
                                 ${o.signedAt
                                     ? `<span style="color:#16a34a;font-weight:700;font-size:0.78rem;">✓ eSign vorhanden</span>`
                                     : (o.signatureToken
-                                        ? `<a href="/vertriebspartner-portal.html?sign=${o.signatureToken}" target="_blank" style="color:#ea580c;font-weight:700;font-size:0.78rem;">Offener eSign-Link</a>`
+                                        ? `<a href="/vertriebspartner-portal.html?sign=${encodeURIComponent(o.signatureToken)}" target="_blank" style="color:#ea580c;font-weight:700;font-size:0.78rem;">Offener eSign-Link</a>`
                                         : `<span style="color:#64748b;font-size:0.75rem;">Web-Abschluss</span>`)}
                             </td>
                             <td>
-                                <select onchange="updateAdminEnergyOrder(${o.id}, { status: this.value })" style="padding:5px 8px;border-radius:6px;border:1px solid #cbd5e1;font-size:0.8rem;">
+                                <select onchange="updateAdminEnergyOrder(${Number(o.id)}, { status: this.value })" style="padding:5px 8px;border-radius:6px;border:1px solid #cbd5e1;font-size:0.8rem;">
                                     <option value="RECEIVED" ${o.status === 'RECEIVED' ? 'selected' : ''}>Eingegangen</option>
-                                    <option value="AWAITING_SIGNATURE" ${o.status === 'AWAITING_SIGNATURE' ? 'selected' : ''}>Wartet auf eSign</option>
+                                    <option value="PENDING_SIGNATURE" ${(o.status === 'PENDING_SIGNATURE' || o.status === 'AWAITING_SIGNATURE') ? 'selected' : ''}>Wartet auf eSign</option>
                                     <option value="PROCESSING" ${o.status === 'PROCESSING' ? 'selected' : ''}>In Bearbeitung</option>
                                     <option value="CONFIRMED" ${o.status === 'CONFIRMED' ? 'selected' : ''}>Bestätigt</option>
                                     <option value="CANCELLED" ${o.status === 'CANCELLED' ? 'selected' : ''}>Storniert</option>
@@ -1595,7 +1604,7 @@ if (document.querySelector('.dashboard-container')) {
                             </td>
                             <td>
                                 <div style="font-weight:800;color:#0f172a;margin-bottom:4px;">${fmtEurAdmin(o.commissionAmount)}</div>
-                                <select onchange="updateAdminEnergyOrder(${o.id}, { commissionStatus: this.value })" style="padding:4px 8px;border-radius:6px;border:1px solid #cbd5e1;font-size:0.78rem;">
+                                <select onchange="updateAdminEnergyOrder(${Number(o.id)}, { commissionStatus: this.value })" style="padding:4px 8px;border-radius:6px;border:1px solid #cbd5e1;font-size:0.78rem;">
                                     <option value="NONE" ${o.commissionStatus === 'NONE' ? 'selected' : ''}>Keine</option>
                                     <option value="PENDING" ${o.commissionStatus === 'PENDING' ? 'selected' : ''}>Vorgemerkt</option>
                                     <option value="APPROVED" ${o.commissionStatus === 'APPROVED' ? 'selected' : ''}>Freigegeben</option>
@@ -1613,14 +1622,33 @@ if (document.querySelector('.dashboard-container')) {
                 const partners = data.partners || [];
                 partnersTbody.innerHTML = partners.map(p => `
                     <tr>
-                        <td><strong style="color:#0284c7;">${p.partnerCode}</strong></td>
-                        <td><strong>${p.fullName}</strong>${p.companyName ? `<br><span style="font-size:0.78rem;color:#64748b;">${p.companyName}</span>` : ''}</td>
-                        <td><span style="font-weight:700;font-size:0.78rem;">${p.role}</span></td>
-                        <td>${p.email}<br><span style="font-size:0.78rem;color:#64748b;">${p.phone || '-'}</span></td>
-                        <td>${p.stromCommissionEur} € / ${p.gasCommissionEur} € / Override: ${p.overrideCommissionEur} €</td>
-                        <td><span style="font-family:monospace;font-size:0.76rem;">${p.iban || '-'}</span><br><span style="font-size:0.74rem;color:#64748b;">${p.isVatLiable ? 'Regelbesteuert (19% USt.)' : 'Kleinunternehmer (0% USt.)'}</span></td>
+                        <td><strong style="color:#0284c7;">${escAdmin(p.partnerCode)}</strong></td>
+                        <td><strong>${escAdmin(p.fullName)}</strong>${p.companyName ? `<br><span style="font-size:0.78rem;color:#64748b;">${escAdmin(p.companyName)}</span>` : ''}</td>
                         <td>
-                            <button onclick="createAdminCommissionPayout(${p.id})" style="background:#10b981;color:#fff;border:none;padding:6px 11px;border-radius:6px;font-size:0.78rem;font-weight:700;cursor:pointer;">
+                            <div style="display:flex;flex-direction:column;gap:4px;">
+                                <select onchange="updateAdminPartnerUser(${Number(p.id)}, { role: this.value })" style="padding:3px 6px;border-radius:5px;border:1px solid #cbd5e1;font-size:0.76rem;font-weight:700;">
+                                    <option value="D2D" ${p.role === 'D2D' ? 'selected' : ''}>D2D</option>
+                                    <option value="AFFILIATE" ${p.role === 'AFFILIATE' ? 'selected' : ''}>AFFILIATE</option>
+                                    <option value="TIPPGEBER" ${p.role === 'TIPPGEBER' ? 'selected' : ''}>TIPPGEBER</option>
+                                    <option value="AGENCY" ${p.role === 'AGENCY' ? 'selected' : ''}>AGENCY</option>
+                                </select>
+                                <select onchange="updateAdminPartnerUser(${Number(p.id)}, { status: this.value })" style="padding:3px 6px;border-radius:5px;border:1px solid #cbd5e1;font-size:0.74rem;color:${p.status === 'ACTIVE' ? '#15803d' : '#b91c1c'};font-weight:700;">
+                                    <option value="ACTIVE" ${p.status === 'ACTIVE' ? 'selected' : ''}>Aktiv</option>
+                                    <option value="SUSPENDED" ${p.status === 'SUSPENDED' ? 'selected' : ''}>Gesperrt</option>
+                                </select>
+                            </div>
+                        </td>
+                        <td>${escAdmin(p.email)}<br><span style="font-size:0.78rem;color:#64748b;">${escAdmin(p.phone || '-')}</span></td>
+                        <td>
+                            <div style="display:flex;align-items:center;gap:4px;font-size:0.76rem;">
+                                <input type="number" value="${Number(p.stromCommissionEur || 0)}" onchange="updateAdminPartnerUser(${Number(p.id)}, { stromCommissionEur: parseFloat(this.value) || 0, gasCommissionEur: parseFloat(this.value) || 0 })" style="width:52px;padding:3px 5px;border:1px solid #cbd5e1;border-radius:4px;" title="Strom/Gas Provision (€)"> €
+                                <span>/ Override:</span>
+                                <input type="number" value="${Number(p.overrideCommissionEur || 0)}" onchange="updateAdminPartnerUser(${Number(p.id)}, { overrideCommissionEur: parseFloat(this.value) || 0 })" style="width:46px;padding:3px 5px;border:1px solid #cbd5e1;border-radius:4px;" title="Override Provision (€)"> €
+                            </div>
+                        </td>
+                        <td><span style="font-family:monospace;font-size:0.76rem;">${escAdmin(p.iban || '-')}</span><br><span style="font-size:0.74rem;color:#64748b;">${p.isVatLiable ? 'Regelbesteuert (19% USt.)' : 'Kleinunternehmer (0% USt.)'}</span></td>
+                        <td>
+                            <button onclick="createAdminCommissionPayout(${Number(p.id)})" style="background:#10b981;color:#fff;border:none;padding:6px 11px;border-radius:6px;font-size:0.78rem;font-weight:700;cursor:pointer;">
                                 <i class="fa-solid fa-file-invoice-dollar"></i> Gutschrift erstellen
                             </button>
                         </td>
@@ -1636,15 +1664,16 @@ if (document.querySelector('.dashboard-container')) {
                 } else {
                     leadsTbody.innerHTML = leads.map(l => `
                         <tr>
-                            <td><strong>${l.partnerCode}</strong></td>
-                            <td><strong>${l.customerName}</strong><br><span style="font-size:0.78rem;color:#64748b;">${l.customerPhone}</span></td>
-                            <td>${String(l.branch || 'strom').toUpperCase()}</td>
+                            <td><strong>${escAdmin(l.partnerCode)}</strong></td>
+                            <td><strong>${escAdmin(l.customerName)}</strong><br><span style="font-size:0.78rem;color:#64748b;">${escAdmin(l.customerPhone)}</span></td>
+                            <td>${escAdmin(String(l.branch || 'strom').toUpperCase())}</td>
                             <td>
-                                <select onchange="updateAdminPartnerLead(${l.id}, this.value)" style="padding:4px 8px;border-radius:6px;border:1px solid #cbd5e1;font-size:0.78rem;">
+                                <select onchange="updateAdminPartnerLead(${Number(l.id)}, this.value)" style="padding:4px 8px;border-radius:6px;border:1px solid #cbd5e1;font-size:0.78rem;">
                                     <option value="NEW" ${l.status === 'NEW' ? 'selected' : ''}>Neu</option>
                                     <option value="CONTACTED" ${l.status === 'CONTACTED' ? 'selected' : ''}>Kontaktiert</option>
                                     <option value="QUALIFIED" ${l.status === 'QUALIFIED' ? 'selected' : ''}>Qualifiziert</option>
                                     <option value="CONVERTED" ${l.status === 'CONVERTED' ? 'selected' : ''}>Abgeschlossen</option>
+                                    <option value="PAID" ${l.status === 'PAID' ? 'selected' : ''}>Ausgezahlt</option>
                                     <option value="REJECTED" ${l.status === 'REJECTED' ? 'selected' : ''}>Abgelehnt</option>
                                 </select>
                                 <span style="margin-left:6px;font-weight:700;">${fmtEurAdmin(l.commissionAmount)}</span>
@@ -1662,16 +1691,32 @@ if (document.querySelector('.dashboard-container')) {
                 } else {
                     payoutsTbody.innerHTML = payouts.map(po => `
                         <tr>
-                            <td><strong>${po.payoutNumber}</strong></td>
-                            <td>${po.periodLabel} (${po.ordersCount} Vertr.)</td>
+                            <td><strong>${escAdmin(po.payoutNumber)}</strong></td>
+                            <td>${escAdmin(po.periodLabel)} (${Number(po.ordersCount || 0)} Vertr.)</td>
                             <td>${fmtEurAdmin(po.netAmount)} Netto<br><strong>${fmtEurAdmin(po.grossAmount)} Brutto</strong></td>
-                            <td><a href="/api/partner/payouts/${po.id}/pdf" target="_blank" style="color:#ea580c;font-weight:700;text-decoration:underline;">PDF öffnen</a></td>
+                            <td><a href="/api/partner/payouts/${Number(po.id)}/pdf" target="_blank" style="color:#ea580c;font-weight:700;text-decoration:underline;">PDF öffnen</a></td>
                         </tr>
                     `).join('');
                 }
             }
         } catch (err) {
             console.error('Error loading admin portal overview:', err);
+        }
+    };
+
+    window.updateAdminPartnerUser = async function(partnerId, patchData) {
+        try {
+            await fetch(`${API_URL}/admin/partner-users/${partnerId}`, {
+                method: 'PATCH',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(patchData)
+            });
+            window.loadAdminPortalOverview();
+        } catch (err) {
+            alert('Fehler beim Aktualisieren des Partners.');
         }
     };
 

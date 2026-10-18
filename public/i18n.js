@@ -77,6 +77,9 @@
             // Rechner Dynamic Notices
             notice_strom: 'Green electricity from 100% renewable energy • 24 months full price guarantee',
             notice_waerme: 'Heat pump power (§ 14a EnWG) • Up to 25% reduced grid fees for heat pumps',
+            calc_tab_ladestrom_title: 'EV & Wallbox',
+            calc_tab_ladestrom_sub: '100% green charging',
+            notice_ladestrom: '100% green EV charging power for home wallbox (11 kW / 22 kW) & electric car (§ 14a EnWG) • 24 months full price guarantee',
             notice_gas: 'Natural gas with voluntary climate protection contribution • Support for selected climate projects',
 
             // Rechner Form
@@ -721,6 +724,9 @@
             // Rechner Dynamic Notices
             notice_strom: '%100 Yenilenebilir Enerji Kaynaklarından Yeşil Elektrik • ok-power kriterlerine göre onaylı',
             notice_waerme: 'Isı Pompası Elektriği (§ 14a EnWG) • Isı pompaları için %25\'e varan indirimli şebeke bedeli',
+            calc_tab_ladestrom_title: 'Şarj & Wallbox',
+            calc_tab_ladestrom_sub: '%100 yeşil e-şarj',
+            notice_ladestrom: 'Ev tipi Wallbox (11 kW / 22 kW) & Elektrikli Araç (§ 14a EnWG) için %100 Yeşil Şarj Elektriği • 24 ay tam fiyat garantisi',
             notice_gas: 'İklim Koruma Katkılı Doğal Gaz • Sertifikalı CO2 dengelemesi',
 
             // Rechner Form
@@ -1365,6 +1371,9 @@
             // Rechner Dynamic Notices
             notice_strom: 'كهرباء خضراء من مصادر متجددة 100% • معتمدة وفق معايير ok-power',
             notice_waerme: 'كهرباء المضخات الحرارية (§ 14a EnWG) • خصم يصل إلى 25% على رسوم الشبكة للمضخات الحرارية',
+            calc_tab_ladestrom_title: 'شحن السيارات & Wallbox',
+            calc_tab_ladestrom_sub: 'شحن أخضر 100%',
+            notice_ladestrom: 'كهرباء شحن خضراء 100% لمحطة Wallbox المنزلية (11/22 ك.و) والسيارة الكهربائية (§ 14a EnWG) • ضمان سعر كامل لمدة 24 شهراً',
             notice_gas: 'غاز طبيعي مع مساهمة طوعية في حماية المناخ • تعويض معتمد لانبعاثات CO2',
 
             // Rechner Form
@@ -2001,6 +2010,8 @@
         { selector: '.calc-tab-btn[data-branch="strom"] .calc-tab-subtitle', key: 'calc_tab_strom_sub' },
         { selector: '.calc-tab-btn[data-branch="waerme"] .calc-tab-title', key: 'calc_tab_waerme_title' },
         { selector: '.calc-tab-btn[data-branch="waerme"] .calc-tab-subtitle', key: 'calc_tab_waerme_sub' },
+        { selector: '.calc-tab-btn[data-branch="ladestrom"] .calc-tab-title', key: 'calc_tab_ladestrom_title' },
+        { selector: '.calc-tab-btn[data-branch="ladestrom"] .calc-tab-subtitle', key: 'calc_tab_ladestrom_sub' },
         { selector: '.calc-tab-btn[data-branch="gas"] .calc-tab-title', key: 'calc_tab_gas_title' },
         { selector: '.calc-tab-btn[data-branch="gas"] .calc-tab-subtitle', key: 'calc_tab_gas_sub' },
 
@@ -2330,7 +2341,7 @@
         {"selector":".octo-stage-overlay-pill > div > div:nth-child(1), .octo-stage-overlay-pill > span:nth-child(1)","key":"octo_stage_pill_1"},
         {"selector":".octo-stage-overlay-pill > div > div:nth-child(2), .octo-stage-overlay-pill > span:nth-child(3)","key":"octo_stage_pill_2"},
         {"selector":".octo-stage-overlay-pill > span:last-child, .octo-stage-overlay-pill > span:nth-child(5)","key":"octo_stage_pill_3"},
-        {"selector":"#calcKwh + .octo-unit-tag, .octo-calc-col-kwh .octo-unit-tag","key":"octo_unit_kwh","all":true},
+        {"selector":"#calcKwh + .octo-unit-tag, #calcKwhHt + .octo-unit-tag, #calcKwhNt + .octo-unit-tag, .octo-calc-col-kwh .octo-unit-tag","key":"octo_unit_kwh","all":true},
         {"selector":"#calcAbschlag + .octo-unit-tag, .octo-calc-col-abschlag .octo-unit-tag","key":"octo_unit_eur","all":true},
         {"selector":"#tarife .octo-section-h2","key":"octo_tarife_h2"},
         {"selector":"#tarife .octo-section-sub","key":"octo_tarife_sub"},
@@ -2805,6 +2816,10 @@
             if (lang === 'de') {
                 if (branch === 'waerme') {
                     noticeEl.textContent = 'Wärmepumpe (§ 14a EnWG) & Nachtspeicherheizung (HT/NT) • 100 % Ökostrom mit bis zu 24M Preisgarantie';
+                } else if (branch === 'waerme') {
+                    noticeEl.textContent = 'Wärmepumpe (§ 14a EnWG) & Nachtspeicherheizung (HT/NT) • 100 % Ökostrom mit bis zu 24M Preisgarantie';
+                } else if (branch === 'ladestrom') {
+                    noticeEl.textContent = '100 % Öko-Ladestrom für Wallbox (11 kW / 22 kW) & E-Auto (§ 14a EnWG) • 24 Monate volle Preisgarantie';
                 } else if (branch === 'gas') {
                     noticeEl.textContent = 'Erdgas mit freiwilligem Klimaschutzbeitrag • 24 Monate volle Preisgarantie';
                 } else {
@@ -2828,11 +2843,13 @@
         const l = lang || currentLang;
         if (l === 'de') {
             if (branch === 'waerme') return 'Wärmepumpe (§ 14a EnWG) & Nachtspeicherheizung (HT/NT) • 100 % Ökostrom mit bis zu 24M Preisgarantie';
+            if (branch === 'ladestrom') return '100 % Öko-Ladestrom für Wallbox (11 kW / 22 kW) & E-Auto (§ 14a EnWG) • 24 Monate volle Preisgarantie';
             if (branch === 'gas') return 'Erdgas mit freiwilligem Klimaschutzbeitrag • 24 Monate volle Preisgarantie';
             return 'Ökostrom aus 100 % erneuerbaren Energien • 24 Monate volle Preisgarantie';
         }
         const data = I18N_DATA[l] || I18N_DATA.en;
         if (branch === 'waerme') return data.notice_waerme;
+        if (branch === 'ladestrom') return data.notice_ladestrom || data.notice_strom;
         if (branch === 'gas') return data.notice_gas;
         return data.notice_strom;
     }

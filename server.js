@@ -350,15 +350,16 @@ app.get(['/api/tarife/datenschutz', '/api/firstcon/datenschutz'], async (req, re
 });
 
 // 1.1 Calculate Tariffs dynamically (Firstcon Live API v2 + Fallback)
-app.post('/api/tarife/calculate', async (req, res) => {
+app.all('/api/tarife/calculate', async (req, res) => {
     try {
+        const params = { ...(req.query || {}), ...(req.body || {}) };
         // If caller requests B2B / RLM calculation via /api/tarife/calculate, delegate to live RLM portal service
-        if (req.body && (req.body.mode === 'rlm' || req.body.isB2B === true || req.body.customerType === 'COMMERCIAL' || req.body.measurement === 'RLM')) {
-            const rlmResult = await calculateRlmTariffs(req.body);
+        if (params.mode === 'rlm' || params.isB2B === true || params.isB2B === 'true' || params.customerType === 'COMMERCIAL' || params.measurement === 'RLM') {
+            const rlmResult = await calculateRlmTariffs(params);
             return res.json(rlmResult);
         }
 
-        const { plz, consumption, consumptionHt, consumptionNt, meterType, currentAbschlag, branch = 'strom', orderflowToken, useFallbackOnly } = req.body;
+        const { plz, consumption, consumptionHt, consumptionNt, meterType, currentAbschlag, branch = 'strom', orderflowToken, useFallbackOnly } = params;
         const rawBranch = String(branch || 'strom').toLowerCase().trim();
         const normalizedBranch = rawBranch === 'gas'
             ? 'gas'
@@ -1359,6 +1360,19 @@ async function resolveOrderPartnerAttribution({ partnerCode, partnerId, subId, b
         };
     }
 
+    if (partner.status === 'SUSPENDED') {
+        return {
+            partnerId: partner.id,
+            partnerCode: partner.partnerCode,
+            subId: subId ? String(subId).trim() : null,
+            orderSource: orderSource || 'ONLINE',
+            commissionStatus: 'NONE',
+            commissionAmount: 0,
+            overridePartnerId: null,
+            overrideAmount: 0
+        };
+    }
+
     const normBranch = String(branch || 'strom').toLowerCase();
     let commAmount = partner.stromCommissionEur || 55.0;
     if (normBranch === 'gas') commAmount = partner.gasCommissionEur || 55.0;
@@ -1368,7 +1382,7 @@ async function resolveOrderPartnerAttribution({ partnerCode, partnerId, subId, b
     let overrideAmount = 0;
     if (partner.parentPartnerId) {
         const parent = await prisma.partnerUser.findUnique({ where: { id: partner.parentPartnerId } }).catch(() => null);
-        if (parent) {
+        if (parent && parent.status === 'ACTIVE') {
             overridePartnerId = parent.id;
             overrideAmount = parent.overrideCommissionEur || 10.0;
         }
@@ -4136,14 +4150,17 @@ app.get('/api/partner/dashboard', authenticatePartner, async (req, res) => {
         const approvedCommission = validOrders
             .filter(o => o.commissionStatus === 'APPROVED')
             .reduce((sum, o) => sum + Number(o.commissionAmount || 0), 0);
+        const paidLeadsCommission = leads
+            .filter(l => l.status === 'PAID')
+            .reduce((sum, l) => sum + Number(l.commissionAmount || 0), 0);
         const paidCommission = validOrders
             .filter(o => o.commissionStatus === 'PAID')
-            .reduce((sum, o) => sum + Number(o.commissionAmount || 0), 0);
+            .reduce((sum, o) => sum + Number(o.commissionAmount || 0), 0) + paidLeadsCommission;
         const overrideCommissionTotal = overrideOrders
             .filter(o => o.status !== 'CANCELLED')
             .reduce((sum, o) => sum + Number(o.overrideAmount || 0), 0);
         const leadCommissionTotal = leads
-            .filter(l => l.status === 'CONVERTED' || l.status === 'QUALIFIED')
+            .filter(l => l.status === 'CONVERTED' || l.status === 'QUALIFIED' || l.status === 'PAID')
             .reduce((sum, l) => sum + Number(l.commissionAmount || 0), 0);
 
         const totalClicks = clicks.length;
@@ -4387,12 +4404,24 @@ app.post('/api/order/remote-sign/:token', async (req, res) => {
         if (!order) {
             return res.status(404).json({ success: false, error: 'Auftrag nicht gefunden.' });
         }
+        if (order.status === 'CANCELLED') {
+            return res.status(400).json({ success: false, error: 'Dieser Auftrag wurde storniert und kann nicht mehr unterschrieben werden.' });
+        }
+        if (order.signedAt) {
+            return res.status(409).json({
+                success: false,
+                alreadySigned: true,
+                orderNumber: order.orderNumber,
+                signedAt: order.signedAt,
+                error: 'Dieser Auftrag wurde bereits rechtsgültig unterschrieben.'
+            });
+        }
         const updated = await prisma.energyOrder.update({
             where: { id: order.id },
             data: {
                 signatureData,
                 signedAt: new Date(),
-                status: 'RECEIVED'
+                status: order.status === 'PENDING_SIGNATURE' ? 'RECEIVED' : order.status
             }
         });
         res.json({
@@ -4449,24 +4478,33 @@ app.post('/api/partner/subpartners', authenticatePartner, async (req, res) => {
         if (exists) {
             return res.status(409).json({ success: false, error: 'Diese E-Mail-Adresse ist bereits registriert.' });
         }
-        const partnerCode = generateUniquePartnerCode(role, lastName || fullName);
+        const subRole = ['D2D', 'AFFILIATE', 'TIPPGEBER'].includes(String(role).toUpperCase()) ? String(role).toUpperCase() : 'D2D';
+        const maxSubComm = Math.max(Number(parent.stromCommissionEur) || 70, 75);
+        const requestedComm = stromCommissionEur ? parseFloat(stromCommissionEur) : 55.0;
+        const clampedComm = Math.min(Math.max(isNaN(requestedComm) ? 55.0 : requestedComm, 10.0), maxSubComm);
+        const partnerCode = generateUniquePartnerCode(subRole, lastName || fullName);
         const sub = await prisma.partnerUser.create({
             data: {
                 partnerCode,
                 email: cleanEmail,
                 passwordHash: hashPartnerPassword(password || 'Alpha2026!'),
-                role: ['D2D', 'AFFILIATE', 'TIPPGEBER'].includes(String(role).toUpperCase()) ? String(role).toUpperCase() : 'D2D',
+                role: subRole,
                 status: 'ACTIVE',
                 firstName: firstName || '',
                 lastName: lastName || '',
                 fullName,
                 phone: phone || '',
-                stromCommissionEur: stromCommissionEur ? parseFloat(stromCommissionEur) : 55.0,
-                gasCommissionEur: stromCommissionEur ? parseFloat(stromCommissionEur) : 55.0,
-                waermeCommissionEur: 65.0,
+                stromCommissionEur: clampedComm,
+                gasCommissionEur: clampedComm,
+                waermeCommissionEur: Math.min(clampedComm + 10, maxSubComm + 10),
                 parentPartnerId: parent.id
             }
         });
+        await prisma.affiliateLink.upsert({
+            where: { code: partnerCode },
+            update: { name: `${fullName} (${subRole})` },
+            create: { name: `${fullName} (${subRole})`, code: partnerCode }
+        }).catch(() => {});
         res.status(201).json({ success: true, subPartner: sanitizePartnerUser(sub) });
     } catch (error) {
         res.status(500).json({ success: false, error: error.message });
@@ -4563,21 +4601,27 @@ app.get('/api/admin/portal-overview', authenticateAdmin, async (req, res) => {
             prisma.affiliateClick.count()
         ]);
 
+        const pendingLeadsSum = leads
+            .filter(l => l.status === 'QUALIFIED' || l.status === 'CONVERTED')
+            .reduce((s, l) => s + Number(l.commissionAmount || 0), 0);
+        const paidLeadsSum = leads
+            .filter(l => l.status === 'PAID')
+            .reduce((s, l) => s + Number(l.commissionAmount || 0), 0);
         const totalCommissionPending = orders
             .filter(o => o.commissionStatus === 'PENDING' && o.status !== 'CANCELLED')
             .reduce((s, o) => s + Number(o.commissionAmount || 0) + Number(o.overrideAmount || 0), 0);
         const totalCommissionApproved = orders
             .filter(o => o.commissionStatus === 'APPROVED' && o.status !== 'CANCELLED')
-            .reduce((s, o) => s + Number(o.commissionAmount || 0) + Number(o.overrideAmount || 0), 0);
+            .reduce((s, o) => s + Number(o.commissionAmount || 0) + Number(o.overrideAmount || 0), 0) + pendingLeadsSum;
         const totalCommissionPaid = orders
             .filter(o => o.commissionStatus === 'PAID')
-            .reduce((s, o) => s + Number(o.commissionAmount || 0) + Number(o.overrideAmount || 0), 0);
+            .reduce((s, o) => s + Number(o.commissionAmount || 0) + Number(o.overrideAmount || 0), 0) + paidLeadsSum;
 
         res.json({
             success: true,
             kpis: {
                 ordersCount: orders.length,
-                partnersCount: partners.length,
+                partnersCount: partners.filter(p => p.status === 'ACTIVE').length,
                 leadsCount: leads.length,
                 clicksCount,
                 totalCommissionPending: Number(totalCommissionPending.toFixed(2)),
@@ -4796,6 +4840,11 @@ app.post('/api/admin/payouts/create', authenticateAdmin, async (req, res) => {
             return res.status(404).json({ success: false, error: 'Partner nicht gefunden.' });
         }
 
+        const lastPayout = await prisma.commissionPayout.findFirst({
+            where: { partnerId: partner.id },
+            orderBy: { createdAt: 'desc' }
+        });
+
         const payableOrders = await prisma.energyOrder.findMany({
             where: {
                 partnerId: partner.id,
@@ -4804,8 +4853,33 @@ app.post('/api/admin/payouts/create', authenticateAdmin, async (req, res) => {
             }
         });
 
-        let netAmount = payableOrders.reduce((s, o) => s + Number(o.commissionAmount || 0), 0);
-        let ordersCount = payableOrders.length;
+        const overrideWhere = {
+            overridePartnerId: partner.id,
+            overrideAmount: { gt: 0 },
+            status: { not: 'CANCELLED' },
+            commissionStatus: { not: 'CANCELLED' }
+        };
+        if (lastPayout && lastPayout.createdAt) {
+            overrideWhere.createdAt = { gt: lastPayout.createdAt };
+        }
+        const payableOverrideOrders = await prisma.energyOrder.findMany({
+            where: overrideWhere
+        });
+
+        const payableLeads = await prisma.partnerLead.findMany({
+            where: {
+                partnerId: partner.id,
+                status: { in: ['QUALIFIED', 'CONVERTED'] },
+                commissionAmount: { gt: 0 }
+            }
+        });
+
+        const directNet = payableOrders.reduce((s, o) => s + Number(o.commissionAmount || 0), 0);
+        const overrideNet = payableOverrideOrders.reduce((s, o) => s + Number(o.overrideAmount || 0), 0);
+        const leadsNet = payableLeads.reduce((s, l) => s + Number(l.commissionAmount || 0), 0);
+
+        let netAmount = Number((directNet + overrideNet + leadsNet).toFixed(2));
+        let ordersCount = payableOrders.length + payableOverrideOrders.length + payableLeads.length;
 
         if (req.body.customNetAmount !== undefined && parseFloat(req.body.customNetAmount) > 0) {
             netAmount = parseFloat(req.body.customNetAmount);
@@ -4844,6 +4918,13 @@ app.post('/api/admin/payouts/create', authenticateAdmin, async (req, res) => {
             await prisma.energyOrder.updateMany({
                 where: { id: { in: payableOrders.map(o => o.id) } },
                 data: { commissionStatus: markPaid ? 'PAID' : 'APPROVED' }
+            });
+        }
+
+        if (payableLeads.length > 0 && markPaid) {
+            await prisma.partnerLead.updateMany({
+                where: { id: { in: payableLeads.map(l => l.id) } },
+                data: { status: 'PAID' }
             });
         }
 

@@ -13,22 +13,24 @@ test.describe('AlphaTarife In-House Partner Portal & Attribution Suite', () => {
         expect(validJson.bic).toContain('COBADEFF');
         expect(validJson.bankName).toContain('Commerzbank');
 
-        // Invalid Mod-97 checksum
+        // Invalid Mod-97 checksum includes reason & message
         const badRes = await request.get(`${BASE_URL}/api/verify-iban?iban=DE11370400440532013000`);
         const badJson = await badRes.json();
         expect(badJson.valid).toBe(false);
+        expect(badJson.reason).toBeTruthy();
 
         // Too short IBAN
         const shortRes = await request.get(`${BASE_URL}/api/verify-iban?iban=DE12345`);
         const shortJson = await shortRes.json();
         expect(shortJson.valid).toBe(false);
+        expect(shortJson.reason).toBeTruthy();
 
         // Empty IBAN returns 400
         const emptyRes = await request.post(`${BASE_URL}/api/verify-iban`, { data: { iban: '' } });
         expect(emptyRes.status()).toBe(400);
     });
 
-    test('2. Partner Demo Logins, Self-Registration, D2D eSign & Remote Sign Flow, Leads, Subpartners & PDF Payouts', async ({ request, page }) => {
+    test('2. Partner Demo Logins, Self-Registration, D2D Live Calculator & Remote Sign Flow, Leads, Subpartners & PDF Payouts', async ({ request, page }) => {
         // 2a. Demo login for D2D
         const loginRes = await request.post(`${BASE_URL}/api/partner/login`, {
             data: { demoRole: 'D2D' }
@@ -80,7 +82,7 @@ test.describe('AlphaTarife In-House Partner Portal & Attribution Suite', () => {
         expect(d2dData.order.commissionAmount).toBe(65);
         expect(d2dData.order.overrideAmount).toBe(15); // Linked to AG-NRW01
 
-        // 2d. Complete Remote Customer eSign via API
+        // 2d. Complete Remote Customer eSign via API + verify double-sign protection (409 Conflict)
         const signToken = d2dData.signatureToken;
         const remoteGet = await request.get(`${BASE_URL}/api/order/remote-sign/${signToken}`);
         expect(remoteGet.ok()).toBeTruthy();
@@ -90,6 +92,12 @@ test.describe('AlphaTarife In-House Partner Portal & Attribution Suite', () => {
         expect(remotePost.ok()).toBeTruthy();
         const remotePostJson = await remotePost.json();
         expect(remotePostJson.success).toBe(true);
+
+        // Second attempt to sign the same token must return 409 Conflict
+        const duplicateSign = await request.post(`${BASE_URL}/api/order/remote-sign/${signToken}`, {
+            data: { signatureData: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==' }
+        });
+        expect(duplicateSign.status()).toBe(409);
 
         // 2e. Tippgeber Lead submission
         const leadRes = await request.post(`${BASE_URL}/api/partner/leads`, {
@@ -108,7 +116,7 @@ test.describe('AlphaTarife In-House Partner Portal & Attribution Suite', () => {
         expect(pdfRes.ok()).toBeTruthy();
         expect(pdfRes.headers()['content-type']).toContain('application/pdf');
 
-        // 2g. UI Verification on /vertriebspartner-portal.html
+        // 2g. UI Verification on /vertriebspartner-portal.html including D2D Live Tariff Calculator
         await page.addInitScript(() => {
             try {
                 localStorage.setItem('alpha_consent_status', 'all');
@@ -128,11 +136,27 @@ test.describe('AlphaTarife In-House Partner Portal & Attribution Suite', () => {
         await expect(page.locator('#partnerCockpitSection')).toBeVisible({ timeout: 8000 });
         await expect(page.locator('#cockpitPartnerCode')).toHaveText('AFF-MAX24');
 
-        // Switch through tabs
+        // Switch to Affiliate tab
         await page.click('[data-cockpit-tab="affiliate"]');
         await expect(page.locator('#cockpit-pane-affiliate')).toBeVisible();
         const generatedLink = await page.locator('#affGeneratedUrlInput').inputValue();
         expect(generatedLink).toContain('ref=AFF-MAX24');
+
+        // Switch to D2D Live Calculator tab and click #btnD2dCalculate
+        await page.click('[data-cockpit-tab="d2d"]');
+        await expect(page.locator('#cockpit-pane-d2d')).toBeVisible();
+        await page.fill('#d2dCalcPlz', '44137');
+        await page.fill('#d2dCalcKwh', '2500');
+        await page.click('#btnD2dCalculate');
+        await expect(page.locator('#d2dTariffResultsGrid [data-d2d-tariff-idx]').first()).toBeVisible({ timeout: 10000 });
+        const d2dCardCount = await page.locator('#d2dTariffResultsGrid [data-d2d-tariff-idx]').count();
+        expect(d2dCardCount).toBeGreaterThanOrEqual(3);
+
+        // 2h. Remote Sign UI verification on ?sign=TOKEN shows already-signed state
+        await page.goto(`${BASE_URL}/vertriebspartner-portal.html?sign=${signToken}`, { waitUntil: 'domcontentloaded' });
+        await expect(page.locator('#remoteSignSection')).toBeVisible();
+        await expect(page.locator('#btnRemoteSignSubmit')).toBeDisabled();
+        await expect(page.locator('#remoteSignStatusMsg')).toContainText('bereits rechtsgültig digital unterschrieben');
     });
 
     test('3. 90-Day Affiliate & Sub-ID Attribution + Root Redirect Fix', async ({ page, request }) => {
@@ -179,7 +203,7 @@ test.describe('AlphaTarife In-House Partner Portal & Attribution Suite', () => {
         expect(orderJson.partnerAttribution.commissionAmount).toBe(55);
     });
 
-    test('4. Self-Registration, Agency Sub-Partners, Remote Sign UI & Admin 1-Click Activation + Payouts', async ({ request, page }) => {
+    test('4. Self-Registration, Agency Sub-Partners, Suspended Partner Guard & Admin Dashboard + Payouts', async ({ request, page }) => {
         // 4a. Reject registration with invalid IBAN checksum
         const badReg = await request.post(`${BASE_URL}/api/partner/register`, {
             data: {
@@ -213,24 +237,47 @@ test.describe('AlphaTarife In-House Partner Portal & Attribution Suite', () => {
         expect(regJson.token).toBeTruthy();
         expect(regJson.partner.role).toBe('AGENCY');
 
-        // 4c. Agency creates a Sub-Partner in its Downline
+        // 4c. Agency creates a Sub-Partner in its Downline (excessive commission is clamped)
         const subRes = await request.post(`${BASE_URL}/api/partner/subpartners`, {
             headers: { Authorization: `Bearer ${regJson.token}` },
             data: {
-                firstName: 'kevin',
+                firstName: 'Kevin',
                 lastName: 'Subrep',
                 email: `sub.${Date.now()}@example.de`,
                 role: 'D2D',
-                stromCommissionEur: 55,
-                gasCommissionEur: 55
+                stromCommissionEur: 999
             }
         });
         expect(subRes.status()).toBe(201);
         const subJson = await subRes.json();
         expect(subJson.success).toBe(true);
         expect(subJson.subPartner.partnerCode).toBeTruthy();
+        expect(subJson.subPartner.stromCommissionEur).toBeLessThanOrEqual(75);
 
-        // 4d. Submit partner application & activate via Admin 1-Click Portal Activation
+        // 4d. Submit order via subPartner -> Agency earns override commission
+        const subOrderRes = await request.post(`${BASE_URL}/api/order/submit`, {
+            data: {
+                tariffId: 'alpha-basic',
+                tariffName: 'AlphaStrom Basic',
+                branch: 'strom',
+                consumption: 2800,
+                monthlyPayment: 84,
+                street: 'Musterstr.',
+                houseNr: '9',
+                plz: '44137',
+                city: 'Dortmund',
+                meterNumber: '1ISK99881122',
+                firstName: 'Sub',
+                lastName: 'Kunde',
+                email: 'sub.kunde@example.de',
+                phone: '0231 654321',
+                iban: 'DE89370400440532013000',
+                partnerCode: subJson.subPartner.partnerCode
+            }
+        });
+        expect(subOrderRes.status()).toBe(201);
+
+        // 4e. Admin Login & 1-Click Portal Activation
         const appRes = await request.post(`${BASE_URL}/api/partner-application`, {
             data: {
                 fullName: 'Stefan Bewerber',
@@ -258,15 +305,33 @@ test.describe('AlphaTarife In-House Partner Portal & Attribution Suite', () => {
         expect(actJson.success).toBe(true);
         expect(actJson.partner.partnerCode).toContain('VP-');
 
-        // 4e. Admin Portal Overview returns orders, partners, leads, payouts, clicks
-        const ovRes = await request.get(`${BASE_URL}/api/admin/portal-overview`, {
-            headers: { Authorization: `Bearer ${adminToken}` }
+        // 4f. Generate CommissionPayout for the Agency (whose earnings come solely from sub-partner Override!)
+        const agencyPayoutRes = await request.post(`${BASE_URL}/api/admin/payouts/create`, {
+            headers: { Authorization: `Bearer ${adminToken}` },
+            data: { partnerId: regJson.partner.id, markPaid: true }
         });
-        expect(ovRes.ok()).toBeTruthy();
-        const ovJson = await ovRes.json();
-        expect(ovJson.success).toBe(true);
-        expect(Array.isArray(ovJson.orders)).toBe(true);
-        expect(Array.isArray(ovJson.partners)).toBe(true);
-        expect(Array.isArray(ovJson.payouts)).toBe(true);
+        expect(agencyPayoutRes.status()).toBe(201);
+        const agencyPayoutJson = await agencyPayoutRes.json();
+        expect(agencyPayoutJson.success).toBe(true);
+        expect(agencyPayoutJson.payout.netAmount).toBe(15);
+        expect(agencyPayoutJson.payout.vatAmount).toBeCloseTo(2.85, 2);
+
+        // Immediate second payout call for same Agency must return 400 (no double-payment)
+        const dupAgencyPayout = await request.post(`${BASE_URL}/api/admin/payouts/create`, {
+            headers: { Authorization: `Bearer ${adminToken}` },
+            data: { partnerId: regJson.partner.id, markPaid: true }
+        });
+        expect(dupAgencyPayout.status()).toBe(400);
+
+        // 4g. Admin Dashboard UI verification (#portal-orders-tab)
+        await page.addInitScript((tok) => {
+            sessionStorage.setItem('adminToken', tok);
+            localStorage.setItem('adminToken', tok);
+        }, adminToken);
+        await page.goto(`${BASE_URL}/admin/dashboard.html`, { waitUntil: 'domcontentloaded' });
+        await page.click('button[onclick*="portal-orders"]');
+        await expect(page.locator('#portal-orders-tab')).toBeVisible();
+        await expect(page.locator('#admin-portal-orders-tbody tr').first()).toBeVisible({ timeout: 8000 });
+        await expect(page.locator('#admin-portal-partners-tbody tr').first()).toBeVisible();
     });
 });

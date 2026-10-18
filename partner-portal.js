@@ -57,6 +57,7 @@
         const s = String(status || '').toUpperCase();
         const map = {
             RECEIVED: { bg: '#e0f2fe', color: '#0369a1', label: 'Eingegangen' },
+            PENDING_SIGNATURE: { bg: '#fef3c7', color: '#b45309', label: 'Wartet auf eSign' },
             AWAITING_SIGNATURE: { bg: '#fef3c7', color: '#b45309', label: 'Wartet auf eSign' },
             PROCESSING: { bg: '#ede9fe', color: '#6d28d9', label: 'In Bearbeitung' },
             CONFIRMED: { bg: '#dcfce7', color: '#15803d', label: 'Bestätigt' },
@@ -308,6 +309,18 @@
             }
 
             const submitBtn = document.getElementById('btnRemoteSignSubmit');
+            if (o.signedAt) {
+                if (statusMsg) {
+                    statusMsg.style.display = 'block';
+                    statusMsg.style.color = '#15803d';
+                    statusMsg.innerHTML = `✓ Dieser Energieauftrag (<strong>${escapeHtml(o.orderNumber)}</strong>) wurde bereits rechtsgültig digital unterschrieben.`;
+                }
+                if (submitBtn) {
+                    submitBtn.disabled = true;
+                    submitBtn.textContent = 'Bereits unterschrieben ✓';
+                }
+                return;
+            }
             if (submitBtn) {
                 submitBtn.addEventListener('click', async () => {
                     const sigData = pad ? pad.toDataURL() : null;
@@ -625,7 +638,11 @@
             }
 
             try {
-                const res = await fetch(`/api/tarife/calculate?plz=${encodeURIComponent(plz)}&consumption=${kwh}&branch=${encodeURIComponent(branch)}`);
+                const res = await fetch('/api/tarife/calculate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ plz, consumption: kwh, branch })
+                });
                 const data = await res.json();
                 d2dCalculatedTariffs = Array.isArray(data.tariffs) ? data.tariffs : [];
 

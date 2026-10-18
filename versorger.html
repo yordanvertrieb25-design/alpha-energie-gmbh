@@ -88,9 +88,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
     <!-- Base Styles & Scripts -->
-    <link rel="stylesheet" href="style.css?v=fc2026v12">
-    <script src="i18n.js?v=fc2026v12" defer></script>
-    <script src="main.js?v=fc2026v12" defer></script>
+    <link rel="stylesheet" href="style.css?v=fc2026v13">
+    <script src="i18n.js?v=fc2026v13" defer></script>
+    <script src="main.js?v=fc2026v13" defer></script>
 
     <!-- Octopus Energy Clone Architecture in Alpha Energie Orange Palette -->
     <style>
@@ -502,10 +502,10 @@
             background: var(--octo-bg-surface);
         }
 
-        /* 3 Folder Tabs at Top of Calculator (Ökostrom | Wärmepumpe & HT/NT | Erdgas) */
+        /* 4 Folder Tabs at Top of Calculator (Ökostrom | Wärmepumpe & HT/NT | Ladestrom & Wallbox | Erdgas) */
         .octo-calc-tabs {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
+            grid-template-columns: repeat(4, minmax(0, 1fr));
             background: #fde8bd;
         }
 
@@ -735,7 +735,29 @@
             display: grid;
             grid-template-columns: minmax(170px, 190px) minmax(0, 1fr) 156px;
             gap: 10px;
-            align-items: end;
+            align-items: start;
+        }
+
+        .octo-calc-row > div:first-child {
+            align-self: start;
+        }
+
+        .octo-calc-row > div:first-child > .octo-calc-col-label {
+            display: flex;
+            align-items: center;
+            min-height: 24px;
+            margin-bottom: 10px;
+        }
+
+        .octo-calc-row.is-waerme-mode > div:first-child > .octo-calc-col-label,
+        .octo-calc-row:has(#calcWaermeHtNtRow:not([style*="none"])) > div:first-child > .octo-calc-col-label,
+        .octo-calc-row.is-waerme-mode .octo-calc-col-header,
+        .octo-calc-row:has(#calcWaermeHtNtRow:not([style*="none"])) .octo-calc-col-header {
+            min-height: 38px;
+        }
+
+        .octo-calc-row > div:last-child {
+            align-self: end;
         }
 
         .octo-calc-col-label {
@@ -1891,6 +1913,12 @@
             .octo-calc-row {
                 grid-template-columns: minmax(0, 1fr) !important;
             }
+            .octo-calc-row > div:first-child > .octo-calc-col-label,
+            .octo-calc-row.is-waerme-mode > div:first-child > .octo-calc-col-label,
+            .octo-calc-row:has(#calcWaermeHtNtRow:not([style*="none"])) > div:first-child > .octo-calc-col-label {
+                min-height: 0 !important;
+                height: auto !important;
+            }
             .octo-consumption-group {
                 grid-template-columns: minmax(320px, 1.55fr) minmax(154px, 0.78fr) minmax(206px, 1.05fr);
             }
@@ -2124,7 +2152,7 @@
                 gap: 22px !important;
             }
             .octo-calc-tabs {
-                grid-template-columns: repeat(auto-fit, minmax(0, 1fr)) !important;
+                grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
                 gap: 0 !important;
                 width: 100% !important;
             }
@@ -2917,6 +2945,7 @@
                                 <li><a href="#tarife">ALPHA PREMIUM 24 (Top-Preisschutz)</a></li>
                                 <li><a href="#stromkennzeichnung">Stromkennzeichnung (§ 42 EnWG)</a></li>
                                 <li><a href="waermestrom.html">Wärmestrom (Wärmepumpe &amp; HT/NT)</a></li>
+                                <li><a href="#rechner" data-switch-branch="ladestrom">Ladestrom (Wallbox &amp; E-Auto)</a></li>
                             </ul>
                         </li>
                         <li class="nav-item has-dropdown">
@@ -3054,7 +3083,7 @@
 
                 <!-- Bottom Row: Octopus Horizontal Tarifrechner Bar -->
                 <div id="rechner" class="octo-calc-shell">
-                    <!-- 3 Folder-Style Tabs: Ökostrom | Wärmestrom & HT/NT | Erdgas -->
+                    <!-- 4 Folder-Style Tabs: Ökostrom | Wärmestrom & HT/NT | Ladestrom & Wallbox | Erdgas -->
                     <div class="octo-calc-tabs" role="tablist" aria-label="Energieart wählen">
                         <button type="button" class="octo-calc-tab calc-tab-btn active" data-branch="strom" data-octo-mode="strom">
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
@@ -3063,6 +3092,10 @@
                         <button type="button" class="octo-calc-tab calc-tab-btn" data-branch="waerme" data-octo-mode="waerme">
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z"></path></svg>
                             <span class="calc-tab-title">Wärmestrom &amp; HT/NT</span>
+                        </button>
+                        <button type="button" class="octo-calc-tab calc-tab-btn" data-branch="ladestrom" data-octo-mode="ladestrom">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 22v-5"></path><path d="M9 8V2"></path><path d="M15 8V2"></path><path d="M18 8v5a4 4 0 0 1-4 4h-4a4 4 0 0 1-4-4V8Z"></path></svg>
+                            <span class="calc-tab-title">Ladestrom &amp; Wallbox</span>
                         </button>
                         <button type="button" class="octo-calc-tab calc-tab-btn" data-branch="gas" data-octo-mode="gas">
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"></path></svg>
@@ -3679,7 +3712,7 @@
                     </div>
                 </div>
 
-                <!-- Row 2: 4-Column Ökostrom & Erdgas Sub-Cards -->
+                <!-- Row 2: 4-Column Ökostrom, Wärmestrom, Ladestrom & Erdgas Sub-Cards -->
                 <div class="octo-grid-4">
                     <div class="octo-card bg-deep">
                         <div>
@@ -3692,19 +3725,6 @@
                             </p>
                         </div>
                         <a href="oekostrom.html" class="octo-btn-outline" style="width:100%;box-sizing:border-box;">Zum Ökostrom</a>
-                    </div>
-
-                    <div class="octo-card bg-deep">
-                        <div>
-                            <div style="height:110px;border-radius:12px;background:#ffffff;border:1px solid rgba(249,178,51,0.38);display:flex;align-items:center;justify-content:center;margin-bottom:16px;color:#e95e24;">
-                                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"></path></svg>
-                            </div>
-                            <h3 class="octo-card-h3" style="font-size:1.18rem;">Erdgas mit Klimaschutzbeitrag</h3>
-                            <p class="octo-card-p" style="font-size:0.9rem;">
-                                Sichere Gasversorgung für Heizung und Warmwasser – Erdgas mit freiwilligem Klimaschutzbeitrag und fairen Abschlägen.
-                            </p>
-                        </div>
-                        <a href="oekogas.html" class="octo-btn-outline" style="width:100%;box-sizing:border-box;">Zum Erdgas</a>
                     </div>
 
                     <div class="octo-card bg-deep">
@@ -3723,24 +3743,37 @@
                     <div class="octo-card bg-deep">
                         <div>
                             <div style="height:110px;border-radius:12px;background:#ffffff;border:1px solid rgba(249,178,51,0.38);display:flex;align-items:center;justify-content:center;margin-bottom:16px;color:#e95e24;">
-                                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>
+                                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 22v-5"></path><path d="M9 8V2"></path><path d="M15 8V2"></path><path d="M18 8v5a4 4 0 0 1-4 4h-4a4 4 0 0 1-4-4V8Z"></path></svg>
                             </div>
-                            <h3 class="octo-card-h3" style="font-size:1.18rem;">Gewerbestrom &amp; -gas</h3>
+                            <h3 class="octo-card-h3" style="font-size:1.18rem;">Ladestrom &amp; Wallbox</h3>
                             <p class="octo-card-p" style="font-size:0.9rem;">
-                                Maßgeschneiderte Strom- und Gastarife für Gewerbe, Gastronomie, Handel und Hausverwaltungen in ganz Deutschland.
+                                100 % Öko-Ladestrom für deine Heim-Wallbox (11 kW / 22 kW) und dein Elektroauto (§ 14a EnWG) mit Preisgarantie.
                             </p>
                         </div>
-                        <a href="gewerbekunden.html" class="octo-btn-outline" style="width:100%;box-sizing:border-box;">Zum Gewerbetarif</a>
+                        <a href="#rechner" data-switch-branch="ladestrom" class="octo-btn-outline" style="width:100%;box-sizing:border-box;">Zum Ladestrom</a>
+                    </div>
+
+                    <div class="octo-card bg-deep">
+                        <div>
+                            <div style="height:110px;border-radius:12px;background:#ffffff;border:1px solid rgba(249,178,51,0.38);display:flex;align-items:center;justify-content:center;margin-bottom:16px;color:#e95e24;">
+                                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"></path></svg>
+                            </div>
+                            <h3 class="octo-card-h3" style="font-size:1.18rem;">Erdgas mit Klimaschutzbeitrag</h3>
+                            <p class="octo-card-p" style="font-size:0.9rem;">
+                                Sichere Gasversorgung für Heizung und Warmwasser – Erdgas mit freiwilligem Klimaschutzbeitrag und fairen Abschlägen.
+                            </p>
+                        </div>
+                        <a href="oekogas.html" class="octo-btn-outline" style="width:100%;box-sizing:border-box;">Zum Erdgas</a>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- 9. SECTION: "Ökostrom, Wärmestrom (HT/NT) & Erdgas – Einfach wechseln, dauerhaft sparen" -->
+        <!-- 9. SECTION: "Ökostrom, Wärmestrom, Ladestrom & Erdgas – Einfach wechseln, dauerhaft sparen" -->
         <section class="octo-band-surface" id="heizen-speichern">
             <div class="octo-container">
                 <div style="text-align:center;margin-bottom:32px;">
-                    <h2 class="octo-section-h2">Ökostrom, Wärmestrom (HT/NT) &amp; Erdgas – Einfach wechseln, dauerhaft sparen</h2>
+                    <h2 class="octo-section-h2">Ökostrom, Wärmestrom, Ladestrom &amp; Erdgas – Einfach wechseln, dauerhaft sparen</h2>
                     <p class="octo-section-sub" style="margin-bottom:0;">Transparente Konditionen, gesetzlich garantierte Versorgungssicherheit und 0 € Wechselkosten.</p>
                 </div>
 
@@ -3766,8 +3799,33 @@
                     </div>
                 </div>
 
-                <!-- Card 2: Erdgas mit freiwilligem Klimaschutzbeitrag -->
+                <!-- Card 2: Ladestrom für Wallbox & Elektroauto (§ 14a EnWG) -->
                 <div class="octo-split-device-card reverse">
+                    <div class="octo-split-device-content">
+                        <h3 class="octo-card-h3" style="font-size:1.5rem;">Ladestrom für Wallbox (11 kW / 22 kW) &amp; Elektroauto (§ 14a EnWG)</h3>
+                        <p class="octo-card-p">
+                            Lade dein Elektroauto oder deinen Plug-in-Hybrid zu Hause günstig, sicher und mit gutem Gewissen: Unser spezieller Ladestromtarif liefert dir 100 % erneuerbaren Ökostrom (ok-power) direkt an deine Heim-Wallbox – inklusive bis zu 24 Monaten fester Preisgarantie.
+                        </p>
+                        <ul class="octo-check-list" style="margin-bottom:8px;">
+                            <li><span class="octo-check-dot">✓</span><span>100 % Öko-Ladestrom für private Wallboxen (11 kW / 22 kW) &amp; Elektrofahrzeuge</span></li>
+                            <li><span class="octo-check-dot">✓</span><span>Kompatibel mit steuerbaren Verbrauchseinrichtungen nach § 14a EnWG sowie Standardzählern</span></li>
+                            <li><span class="octo-check-dot">✓</span><span>Bis zu 24 Monate Preisgarantie und kostenloser Wechselservice</span></li>
+                        </ul>
+                        <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:8px;">
+                            <a href="#rechner" data-switch-branch="ladestrom" class="octo-btn-cta">Ladestrom berechnen</a>
+                            <a href="oekostrom.html" class="octo-btn-outline">Mehr zu 100 % Ökostrom</a>
+                        </div>
+                    </div>
+                    <div class="octo-split-device-media octo-photo-filter">
+                        <img src="public/images/smart_step_wallbox.jpg" alt="100 % Öko-Ladestrom für Wallbox und Elektroauto von Alpha Energie">
+                    </div>
+                </div>
+
+                <!-- Card 3: Erdgas mit freiwilligem Klimaschutzbeitrag -->
+                <div class="octo-split-device-card">
+                    <div class="octo-split-device-media octo-photo-filter">
+                        <img src="public/images/smart_step_oekogas.jpg" alt="Erdgas mit freiwilligem Klimaschutzbeitrag und Preisgarantie von Alpha Energie">
+                    </div>
                     <div class="octo-split-device-content">
                         <h3 class="octo-card-h3" style="font-size:1.5rem;">Erdgas mit freiwilligem Klimaschutzbeitrag &amp; Preisgarantie</h3>
                         <p class="octo-card-p">
@@ -3782,16 +3840,10 @@
                             <a href="oekogas.html" class="octo-btn-cta">Jetzt Erdgastarif sichern</a>
                         </div>
                     </div>
-                    <div class="octo-split-device-media octo-photo-filter">
-                        <img src="public/images/smart_step_oekogas.jpg" alt="Erdgas mit freiwilligem Klimaschutzbeitrag und Preisgarantie von Alpha Energie">
-                    </div>
                 </div>
 
-                <!-- Card 3: Ökostrom aus 100 % erneuerbaren Energien (ok-power) -->
-                <div class="octo-split-device-card" style="margin-bottom:0;">
-                    <div class="octo-split-device-media octo-photo-filter">
-                        <img src="public/images/versorger_oekostrom_split.jpg" alt="Ökostrom aus 100 % erneuerbaren Energien für Privat- und Gewerbekunden">
-                    </div>
+                <!-- Card 4: Ökostrom aus 100 % erneuerbaren Energien (ok-power) -->
+                <div class="octo-split-device-card reverse" style="margin-bottom:0;">
                     <div class="octo-split-device-content">
                         <h3 class="octo-card-h3" style="font-size:1.5rem;">Ökostrom aus 100 % erneuerbaren Energien mit ok-power Gütesiegel</h3>
                         <p class="octo-card-p">
@@ -3801,6 +3853,9 @@
                             <a href="oekostrom.html" class="octo-btn-cta">Für Privatkunden</a>
                             <a href="gewerbekunden.html" class="octo-btn-outline">Für Gewerbekunden</a>
                         </div>
+                    </div>
+                    <div class="octo-split-device-media octo-photo-filter">
+                        <img src="public/images/versorger_oekostrom_split.jpg" alt="Ökostrom aus 100 % erneuerbaren Energien für Privat- und Gewerbekunden">
                     </div>
                 </div>
             </div>
@@ -4097,13 +4152,14 @@
                 <div class="octo-bottom-offer-box">
                     <div>
                         <h3 class="octo-card-h3" style="font-size:1.55rem;margin-bottom:6px;">Hol' dir jetzt dein Angebot</h3>
-                        <p class="octo-card-p">Gib deine Postleitzahl ein und sieh sofort deine persönliche Ersparnis für Ökostrom, Wärmestrom (HT/NT) oder Erdgas.</p>
+                        <p class="octo-card-p">Gib deine Postleitzahl ein und sieh sofort deine persönliche Ersparnis für Ökostrom, Wärmestrom (HT/NT), Ladestrom oder Erdgas.</p>
                     </div>
 
                     <form id="bottomQuickOfferForm" class="octo-bottom-offer-form">
                         <select id="bottomOfferBranch" class="octo-bottom-offer-select" aria-label="Sparte wählen">
                             <option value="strom">Ökostrom</option>
                             <option value="waerme">Wärmestrom (Wärmepumpe &amp; HT/NT)</option>
+                            <option value="ladestrom">Ladestrom (Wallbox &amp; E-Auto)</option>
                             <option value="gas">Erdgas</option>
                         </select>
                         <input type="text" id="bottomOfferPlz" class="octo-bottom-offer-input" placeholder="Deine Postleitzahl (z.B. 44379)" maxlength="5" pattern="[0-9]{5}" inputmode="numeric" required>
@@ -4230,6 +4286,7 @@
                 </button>
                 <a href="oekostrom.html">Ökostrom (100 % erneuerbar)</a>
                 <a href="waermestrom.html">Wärmestrom (Wärmepumpe &amp; HT/NT)</a>
+                <a href="#rechner" data-switch-branch="ladestrom">Ladestrom (Wallbox &amp; E-Auto)</a>
                 <a href="oekogas.html">Erdgas mit Klimaschutzbeitrag</a>
                 <a href="gewerbekunden.html">Gewerbekunden (B2B)</a>
                 <a href="#rechner">Strom- &amp; Gasrechner</a>
@@ -4562,6 +4619,7 @@
                                     <select id="cancelContractType" class="calc-input" required style="color:#1e293b;background:#fff;height:46px;padding:0 12px;">
                                         <option value="Stromliefervertrag (Ökostrom)">Stromliefervertrag (Ökostrom)</option>
                                         <option value="Wärmestromliefervertrag (Wärmepumpe / HT-NT)">Wärmestromliefervertrag (Wärmepumpe / HT-NT)</option>
+                                        <option value="Ladestromliefervertrag (Wallbox / E-Auto)">Ladestromliefervertrag (Wallbox / E-Auto)</option>
                                         <option value="Gasliefervertrag (Erdgas)">Gasliefervertrag (Erdgas)</option>
                                         <option value="Strom- und Gasliefervertrag">Strom- und Gasliefervertrag</option>
                                     </select>

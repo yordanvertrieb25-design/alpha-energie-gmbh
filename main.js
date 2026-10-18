@@ -1090,6 +1090,11 @@ document.addEventListener("DOMContentLoaded", async () => {
             });
             if (calcConsumptionGroup) {
                 calcConsumptionGroup.classList.toggle('is-htnt-mode', isHtNt);
+                const calcRow = calcConsumptionGroup.closest('.octo-calc-row');
+                if (calcRow) {
+                    calcRow.classList.toggle('is-waerme-mode', isWaerme);
+                    calcRow.classList.toggle('is-htnt-mode', isHtNt);
+                }
             }
             if (calcSingleKwhBox) {
                 calcSingleKwhBox.style.display = isHtNt ? 'none' : 'flex';
@@ -2308,12 +2313,14 @@ document.addEventListener("DOMContentLoaded", async () => {
             const rawUrlBranch = (urlParams.get('branch') || '').toLowerCase();
             const urlBranch = (rawUrlBranch === 'waerme' || rawUrlBranch === 'waermestrom' || rawUrlBranch === 'waermepumpe' || rawUrlBranch === 'htnt')
                 ? 'waerme'
-                : rawUrlBranch;
+                : ((rawUrlBranch === 'ladestrom' || rawUrlBranch === 'autostrom' || rawUrlBranch === 'wallbox' || rawUrlBranch === 'mobility')
+                    ? 'ladestrom'
+                    : rawUrlBranch);
             const urlKwh = urlParams.get('kwh');
             if (rawUrlBranch === 'htnt') {
                 currentMeterType = 'htnt';
             }
-            if (urlBranch && (urlBranch === 'gas' || urlBranch === 'strom' || urlBranch === 'waerme')) {
+            if (urlBranch && (urlBranch === 'gas' || urlBranch === 'strom' || urlBranch === 'waerme' || urlBranch === 'ladestrom')) {
                 const targetTab = document.querySelector(`.calc-tab-btn[data-branch="${urlBranch}"]`);
                 if (targetTab) targetTab.click();
             }
@@ -2472,6 +2479,27 @@ document.addEventListener("DOMContentLoaded", async () => {
                     sub: curLang === 'en' ? '12,000 kWh' : '12.000 kWh',
                     kwh: 12000
                 }
+            ] : (branch === 'ladestrom' ? [
+                {
+                    label: curLang === 'en' ? 'City EV' : (curLang === 'tr' ? 'Şehir E-Araç' : (curLang === 'ar' ? 'سيارة مدينة' : 'City E-Auto')),
+                    sub: curLang === 'en' ? '1,500 kWh' : '1.500 kWh',
+                    kwh: 1500
+                },
+                {
+                    label: curLang === 'en' ? 'Wallbox S' : (curLang === 'tr' ? 'Wallbox S' : (curLang === 'ar' ? 'Wallbox S' : 'Wallbox')),
+                    sub: curLang === 'en' ? '2,500 kWh' : '2.500 kWh',
+                    kwh: 2500
+                },
+                {
+                    label: curLang === 'en' ? 'Wallbox M' : (curLang === 'tr' ? 'Wallbox M' : (curLang === 'ar' ? 'Wallbox M' : 'Vielfahrer')),
+                    sub: curLang === 'en' ? '3,500 kWh' : '3.500 kWh',
+                    kwh: 3500
+                },
+                {
+                    label: curLang === 'en' ? '2 EVs' : (curLang === 'tr' ? '2 E-Araç' : (curLang === 'ar' ? 'سيارتان' : '2 E-Autos')),
+                    sub: curLang === 'en' ? '5,000 kWh' : '5.000 kWh',
+                    kwh: 5000
+                }
             ] : [
                 {
                     label: curLang === 'en' ? '1 Person' : (curLang === 'tr' ? '1 Kişi' : (curLang === 'ar' ? 'شخص واحد' : '1 Person')),
@@ -2493,7 +2521,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                     sub: curLang === 'en' ? '4,500 kWh' : '4.500 kWh',
                     kwh: 4500
                 }
-            ]);
+            ]));
             modalPresetBtns.forEach((btn, idx) => {
                 if (presets[idx]) {
                     btn.setAttribute('data-modal-kwh', String(presets[idx].kwh));

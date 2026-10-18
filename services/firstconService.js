@@ -1049,7 +1049,8 @@ async function verifyBankAccount(rawIban, token) {
             bankName: null,
             bic: null,
             source: 'iso-mod97',
-            message: localCheck.reason
+            message: localCheck.reason,
+            reason: localCheck.reason
         };
     }
 
