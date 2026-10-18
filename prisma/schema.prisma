@@ -118,6 +118,7 @@ model AffiliateLink {
   id               Int                  @id @default(autoincrement())
   code             String               @unique
   name             String
+  clicks           Int                  @default(0)
   createdAt        DateTime             @default(now())
   applications     PartnerApplication[]
 }
@@ -162,12 +163,14 @@ model EnergyOrder {
   overridePartnerId  Int?
   overrideAmount     Float?       @default(0)
   signatureData      String?
+  signatureToken     String?      @unique
   signedAt           DateTime?
   remoteSignToken    String?
   firstconContractId String?
   ibanValid          Boolean?
   bankName           String?
   bic                String?
+  notes              String?
 }
 
 model PartnerUser {
@@ -179,16 +182,18 @@ model PartnerUser {
   firstName              String?
   lastName               String?
   phone                  String?
+  birthDate              String?
   companyName            String?
   legalForm              String?
+  website                String?
   partnerCode            String             @unique
-  role                   String             @default("D2D") // D2D, AFFILIATE, TIPPGEBER, AGENTUR
+  role                   String             @default("D2D") // D2D, AFFILIATE, TIPPGEBER, AGENCY
   status                 String             @default("ACTIVE") // ACTIVE, PENDING, SUSPENDED
   commissionTier         String             @default("PRO") // STARTER, PRO, ELITE
   stromCommissionEur     Float              @default(55.0)
   gasCommissionEur       Float              @default(55.0)
   waermeCommissionEur    Float              @default(65.0)
-  tippgeberCommissionEur Float              @default(25.0)
+  tippgeberCommissionEur Float              @default(35.0)
   b2bCommissionPct       Float              @default(15.0)
   overrideCommissionEur  Float              @default(10.0)
 
@@ -211,6 +216,7 @@ model PartnerUser {
   bankName               String?
   firstconToken          String?
   partnerApplicationId   Int?
+  applicationId          Int?
   notes                  String?
   createdAt              DateTime           @default(now())
   updatedAt              DateTime           @updatedAt
@@ -222,32 +228,37 @@ model PartnerUser {
 }
 
 model PartnerLead {
-  id                 Int         @id @default(autoincrement())
-  partnerId          Int
-  partner            PartnerUser @relation(fields: [partnerId], references: [id], onDelete: Cascade)
-  partnerCode        String
-  leadType           String      @default("TIPPGEBER") // TIPPGEBER, D2D_FOLLOWUP, B2B
-  salutation         String?
-  firstName          String
-  lastName           String
-  customerName       String
-  companyName        String?
-  email              String?
-  phone              String
-  street             String?
-  houseNr            String?
-  plz                String
-  city               String?
-  branch             String      @default("strom") // strom, gas, waerme, b2b
-  consumption        Int?        @default(2500)
-  currentProvider    String?
-  meterNumber        String?
-  notes              String?
-  status             String      @default("NEW") // NEW, CONTACTED, CONVERTED, REJECTED
-  expectedCommission Float       @default(25.0)
-  convertedOrderId   Int?
-  createdAt          DateTime    @default(now())
-  updatedAt          DateTime    @updatedAt
+  id                   Int          @id @default(autoincrement())
+  partnerId            Int?
+  partner              PartnerUser? @relation(fields: [partnerId], references: [id], onDelete: Cascade)
+  partnerCode          String
+  leadType             String       @default("TIPPGEBER")
+  salutation           String?
+  firstName            String?
+  lastName             String?
+  customerName         String
+  companyName          String?
+  email                String?
+  customerEmail        String?
+  phone                String?
+  customerPhone        String?
+  street               String?
+  houseNr              String?
+  plz                  String?
+  city                 String?
+  branch               String       @default("strom")
+  consumption          Int?         @default(2500)
+  estimatedConsumption Int?
+  currentProvider      String?
+  meterNumber          String?
+  notes                String?
+  status               String       @default("NEW")
+  expectedCommission   Float        @default(35.0)
+  commissionAmount     Float        @default(35.0)
+  convertedOrderId     Int?
+  convertedOrderNo     String?
+  createdAt            DateTime     @default(now())
+  updatedAt            DateTime     @updatedAt
 }
 
 model AffiliateClick {
@@ -257,6 +268,7 @@ model AffiliateClick {
   partnerCode String
   subId       String?
   targetPage  String?
+  landingPage String?
   referrer    String?
   userAgent   String?
   ipHash      String?
@@ -270,12 +282,16 @@ model CommissionPayout {
   payoutNumber String      @unique
   partnerId    Int
   partner      PartnerUser @relation(fields: [partnerId], references: [id], onDelete: Cascade)
-  period       String
+  period       String      @default("2026")
+  periodLabel  String      @default("Laufende Abrechnung")
   ordersCount  Int         @default(0)
   netAmount    Float       @default(0)
   vatAmount    Float       @default(0)
   grossAmount  Float       @default(0)
   status       String      @default("PENDING") // PENDING, APPROVED, PAID
+  iban         String?
+  bic          String?
+  bankName     String?
   paidAt       DateTime?
   notes        String?
   createdAt    DateTime    @default(now())
@@ -302,5 +318,3 @@ model LegalCancellation {
   type           String   @default("KUENDIGUNG")
   createdAt      DateTime @default(now())
 }
-
-

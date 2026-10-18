@@ -2,7 +2,7 @@
   "name": "alpha-energie",
   "version": "1.0.0",
   "scripts": {
-    "start": "node prisma-setup.js && npx prisma db push && node server.js",
+    "start": "node prisma-setup.js && npx prisma generate && npx prisma db push --accept-data-loss && node server.js",
     "backend": "node server.js",
     "postinstall": "node prisma-setup.js && npx prisma generate"
   },
