@@ -41,6 +41,10 @@ test.describe('Firstcon Guard & Error Interceptor Verification', () => {
         const statusNotice = page.locator('#bestellstrasse_status_notice');
         await expect(statusNotice).toHaveCount(0);
 
+        // Reveal tariff cards via calculator submit ("Tarif finden")
+        await page.locator('#calcPlz').fill('44379');
+        await page.locator('#rechnerForm .calc-submit-btn').click();
+
         // Assert 3 official tariffs exist
         await expect(page.locator('#card-alpha-basic')).toBeVisible();
         await expect(page.locator('#card-alpha-time')).toBeVisible();
@@ -86,6 +90,10 @@ test.describe('Firstcon Guard & Error Interceptor Verification', () => {
         await expect(tabWaerme).toHaveClass(/active/);
         const htNtRow = page.locator('#calcWaermeHtNtRow');
         await expect(htNtRow).toBeVisible();
+        const htntBtn = page.locator('.octo-meter-type-btn[data-meter-type="htnt"]');
+        if (await htntBtn.count() > 0) {
+            await htntBtn.click();
+        }
         await expect(page.locator('#calcKwhHt')).toBeVisible();
         await expect(page.locator('#calcKwhNt')).toBeVisible();
         const noticeEl = page.locator('#calcBranchNoticeText');
@@ -99,7 +107,9 @@ test.describe('Firstcon Guard & Error Interceptor Verification', () => {
         await expect(htNtRow).not.toBeVisible();
         await expect(noticeEl).toContainText('Klimaschutzbeitrag');
 
-        // Test tariff order modal opening
+        // Reveal tariff cards via calculator submit ("Tarif finden") and test order modal opening
+        await page.locator('#calcPlz').fill('44379');
+        await page.locator('#rechnerForm .calc-submit-btn').click();
         const btnOrderTariff = page.locator('[data-select-tariff]').first();
         await btnOrderTariff.click();
 
@@ -197,7 +207,9 @@ test.describe('Firstcon Guard & Error Interceptor Verification', () => {
         await expect(meterModal).not.toBeVisible();
         await page.waitForTimeout(400);
 
-        // Test #orderModal: Open via [data-select-tariff], close via Escape key
+        // Test #orderModal: Reveal #tarife via calculator submit, open via [data-select-tariff], close via Escape key
+        await page.locator('#calcPlz').fill('44379');
+        await page.locator('#rechnerForm .calc-submit-btn').click();
         const btnSelectTariff = page.locator('[data-select-tariff]').first();
         await btnSelectTariff.scrollIntoViewIfNeeded();
         await btnSelectTariff.click();
