@@ -1,21 +1,101 @@
-document.addEventListener("DOMContentLoaded", async () => {
-    // 0. Store referral code if present in URL and handle direct Werbelink routing
+// Helper: 90-Day Affiliate & Sub-ID Attribution (Cookies + localStorage + sessionStorage)
+(function initAlphaAffiliateAttribution() {
+    const COOKIE_DAYS = 90;
+    function setCookie(name, value, days) {
+        try {
+            const d = new Date();
+            d.setTime(d.getTime() + days * 24 * 60 * 60 * 1000);
+            document.cookie = `${name}=${encodeURIComponent(value)};expires=${d.toUTCString()};path=/;SameSite=Lax`;
+        } catch (e) {}
+    }
+    function getCookie(name) {
+        try {
+            const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
+            return match ? decodeURIComponent(match[2]) : null;
+        } catch (e) {
+            return null;
+        }
+    }
+
+    window.getAlphaAffiliateAttribution = function () {
+        try {
+            const params = new URLSearchParams(window.location.search);
+            const urlRef = params.get('ref') || params.get('partner') || params.get('refCode') || params.get('aff') || params.get('vp');
+            const urlSub = params.get('subid') || params.get('sub_id') || params.get('subId') || params.get('utm_campaign') || params.get('utm_source');
+            const partnerCode = urlRef
+                || sessionStorage.getItem('affiliate_ref')
+                || localStorage.getItem('affiliate_ref')
+                || getCookie('alpha_partner_ref')
+                || null;
+            const subId = urlSub
+                || sessionStorage.getItem('affiliate_subid')
+                || localStorage.getItem('affiliate_subid')
+                || getCookie('alpha_partner_subid')
+                || null;
+            return { partnerCode, subId };
+        } catch (e) {
+            return { partnerCode: null, subId: null };
+        }
+    };
+
     try {
         const urlParams = new URLSearchParams(window.location.search);
-        const refFromUrl = urlParams.get('ref') || urlParams.get('partner') || urlParams.get('refCode') || urlParams.get('aff');
-        if (refFromUrl) {
-            sessionStorage.setItem('affiliate_ref', refFromUrl);
-            localStorage.setItem('affiliate_ref', refFromUrl);
+        const refFromUrl = urlParams.get('ref') || urlParams.get('partner') || urlParams.get('refCode') || urlParams.get('aff') || urlParams.get('vp');
+        const subFromUrl = urlParams.get('subid') || urlParams.get('sub_id') || urlParams.get('subId') || urlParams.get('utm_campaign') || urlParams.get('utm_source');
 
-            // If landing on root index page via Werbelink, directly redirect to Stammdatenblatt form
+        if (refFromUrl) {
+            const cleanRef = refFromUrl.trim();
+            sessionStorage.setItem('affiliate_ref', cleanRef);
+            localStorage.setItem('affiliate_ref', cleanRef);
+            setCookie('alpha_partner_ref', cleanRef, COOKIE_DAYS);
+        }
+        if (subFromUrl) {
+            const cleanSub = subFromUrl.trim();
+            sessionStorage.setItem('affiliate_subid', cleanSub);
+            localStorage.setItem('affiliate_subid', cleanSub);
+            setCookie('alpha_partner_subid', cleanSub, COOKIE_DAYS);
+        }
+
+        if (refFromUrl) {
+            const clickKey = `alpha_click_logged_${refFromUrl}_${subFromUrl || ''}_${window.location.pathname}`;
+            if (!sessionStorage.getItem(clickKey)) {
+                sessionStorage.setItem(clickKey, '1');
+                fetch('/api/affiliate/click', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        partnerCode: refFromUrl.trim(),
+                        subId: subFromUrl ? subFromUrl.trim() : null,
+                        landingPage: window.location.pathname + window.location.search,
+                        referrer: document.referrer || null
+                    })
+                }).catch(() => {});
+            }
+        }
+    } catch (e) {}
+})();
+
+document.addEventListener("DOMContentLoaded", async () => {
+    // 0. Store referral code if present in URL and handle explicit Werbelink routing without hijacking customer tariff links
+    try {
+        const urlParams = new URLSearchParams(window.location.search);
+        const refFromUrl = urlParams.get('ref') || urlParams.get('partner') || urlParams.get('refCode') || urlParams.get('aff') || urlParams.get('vp');
+        if (refFromUrl) {
             const isHomePage = window.location.pathname === '/' || window.location.pathname.endsWith('/index.html') || window.location.pathname === '';
-            if (isHomePage) {
+            const wantsStammdaten = urlParams.get('redirect') === 'stammdaten' || urlParams.get('form') === 'stammdaten' || urlParams.get('mode') === 'recruiting';
+            const wantsTarife = urlParams.get('target') === 'tarife' || urlParams.get('mode') === 'tarife';
+            if (isHomePage && wantsStammdaten) {
                 window.location.href = `stammdaten.html?ref=${encodeURIComponent(refFromUrl)}`;
+                return;
+            }
+            if (isHomePage && wantsTarife) {
+                const subParam = urlParams.get('subid') || urlParams.get('sub_id') || '';
+                window.location.href = `versorger.html?ref=${encodeURIComponent(refFromUrl)}${subParam ? '&subid=' + encodeURIComponent(subParam) : ''}`;
                 return;
             }
         }
     } catch (e) {
-        console.error('Error saving ref code:', e);
+        console.error('Error handling ref code routing:', e);
     }
 
     // 1. Sticky Header Effect
@@ -2799,6 +2879,33 @@ document.addEventListener("DOMContentLoaded", async () => {
             btnStep3Back.addEventListener('click', () => showModalStep(2));
         }
 
+        // Live IBAN check on #orderIban
+        const orderIbanInput = document.getElementById('orderIban');
+        if (orderIbanInput) {
+            let ibanCheckTimer = null;
+            orderIbanInput.addEventListener('input', () => {
+                clearTimeout(ibanCheckTimer);
+                const rawVal = orderIbanInput.value.replace(/\s+/g, '').toUpperCase();
+                if (rawVal.length < 15) {
+                    orderIbanInput.style.borderColor = '';
+                    return;
+                }
+                ibanCheckTimer = setTimeout(async () => {
+                    try {
+                        const r = await fetch(`/api/verify-iban?iban=${encodeURIComponent(rawVal)}`);
+                        const d = await r.json();
+                        if (d && d.valid) {
+                            orderIbanInput.style.borderColor = '#16a34a';
+                            orderIbanInput.title = d.bankName ? `${d.bankName} (${d.bic || ''})` : 'IBAN gültig';
+                        } else {
+                            orderIbanInput.style.borderColor = '#ef4444';
+                            orderIbanInput.title = (d && d.reason) || 'Ungültige IBAN';
+                        }
+                    } catch (e) {}
+                }, 280);
+            });
+        }
+
         const btnStep3Submit = document.getElementById('btnStep3Submit');
         if (btnStep3Submit) {
             btnStep3Submit.addEventListener('click', async () => {
@@ -2824,6 +2931,10 @@ document.addEventListener("DOMContentLoaded", async () => {
                 btnStep3Submit.disabled = true;
                 btnStep3Submit.textContent = 'Auftrag wird übermittelt...';
 
+                const affAttr = typeof window.getAlphaAffiliateAttribution === 'function'
+                    ? window.getAlphaAffiliateAttribution()
+                    : { partnerCode: null, subId: null };
+
                 const payload = {
                     ...selectedOrderData,
                     branch: selectedOrderData.branch || currentBranch,
@@ -2834,7 +2945,9 @@ document.addEventListener("DOMContentLoaded", async () => {
                     birthDate: birthDate && birthDate.value ? birthDate.value.trim() : null,
                     email: email.value.trim(),
                     phone: phone.value.trim(),
-                    iban: iban.value.trim().replace(/\s/g, '').toUpperCase()
+                    iban: iban.value.trim().replace(/\s/g, '').toUpperCase(),
+                    partnerCode: affAttr.partnerCode || undefined,
+                    subId: affAttr.subId || undefined
                 };
 
                 try {
