@@ -7743,8 +7743,79 @@ html.swal2-height-auto:not(.alpha-modal-open) {
     font-weight: 600;
     color: var(--text-muted);
     text-align: center;
-    margin-bottom: 1.5rem;
+    margin-bottom: 1.35rem;
     display: block;
+}
+.tariff-rate-breakdown {
+    background: #fffaf3;
+    border: 1px solid rgba(249, 178, 51, 0.45);
+    border-radius: 12px;
+    padding: 10px 12px;
+    text-align: center;
+}
+.versorger-tariff-card.bestseller .tariff-rate-breakdown {
+    background: #fff7ed;
+    border-color: rgba(233, 94, 36, 0.35);
+}
+.tariff-rate-consumption {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 6px;
+    padding-bottom: 7px;
+    margin-bottom: 7px;
+    border-bottom: 1px dashed rgba(233, 94, 36, 0.22);
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: #44403c;
+}
+.tariff-rate-kwh-val {
+    white-space: nowrap;
+}
+.tariff-rate-meter-badge {
+    display: inline-flex;
+    align-items: center;
+    background: rgba(233, 94, 36, 0.11);
+    color: #c2410c;
+    border: 1px solid rgba(233, 94, 36, 0.26);
+    border-radius: 999px;
+    padding: 1px 8px;
+    font-size: 0.72rem;
+    font-weight: 800;
+    white-space: nowrap;
+}
+.tariff-rate-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+    align-items: center;
+}
+.tariff-rate-cell {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 2px 4px;
+}
+.tariff-rate-cell:first-child {
+    border-right: 1px solid rgba(233, 94, 36, 0.18);
+}
+.tariff-rate-label {
+    font-size: 0.68rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: #78716c;
+    margin-bottom: 2px;
+    white-space: nowrap;
+}
+.tariff-rate-val {
+    font-size: 0.9rem;
+    font-weight: 800;
+    color: #1c1917;
+    white-space: nowrap;
 }
 .versorger-tariff-card .tariff-feature-item {
     line-height: 1.5;

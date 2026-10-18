@@ -1282,16 +1282,35 @@ document.addEventListener("DOMContentLoaded", async () => {
                     }
                 }
                 if (kwhEl) {
+                    let meterTag = '';
                     if (currentBranch === 'waerme') {
                         const htNt = getCurrentHtNtValues(kwh);
-                        const meterTag = htNt.meterType === 'et'
-                            ? 'Eintarif'
+                        meterTag = htNt.meterType === 'et'
+                            ? (curLang === 'en' ? 'Single-Rate' : (curLang === 'tr' ? 'Tek Zamanlı' : (curLang === 'ar' ? 'تعرفة موحدة' : 'Eintarif')))
                             : `HT ${htNt.ht.toLocaleString('de-DE')} / NT ${htNt.nt.toLocaleString('de-DE')} kWh`;
-                        kwhEl.textContent = `${kwh.toLocaleString('de-DE')} kWh/Jahr (${meterTag}) • ${activeWorkCt.toFixed(2).replace('.', ',')} ct/kWh • ${activeBaseEur.toFixed(2).replace('.', ',')} € Grundpreis`;
-                    } else if (window.i18n && typeof window.i18n.formatKwhDesc === 'function') {
-                        kwhEl.textContent = window.i18n.formatKwhDesc(kwh, activeWorkCt, activeBaseEur);
+                    }
+                    if (window.i18n && typeof window.i18n.formatKwhDescHtml === 'function') {
+                        kwhEl.innerHTML = window.i18n.formatKwhDescHtml(kwh, activeWorkCt, activeBaseEur, curLang, meterTag);
                     } else {
-                        kwhEl.textContent = `${kwh.toLocaleString('de-DE')} kWh/Jahr • ${activeWorkCt.toFixed(2).replace('.', ',')} ct/kWh • ${activeBaseEur.toFixed(2).replace('.', ',')} € Grundpreis`;
+                        const meterBadgeHtml = meterTag ? `<span class="tariff-rate-meter-badge">${meterTag}</span>` : '';
+                        kwhEl.innerHTML = `
+                            <div class="tariff-rate-breakdown">
+                                <div class="tariff-rate-consumption">
+                                    <span class="tariff-rate-kwh-val">${kwh.toLocaleString('de-DE')} kWh/Jahr</span>
+                                    ${meterBadgeHtml}
+                                </div>
+                                <div class="tariff-rate-grid">
+                                    <div class="tariff-rate-cell">
+                                        <span class="tariff-rate-label">Arbeitspreis</span>
+                                        <strong class="tariff-rate-val">${activeWorkCt.toFixed(2).replace('.', ',')} ct/kWh</strong>
+                                    </div>
+                                    <div class="tariff-rate-cell">
+                                        <span class="tariff-rate-label">Grundpreis</span>
+                                        <strong class="tariff-rate-val">${activeBaseEur.toFixed(2).replace('.', ',')} € / Monat</strong>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
                     }
                 }
 
@@ -1568,15 +1587,34 @@ document.addEventListener("DOMContentLoaded", async () => {
                                 }
                             }
                             if (kwhEl && typeof t.workingPriceCt === 'number') {
+                                let meterTag = '';
                                 if (activeBranch === 'waerme' && htNtData) {
-                                    const meterTag = htNtData.meterType === 'et'
-                                        ? 'Eintarif'
+                                    meterTag = htNtData.meterType === 'et'
+                                        ? (curLang === 'en' ? 'Single-Rate' : (curLang === 'tr' ? 'Tek Zamanlı' : (curLang === 'ar' ? 'تعرفة موحدة' : 'Eintarif')))
                                         : `HT ${htNtData.ht.toLocaleString('de-DE')} / NT ${htNtData.nt.toLocaleString('de-DE')} kWh`;
-                                    kwhEl.textContent = `${kwh.toLocaleString('de-DE')} kWh/Jahr (${meterTag}) • ${t.workingPriceCt.toFixed(2).replace('.', ',')} ct/kWh • ${baseM.toFixed(2).replace('.', ',')} € Grundpreis`;
-                                } else if (window.i18n && typeof window.i18n.formatKwhDesc === 'function') {
-                                    kwhEl.textContent = window.i18n.formatKwhDesc(kwh, t.workingPriceCt, baseM);
+                                }
+                                if (window.i18n && typeof window.i18n.formatKwhDescHtml === 'function') {
+                                    kwhEl.innerHTML = window.i18n.formatKwhDescHtml(kwh, t.workingPriceCt, baseM, curLang, meterTag);
                                 } else {
-                                    kwhEl.textContent = `${kwh.toLocaleString('de-DE')} kWh/Jahr • ${t.workingPriceCt.toFixed(2).replace('.', ',')} ct/kWh • ${baseM.toFixed(2).replace('.', ',')} € Grundpreis`;
+                                    const meterBadgeHtml = meterTag ? `<span class="tariff-rate-meter-badge">${meterTag}</span>` : '';
+                                    kwhEl.innerHTML = `
+                                        <div class="tariff-rate-breakdown">
+                                            <div class="tariff-rate-consumption">
+                                                <span class="tariff-rate-kwh-val">${kwh.toLocaleString('de-DE')} kWh/Jahr</span>
+                                                ${meterBadgeHtml}
+                                            </div>
+                                            <div class="tariff-rate-grid">
+                                                <div class="tariff-rate-cell">
+                                                    <span class="tariff-rate-label">Arbeitspreis</span>
+                                                    <strong class="tariff-rate-val">${t.workingPriceCt.toFixed(2).replace('.', ',')} ct/kWh</strong>
+                                                </div>
+                                                <div class="tariff-rate-cell">
+                                                    <span class="tariff-rate-label">Grundpreis</span>
+                                                    <strong class="tariff-rate-val">${baseM.toFixed(2).replace('.', ',')} € / Monat</strong>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    `;
                                 }
                             }
                         }

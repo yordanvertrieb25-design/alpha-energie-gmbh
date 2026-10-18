@@ -65,6 +65,8 @@ if (document.querySelector('.dashboard-container')) {
             fetchWerbelinkApplications();
         } else if (tabName === 'affiliates' && typeof loadAffiliates === 'function') {
             loadAffiliates();
+        } else if (tabName === 'portal-orders' && typeof window.loadAdminPortalOverview === 'function') {
+            window.loadAdminPortalOverview();
         }
     };
 
@@ -278,6 +280,9 @@ if (document.querySelector('.dashboard-container')) {
                         </div>
                         ${emailSentBadge}
                         ${btnSendEmail}
+                        <button onclick="activatePartnerPortalAccount(${a.id})" style="background: #10b981; color: white; border: none; border-radius: 4px; padding: 6px 10px; cursor: pointer; font-size: 0.75rem; font-weight: bold; width: 100%; text-align: center; display: inline-flex; align-items: center; justify-content: center; gap: 6px;" title="Partner-Portal Account (1-Klick) freischalten">
+                            <i class="fa-solid fa-key"></i> Portal-Zugang aktivieren
+                        </button>
                     </div>
                 </td>
             </tr>
@@ -1492,4 +1497,233 @@ if (document.querySelector('.dashboard-container')) {
     if(affiliateTabBtn) {
         affiliateTabBtn.addEventListener('click', loadAffiliates);
     }
+
+    // --- 5. In-House Partner Portal & EnergyOrder Commission Management ---
+    function fmtEurAdmin(v) {
+        return Number(v || 0).toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €';
+    }
+
+    window.activatePartnerPortalAccount = async function(appId) {
+        try {
+            const res = await fetch(`${API_URL}/admin/partner-applications/${appId}/activate-portal`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({})
+            });
+            const data = await res.json();
+            if (!res.ok || !data.success) {
+                alert('Fehler bei der Portal-Freischaltung: ' + (data.error || 'Unbekannt'));
+                return;
+            }
+            const p = data.partner;
+            alert(
+                `Partner-Portal Zugang aktiv!\n\n` +
+                `Name: ${p.fullName}\n` +
+                `Partner-Code: ${p.partnerCode}\n` +
+                `Login E-Mail: ${p.email}\n` +
+                `Passwort: ${data.generatedPassword}\n\n` +
+                `Login-URL: ${window.location.origin}/vertriebspartner-portal.html`
+            );
+            loadData();
+        } catch (err) {
+            alert('Netzwerkfehler bei der Portal-Aktivierung.');
+        }
+    };
+
+    window.loadAdminPortalOverview = async function() {
+        try {
+            const res = await fetch(`${API_URL}/admin/portal-overview`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const data = await res.json();
+            if (!data.success) return;
+
+            const k = data.kpis || {};
+            const setTxt = (id, t) => { const el = document.getElementById(id); if (el) el.textContent = t; };
+            setTxt('admin-kpi-orders', String(k.ordersCount || 0));
+            setTxt('admin-kpi-partners', String(k.partnersCount || 0));
+            setTxt('admin-kpi-comm-pending', fmtEurAdmin(k.totalCommissionPending));
+            setTxt('admin-kpi-comm-paid', fmtEurAdmin((k.totalCommissionApproved || 0) + (k.totalCommissionPaid || 0)));
+            setTxt('admin-kpi-clicks', String(k.clicksCount || 0));
+
+            const ordersTbody = document.getElementById('admin-portal-orders-tbody');
+            if (ordersTbody) {
+                const orders = data.orders || [];
+                if (orders.length === 0) {
+                    ordersTbody.innerHTML = '<tr><td colspan="8" class="text-center">Keine Energieaufträge vorhanden.</td></tr>';
+                } else {
+                    ordersTbody.innerHTML = orders.map(o => `
+                        <tr>
+                            <td>
+                                <strong>${o.orderNumber}</strong><br>
+                                <span style="font-size:0.75rem;color:#64748b;">${new Date(o.createdAt).toLocaleString('de-DE')}</span>
+                            </td>
+                            <td>
+                                <strong>${o.firstName} ${o.lastName}</strong><br>
+                                <span style="font-size:0.8rem;color:#475569;">${o.street} ${o.houseNr}, ${o.plz} ${o.city}</span>
+                            </td>
+                            <td>
+                                <strong>${o.tariffName}</strong> (${String(o.branch || 'strom').toUpperCase()})<br>
+                                <span style="font-size:0.78rem;color:#64748b;">${Number(o.consumption || 0).toLocaleString('de-DE')} kWh · Zähler: ${o.meterNumber}</span>
+                            </td>
+                            <td>
+                                <span style="font-family:monospace;font-size:0.78rem;">${o.iban || '-'}</span><br>
+                                <span style="font-size:0.75rem;color:${o.ibanValid ? '#16a34a' : '#64748b'};">${o.bankName || (o.ibanValid ? '✓ Mod-97 OK' : '')}</span>
+                            </td>
+                            <td>
+                                <strong>${o.partnerCode || 'Direkt (Online)'}</strong><br>
+                                <span style="font-size:0.75rem;color:#64748b;">Kanal: ${o.orderSource || 'ONLINE'}${o.subId ? ' · Sub: ' + o.subId : ''}</span>
+                            </td>
+                            <td>
+                                ${o.signedAt
+                                    ? `<span style="color:#16a34a;font-weight:700;font-size:0.78rem;">✓ eSign vorhanden</span>`
+                                    : (o.signatureToken
+                                        ? `<a href="/vertriebspartner-portal.html?sign=${o.signatureToken}" target="_blank" style="color:#ea580c;font-weight:700;font-size:0.78rem;">Offener eSign-Link</a>`
+                                        : `<span style="color:#64748b;font-size:0.75rem;">Web-Abschluss</span>`)}
+                            </td>
+                            <td>
+                                <select onchange="updateAdminEnergyOrder(${o.id}, { status: this.value })" style="padding:5px 8px;border-radius:6px;border:1px solid #cbd5e1;font-size:0.8rem;">
+                                    <option value="RECEIVED" ${o.status === 'RECEIVED' ? 'selected' : ''}>Eingegangen</option>
+                                    <option value="AWAITING_SIGNATURE" ${o.status === 'AWAITING_SIGNATURE' ? 'selected' : ''}>Wartet auf eSign</option>
+                                    <option value="PROCESSING" ${o.status === 'PROCESSING' ? 'selected' : ''}>In Bearbeitung</option>
+                                    <option value="CONFIRMED" ${o.status === 'CONFIRMED' ? 'selected' : ''}>Bestätigt</option>
+                                    <option value="CANCELLED" ${o.status === 'CANCELLED' ? 'selected' : ''}>Storniert</option>
+                                </select>
+                            </td>
+                            <td>
+                                <div style="font-weight:800;color:#0f172a;margin-bottom:4px;">${fmtEurAdmin(o.commissionAmount)}</div>
+                                <select onchange="updateAdminEnergyOrder(${o.id}, { commissionStatus: this.value })" style="padding:4px 8px;border-radius:6px;border:1px solid #cbd5e1;font-size:0.78rem;">
+                                    <option value="NONE" ${o.commissionStatus === 'NONE' ? 'selected' : ''}>Keine</option>
+                                    <option value="PENDING" ${o.commissionStatus === 'PENDING' ? 'selected' : ''}>Vorgemerkt</option>
+                                    <option value="APPROVED" ${o.commissionStatus === 'APPROVED' ? 'selected' : ''}>Freigegeben</option>
+                                    <option value="PAID" ${o.commissionStatus === 'PAID' ? 'selected' : ''}>Ausgezahlt</option>
+                                    <option value="CANCELLED" ${o.commissionStatus === 'CANCELLED' ? 'selected' : ''}>Storniert</option>
+                                </select>
+                            </td>
+                        </tr>
+                    `).join('');
+                }
+            }
+
+            const partnersTbody = document.getElementById('admin-portal-partners-tbody');
+            if (partnersTbody) {
+                const partners = data.partners || [];
+                partnersTbody.innerHTML = partners.map(p => `
+                    <tr>
+                        <td><strong style="color:#0284c7;">${p.partnerCode}</strong></td>
+                        <td><strong>${p.fullName}</strong>${p.companyName ? `<br><span style="font-size:0.78rem;color:#64748b;">${p.companyName}</span>` : ''}</td>
+                        <td><span style="font-weight:700;font-size:0.78rem;">${p.role}</span></td>
+                        <td>${p.email}<br><span style="font-size:0.78rem;color:#64748b;">${p.phone || '-'}</span></td>
+                        <td>${p.stromCommissionEur} € / ${p.gasCommissionEur} € / Override: ${p.overrideCommissionEur} €</td>
+                        <td><span style="font-family:monospace;font-size:0.76rem;">${p.iban || '-'}</span><br><span style="font-size:0.74rem;color:#64748b;">${p.isVatLiable ? 'Regelbesteuert (19% USt.)' : 'Kleinunternehmer (0% USt.)'}</span></td>
+                        <td>
+                            <button onclick="createAdminCommissionPayout(${p.id})" style="background:#10b981;color:#fff;border:none;padding:6px 11px;border-radius:6px;font-size:0.78rem;font-weight:700;cursor:pointer;">
+                                <i class="fa-solid fa-file-invoice-dollar"></i> Gutschrift erstellen
+                            </button>
+                        </td>
+                    </tr>
+                `).join('');
+            }
+
+            const leadsTbody = document.getElementById('admin-portal-leads-tbody');
+            if (leadsTbody) {
+                const leads = data.leads || [];
+                if (leads.length === 0) {
+                    leadsTbody.innerHTML = '<tr><td colspan="4" class="text-center">Keine Tippgeber-Empfehlungen.</td></tr>';
+                } else {
+                    leadsTbody.innerHTML = leads.map(l => `
+                        <tr>
+                            <td><strong>${l.partnerCode}</strong></td>
+                            <td><strong>${l.customerName}</strong><br><span style="font-size:0.78rem;color:#64748b;">${l.customerPhone}</span></td>
+                            <td>${String(l.branch || 'strom').toUpperCase()}</td>
+                            <td>
+                                <select onchange="updateAdminPartnerLead(${l.id}, this.value)" style="padding:4px 8px;border-radius:6px;border:1px solid #cbd5e1;font-size:0.78rem;">
+                                    <option value="NEW" ${l.status === 'NEW' ? 'selected' : ''}>Neu</option>
+                                    <option value="CONTACTED" ${l.status === 'CONTACTED' ? 'selected' : ''}>Kontaktiert</option>
+                                    <option value="QUALIFIED" ${l.status === 'QUALIFIED' ? 'selected' : ''}>Qualifiziert</option>
+                                    <option value="CONVERTED" ${l.status === 'CONVERTED' ? 'selected' : ''}>Abgeschlossen</option>
+                                    <option value="REJECTED" ${l.status === 'REJECTED' ? 'selected' : ''}>Abgelehnt</option>
+                                </select>
+                                <span style="margin-left:6px;font-weight:700;">${fmtEurAdmin(l.commissionAmount)}</span>
+                            </td>
+                        </tr>
+                    `).join('');
+                }
+            }
+
+            const payoutsTbody = document.getElementById('admin-portal-payouts-tbody');
+            if (payoutsTbody) {
+                const payouts = data.payouts || [];
+                if (payouts.length === 0) {
+                    payoutsTbody.innerHTML = '<tr><td colspan="4" class="text-center">Noch keine Gutschriften.</td></tr>';
+                } else {
+                    payoutsTbody.innerHTML = payouts.map(po => `
+                        <tr>
+                            <td><strong>${po.payoutNumber}</strong></td>
+                            <td>${po.periodLabel} (${po.ordersCount} Vertr.)</td>
+                            <td>${fmtEurAdmin(po.netAmount)} Netto<br><strong>${fmtEurAdmin(po.grossAmount)} Brutto</strong></td>
+                            <td><a href="/api/partner/payouts/${po.id}/pdf" target="_blank" style="color:#ea580c;font-weight:700;text-decoration:underline;">PDF öffnen</a></td>
+                        </tr>
+                    `).join('');
+                }
+            }
+        } catch (err) {
+            console.error('Error loading admin portal overview:', err);
+        }
+    };
+
+    window.updateAdminEnergyOrder = async function(orderId, patchData) {
+        try {
+            await fetch(`${API_URL}/admin/energy-orders/${orderId}`, {
+                method: 'PATCH',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(patchData)
+            });
+            window.loadAdminPortalOverview();
+        } catch (err) {
+            alert('Fehler beim Aktualisieren des Auftrags.');
+        }
+    };
+
+    window.updateAdminPartnerLead = async function(leadId, status) {
+        try {
+            await fetch(`${API_URL}/admin/partner-leads/${leadId}`, {
+                method: 'PATCH',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ status })
+            });
+            window.loadAdminPortalOverview();
+        } catch (err) {}
+    };
+
+    window.createAdminCommissionPayout = async function(partnerId) {
+        try {
+            const res = await fetch(`${API_URL}/admin/payouts/create`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ partnerId, markPaid: true })
+            });
+            const data = await res.json();
+            if (!res.ok || !data.success) {
+                alert(data.error || 'Keine offenen Provisionen für diesen Partner vorhanden.');
+                return;
+            }
+            alert(`Provisionsgutschrift ${data.payout.payoutNumber} (${fmtEurAdmin(data.payout.grossAmount)} Brutto) erfolgreich erstellt!`);
+            window.loadAdminPortalOverview();
+        } catch (err) {
+            alert('Fehler beim Erstellen der Gutschrift.');
+        }
+    };
 }

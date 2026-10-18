@@ -88,9 +88,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
     <!-- Base Styles & Scripts -->
-    <link rel="stylesheet" href="style.css?v=20261018_abschlag1">
-    <script src="i18n.js?v=20261018_abschlag1" defer></script>
-    <script src="main.js?v=20261018_fc100" defer></script>
+    <link rel="stylesheet" href="style.css?v=fc2026v9">
+    <script src="i18n.js?v=fc2026v9" defer></script>
+    <script src="main.js?v=fc2026v9" defer></script>
 
     <!-- Octopus Energy Clone Architecture in Alpha Energie Orange Palette -->
     <style>
@@ -1183,6 +1183,88 @@
 
         body.octo-orange-body .versorger-tariff-card .tariff-kwh-subtext {
             color: var(--octo-text-muted) !important;
+            margin-bottom: 1.25rem !important;
+        }
+
+        body.octo-orange-body .versorger-tariff-card .tariff-rate-breakdown {
+            background: #fffaf3;
+            border: 1.5px solid rgba(249, 178, 51, 0.48);
+            border-radius: 12px;
+            padding: 10px 12px;
+            text-align: center;
+        }
+
+        body.octo-orange-body .versorger-tariff-card.bestseller .tariff-rate-breakdown {
+            background: #fff7ed;
+            border-color: rgba(233, 94, 36, 0.38);
+        }
+
+        body.octo-orange-body .versorger-tariff-card .tariff-rate-consumption {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 6px;
+            padding-bottom: 7px;
+            margin-bottom: 7px;
+            border-bottom: 1px dashed rgba(233, 94, 36, 0.22);
+            font-size: 0.82rem;
+            font-weight: 700;
+            color: #44403c;
+        }
+
+        body.octo-orange-body .versorger-tariff-card .tariff-rate-kwh-val {
+            white-space: nowrap;
+        }
+
+        body.octo-orange-body .versorger-tariff-card .tariff-rate-meter-badge {
+            display: inline-flex;
+            align-items: center;
+            background: rgba(233, 94, 36, 0.12);
+            color: #c2410c;
+            border: 1px solid rgba(233, 94, 36, 0.28);
+            border-radius: 999px;
+            padding: 1px 8px;
+            font-size: 0.72rem;
+            font-weight: 800;
+            white-space: nowrap;
+        }
+
+        body.octo-orange-body .versorger-tariff-card .tariff-rate-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 6px;
+            align-items: center;
+        }
+
+        body.octo-orange-body .versorger-tariff-card .tariff-rate-cell {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 2px 4px;
+        }
+
+        body.octo-orange-body .versorger-tariff-card .tariff-rate-cell:first-child {
+            border-right: 1px solid rgba(233, 94, 36, 0.18);
+        }
+
+        body.octo-orange-body .versorger-tariff-card .tariff-rate-label {
+            font-size: 0.68rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            color: #78716c;
+            margin-bottom: 2px;
+            white-space: nowrap;
+        }
+
+        body.octo-orange-body .versorger-tariff-card .tariff-rate-val {
+            font-size: 0.92rem;
+            font-weight: 800;
+            color: #1c1917;
+            white-space: nowrap;
         }
 
         body.octo-orange-body .versorger-tariff-card .tariff-feature-item {
@@ -2840,7 +2922,7 @@
 
             <div class="octo-header-right header-actions">
                 <a href="partner-werden.html" class="octo-login-link">Partner werden</a>
-                <a href="https://vp.alpha-energie.de" class="octo-login-link">
+                <a href="vertriebspartner-portal.html" class="octo-login-link">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
                     Log in
                 </a>
@@ -3144,7 +3226,23 @@
                                 </div>
                             </div>
 
-                            <div class="tariff-kwh-subtext" id="kwh-desc-alpha-basic">2.500 kWh/Jahr • 33,66 ct/kWh • 29,40 € Grundpreis</div>
+                            <div class="tariff-kwh-subtext" id="kwh-desc-alpha-basic">
+                                <div class="tariff-rate-breakdown">
+                                    <div class="tariff-rate-consumption">
+                                        <span class="tariff-rate-kwh-val">2.500 kWh/Jahr</span>
+                                    </div>
+                                    <div class="tariff-rate-grid">
+                                        <div class="tariff-rate-cell">
+                                            <span class="tariff-rate-label">Arbeitspreis</span>
+                                            <strong class="tariff-rate-val">33,66 ct/kWh</strong>
+                                        </div>
+                                        <div class="tariff-rate-cell">
+                                            <span class="tariff-rate-label">Grundpreis</span>
+                                            <strong class="tariff-rate-val">29,40 € / Monat</strong>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
 
                             <div class="tariff-feature-list">
                                 <div class="tariff-feature-item">
@@ -3190,7 +3288,23 @@
                                 </div>
                             </div>
 
-                            <div class="tariff-kwh-subtext" id="kwh-desc-alpha-time">2.500 kWh/Jahr • 34,85 ct/kWh • 29,40 € Grundpreis</div>
+                            <div class="tariff-kwh-subtext" id="kwh-desc-alpha-time">
+                                <div class="tariff-rate-breakdown">
+                                    <div class="tariff-rate-consumption">
+                                        <span class="tariff-rate-kwh-val">2.500 kWh/Jahr</span>
+                                    </div>
+                                    <div class="tariff-rate-grid">
+                                        <div class="tariff-rate-cell">
+                                            <span class="tariff-rate-label">Arbeitspreis</span>
+                                            <strong class="tariff-rate-val">34,85 ct/kWh</strong>
+                                        </div>
+                                        <div class="tariff-rate-cell">
+                                            <span class="tariff-rate-label">Grundpreis</span>
+                                            <strong class="tariff-rate-val">29,40 € / Monat</strong>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
 
                             <div class="tariff-feature-list">
                                 <div class="tariff-feature-item">
@@ -3232,7 +3346,23 @@
                                 </div>
                             </div>
 
-                            <div class="tariff-kwh-subtext" id="kwh-desc-alpha-premium">2.500 kWh/Jahr • 36,04 ct/kWh • 29,40 € Grundpreis</div>
+                            <div class="tariff-kwh-subtext" id="kwh-desc-alpha-premium">
+                                <div class="tariff-rate-breakdown">
+                                    <div class="tariff-rate-consumption">
+                                        <span class="tariff-rate-kwh-val">2.500 kWh/Jahr</span>
+                                    </div>
+                                    <div class="tariff-rate-grid">
+                                        <div class="tariff-rate-cell">
+                                            <span class="tariff-rate-label">Arbeitspreis</span>
+                                            <strong class="tariff-rate-val">36,04 ct/kWh</strong>
+                                        </div>
+                                        <div class="tariff-rate-cell">
+                                            <span class="tariff-rate-label">Grundpreis</span>
+                                            <strong class="tariff-rate-val">29,40 € / Monat</strong>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
 
                             <div class="tariff-feature-list">
                                 <div class="tariff-feature-item">
@@ -4073,7 +4203,7 @@
                 <a href="karriere.html">Karriere</a>
                 <a href="service.html">Hilfe &amp; FAQ</a>
                 <a href="kontakt.html">Kontakt Dortmund</a>
-                <a href="https://vp.alpha-energie.de">VP-Portal Login</a>
+                <a href="vertriebspartner-portal.html">VP-Portal Login</a>
             </div>
 
             <div class="octo-footer-bottom">

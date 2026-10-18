@@ -37,6 +37,7 @@
             <button class="tab-btn active" onclick="switchTab('partners')">Partner-Bewerbungen</button>
             <button class="tab-btn" onclick="switchTab('stammdaten')">Stammdaten</button>
             <button class="tab-btn" onclick="switchTab('werbelink')" style="background: #f0fdf4; color: #15803d; border: 1px solid #bbf7d0; font-weight: 600;"><i class="fa-solid fa-link"></i> Anfragen über Werbelink</button>
+            <button class="tab-btn" onclick="switchTab('portal-orders')" style="background: #fff7ed; color: #ea580c; border: 1px solid #fed7aa; font-weight: 700;"><i class="fa-solid fa-bolt"></i> Aufträge &amp; Provisionen</button>
             <button class="tab-btn" onclick="switchTab('appointments')">Termine</button>
             <button class="tab-btn" onclick="switchTab('campaigns')">B2B Kampagnen</button>
             <button class="tab-btn" onclick="switchTab('db-b2b')" style="background: #e0f2fe; color: #0284c7; border: 1px solid #bae6fd;">Datenbank-B2B</button>
@@ -597,6 +598,120 @@
         </div>
     </div>
 
+    <!-- Aufträge & Provisionen Tab (In-House Partner Portal Management) -->
+    <div id="portal-orders-tab" class="tab-content" style="max-width: 1400px; margin: 0 auto 40px auto; padding: 0 20px;">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 24px;">
+            <div style="background: white; padding: 18px; border-radius: 10px; border: 1px solid #e2e8f0;">
+                <div style="font-size: 0.8rem; color: #64748b; font-weight: 600;">Energieaufträge (Gesamt)</div>
+                <div id="admin-kpi-orders" style="font-size: 1.6rem; font-weight: 800; color: #0f172a; margin-top: 4px;">0</div>
+            </div>
+            <div style="background: white; padding: 18px; border-radius: 10px; border: 1px solid #e2e8f0;">
+                <div style="font-size: 0.8rem; color: #64748b; font-weight: 600;">Aktive Portal-Partner</div>
+                <div id="admin-kpi-partners" style="font-size: 1.6rem; font-weight: 800; color: #0284c7; margin-top: 4px;">0</div>
+            </div>
+            <div style="background: white; padding: 18px; border-radius: 10px; border: 1px solid #e2e8f0;">
+                <div style="font-size: 0.8rem; color: #64748b; font-weight: 600;">Offene Provisionen (Pending)</div>
+                <div id="admin-kpi-comm-pending" style="font-size: 1.6rem; font-weight: 800; color: #ea580c; margin-top: 4px;">0,00 €</div>
+            </div>
+            <div style="background: white; padding: 18px; border-radius: 10px; border: 1px solid #e2e8f0;">
+                <div style="font-size: 0.8rem; color: #64748b; font-weight: 600;">Freigegeben / Ausgezahlt</div>
+                <div id="admin-kpi-comm-paid" style="font-size: 1.6rem; font-weight: 800; color: #16a34a; margin-top: 4px;">0,00 €</div>
+            </div>
+            <div style="background: white; padding: 18px; border-radius: 10px; border: 1px solid #e2e8f0;">
+                <div style="font-size: 0.8rem; color: #64748b; font-weight: 600;">Affiliate-Klicks (90d)</div>
+                <div id="admin-kpi-clicks" style="font-size: 1.6rem; font-weight: 800; color: #0f172a; margin-top: 4px;">0</div>
+            </div>
+        </div>
+
+        <div style="background: white; padding: 20px; border-radius: 10px; border: 1px solid #e2e8f0; margin-bottom: 24px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+                <h3 style="margin: 0;">1. Eingereichte Energieaufträge (Online, D2D eSign &amp; Affiliate)</h3>
+                <button type="button" onclick="loadAdminPortalOverview()" class="btn" style="background: #0f172a; color: white; border: none; padding: 8px 14px; border-radius: 6px; cursor: pointer; font-weight: 600;">Aktualisieren</button>
+            </div>
+            <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Auftrags-Nr.</th>
+                            <th>Kunde &amp; Lieferstelle</th>
+                            <th>Tarif &amp; Zähler</th>
+                            <th>IBAN / Bank</th>
+                            <th>Partner / Sub-ID</th>
+                            <th>eSign</th>
+                            <th>Auftragsstatus</th>
+                            <th>Provision &amp; Freigabe</th>
+                        </tr>
+                    </thead>
+                    <tbody id="admin-portal-orders-tbody">
+                        <tr><td colspan="8" class="text-center">Lade Aufträge...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div style="background: white; padding: 20px; border-radius: 10px; border: 1px solid #e2e8f0; margin-bottom: 24px;">
+            <h3 style="margin: 0 0 14px 0;">2. Aktive Partner-Portal Zugänge (D2D, Affiliate, Tippgeber, Agentur) &amp; Gutschrift-Erstellung</h3>
+            <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Partner-Code</th>
+                            <th>Name / Firma</th>
+                            <th>Rolle</th>
+                            <th>E-Mail &amp; Telefon</th>
+                            <th>Kondition (Strom / Gas / Override)</th>
+                            <th>Bank / USt.</th>
+                            <th>Aktion (Gutschrift)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="admin-portal-partners-tbody">
+                        <tr><td colspan="7" class="text-center">Lade Partner...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+            <div style="background: white; padding: 20px; border-radius: 10px; border: 1px solid #e2e8f0;">
+                <h3 style="margin: 0 0 14px 0;">3. Tippgeber-Empfehlungen (Leads)</h3>
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Partner</th>
+                                <th>Kunde &amp; Telefon</th>
+                                <th>Sparte</th>
+                                <th>Status &amp; Prämie</th>
+                            </tr>
+                        </thead>
+                        <tbody id="admin-portal-leads-tbody">
+                            <tr><td colspan="4" class="text-center">Lade Empfehlungen...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div style="background: white; padding: 20px; border-radius: 10px; border: 1px solid #e2e8f0;">
+                <h3 style="margin: 0 0 14px 0;">4. Erstellte Provisionsgutschriften (PDF)</h3>
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Gutschrift-Nr.</th>
+                                <th>Zeitraum</th>
+                                <th>Netto / Brutto</th>
+                                <th>PDF Beleg</th>
+                            </tr>
+                        </thead>
+                        <tbody id="admin-portal-payouts-tbody">
+                            <tr><td colspan="4" class="text-center">Lade Gutschriften...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Affiliate Partners Modal -->
     <div id="affiliate-partners-modal" class="modal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center;">
         <div class="modal-content" style="background: white; padding: 20px; border-radius: 8px; width: 600px; max-width: 90%; max-height: 80vh; overflow-y: auto;">
@@ -622,6 +737,6 @@
         </div>
     </div>
 
-    <script src="admin.js?v=6"></script>
+    <script src="admin.js?v=7"></script>
 </body>
 </html>

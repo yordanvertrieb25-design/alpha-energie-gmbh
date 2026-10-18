@@ -2325,7 +2325,7 @@
         {"selector":"#main-nav .nav-list > li:nth-child(2) .dropdown li:nth-child(2) a","key":"nav_dd_gas_overview"},
         {"selector":"#main-nav .nav-list > li:nth-child(2) .dropdown li:nth-child(3) a","key":"nav_dd_live_calc"},
         {"selector":".header-actions a[href*=\"versorger.html#rechner\"]","key":"nav_btn_calc"},
-        {"selector":".header-actions a[href=\"https://vp.alpha-energie.de\"]","key":"nav_btn_login","hasSvgPrefix":true},
+        {"selector":".header-actions a[href=\"vertriebspartner-portal.html\"], .header-actions a[href=\"https://vp.alpha-energie.de\"]","key":"nav_btn_login","hasSvgPrefix":true},
         {"selector":"h1.octo-hero-h1.hero-versorger-title","key":"octo_hero_h1","isHtml":true},
         {"selector":".octo-stage-overlay-pill > div > div:nth-child(1), .octo-stage-overlay-pill > span:nth-child(1)","key":"octo_stage_pill_1"},
         {"selector":".octo-stage-overlay-pill > div > div:nth-child(2), .octo-stage-overlay-pill > span:nth-child(3)","key":"octo_stage_pill_2"},
@@ -2496,7 +2496,7 @@
         {"selector":".octo-footer-links-cloud a[href=\"karriere.html\"]","key":"octo_fc_jobs"},
         {"selector":".octo-footer-links-cloud a[href=\"service.html\"]","key":"octo_fc_faq"},
         {"selector":".octo-footer-links-cloud a[href=\"kontakt.html\"]","key":"octo_fc_contact"},
-        {"selector":".octo-footer-links-cloud a[href=\"https://vp.alpha-energie.de\"]","key":"octo_fc_login"},
+        {"selector":".octo-footer-links-cloud a[href=\"vertriebspartner-portal.html\"], .octo-footer-links-cloud a[href=\"https://vp.alpha-energie.de\"]","key":"octo_fc_login"},
         {"selector":".octo-footer-bottom > div:first-child > div:nth-child(1) > span, .octo-footer-bottom > div:first-child > span","key":"octo_footer_copy"},
         {"selector":".octo-footer-bottom > div:first-child > div:nth-child(2)","key":"octo_footer_firstcon","isHtml":true},
         {"selector":"#modalStep1 > div:first-child > div:last-child > div:nth-child(1) > span:first-child","key":"modal_sum_monthly_label"},
@@ -2898,6 +2898,43 @@
         return `${kwhFormatted} ${unit} • ${ctFormatted} ct/kWh`;
     }
 
+    function formatKwhDescHtml(kwh, ctPerKwh, basePriceEur, lang, meterTag) {
+        const l = lang || currentLang;
+        const locale = l === 'en' ? 'en-US' : (l === 'tr' ? 'tr-TR' : 'de-DE');
+        const kwhFormatted = Number(kwh).toLocaleString(locale);
+        const ctFormatted = l === 'en' ? ctPerKwh.toFixed(2) : ctPerKwh.toFixed(2).replace('.', ',');
+        const unit = l === 'en' ? 'kWh/year' : (l === 'tr' ? 'kWh/yıl' : (l === 'ar' ? 'ك.و.س/سنة' : 'kWh/Jahr'));
+        const workLabel = l === 'en' ? 'Working Price' : (l === 'tr' ? 'Birim Fiyat' : (l === 'ar' ? 'سعر الاستهلاك' : 'Arbeitspreis'));
+        const baseLabel = l === 'en' ? 'Base Price' : (l === 'tr' ? 'Sabit Ücret' : (l === 'ar' ? 'الرسوم الأساسية' : 'Grundpreis'));
+        const baseValNum = (typeof basePriceEur === 'number' && !isNaN(basePriceEur)) ? basePriceEur : 29.40;
+        const baseFormatted = l === 'en' ? baseValNum.toFixed(2) : baseValNum.toFixed(2).replace('.', ',');
+        const baseValDisplay = l === 'en'
+            ? `€${baseFormatted} / mo`
+            : (l === 'tr' ? `${baseFormatted} € / ay` : (l === 'ar' ? `${baseFormatted} € / شهر` : `${baseFormatted} € / Monat`));
+        const meterBadgeHtml = meterTag
+            ? `<span class="tariff-rate-meter-badge">${meterTag}</span>`
+            : '';
+
+        return `
+            <div class="tariff-rate-breakdown">
+                <div class="tariff-rate-consumption">
+                    <span class="tariff-rate-kwh-val">${kwhFormatted} ${unit}</span>
+                    ${meterBadgeHtml}
+                </div>
+                <div class="tariff-rate-grid">
+                    <div class="tariff-rate-cell">
+                        <span class="tariff-rate-label">${workLabel}</span>
+                        <strong class="tariff-rate-val">${ctFormatted} ct/kWh</strong>
+                    </div>
+                    <div class="tariff-rate-cell">
+                        <span class="tariff-rate-label">${baseLabel}</span>
+                        <strong class="tariff-rate-val">${baseValDisplay}</strong>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
     /**
      * General string lookup
      */
@@ -2966,6 +3003,7 @@
         formatGuarantee: formatGuarantee,
         formatMaxSavings: formatMaxSavings,
         formatKwhDesc: formatKwhDesc,
+        formatKwhDescHtml: formatKwhDescHtml,
         init: init
     };
 

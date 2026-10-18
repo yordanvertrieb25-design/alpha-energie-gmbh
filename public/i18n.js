@@ -298,7 +298,7 @@
             modal_order_email: 'Email address *',
             modal_order_phone: 'Phone number *',
             modal_order_iban: 'IBAN for SEPA Direct Debit *',
-            modal_order_agb_checkbox: 'I agree to the <a href="datenschutz.html" target="_blank" style="text-decoration: underline; color: #ff7a00;">Privacy Policy</a> and binding submission of the order.',
+            modal_order_agb_checkbox: 'I accept the <a id="orderAgbInlineLink" href="/api/tarife/agb?branch=strom" target="_blank" rel="noopener" style="text-decoration: underline; color: #ff7a00; font-weight: 600;">Terms &amp; Conditions (AGB) incl. Right of Withdrawal (PDF)</a>, take note of the <a id="orderPrivacyPdfInlineLink" href="/api/tarife/datenschutz?branch=strom" target="_blank" rel="noopener" style="text-decoration: underline; color: #ff7a00; font-weight: 600;">Privacy Notice (PDF)</a> and <a href="datenschutz.html" target="_blank" style="text-decoration: underline; color: #ff7a00;">Privacy Policy</a>, grant the SEPA Direct Debit Mandate, and confirm the binding submission of the order.',
             modal_order_btn_submit: 'Complete binding order now',
 
             modal_order_success_title: 'Thank you for your order!',
@@ -439,7 +439,7 @@
             calc_gas_3: "Detached House",
             calc_gas_4: "Large House",
             ph_calc_plz: "Your ZIP",
-            ph_calc_abschlag: "Monthly",
+            ph_calc_abschlag: "Your current payment",
             ph_calc_kwh_strom: "e.g. 2,500",
             ph_calc_kwh_gas: "e.g. 12,000",
             octo_tarife_h2: "Our Live Tariffs at a Glance",
@@ -942,7 +942,7 @@
             modal_order_email: 'E-posta adresi *',
             modal_order_phone: 'Telefon numarası *',
             modal_order_iban: 'SEPA Otomatik Ödeme için IBAN *',
-            modal_order_agb_checkbox: '<a href="datenschutz.html" target="_blank" style="text-decoration: underline; color: #ff7a00;">Gizlilik politikasını</a> ve siparişin bağlayıcı olarak iletilmesini onaylıyorum.',
+            modal_order_agb_checkbox: '<a id="orderAgbInlineLink" href="/api/tarife/agb?branch=strom" target="_blank" rel="noopener" style="text-decoration: underline; color: #ff7a00; font-weight: 600;">Genel İşlem Koşullarını (AGB) ve Cayma Hakkı Bilgilendirmesini (PDF)</a> kabul ediyor, <a id="orderPrivacyPdfInlineLink" href="/api/tarife/datenschutz?branch=strom" target="_blank" rel="noopener" style="text-decoration: underline; color: #ff7a00; font-weight: 600;">Veri Koruma Bilgilendirmesini (PDF)</a> ve <a href="datenschutz.html" target="_blank" style="text-decoration: underline; color: #ff7a00;">Gizlilik Politikasını</a> onaylıyor, SEPA Otomatik Ödeme talimatı veriyor ve siparişi bağlayıcı olarak iletiyorum.',
             modal_order_btn_submit: 'Siparişi şimdi bağlayıcı olarak tamamla',
 
             modal_order_success_title: 'Siparişiniz için teşekkür ederiz!',
@@ -1083,7 +1083,7 @@
             calc_gas_3: "Müstakil Ev",
             calc_gas_4: "Büyük Ev",
             ph_calc_plz: "Posta Kodu",
-            ph_calc_abschlag: "Aylık",
+            ph_calc_abschlag: "Mevcut avansınız",
             ph_calc_kwh_strom: "örn. 2.500",
             ph_calc_kwh_gas: "örn. 12.000",
             octo_tarife_h2: "Canlı Tarifelerimize Genel Bakış",
@@ -1586,7 +1586,7 @@
             modal_order_email: 'البريد الإلكتروني *',
             modal_order_phone: 'رقم الهاتف *',
             modal_order_iban: 'رقم الآيبان (IBAN) للخصم المباشر SEPA *',
-            modal_order_agb_checkbox: 'أوافق على <a href="datenschutz.html" target="_blank" style="text-decoration: underline; color: #ff7a00;">سياسة الخصوصية</a> وإرسال الطلب بشكل ملزم.',
+            modal_order_agb_checkbox: 'أوافق على <a id="orderAgbInlineLink" href="/api/tarife/agb?branch=strom" target="_blank" rel="noopener" style="text-decoration: underline; color: #ff7a00; font-weight: 600;">الشروط والأحكام العامة (AGB) وحق الانسحاب (PDF)</a>، وأقر بـ <a id="orderPrivacyPdfInlineLink" href="/api/tarife/datenschutz?branch=strom" target="_blank" rel="noopener" style="text-decoration: underline; color: #ff7a00; font-weight: 600;">معلومات حماية البيانات (PDF)</a> و<a href="datenschutz.html" target="_blank" style="text-decoration: underline; color: #ff7a00;">سياسة الخصوصية</a>، وأمنح تفويض الخصم المباشر SEPA وإرسال الطلب بشكل ملزم.',
             modal_order_btn_submit: 'إتمام الطلب الملزم الآن',
 
             modal_order_success_title: 'شكراً لطلبك!',
@@ -1727,7 +1727,7 @@
             calc_gas_3: "منزل مستقل",
             calc_gas_4: "منزل كبير",
             ph_calc_plz: "الرمز البريدي",
-            ph_calc_abschlag: "شهرياً",
+            ph_calc_abschlag: "دفعتك الحالية",
             ph_calc_kwh_strom: "مثلاً 2500",
             ph_calc_kwh_gas: "مثلاً 12000",
             octo_tarife_h2: "نظرة عامة على تعريفاتنا المباشرة",
@@ -2325,7 +2325,7 @@
         {"selector":"#main-nav .nav-list > li:nth-child(2) .dropdown li:nth-child(2) a","key":"nav_dd_gas_overview"},
         {"selector":"#main-nav .nav-list > li:nth-child(2) .dropdown li:nth-child(3) a","key":"nav_dd_live_calc"},
         {"selector":".header-actions a[href*=\"versorger.html#rechner\"]","key":"nav_btn_calc"},
-        {"selector":".header-actions a[href=\"https://vp.alpha-energie.de\"]","key":"nav_btn_login","hasSvgPrefix":true},
+        {"selector":".header-actions a[href=\"vertriebspartner-portal.html\"], .header-actions a[href=\"https://vp.alpha-energie.de\"]","key":"nav_btn_login","hasSvgPrefix":true},
         {"selector":"h1.octo-hero-h1.hero-versorger-title","key":"octo_hero_h1","isHtml":true},
         {"selector":".octo-stage-overlay-pill > div > div:nth-child(1), .octo-stage-overlay-pill > span:nth-child(1)","key":"octo_stage_pill_1"},
         {"selector":".octo-stage-overlay-pill > div > div:nth-child(2), .octo-stage-overlay-pill > span:nth-child(3)","key":"octo_stage_pill_2"},
@@ -2496,7 +2496,7 @@
         {"selector":".octo-footer-links-cloud a[href=\"karriere.html\"]","key":"octo_fc_jobs"},
         {"selector":".octo-footer-links-cloud a[href=\"service.html\"]","key":"octo_fc_faq"},
         {"selector":".octo-footer-links-cloud a[href=\"kontakt.html\"]","key":"octo_fc_contact"},
-        {"selector":".octo-footer-links-cloud a[href=\"https://vp.alpha-energie.de\"]","key":"octo_fc_login"},
+        {"selector":".octo-footer-links-cloud a[href=\"vertriebspartner-portal.html\"], .octo-footer-links-cloud a[href=\"https://vp.alpha-energie.de\"]","key":"octo_fc_login"},
         {"selector":".octo-footer-bottom > div:first-child > div:nth-child(1) > span, .octo-footer-bottom > div:first-child > span","key":"octo_footer_copy"},
         {"selector":".octo-footer-bottom > div:first-child > div:nth-child(2)","key":"octo_footer_firstcon","isHtml":true},
         {"selector":"#modalStep1 > div:first-child > div:last-child > div:nth-child(1) > span:first-child","key":"modal_sum_monthly_label"},
@@ -2884,12 +2884,17 @@
     /**
      * Format kWh and ct/kWh description
      */
-    function formatKwhDesc(kwh, ctPerKwh, lang) {
+    function formatKwhDesc(kwh, ctPerKwh, basePriceEur, lang) {
         const l = lang || currentLang;
         const locale = l === 'en' ? 'en-US' : (l === 'tr' ? 'tr-TR' : 'de-DE');
         const kwhFormatted = Number(kwh).toLocaleString(locale);
         const ctFormatted = l === 'en' ? ctPerKwh.toFixed(2) : ctPerKwh.toFixed(2).replace('.', ',');
         const unit = l === 'en' ? 'kWh/year' : (l === 'tr' ? 'kWh/yıl' : (l === 'ar' ? 'ك.و.س/سنة' : 'kWh/Jahr'));
+        if (typeof basePriceEur === 'number' && !isNaN(basePriceEur)) {
+            const baseFormatted = l === 'en' ? basePriceEur.toFixed(2) : basePriceEur.toFixed(2).replace('.', ',');
+            const baseLabel = l === 'en' ? '€/mo base price' : (l === 'tr' ? '€/ay sabit ücret' : (l === 'ar' ? '€ رسوم أساسية/شهر' : '€ Grundpreis'));
+            return `${kwhFormatted} ${unit} • ${ctFormatted} ct/kWh • ${baseFormatted} ${baseLabel}`;
+        }
         return `${kwhFormatted} ${unit} • ${ctFormatted} ct/kWh`;
     }
 
