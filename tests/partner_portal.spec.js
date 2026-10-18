@@ -131,8 +131,15 @@ test.describe('AlphaTarife In-House Partner Portal & Attribution Suite', () => {
         });
         expect(page.url()).toContain('vertriebspartner-portal.html');
 
-        // Click 1-click Demo button for Affiliate
-        await page.click('[data-demo-role="AFFILIATE"]');
+        // Verify clean login screen is displayed first without demo code buttons
+        await expect(page.locator('#publicPortalAuthSection')).toBeVisible();
+        await expect(page.locator('#partnerLoginFormEl')).toBeVisible();
+        await expect(page.locator('[data-demo-role]')).toHaveCount(0);
+
+        // Log in via standard email/password form
+        await page.fill('#login-email', 'affiliate@alpha-energie.de');
+        await page.fill('#login-password', 'Alpha2026!');
+        await page.click('#btnPartnerLoginSubmit');
         await expect(page.locator('#partnerCockpitSection')).toBeVisible({ timeout: 8000 });
         await expect(page.locator('#cockpitPartnerCode')).toHaveText('AFF-MAX24');
 

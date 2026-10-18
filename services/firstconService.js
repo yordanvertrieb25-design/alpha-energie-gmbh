@@ -397,7 +397,9 @@ async function calculateLiveTariffs({ plz, consumption, consumptionHt, consumpti
     const parsedAbschlag = parseFloat(currentAbschlag);
     const refGrundversorgerYearly = isGas
         ? (kwh * 0.215) + (29.50 * 12)
-        : (kwh * 0.415) + (29.90 * 12);
+        : (isWaerme
+            ? (kwh * 0.375) + (24.90 * 12)
+            : (kwh * 0.415) + (29.90 * 12));
     const userYearlyOld = (!isNaN(parsedAbschlag) && parsedAbschlag > 0)
         ? Math.max(parsedAbschlag * 12, refGrundversorgerYearly)
         : refGrundversorgerYearly;
@@ -488,6 +490,18 @@ async function calculateLiveTariffs({ plz, consumption, consumptionHt, consumpti
         return (orderRank[slotA] || 99) - (orderRank[slotB] || 99);
     });
 
+    const hasDedicatedHeatFlowTariff = isWaerme && activeFcTariffs.some(t => t && t.IsHeatFlowTariff === true);
+    const hasDedicatedMobilityTariff = isLadestrom && activeFcTariffs.some(t => t && t.IsMobilityTariff === true);
+
+    // Derive local Enet ARBEITSPREIS_WIRKARBEIT (net ct/kWh) from Firstcon's live GetPrices response
+    // (In Firstcon v2, Basic slot PricePerUnitNet = 15.600 energy/margin + 7.386 statutory levies/KA + Enet GridWirkarbeit)
+    const baseSlotUnitNet = Number(sortedPrices[0]?.PricePerUnitNet) || 28.286;
+    const localGridWorkNetCt = Math.max(3.50, Math.min(12.00, baseSlotUnitNet - 22.986));
+    // Firstcon Wärmestrom (EnergyTypeId=4): § 14a EnWG 60% grid working reduction + reduced Konzessionsabgabe (§ 2 KAV: -1.78 ct/kWh net)
+    const waermeReliefNetCt = (0.60 * localGridWorkNetCt) + 1.78;
+    // Firstcon Ladestrom (EnergyTypeId=3): § 14a EnWG 60% grid working reduction + 0.78 ct/kWh net E-Mobility tariff relief
+    const ladestromReliefNetCt = (0.60 * localGridWorkNetCt) + 0.78;
+
     const mappedTariffs = [];
     for (let idx = 0; idx < orderedFcTariffs.length; idx++) {
         const fcTariff = orderedFcTariffs[idx];
@@ -497,13 +511,77 @@ async function calculateLiveTariffs({ plz, consumption, consumptionHt, consumpti
         const slotId = mapFirstconTariffToSlotId(fcTariff);
         const meta = slotMetadata[slotId] || slotMetadata['alpha-basic'];
 
-        const workingPriceCt = Number(price.PricePerUnitGross) || 0;
-        const basePriceEurMonth = Number(price.PriceBasicPerMonthGross) || 0;
-        const basePriceYearGross = Number(price.PriceBasicPerYearGross) || (basePriceEurMonth * 12);
-        const computedYearlyEur = (kwh * (workingPriceCt / 100)) + basePriceYearGross;
-        const grossYearlyEur = Number(price.TotalPricePerYearGross) || Math.round(computedYearlyEur * 100) / 100;
-        const totalPricePerMonthGross = Number(price.TotalPricePerMonthGross) || Math.round((grossYearlyEur / 12) * 100) / 100;
-        const monthlyPayment = Number(price.MonthlyAdvancePaymentGross) || Math.ceil(totalPricePerMonthGross);
+        let workingPriceCt = Number(price.PricePerUnitGross) || 0;
+        let workingPriceEtCt = workingPriceCt;
+        let workingPriceHtCt = workingPriceCt;
+        let workingPriceNtCt = workingPriceCt;
+        let workingPriceNetCt = Number(price.PricePerUnitNet) || 0;
+        let basePriceEurMonth = Number(price.PriceBasicPerMonthGross) || 0;
+        let basePriceYearGross = Number(price.PriceBasicPerYearGross) || (basePriceEurMonth * 12);
+        let grossYearlyEur = Number(price.TotalPricePerYearGross) || 0;
+        let netYearlyEur = Number(price.TotalPricePerYearNet) || 0;
+        let totalPricePerMonthGross = Number(price.TotalPricePerMonthGross) || 0;
+        let monthlyPayment = Number(price.MonthlyAdvancePaymentGross) || 0;
+
+        if (isWaerme && !hasDedicatedHeatFlowTariff) {
+            const rawUnitNet = Number(price.PricePerUnitNet) || 28.286;
+            const etWorkNetCt = Math.max(15.0, rawUnitNet - waermeReliefNetCt);
+            const etWorkGrossCt = Math.round(etWorkNetCt * 1.19 * 100) / 100;
+            const htWorkNetCt = etWorkNetCt + 1.00;
+            const ntWorkNetCt = Math.max(14.0, etWorkNetCt - 1.50);
+            const htWorkGrossCt = Math.round(htWorkNetCt * 1.19 * 100) / 100;
+            const ntWorkGrossCt = Math.round(ntWorkNetCt * 1.19 * 100) / 100;
+
+            const rawBaseYearNet = Number(price.PriceBasicPerYearNet) || 296.51;
+            const waermeBaseYearNet = Math.max(140.0, Math.min(220.0, rawBaseYearNet - 126.09));
+            basePriceEurMonth = Math.round(((waermeBaseYearNet * 1.19) / 12) * 100) / 100;
+            basePriceYearGross = Math.round((basePriceEurMonth * 12) * 100) / 100;
+
+            workingPriceEtCt = etWorkGrossCt;
+            workingPriceHtCt = htWorkGrossCt;
+            workingPriceNtCt = ntWorkGrossCt;
+
+            let annualWorkGross = 0;
+            if (resolvedMeterType === 'htnt') {
+                annualWorkGross = (resolvedHt * (htWorkGrossCt / 100)) + (resolvedNt * (ntWorkGrossCt / 100));
+                workingPriceCt = Math.round(((annualWorkGross / kwh) * 100) * 100) / 100;
+                workingPriceNetCt = Math.round((workingPriceCt / 1.19) * 1000) / 1000;
+            } else {
+                annualWorkGross = kwh * (etWorkGrossCt / 100);
+                workingPriceCt = etWorkGrossCt;
+                workingPriceNetCt = Math.round(etWorkNetCt * 1000) / 1000;
+            }
+
+            grossYearlyEur = Math.round((annualWorkGross + basePriceYearGross) * 100) / 100;
+            netYearlyEur = Math.round((grossYearlyEur / 1.19) * 100) / 100;
+            totalPricePerMonthGross = Math.round((grossYearlyEur / 12) * 100) / 100;
+            monthlyPayment = Math.ceil(totalPricePerMonthGross);
+        } else if (isLadestrom && !hasDedicatedMobilityTariff) {
+            const rawUnitNet = Number(price.PricePerUnitNet) || 28.286;
+            const ladeWorkNetCt = Math.max(16.0, rawUnitNet - ladestromReliefNetCt);
+            workingPriceCt = Math.round(ladeWorkNetCt * 1.19 * 100) / 100;
+            workingPriceEtCt = workingPriceCt;
+            workingPriceHtCt = workingPriceCt;
+            workingPriceNtCt = workingPriceCt;
+            workingPriceNetCt = Math.round(ladeWorkNetCt * 1000) / 1000;
+
+            const rawBaseYearNet = Number(price.PriceBasicPerYearNet) || 296.51;
+            const ladeBaseYearNet = Math.max(155.0, Math.min(235.0, rawBaseYearNet - 105.92));
+            basePriceEurMonth = Math.round(((ladeBaseYearNet * 1.19) / 12) * 100) / 100;
+            basePriceYearGross = Math.round((basePriceEurMonth * 12) * 100) / 100;
+
+            const annualWorkGross = kwh * (workingPriceCt / 100);
+            grossYearlyEur = Math.round((annualWorkGross + basePriceYearGross) * 100) / 100;
+            netYearlyEur = Math.round((grossYearlyEur / 1.19) * 100) / 100;
+            totalPricePerMonthGross = Math.round((grossYearlyEur / 12) * 100) / 100;
+            monthlyPayment = Math.ceil(totalPricePerMonthGross);
+        } else {
+            const computedYearlyEur = (kwh * (workingPriceCt / 100)) + basePriceYearGross;
+            grossYearlyEur = Number(price.TotalPricePerYearGross) || Math.round(computedYearlyEur * 100) / 100;
+            totalPricePerMonthGross = Number(price.TotalPricePerMonthGross) || Math.round((grossYearlyEur / 12) * 100) / 100;
+            monthlyPayment = Number(price.MonthlyAdvancePaymentGross) || Math.ceil(totalPricePerMonthGross);
+        }
+
         const savingsEur = Math.max(40, Math.round(userYearlyOld - grossYearlyEur));
 
         const defaultFeatures = isGas ? [
@@ -578,9 +656,10 @@ async function calculateLiveTariffs({ plz, consumption, consumptionHt, consumpti
             badge: meta.badge,
             isBestseller: meta.isBestseller,
             workingPriceCt,
-            workingPriceHtCt: workingPriceCt,
-            workingPriceNtCt: workingPriceCt,
-            workingPriceNetCt: Number(price.PricePerUnitNet) || 0,
+            workingPriceEtCt,
+            workingPriceHtCt,
+            workingPriceNtCt,
+            workingPriceNetCt,
             basePriceEurMonth,
             basePriceEur: basePriceEurMonth,
             basePriceYearGross,
@@ -593,7 +672,7 @@ async function calculateLiveTariffs({ plz, consumption, consumptionHt, consumpti
             monthlyAdvancePaymentGross: monthlyPayment,
             totalPricePerMonthGross,
             grossYearlyEur: Math.round(grossYearlyEur * 100) / 100,
-            netYearlyEur: Number(price.TotalPricePerYearNet) || 0,
+            netYearlyEur: Math.round(netYearlyEur * 100) / 100,
             savingsEur,
             savingsYear: savingsEur
         });

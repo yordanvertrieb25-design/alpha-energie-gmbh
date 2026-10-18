@@ -465,7 +465,7 @@
                 const companyName = document.getElementById('reg-company')?.value.trim() || '';
                 const password = document.getElementById('reg-password')?.value || '';
                 const iban = document.getElementById('reg-iban')?.value.trim() || '';
-                const parentPartnerCode = document.getElementById('reg-parent-code')?.value.trim() || '';
+                const parentPartnerCode = document.getElementById('reg-parent-code')?.value.trim() || localStorage.getItem('affiliate_ref') || '';
 
                 const parts = fullName.split(/\s+/);
                 const firstName = parts[0] || fullName;
@@ -518,7 +518,7 @@
                 const publicSec = document.getElementById('publicPortalAuthSection');
                 const cockpitSec = document.getElementById('partnerCockpitSection');
                 if (cockpitSec) cockpitSec.style.display = 'none';
-                if (publicSec) publicSec.style.display = 'block';
+                if (publicSec) publicSec.style.display = 'flex';
             });
         }
     }
@@ -548,7 +548,7 @@
                 localStorage.removeItem(STORAGE_TOKEN_KEY);
                 currentToken = null;
                 if (cockpitSec) cockpitSec.style.display = 'none';
-                if (publicSec) publicSec.style.display = 'block';
+                if (publicSec) publicSec.style.display = 'flex';
                 return;
             }
             const data = await res.json();
