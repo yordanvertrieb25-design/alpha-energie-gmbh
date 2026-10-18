@@ -2898,6 +2898,43 @@
         return `${kwhFormatted} ${unit} • ${ctFormatted} ct/kWh`;
     }
 
+    function formatKwhDescHtml(kwh, ctPerKwh, basePriceEur, lang, meterTag) {
+        const l = lang || currentLang;
+        const locale = l === 'en' ? 'en-US' : (l === 'tr' ? 'tr-TR' : 'de-DE');
+        const kwhFormatted = Number(kwh).toLocaleString(locale);
+        const ctFormatted = l === 'en' ? ctPerKwh.toFixed(2) : ctPerKwh.toFixed(2).replace('.', ',');
+        const unit = l === 'en' ? 'kWh/year' : (l === 'tr' ? 'kWh/yıl' : (l === 'ar' ? 'ك.و.س/سنة' : 'kWh/Jahr'));
+        const workLabel = l === 'en' ? 'Working Price' : (l === 'tr' ? 'Birim Fiyat' : (l === 'ar' ? 'سعر الاستهلاك' : 'Arbeitspreis'));
+        const baseLabel = l === 'en' ? 'Base Price' : (l === 'tr' ? 'Sabit Ücret' : (l === 'ar' ? 'الرسوم الأساسية' : 'Grundpreis'));
+        const baseValNum = (typeof basePriceEur === 'number' && !isNaN(basePriceEur)) ? basePriceEur : 29.40;
+        const baseFormatted = l === 'en' ? baseValNum.toFixed(2) : baseValNum.toFixed(2).replace('.', ',');
+        const baseValDisplay = l === 'en'
+            ? `€${baseFormatted} / mo`
+            : (l === 'tr' ? `${baseFormatted} € / ay` : (l === 'ar' ? `${baseFormatted} € / شهر` : `${baseFormatted} € / Monat`));
+        const meterBadgeHtml = meterTag
+            ? `<span class="tariff-rate-meter-badge">${meterTag}</span>`
+            : '';
+
+        return `
+            <div class="tariff-rate-breakdown">
+                <div class="tariff-rate-consumption">
+                    <span class="tariff-rate-kwh-val">${kwhFormatted} ${unit}</span>
+                    ${meterBadgeHtml}
+                </div>
+                <div class="tariff-rate-grid">
+                    <div class="tariff-rate-cell">
+                        <span class="tariff-rate-label">${workLabel}</span>
+                        <strong class="tariff-rate-val">${ctFormatted} ct/kWh</strong>
+                    </div>
+                    <div class="tariff-rate-cell">
+                        <span class="tariff-rate-label">${baseLabel}</span>
+                        <strong class="tariff-rate-val">${baseValDisplay}</strong>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
     /**
      * General string lookup
      */
@@ -2966,6 +3003,7 @@
         formatGuarantee: formatGuarantee,
         formatMaxSavings: formatMaxSavings,
         formatKwhDesc: formatKwhDesc,
+        formatKwhDescHtml: formatKwhDescHtml,
         init: init
     };
 

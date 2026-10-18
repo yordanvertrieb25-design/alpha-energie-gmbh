@@ -125,9 +125,9 @@ const staticNoCacheHeaders = (res, filePath) => {
     }
 };
 
-// Serve static files from the root directory
-app.use(express.static(path.join(__dirname, 'public'), { setHeaders: staticNoCacheHeaders })); // For future public assets if needed
-app.use(express.static(__dirname, { extensions: ['html'], setHeaders: staticNoCacheHeaders })); // Serving the HTML files from the root
+// Serve static files from the root directory first so public/ never shadows root JS/CSS/HTML
+app.use(express.static(__dirname, { extensions: ['html'], setHeaders: staticNoCacheHeaders }));
+app.use(express.static(path.join(__dirname, 'public'), { setHeaders: staticNoCacheHeaders }));
 
 // Dedicated route for hero image to ensure 100% availability
 app.get('/clean_energy_home.jpg', (req, res) => {
@@ -3406,7 +3406,6 @@ app.post('/api/admin/partner-applications/create', authenticateAdmin, async (req
 // 5. ALPHATARIFE IN-HOUSE PARTNER PORTAL & ADMIN COMMISSION ENGINE
 // =========================================================================
 const crypto = require('crypto');
-const PDFDocument = require('pdfkit');
 const PARTNER_JWT_SECRET = process.env.JWT_SECRET || 'alpha-energie-partner-secret-2026';
 
 function hashPartnerPassword(password) {
@@ -4385,6 +4384,65 @@ app.post('/api/partner/subpartners', authenticatePartner, async (req, res) => {
     }
 });
 
+function buildCreditNotePdfBuffer(payout, partner) {
+    const cleanPdfText = (s) => String(s || '')
+        .replace(/€/g, 'EUR')
+        .replace(/ä/g, 'ae').replace(/ö/g, 'oe').replace(/ü/g, 'ue')
+        .replace(/Ä/g, 'Ae').replace(/Ö/g, 'Oe').replace(/Ü/g, 'Ue')
+        .replace(/ß/g, 'ss').replace(/§/g, 'Par.')
+        .replace(/[()\\]/g, '');
+
+    const lines = [
+        'ALPHA ENERGIE GMBH - Alter Hellweg 50 - 44379 Dortmund',
+        '----------------------------------------------------------------------',
+        `PROVISIONSGUTSCHRIFT NR. ${cleanPdfText(payout.payoutNumber)}`,
+        `Datum: ${new Date(payout.createdAt).toLocaleDateString('de-DE')}`,
+        `Empfaenger: ${cleanPdfText(partner ? (partner.companyName || partner.fullName) : 'Vertriebspartner')}`,
+        `Partner-Code: ${cleanPdfText(partner ? partner.partnerCode : '-')}`,
+        `Abrechnungszeitraum: ${cleanPdfText(payout.periodLabel)}`,
+        '----------------------------------------------------------------------',
+        `Abgerechnete Vertraege: ${payout.ordersCount}`,
+        `Netto-Provision:        ${payout.netAmount.toFixed(2)} EUR`,
+        `Umsatzsteuer (19%):     ${payout.vatAmount.toFixed(2)} EUR`,
+        `Auszahlungsbetrag:      ${payout.grossAmount.toFixed(2)} EUR`,
+        '----------------------------------------------------------------------',
+        `Auszahlung auf IBAN:    ${cleanPdfText(payout.iban || (partner && partner.iban) || '-')}`,
+        `Bank / BIC:             ${cleanPdfText(payout.bankName || (partner && partner.bankName) || '-')} (${cleanPdfText(payout.bic || (partner && partner.bic) || '-')})`,
+        `Status:                 ${payout.status === 'PAID' ? 'AUSGEZAHLT' : 'FREIGEGEBEN'}`
+    ];
+
+    let y = 760;
+    const ops = ['BT', '/F1 11 Tf'];
+    for (const line of lines) {
+        ops.push(`1 0 0 1 50 ${y} Tm (${line}) Tj`);
+        y -= 20;
+    }
+    ops.push('ET');
+    const streamContent = ops.join('\n');
+
+    const objects = [
+        '1 0 obj\n<< /Type /Catalog /Pages 2 0 R >>\nendobj\n',
+        '2 0 obj\n<< /Type /Pages /Kids [3 0 R] /Count 1 >>\nendobj\n',
+        '3 0 obj\n<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Contents 4 0 R /Resources << /Font << /F1 5 0 R >> >> >>\nendobj\n',
+        `4 0 obj\n<< /Length ${Buffer.byteLength(streamContent, 'utf8')} >>\nstream\n${streamContent}\nendstream\nendobj\n`,
+        '5 0 obj\n<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>\nendobj\n'
+    ];
+
+    let pdf = '%PDF-1.4\n';
+    const offsets = [0];
+    for (const obj of objects) {
+        offsets.push(Buffer.byteLength(pdf, 'utf8'));
+        pdf += obj;
+    }
+    const xrefOffset = Buffer.byteLength(pdf, 'utf8');
+    pdf += `xref\n0 ${objects.length + 1}\n0000000000 65535 f \n`;
+    for (let i = 1; i <= objects.length; i++) {
+        pdf += `${String(offsets[i]).padStart(10, '0')} 00000 n \n`;
+    }
+    pdf += `trailer\n<< /Size ${objects.length + 1} /Root 1 0 R >>\nstartxref\n${xrefOffset}\n%%EOF`;
+    return Buffer.from(pdf, 'utf8');
+}
+
 // 5.10 PDF Commission Credit Note (Gutschrift PDF)
 app.get('/api/partner/payouts/:id/pdf', async (req, res) => {
     try {
@@ -4394,56 +4452,11 @@ app.get('/api/partner/payouts/:id/pdf', async (req, res) => {
             return res.status(404).send('Gutschrift nicht gefunden');
         }
         const partner = await prisma.partnerUser.findUnique({ where: { id: payout.partnerId } });
+        const pdfBuffer = buildCreditNotePdfBuffer(payout, partner);
 
         res.setHeader('Content-Type', 'application/pdf');
         res.setHeader('Content-Disposition', `inline; filename="Gutschrift-${payout.payoutNumber}.pdf"`);
-
-        const doc = new PDFDocument({ size: 'A4', margin: 50 });
-        doc.pipe(res);
-
-        doc.fontSize(18).fillColor('#0a1f44').text('ALPHA ENERGIE GMBH', 50, 50);
-        doc.fontSize(9).fillColor('#64748b').text('Alter Hellweg 50 · 44379 Dortmund · HRB 38030 Amtsgericht Dortmund', 50, 72);
-
-        doc.fontSize(11).fillColor('#0f172a').text(partner ? (partner.companyName || partner.fullName) : 'Vertriebspartner', 50, 120);
-        if (partner && partner.street) {
-            doc.fontSize(10).fillColor('#334155').text(`${partner.street} ${partner.houseNr || ''}`, 50, 136);
-            doc.text(`${partner.plz || ''} ${partner.city || ''}`, 50, 150);
-        }
-
-        doc.fontSize(16).fillColor('#0a1f44').text(`Provisionsgutschrift Nr. ${payout.payoutNumber}`, 50, 200);
-        doc.fontSize(10).fillColor('#475569').text(`Abrechnungszeitraum: ${payout.periodLabel}`, 50, 224);
-        doc.text(`Partner-Code: ${partner ? partner.partnerCode : '-'}   |   Datum: ${new Date(payout.createdAt).toLocaleDateString('de-DE')}`, 50, 240);
-
-        doc.moveTo(50, 265).lineTo(545, 265).strokeColor('#cbd5e1').stroke();
-
-        doc.fontSize(10).fillColor('#0f172a').text('Position', 50, 280);
-        doc.text('Anzahl Verträge', 280, 280);
-        doc.text('Betrag (EUR)', 450, 280, { align: 'right', width: 95 });
-
-        doc.moveTo(50, 298).lineTo(545, 298).strokeColor('#e2e8f0').stroke();
-
-        doc.fontSize(10).fillColor('#1e293b').text(`Abschlussprovisionen (${payout.periodLabel})`, 50, 312);
-        doc.text(`${payout.ordersCount}`, 280, 312);
-        doc.text(`${payout.netAmount.toFixed(2).replace('.', ',')} €`, 450, 312, { align: 'right', width: 95 });
-
-        doc.moveTo(50, 345).lineTo(545, 345).strokeColor('#cbd5e1').stroke();
-
-        doc.text('Nettobetrag:', 320, 360);
-        doc.text(`${payout.netAmount.toFixed(2).replace('.', ',')} €`, 450, 360, { align: 'right', width: 95 });
-
-        doc.text(payout.vatAmount > 0 ? 'zzgl. 19% Umsatzsteuer:' : 'Umsatzsteuer (0% / §19 UStG):', 320, 378);
-        doc.text(`${payout.vatAmount.toFixed(2).replace('.', ',')} €`, 450, 378, { align: 'right', width: 95 });
-
-        doc.fontSize(12).fillColor('#0a1f44').text('Auszahlungsbetrag (Brutto):', 300, 404);
-        doc.text(`${payout.grossAmount.toFixed(2).replace('.', ',')} €`, 450, 404, { align: 'right', width: 95 });
-
-        doc.fontSize(9).fillColor('#475569').text(
-            `Auszahlung auf hinterlegtes Bankkonto: IBAN ${payout.iban || (partner && partner.iban) || '-'} (${payout.bankName || (partner && partner.bankName) || '-'})`,
-            50, 460
-        );
-        doc.text(`Status: ${payout.status === 'PAID' ? 'AUSGEZAHLT' : 'FREIGEGEBEN'}`, 50, 476);
-
-        doc.end();
+        res.send(pdfBuffer);
     } catch (error) {
         res.status(500).send('PDF Fehler: ' + error.message);
     }
