@@ -775,6 +775,129 @@ async function submitOrderToFirstcon(orderPayload) {
     };
 }
 
+const pdfCache = new Map(); // `${type}:${energyCategoryId}:${tariffId}` -> { buffer, filename, expiresAt }
+
+function resolveDefaultFirstconTariffId(branch = 'strom', tariffIdInput) {
+    const isGas = branch === 'gas';
+    const num = parseInt(tariffIdInput, 10);
+    if (!isNaN(num) && num > 0) return num;
+    const str = String(tariffIdInput || '').toLowerCase();
+    if (isGas) {
+        if (str.includes('premium')) return 228;
+        if (str.includes('time')) return 227;
+        return 226;
+    }
+    if (str.includes('premium')) return 281;
+    if (str.includes('time')) return 280;
+    return 279;
+}
+
+/**
+ * Fetches the official Firstcon AGB + Widerrufsbelehrung PDF (/Tariff/GetTariffTermsFile) for a given branch & tariffId.
+ */
+async function getTariffTermsFile({ branch = 'strom', tariffId, customerTypeId = 1, token } = {}) {
+    const isGas = branch === 'gas';
+    const energyCategoryId = isGas ? 2 : 1;
+    const resolvedTariffId = resolveDefaultFirstconTariffId(branch, tariffId);
+    const cacheKey = `agb:${energyCategoryId}:${resolvedTariffId}`;
+    const now = Date.now();
+
+    if (pdfCache.has(cacheKey)) {
+        const cached = pdfCache.get(cacheKey);
+        if (cached && cached.expiresAt > now) {
+            return cached;
+        }
+    }
+
+    const auth = await authenticateOrderflow(token, false);
+    const tokRes = await firstconRequest('GET', '/Tariff/GetToken', { token });
+    if (tokRes.status !== 200 || !tokRes.data) {
+        throw new Error('Firstcon GetToken failed with status ' + tokRes.status);
+    }
+    const fileToken = String(tokRes.data).replace(/^"+|"+$/g, '').trim();
+
+    const pdfRes = await axios.get(`${FIRSTCON_API_BASE}/Tariff/GetTariffTermsFile`, {
+        params: {
+            energyCategoryId,
+            customerTypeId: Number(customerTypeId) || 1,
+            tariffId: resolvedTariffId,
+            token: fileToken
+        },
+        headers: {
+            'Authorization': `Bearer ${auth.jwt}`,
+            'Accept': 'application/pdf'
+        },
+        responseType: 'arraybuffer',
+        timeout: 12000,
+        validateStatus: () => true
+    });
+
+    if (pdfRes.status !== 200 || !pdfRes.data || pdfRes.data.byteLength < 1000) {
+        throw new Error('Firstcon GetTariffTermsFile returned status ' + pdfRes.status);
+    }
+
+    const buffer = Buffer.from(pdfRes.data);
+    const filename = isGas
+        ? `AGB_Erdgas_Alpha_Energie_${resolvedTariffId}.pdf`
+        : `AGB_Strom_Alpha_Energie_${resolvedTariffId}.pdf`;
+
+    const entry = { buffer, filename, expiresAt: now + 6 * 60 * 60 * 1000 };
+    pdfCache.set(cacheKey, entry);
+    return entry;
+}
+
+/**
+ * Fetches the official Firstcon Datenschutzerklärung PDF (/Tariff/GetDataProtectionFile) for a given branch & tariffId.
+ */
+async function getDataProtectionFile({ branch = 'strom', tariffId, customerTypeId = 1, token } = {}) {
+    const isGas = branch === 'gas';
+    const energyCategoryId = isGas ? 2 : 1;
+    const resolvedTariffId = resolveDefaultFirstconTariffId(branch, tariffId);
+    const cacheKey = `dp:${energyCategoryId}:${resolvedTariffId}`;
+    const now = Date.now();
+
+    if (pdfCache.has(cacheKey)) {
+        const cached = pdfCache.get(cacheKey);
+        if (cached && cached.expiresAt > now) {
+            return cached;
+        }
+    }
+
+    const auth = await authenticateOrderflow(token, false);
+    const tokRes = await firstconRequest('GET', '/Tariff/GetToken', { token });
+    if (tokRes.status !== 200 || !tokRes.data) {
+        throw new Error('Firstcon GetToken failed with status ' + tokRes.status);
+    }
+    const fileToken = String(tokRes.data).replace(/^"+|"+$/g, '').trim();
+
+    const pdfRes = await axios.get(`${FIRSTCON_API_BASE}/Tariff/GetDataProtectionFile`, {
+        params: {
+            energyCategoryId,
+            customerTypeId: Number(customerTypeId) || 1,
+            tariffId: resolvedTariffId,
+            token: fileToken
+        },
+        headers: {
+            'Authorization': `Bearer ${auth.jwt}`,
+            'Accept': 'application/pdf'
+        },
+        responseType: 'arraybuffer',
+        timeout: 12000,
+        validateStatus: () => true
+    });
+
+    if (pdfRes.status !== 200 || !pdfRes.data || pdfRes.data.byteLength < 1000) {
+        throw new Error('Firstcon GetDataProtectionFile returned status ' + pdfRes.status);
+    }
+
+    const buffer = Buffer.from(pdfRes.data);
+    const filename = `Datenschutzinformationen_Alpha_Energie_${resolvedTariffId}.pdf`;
+
+    const entry = { buffer, filename, expiresAt: now + 6 * 60 * 60 * 1000 };
+    pdfCache.set(cacheKey, entry);
+    return entry;
+}
+
 module.exports = {
     DEFAULT_FIRSTCON_TOKEN,
     FIRSTCON_API_BASE,
@@ -783,5 +906,8 @@ module.exports = {
     getStreets,
     getFirstconTariffs,
     calculateLiveTariffs,
-    submitOrderToFirstcon
+    submitOrderToFirstcon,
+    getTariffTermsFile,
+    getDataProtectionFile
 };
+

@@ -2449,6 +2449,65 @@ document.addEventListener("DOMContentLoaded", async () => {
                     }
                 }
             }
+
+            syncOrderLegalLinks(branch, selectedOrderData.firstconTariffId || spec.firstconTariffId);
+        }
+
+        function syncOrderLegalLinks(branch, firstconTariffId) {
+            const safeBranch = branch === 'gas' ? 'gas' : (branch === 'waerme' ? 'waerme' : 'strom');
+            const defaultTariffId = safeBranch === 'gas' ? 226 : 279;
+            const tId = firstconTariffId || defaultTariffId;
+            const query = `?branch=${encodeURIComponent(safeBranch)}&tariffId=${encodeURIComponent(tId)}`;
+            const agbUrl = `/api/tarife/agb${query}`;
+            const privacyUrl = `/api/tarife/datenschutz${query}`;
+
+            const step3 = document.getElementById('modalStep3');
+            const agbCheckbox = document.getElementById('orderAgb');
+            if (step3 && agbCheckbox && !document.getElementById('orderLegalDocsBox')) {
+                const checkboxLabel = agbCheckbox.closest('label');
+                if (checkboxLabel && checkboxLabel.parentElement) {
+                    const box = document.createElement('div');
+                    box.id = 'orderLegalDocsBox';
+                    box.style.cssText = 'background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 10px; padding: 12px 14px; margin-bottom: 4px; font-size: 0.84rem; color: #334155; line-height: 1.45;';
+                    box.innerHTML = `
+                        <div style="font-weight: 700; color: #0a1f44; margin-bottom: 6px; display: flex; align-items: center; gap: 6px;">
+                            <span>📄</span>
+                            <span>Vertragsunterlagen &amp; gesetzliche Pflichtinformationen</span>
+                        </div>
+                        <div style="display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 6px;">
+                            <a id="orderAgbPdfLink" href="${agbUrl}" target="_blank" rel="noopener" style="display: inline-flex; align-items: center; gap: 5px; background: #fff; border: 1px solid #cbd5e1; border-radius: 6px; padding: 5px 10px; color: #0a1f44; font-weight: 600; text-decoration: none; font-size: 0.8rem;">
+                                📥 <span id="orderAgbPdfLabel">AGB &amp; Widerrufsbelehrung (PDF)</span>
+                            </a>
+                            <a id="orderDatenschutzPdfLink" href="${privacyUrl}" target="_blank" rel="noopener" style="display: inline-flex; align-items: center; gap: 5px; background: #fff; border: 1px solid #cbd5e1; border-radius: 6px; padding: 5px 10px; color: #0a1f44; font-weight: 600; text-decoration: none; font-size: 0.8rem;">
+                                🔒 <span>Datenschutzinformationen Art. 14 DSGVO (PDF)</span>
+                            </a>
+                        </div>
+                        <div style="font-size: 0.78rem; color: #64748b;">
+                            Mit Angabe deiner IBAN erteilst du ein SEPA-Lastschriftmandat zum Einzug der monatlichen Abschläge. Du erhältst alle Vertragsunterlagen, die Widerrufsbelehrung (14 Tage Widerrufsrecht) und das SEPA-Mandat zusätzlich sofort per E-Mail.
+                        </div>
+                    `;
+                    checkboxLabel.parentElement.insertBefore(box, checkboxLabel);
+                }
+            }
+
+            const agbPdfLink = document.getElementById('orderAgbPdfLink');
+            if (agbPdfLink) agbPdfLink.href = agbUrl;
+
+            const agbPdfLabel = document.getElementById('orderAgbPdfLabel');
+            if (agbPdfLabel) {
+                agbPdfLabel.textContent = safeBranch === 'gas'
+                    ? 'AGB Erdgas & Widerrufsbelehrung (PDF)'
+                    : 'AGB Strom & Widerrufsbelehrung (PDF)';
+            }
+
+            const agbInlineLink = document.getElementById('orderAgbInlineLink');
+            if (agbInlineLink) agbInlineLink.href = agbUrl;
+
+            const privacyPdfLink = document.getElementById('orderDatenschutzPdfLink');
+            if (privacyPdfLink) privacyPdfLink.href = privacyUrl;
+
+            const privacyInlineLink = document.getElementById('orderPrivacyPdfInlineLink');
+            if (privacyInlineLink) privacyInlineLink.href = privacyUrl;
         }
 
         if (modalCalcPlz) {
@@ -2534,6 +2593,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             }
 
             refreshModalStep1Calculation();
+            syncOrderLegalLinks(branch, selectedOrderData.firstconTariffId);
 
             showModalStep(1);
             orderModal.style.display = 'flex';

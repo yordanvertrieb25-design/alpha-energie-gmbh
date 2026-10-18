@@ -296,6 +296,59 @@ app.get('/api/firstcon/grid', async (req, res) => {
     }
 });
 
+// 1.0b Official Firstcon AGB + Widerrufsbelehrung & Datenschutz PDFs (/Tariff/GetTariffTermsFile & /Tariff/GetDataProtectionFile)
+app.get(['/api/tarife/agb', '/api/firstcon/agb'], async (req, res) => {
+    const branch = String(req.query.branch || req.query.sparte || 'strom').toLowerCase();
+    const isGas = branch === 'gas';
+    const tariffId = req.query.tariffId || req.query.id;
+    const token = req.query.token || process.env.FIRSTCON_ORDERFLOW_TOKEN;
+    const dispositionType = req.query.download === '1' ? 'attachment' : 'inline';
+
+    try {
+        const pdfDoc = await firstconService.getTariffTermsFile({ branch, tariffId, token });
+        res.setHeader('Content-Type', 'application/pdf');
+        res.setHeader('Content-Disposition', `${dispositionType}; filename="${pdfDoc.filename}"`);
+        res.setHeader('Cache-Control', 'public, max-age=3600');
+        return res.send(pdfDoc.buffer);
+    } catch (err) {
+        const fallbackFile = path.join(
+            __dirname,
+            'public',
+            'docs',
+            isGas ? 'AGB_Gas_Alpha_Energie.pdf' : 'AGB_Strom_Alpha_Energie.pdf'
+        );
+        if (fs.existsSync(fallbackFile)) {
+            res.setHeader('Content-Type', 'application/pdf');
+            res.setHeader('Content-Disposition', `${dispositionType}; filename="${path.basename(fallbackFile)}"`);
+            return res.sendFile(fallbackFile);
+        }
+        return res.status(404).send('AGB-Dokument nicht gefunden.');
+    }
+});
+
+app.get(['/api/tarife/datenschutz', '/api/firstcon/datenschutz'], async (req, res) => {
+    const branch = String(req.query.branch || req.query.sparte || 'strom').toLowerCase();
+    const tariffId = req.query.tariffId || req.query.id;
+    const token = req.query.token || process.env.FIRSTCON_ORDERFLOW_TOKEN;
+    const dispositionType = req.query.download === '1' ? 'attachment' : 'inline';
+
+    try {
+        const pdfDoc = await firstconService.getDataProtectionFile({ branch, tariffId, token });
+        res.setHeader('Content-Type', 'application/pdf');
+        res.setHeader('Content-Disposition', `${dispositionType}; filename="${pdfDoc.filename}"`);
+        res.setHeader('Cache-Control', 'public, max-age=3600');
+        return res.send(pdfDoc.buffer);
+    } catch (err) {
+        const fallbackFile = path.join(__dirname, 'public', 'docs', 'Datenschutzinformationen_Alpha_Energie.pdf');
+        if (fs.existsSync(fallbackFile)) {
+            res.setHeader('Content-Type', 'application/pdf');
+            res.setHeader('Content-Disposition', `${dispositionType}; filename="${path.basename(fallbackFile)}"`);
+            return res.sendFile(fallbackFile);
+        }
+        return res.redirect('/datenschutz.html');
+    }
+});
+
 // 1.1 Calculate Tariffs dynamically (Firstcon Live API v2 + Fallback)
 app.post('/api/tarife/calculate', async (req, res) => {
     try {

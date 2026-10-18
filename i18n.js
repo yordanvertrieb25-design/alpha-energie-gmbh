@@ -298,7 +298,7 @@
             modal_order_email: 'Email address *',
             modal_order_phone: 'Phone number *',
             modal_order_iban: 'IBAN for SEPA Direct Debit *',
-            modal_order_agb_checkbox: 'I agree to the <a href="datenschutz.html" target="_blank" style="text-decoration: underline; color: #ff7a00;">Privacy Policy</a> and binding submission of the order.',
+            modal_order_agb_checkbox: 'I accept the <a id="orderAgbInlineLink" href="/api/tarife/agb?branch=strom" target="_blank" rel="noopener" style="text-decoration: underline; color: #ff7a00; font-weight: 600;">Terms &amp; Conditions (AGB) incl. Right of Withdrawal (PDF)</a>, take note of the <a id="orderPrivacyPdfInlineLink" href="/api/tarife/datenschutz?branch=strom" target="_blank" rel="noopener" style="text-decoration: underline; color: #ff7a00; font-weight: 600;">Privacy Notice (PDF)</a> and <a href="datenschutz.html" target="_blank" style="text-decoration: underline; color: #ff7a00;">Privacy Policy</a>, grant the SEPA Direct Debit Mandate, and confirm the binding submission of the order.',
             modal_order_btn_submit: 'Complete binding order now',
 
             modal_order_success_title: 'Thank you for your order!',
@@ -942,7 +942,7 @@
             modal_order_email: 'E-posta adresi *',
             modal_order_phone: 'Telefon numarası *',
             modal_order_iban: 'SEPA Otomatik Ödeme için IBAN *',
-            modal_order_agb_checkbox: '<a href="datenschutz.html" target="_blank" style="text-decoration: underline; color: #ff7a00;">Gizlilik politikasını</a> ve siparişin bağlayıcı olarak iletilmesini onaylıyorum.',
+            modal_order_agb_checkbox: '<a id="orderAgbInlineLink" href="/api/tarife/agb?branch=strom" target="_blank" rel="noopener" style="text-decoration: underline; color: #ff7a00; font-weight: 600;">Genel İşlem Koşullarını (AGB) ve Cayma Hakkı Bilgilendirmesini (PDF)</a> kabul ediyor, <a id="orderPrivacyPdfInlineLink" href="/api/tarife/datenschutz?branch=strom" target="_blank" rel="noopener" style="text-decoration: underline; color: #ff7a00; font-weight: 600;">Veri Koruma Bilgilendirmesini (PDF)</a> ve <a href="datenschutz.html" target="_blank" style="text-decoration: underline; color: #ff7a00;">Gizlilik Politikasını</a> onaylıyor, SEPA Otomatik Ödeme talimatı veriyor ve siparişi bağlayıcı olarak iletiyorum.',
             modal_order_btn_submit: 'Siparişi şimdi bağlayıcı olarak tamamla',
 
             modal_order_success_title: 'Siparişiniz için teşekkür ederiz!',
@@ -1586,7 +1586,7 @@
             modal_order_email: 'البريد الإلكتروني *',
             modal_order_phone: 'رقم الهاتف *',
             modal_order_iban: 'رقم الآيبان (IBAN) للخصم المباشر SEPA *',
-            modal_order_agb_checkbox: 'أوافق على <a href="datenschutz.html" target="_blank" style="text-decoration: underline; color: #ff7a00;">سياسة الخصوصية</a> وإرسال الطلب بشكل ملزم.',
+            modal_order_agb_checkbox: 'أوافق على <a id="orderAgbInlineLink" href="/api/tarife/agb?branch=strom" target="_blank" rel="noopener" style="text-decoration: underline; color: #ff7a00; font-weight: 600;">الشروط والأحكام العامة (AGB) وحق الانسحاب (PDF)</a>، وأقر بـ <a id="orderPrivacyPdfInlineLink" href="/api/tarife/datenschutz?branch=strom" target="_blank" rel="noopener" style="text-decoration: underline; color: #ff7a00; font-weight: 600;">معلومات حماية البيانات (PDF)</a> و<a href="datenschutz.html" target="_blank" style="text-decoration: underline; color: #ff7a00;">سياسة الخصوصية</a>، وأمنح تفويض الخصم المباشر SEPA وإرسال الطلب بشكل ملزم.',
             modal_order_btn_submit: 'إتمام الطلب الملزم الآن',
 
             modal_order_success_title: 'شكراً لطلبك!',
