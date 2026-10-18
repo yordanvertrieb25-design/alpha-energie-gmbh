@@ -700,7 +700,8 @@ document.addEventListener("DOMContentLoaded", async () => {
         const tabBtns = document.querySelectorAll('.calc-tab-btn');
         const householdBtns = document.querySelectorAll('.household-btn');
         
-        let currentBranch = 'strom'; // strom, waerme, gas
+        const pathLower = (window.location.pathname || '').toLowerCase();
+        let currentBranch = pathLower.includes('oekogas') ? 'gas' : (pathLower.includes('waermestrom') ? 'waerme' : 'strom'); // strom, waerme, gas
 
         // 3D Versorger Flow Scene Two-Way Synchronization
         function getVersorgerScene() {
@@ -777,6 +778,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                 badge: 'Flexibel & Günstig',
                 workingPriceCt: 33.66,
                 basePriceEur: 29.40,
+                basePriceYearGross: 352.85,
                 bonus: 0,
                 guaranteeMonths: 24,
                 features: [
@@ -792,6 +794,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                 badge: 'Bestseller & Spar-Vorteil',
                 workingPriceCt: 34.85,
                 basePriceEur: 29.40,
+                basePriceYearGross: 352.85,
                 bonus: 0,
                 guaranteeMonths: 24,
                 features: [
@@ -807,6 +810,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                 badge: '24 Monate Preisschutz & VIP',
                 workingPriceCt: 36.04,
                 basePriceEur: 29.40,
+                basePriceYearGross: 352.85,
                 bonus: 0,
                 guaranteeMonths: 24,
                 features: [
@@ -825,6 +829,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                 badge: 'Fair & Preisstabil',
                 workingPriceCt: 16.52,
                 basePriceEur: 28.25,
+                basePriceYearGross: 338.98,
                 bonus: 0,
                 guaranteeMonths: 24,
                 features: [
@@ -840,6 +845,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                 badge: 'Bestseller & Spar-Vorteil',
                 workingPriceCt: 17.71,
                 basePriceEur: 28.25,
+                basePriceYearGross: 338.98,
                 bonus: 0,
                 guaranteeMonths: 24,
                 features: [
@@ -855,6 +861,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                 badge: '24 Monate Preisschutz & Komfort',
                 workingPriceCt: 18.90,
                 basePriceEur: 28.25,
+                basePriceYearGross: 338.98,
                 bonus: 0,
                 guaranteeMonths: 24,
                 features: [
@@ -871,45 +878,48 @@ document.addEventListener("DOMContentLoaded", async () => {
                 firstconTariffId: 279,
                 name: 'ALPHA BASIC 24 WÄRME',
                 badge: 'Wärmepumpe & HT/NT',
-                workingPriceCt: 29.85,
-                basePriceEur: 19.90,
+                workingPriceCt: 33.66,
+                basePriceEur: 29.40,
+                basePriceYearGross: 352.85,
                 bonus: 0,
                 guaranteeMonths: 24,
                 features: [
                     '24 Monate volle Preisgarantie',
                     'Für Wärmepumpe (§ 14a EnWG) & Nachtspeicherheizung (HT/NT)',
-                    'Ökostrom aus 100 % erneuerbaren Energien',
-                    'Kostenloser & automatischer Wechselservice'
+                    'Geeignet für Doppeltarifzähler (HT/NT) & Eintarifzähler',
+                    'Ökostrom aus 100 % erneuerbaren Energien'
                 ]
             },
             'alpha-time': {
                 firstconTariffId: 280,
                 name: 'ALPHA TIME 24 WÄRME',
                 badge: 'Bestseller Wärmepumpe & HT/NT',
-                workingPriceCt: 30.85,
-                basePriceEur: 19.90,
+                workingPriceCt: 34.85,
+                basePriceEur: 29.40,
+                basePriceYearGross: 352.85,
                 bonus: 0,
                 guaranteeMonths: 24,
                 features: [
                     '24 Monate volle Preisgarantie',
                     'Für Wärmepumpe (§ 14a EnWG) & Nachtspeicherheizung (HT/NT)',
-                    'Ökostrom aus 100 % erneuerbaren Energien',
-                    'Kostenloser & automatischer Wechselservice'
+                    'Geeignet für Doppeltarifzähler (HT/NT) & Eintarifzähler',
+                    'Ökostrom aus 100 % erneuerbaren Energien'
                 ]
             },
             'alpha-premium': {
                 firstconTariffId: 281,
                 name: 'ALPHA PREMIUM 24 WÄRME',
                 badge: '24 Monate Preisschutz & VIP',
-                workingPriceCt: 31.85,
-                basePriceEur: 19.90,
+                workingPriceCt: 36.04,
+                basePriceEur: 29.40,
+                basePriceYearGross: 352.85,
                 bonus: 0,
                 guaranteeMonths: 24,
                 features: [
                     '24 Monate volle Preisgarantie',
                     'Für Wärmepumpe (§ 14a EnWG) & Nachtspeicherheizung (HT/NT)',
-                    'Ökostrom aus 100 % erneuerbaren Energien',
-                    'Kostenloser & automatischer Wechselservice'
+                    'Geeignet für Doppeltarifzähler (HT/NT) & Eintarifzähler',
+                    'Ökostrom aus 100 % erneuerbaren Energien'
                 ]
             }
         };
@@ -1121,11 +1131,18 @@ document.addEventListener("DOMContentLoaded", async () => {
             for (const [id, spec] of Object.entries(currentSpecs)) {
                 const activeWorkCt = (typeof spec.liveWorkingPriceCt === 'number') ? spec.liveWorkingPriceCt : spec.workingPriceCt;
                 const activeBaseEur = (typeof spec.liveBasePriceEur === 'number') ? spec.liveBasePriceEur : spec.basePriceEur;
+                const activeBaseYearGross = (typeof spec.liveBasePriceYearGross === 'number' && spec.liveBasePriceYearGross > 0)
+                    ? spec.liveBasePriceYearGross
+                    : (spec.basePriceYearGross || (activeBaseEur * 12));
                 const annualWorkingCost = kwh * (activeWorkCt / 100);
-                const annualBaseCost = activeBaseEur * 12;
-                const rawYearly = annualWorkingCost + annualBaseCost;
+                const rawYearly = (spec.liveKwh === kwh && typeof spec.liveGrossYearlyEur === 'number')
+                    ? spec.liveGrossYearlyEur
+                    : (Math.round((annualWorkingCost + activeBaseYearGross) * 100) / 100);
                 const netFirstYear = rawYearly;
-                const monthlyPayment = Math.round(netFirstYear / 12);
+                const totalMonthGross = Math.round((netFirstYear / 12) * 100) / 100;
+                const monthlyPayment = (spec.liveKwh === kwh && typeof spec.liveMonthlyPayment === 'number')
+                    ? spec.liveMonthlyPayment
+                    : Math.ceil(totalMonthGross);
                 const savings = Math.max(40, Math.round(currentYearly - netFirstYear));
 
                 if (savings > maxSavings) {
@@ -1379,6 +1396,16 @@ document.addEventListener("DOMContentLoaded", async () => {
                             spec.energyGridNumber = t.energyGridNumber || data.energyGridNumber || spec.energyGridNumber;
                             spec.liveWorkingPriceCt = t.workingPriceCt;
                             spec.liveBasePriceEur = baseM;
+                            if (typeof t.basePriceYearGross === 'number' && t.basePriceYearGross > 0) {
+                                spec.liveBasePriceYearGross = t.basePriceYearGross;
+                            }
+                            if (typeof t.monthlyPayment === 'number') {
+                                spec.liveMonthlyPayment = t.monthlyPayment;
+                            }
+                            if (typeof t.grossYearlyEur === 'number') {
+                                spec.liveGrossYearlyEur = t.grossYearlyEur;
+                            }
+                            spec.liveKwh = kwh;
                             if (t.name) spec.name = t.name;
                             if (t.badge) spec.badge = t.badge;
                             if (sanitizedLiveFeatures && sanitizedLiveFeatures.length === 4) {
@@ -1391,6 +1418,18 @@ document.addEventListener("DOMContentLoaded", async () => {
                         if (sav > maxLiveSavings) {
                             maxLiveSavings = sav;
                         }
+
+                        // Sync subpage tariff cards on oekostrom.html / oekogas.html if present
+                        document.querySelectorAll(`[data-fc-subpage-work="${t.id}"]`).forEach(el => {
+                            if (typeof t.workingPriceCt === 'number') {
+                                el.textContent = `${t.workingPriceCt.toFixed(2).replace('.', ',')} Cent / kWh`;
+                            }
+                        });
+                        document.querySelectorAll(`[data-fc-subpage-base="${t.id}"]`).forEach(el => {
+                            if (typeof baseM === 'number') {
+                                el.textContent = `${baseM.toFixed(2).replace('.', ',')} € / Monat`;
+                            }
+                        });
 
                         if (currentBranch === activeBranch) {
                             const cardEl = document.getElementById(`card-${t.id}`);
@@ -1482,12 +1521,42 @@ document.addEventListener("DOMContentLoaded", async () => {
                         }
                     }
 
-                    // Keep selectedOrderData synced with live Firstcon metadata
+                    // Keep selectedOrderData and open order modal synced with live Firstcon prices & metadata
                     if (selectedOrderData && selectedOrderData.tariffId) {
                         const matched = data.tariffs.find(t => t.id === selectedOrderData.tariffId);
                         if (matched) {
                             selectedOrderData.firstconTariffId = matched.firstconTariffId || selectedOrderData.firstconTariffId;
                             selectedOrderData.energyGridNumber = matched.energyGridNumber || data.energyGridNumber || selectedOrderData.energyGridNumber;
+                            const mKwhEl = document.getElementById('modalCalcKwh');
+                            const mParsedKwh = mKwhEl && mKwhEl.value ? parseInt(String(mKwhEl.value).replace(/\D/g, ''), 10) : NaN;
+                            if (!isNaN(mParsedKwh) && mParsedKwh === kwh) {
+                                selectedOrderData.monthlyPayment = String(matched.monthlyPayment);
+                                const mSav = (matched.savingsEur !== undefined) ? matched.savingsEur : (matched.savingsYear || 0);
+                                selectedOrderData.savings = String(mSav);
+                                const monthlyModalEl = document.getElementById('orderSummaryMonthly');
+                                const savingsModalEl = document.getElementById('orderSummarySavings');
+                                if (monthlyModalEl) {
+                                    const suffix = curLang === 'en' ? ' / month' : (curLang === 'tr' ? ' / ay' : (curLang === 'ar' ? ' / شهر' : ' / Monat'));
+                                    const prefix = curLang === 'en' ? '€' : '';
+                                    const post = curLang === 'en' ? '' : ' €';
+                                    monthlyModalEl.textContent = `${prefix}${matched.monthlyPayment}${post}${suffix}`;
+                                    monthlyModalEl.style.color = '#0a1f44';
+                                }
+                                if (savingsModalEl && typeof matched.workingPriceCt === 'number') {
+                                    const mBase = (typeof matched.basePriceEurMonth === 'number') ? matched.basePriceEurMonth : 29.40;
+                                    const rateFormatted = matched.workingPriceCt.toFixed(2).replace('.', ',');
+                                    const baseFormatted = mBase.toFixed(2).replace('.', ',');
+                                    if (curLang === 'en') {
+                                        savingsModalEl.textContent = `Save up to €${mSav} / year (${rateFormatted} ct/kWh • €${baseFormatted}/mo base)`;
+                                    } else if (curLang === 'tr') {
+                                        savingsModalEl.textContent = `Yılda ${mSav} €'ya varan tasarruf (${rateFormatted} ct/kWh)`;
+                                    } else if (curLang === 'ar') {
+                                        savingsModalEl.textContent = `وفّر حتى ${mSav} € / سنة (${rateFormatted} ct/kWh)`;
+                                    } else {
+                                        savingsModalEl.textContent = `Bis zu ${mSav.toLocaleString('de-DE')} € / Jahr sparen (${rateFormatted} ct/kWh • ${baseFormatted} € Grundpreis)`;
+                                    }
+                                }
+                            }
                         }
                     }
                 }
@@ -1561,9 +1630,8 @@ document.addEventListener("DOMContentLoaded", async () => {
                 }
                 recalculateTariffs();
                 sync3DSceneConsumption(kwh);
-                if (calcPlz && /^\d{5}$/.test(calcPlz.value)) {
-                    syncLiveFirstconCalculation(calcPlz.value, kwh, currentBranch);
-                }
+                const activePlz = (calcPlz && /^\d{5}$/.test(calcPlz.value)) ? calcPlz.value : '44379';
+                syncLiveFirstconCalculation(activePlz, kwh, currentBranch);
             });
         }
 
@@ -1583,9 +1651,8 @@ document.addEventListener("DOMContentLoaded", async () => {
             });
             recalculateTariffs();
             sync3DSceneConsumption(totalKwh);
-            if (calcPlz && /^\d{5}$/.test(calcPlz.value)) {
-                syncLiveFirstconCalculation(calcPlz.value, totalKwh, currentBranch);
-            }
+            const activePlz = (calcPlz && /^\d{5}$/.test(calcPlz.value)) ? calcPlz.value : '44379';
+            syncLiveFirstconCalculation(activePlz, totalKwh, currentBranch);
         }
 
         if (calcKwhHt) {
@@ -1603,9 +1670,8 @@ document.addEventListener("DOMContentLoaded", async () => {
                 syncHtNtFromTotalKwh(totalKwh);
                 updateMeterTypeUI();
                 recalculateTariffs();
-                if (calcPlz && /^\d{5}$/.test(calcPlz.value)) {
-                    syncLiveFirstconCalculation(calcPlz.value, totalKwh, currentBranch);
-                }
+                const activePlz = (calcPlz && /^\d{5}$/.test(calcPlz.value)) ? calcPlz.value : '44379';
+                syncLiveFirstconCalculation(activePlz, totalKwh, currentBranch);
             });
         });
 
@@ -1613,9 +1679,8 @@ document.addEventListener("DOMContentLoaded", async () => {
             calcAbschlag.addEventListener('input', () => {
                 userHasEnteredKwh = true;
                 recalculateTariffs();
-                if (calcPlz && /^\d{5}$/.test(calcPlz.value)) {
-                    syncLiveFirstconCalculation(calcPlz.value, undefined, currentBranch);
-                }
+                const activePlz = (calcPlz && /^\d{5}$/.test(calcPlz.value)) ? calcPlz.value : '44379';
+                syncLiveFirstconCalculation(activePlz, undefined, currentBranch);
             });
         }
 
@@ -1640,9 +1705,8 @@ document.addEventListener("DOMContentLoaded", async () => {
                     }
                     recalculateTariffs();
                     sync3DSceneConsumption(parseInt(kwh, 10));
-                    if (calcPlz && /^\d{5}$/.test(calcPlz.value)) {
-                        syncLiveFirstconCalculation(calcPlz.value, parseInt(kwh, 10), currentBranch);
-                    }
+                    const activePlz = (calcPlz && /^\d{5}$/.test(calcPlz.value)) ? calcPlz.value : '44379';
+                    syncLiveFirstconCalculation(activePlz, parseInt(kwh, 10), currentBranch);
                 }
             });
         });
@@ -1839,9 +1903,8 @@ document.addEventListener("DOMContentLoaded", async () => {
                 const defaultBranchKwh = currentBranch === 'gas' ? 12000 : (currentBranch === 'waerme' ? 6000 : 2500);
                 const currentKwhVal = Math.max(500, parseInt(calcKwh && calcKwh.value ? calcKwh.value : defaultBranchKwh, 10) || defaultBranchKwh);
                 sync3DSceneConsumption(currentKwhVal);
-                if (calcPlz && /^\d{5}$/.test(calcPlz.value)) {
-                    syncLiveFirstconCalculation(calcPlz.value, currentKwhVal, currentBranch);
-                }
+                const activePlz = (calcPlz && /^\d{5}$/.test(calcPlz.value)) ? calcPlz.value : '44379';
+                syncLiveFirstconCalculation(activePlz, currentKwhVal, currentBranch);
             });
         });
 
@@ -1948,6 +2011,8 @@ document.addEventListener("DOMContentLoaded", async () => {
                     });
                     recalculateTariffs();
                     sync3DSceneConsumption(kwhVal);
+                    const activePlz = (calcPlz && /^\d{5}$/.test(calcPlz.value)) ? calcPlz.value : '44379';
+                    syncLiveFirstconCalculation(activePlz, kwhVal, currentBranch);
                 }
             }
         });
@@ -2001,9 +2066,8 @@ document.addEventListener("DOMContentLoaded", async () => {
                 e.preventDefault();
                 userHasEnteredKwh = true;
                 recalculateTariffs();
-                if (calcPlz && /^\d{5}$/.test(calcPlz.value)) {
-                    syncLiveFirstconCalculation(calcPlz.value, undefined, currentBranch);
-                }
+                const activePlz = (calcPlz && /^\d{5}$/.test(calcPlz.value)) ? calcPlz.value : '44379';
+                syncLiveFirstconCalculation(activePlz, undefined, currentBranch);
                 const tarifeSection = document.getElementById('tarife');
                 if (tarifeSection) {
                     tarifeSection.style.display = 'block';
@@ -2290,9 +2354,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             const isKwhValid = !isNaN(parsedKwh) && parsedKwh >= 500;
             const isPlzValid = /^\d{5}$/.test(plzVal);
 
-            if (isPlzValid) {
-                syncLiveFirstconCalculation(plzVal, isKwhValid ? parsedKwh : undefined, branch);
-            }
+            syncLiveFirstconCalculation(isPlzValid ? plzVal : '44379', isKwhValid ? parsedKwh : undefined, branch);
 
             // Highlight matching preset button
             modalPresetBtns.forEach(btn => {
@@ -2300,14 +2362,21 @@ document.addEventListener("DOMContentLoaded", async () => {
                 btn.classList.toggle('active', Boolean(isKwhValid && btnKwh === parsedKwh));
             });
 
-            const activeWorkCt = (isPlzValid && typeof spec.liveWorkingPriceCt === 'number') ? spec.liveWorkingPriceCt : spec.workingPriceCt;
-            const activeBaseEur = (isPlzValid && typeof spec.liveBasePriceEur === 'number') ? spec.liveBasePriceEur : spec.basePriceEur;
+            const activeWorkCt = (typeof spec.liveWorkingPriceCt === 'number') ? spec.liveWorkingPriceCt : spec.workingPriceCt;
+            const activeBaseEur = (typeof spec.liveBasePriceEur === 'number') ? spec.liveBasePriceEur : spec.basePriceEur;
+            const activeBaseYearGross = (typeof spec.liveBasePriceYearGross === 'number' && spec.liveBasePriceYearGross > 0)
+                ? spec.liveBasePriceYearGross
+                : (spec.basePriceYearGross || (activeBaseEur * 12));
 
             if (isKwhValid) {
                 const annualWorkingCost = parsedKwh * (activeWorkCt / 100);
-                const annualBaseCost = activeBaseEur * 12;
-                const rawYearly = annualWorkingCost + annualBaseCost;
-                const monthlyPayment = Math.round(rawYearly / 12);
+                const rawYearly = (spec.liveKwh === parsedKwh && typeof spec.liveGrossYearlyEur === 'number')
+                    ? spec.liveGrossYearlyEur
+                    : (Math.round((annualWorkingCost + activeBaseYearGross) * 100) / 100);
+                const totalMonthGross = Math.round((rawYearly / 12) * 100) / 100;
+                const monthlyPayment = (spec.liveKwh === parsedKwh && typeof spec.liveMonthlyPayment === 'number')
+                    ? spec.liveMonthlyPayment
+                    : Math.ceil(totalMonthGross);
 
                 const refYearly = branch === 'gas'
                     ? (parsedKwh * 0.215) + (29.50 * 12)

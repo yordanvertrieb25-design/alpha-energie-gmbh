@@ -466,10 +466,12 @@ async function calculateLiveTariffs({ plz, consumption, consumptionHt, consumpti
 
         const workingPriceCt = Number(price.PricePerUnitGross) || 0;
         const basePriceEurMonth = Number(price.PriceBasicPerMonthGross) || 0;
-        const computedYearlyEur = (kwh * (workingPriceCt / 100)) + (basePriceEurMonth * 12);
-        const grossYearlyEur = computedYearlyEur || Number(price.TotalPricePerYearGross);
-        const monthlyPayment = Math.round(computedYearlyEur / 12) || Math.round(Number(price.TotalPricePerMonthGross) || (grossYearlyEur / 12));
-        const savingsEur = Math.max(40, Math.round(userYearlyOld - computedYearlyEur));
+        const basePriceYearGross = Number(price.PriceBasicPerYearGross) || (basePriceEurMonth * 12);
+        const computedYearlyEur = (kwh * (workingPriceCt / 100)) + basePriceYearGross;
+        const grossYearlyEur = Number(price.TotalPricePerYearGross) || Math.round(computedYearlyEur * 100) / 100;
+        const totalPricePerMonthGross = Number(price.TotalPricePerMonthGross) || Math.round((grossYearlyEur / 12) * 100) / 100;
+        const monthlyPayment = Number(price.MonthlyAdvancePaymentGross) || Math.ceil(totalPricePerMonthGross);
+        const savingsEur = Math.max(40, Math.round(userYearlyOld - grossYearlyEur));
 
         const defaultFeatures = isGas ? [
             `${fcTariff.PriceGuaranteeDuration || 24} Monate volle Preisgarantie`,
@@ -543,14 +545,15 @@ async function calculateLiveTariffs({ plz, consumption, consumptionHt, consumpti
             workingPriceNetCt: Number(price.PricePerUnitNet) || 0,
             basePriceEurMonth,
             basePriceEur: basePriceEurMonth,
-            basePriceYearGross: Number(price.PriceBasicPerYearGross) || 0,
+            basePriceYearGross,
             bonusEur: Number(fcTariff.BonusAmount) || 0,
             priceGuaranteeMonths: Number(fcTariff.PriceGuaranteeDuration) || 24,
             contractTermMonths: Number(fcTariff.TermInMonth) || 24,
             ecoCertificate: meta.ecoCertificate,
             features,
             monthlyPayment,
-            totalPricePerMonthGross: Number(price.TotalPricePerMonthGross) || monthlyPayment,
+            monthlyAdvancePaymentGross: monthlyPayment,
+            totalPricePerMonthGross,
             grossYearlyEur: Math.round(grossYearlyEur * 100) / 100,
             netYearlyEur: Number(price.TotalPricePerYearNet) || 0,
             savingsEur,
@@ -898,6 +901,168 @@ async function getDataProtectionFile({ branch = 'strom', tariffId, customerTypeI
     return entry;
 }
 
+const IBAN_LENGTH_BY_COUNTRY = {
+    DE: 22, AT: 20, CH: 21, NL: 18, BE: 16, LU: 20, FR: 27, ES: 24, IT: 27, PL: 28, DK: 18, SE: 24
+};
+
+const GERMAN_BLZ_BANK_MAP = {
+    '10010010': { bankName: 'Postbank', bic: 'PBNKDEFFXXX' },
+    '10011001': { bankName: 'N26 Bank', bic: 'NTSBDEB1XXX' },
+    '10050000': { bankName: 'Berliner Sparkasse', bic: 'BELADEBEXXX' },
+    '10070000': { bankName: 'Deutsche Bank', bic: 'DEUTDEBBXXX' },
+    '10070024': { bankName: 'Deutsche Bank Privat- und Geschäftskunden', bic: 'DEUTDEDBBER' },
+    '12030000': { bankName: 'Deutsche Kreditbank (DKB)', bic: 'BYLADEM1001' },
+    '20040000': { bankName: 'Commerzbank', bic: 'COBADEFFXXX' },
+    '20041133': { bankName: 'comdirect – Commerzbank', bic: 'COBADEHD001' },
+    '37040044': { bankName: 'Commerzbank Köln', bic: 'COBADEFF370' },
+    '44010046': { bankName: 'Postbank Dortmund', bic: 'PBNKDEFFXXX' },
+    '44040037': { bankName: 'Commerzbank Dortmund', bic: 'COBADEFF440' },
+    '44050199': { bankName: 'Sparkasse Dortmund', bic: 'DORTDE33XXX' },
+    '44080050': { bankName: 'Commerzbank (ehem. Dresdner Bank Dortmund)', bic: 'DRESDEFF440' },
+    '44160014': { bankName: 'Dortmunder Volksbank', bic: 'GENODEM1DOR' },
+    '50010060': { bankName: 'Postbank Frankfurt', bic: 'PBNKDEFFXXX' },
+    '50010517': { bankName: 'ING-DiBa', bic: 'INGDDEFFXXX' },
+    '50020200': { bankName: 'BHF-BANK', bic: 'BHFBDEFF500' },
+    '50040000': { bankName: 'Commerzbank Frankfurt', bic: 'COBADEFFXXX' },
+    '50050201': { bankName: 'Frankfurter Sparkasse', bic: 'HELADEF1822' },
+    '50070010': { bankName: 'Deutsche Bank Frankfurt', bic: 'DEUTDEFFXXX' },
+    '70020270': { bankName: 'UniCredit Bank (HypoVereinsbank)', bic: 'HYVEDEMMXXX' },
+    '76026000': { bankName: 'Consorsbank', bic: 'CSDBDE71XXX' }
+};
+
+function validateIbanMod97(rawIban) {
+    const clean = String(rawIban || '').replace(/\s+/g, '').toUpperCase();
+    if (!/^[A-Z]{2}\d{2}[A-Z0-9]{10,30}$/.test(clean)) {
+        return { valid: false, clean, reason: 'Ungültiges IBAN-Format' };
+    }
+    const country = clean.slice(0, 2);
+    const expectedLen = IBAN_LENGTH_BY_COUNTRY[country];
+    if (expectedLen && clean.length !== expectedLen) {
+        return {
+            valid: false,
+            clean,
+            reason: `IBAN für ${country} muss genau ${expectedLen} Zeichen lang sein (aktuell: ${clean.length}).`
+        };
+    }
+
+    // Rearrange first 4 chars to the end and convert letters A=10 .. Z=35
+    const rearranged = clean.slice(4) + clean.slice(0, 4);
+    let numericStr = '';
+    for (let i = 0; i < rearranged.length; i++) {
+        const code = rearranged.charCodeAt(i);
+        if (code >= 65 && code <= 90) {
+            numericStr += String(code - 55);
+        } else {
+            numericStr += rearranged[i];
+        }
+    }
+
+    // Compute mod 97 in chunks
+    let remainder = 0;
+    for (let i = 0; i < numericStr.length; i += 7) {
+        const part = String(remainder) + numericStr.slice(i, i + 7);
+        remainder = parseInt(part, 10) % 97;
+    }
+
+    if (remainder !== 1) {
+        return { valid: false, clean, reason: 'IBAN-Prüfziffer (Modulo-97) ist ungültig.' };
+    }
+
+    let bankName = '';
+    let bic = '';
+    if (country === 'DE' && clean.length === 22) {
+        const blz = clean.slice(4, 12);
+        if (GERMAN_BLZ_BANK_MAP[blz]) {
+            bankName = GERMAN_BLZ_BANK_MAP[blz].bankName;
+            bic = GERMAN_BLZ_BANK_MAP[blz].bic;
+        } else if (blz.startsWith('5')) {
+            bankName = 'Deutsche Geschäftsbank / Sparkasse';
+        } else if (blz.startsWith('4')) {
+            bankName = 'Kreditinstitut NRW / Westfalen';
+        } else {
+            bankName = `Deutsches Kreditinstitut (BLZ ${blz})`;
+        }
+    }
+
+    const formattedIban = clean.replace(/(.{4})/g, '$1 ').trim();
+    return {
+        valid: true,
+        clean,
+        formattedIban,
+        country,
+        blz: country === 'DE' ? clean.slice(4, 12) : null,
+        bankName,
+        bic
+    };
+}
+
+const ibanCache = new Map();
+
+/**
+ * Verifies an IBAN via ISO-7064 Mod-97-10 and live Firstcon /Verification/VerifyBankAccount.
+ */
+async function verifyBankAccount(rawIban, token) {
+    const localCheck = validateIbanMod97(rawIban);
+    if (!localCheck.valid) {
+        return {
+            valid: false,
+            iban: localCheck.clean,
+            formattedIban: localCheck.clean.replace(/(.{4})/g, '$1 ').trim(),
+            bankName: null,
+            bic: null,
+            source: 'iso-mod97',
+            message: localCheck.reason
+        };
+    }
+
+    const clean = localCheck.clean;
+    const now = Date.now();
+    if (ibanCache.has(clean)) {
+        const cached = ibanCache.get(clean);
+        if (cached && cached.expiresAt > now) {
+            return cached.data;
+        }
+    }
+
+    let fcValid = null;
+    let fcBankName = null;
+    let fcBic = null;
+    try {
+        const res = await firstconRequest('POST', '/Verification/VerifyBankAccount', {
+            token,
+            timeout: 4500,
+            data: { iban: clean }
+        });
+        if (res && res.status === 200 && res.data) {
+            if (typeof res.data.IsValid === 'boolean') {
+                fcValid = res.data.IsValid;
+            } else if (typeof res.data.isValid === 'boolean') {
+                fcValid = res.data.isValid;
+            }
+            fcBankName = res.data.BankName || res.data.Institute || res.data.bankName || null;
+            fcBic = res.data.Bic || res.data.bic || null;
+        }
+    } catch (e) {
+        // Fallback to local ISO Mod97 check if Firstcon is unreachable
+    }
+
+    const finalValid = fcValid !== null ? fcValid : localCheck.valid;
+    const result = {
+        valid: finalValid,
+        iban: clean,
+        formattedIban: localCheck.formattedIban,
+        country: localCheck.country,
+        blz: localCheck.blz,
+        bankName: fcBankName || localCheck.bankName || 'SEPA-Kreditinstitut verifiziert',
+        bic: fcBic || localCheck.bic || '',
+        source: fcValid !== null ? 'firstcon-live' : 'iso-mod97',
+        message: finalValid ? 'SEPA-Bankverbindung erfolgreich verifiziert.' : 'Bankverbindung konnte nicht verifiziert werden.'
+    };
+
+    ibanCache.set(clean, { data: result, expiresAt: now + 60 * 60 * 1000 });
+    return result;
+}
+
 module.exports = {
     DEFAULT_FIRSTCON_TOKEN,
     FIRSTCON_API_BASE,
@@ -908,6 +1073,8 @@ module.exports = {
     calculateLiveTariffs,
     submitOrderToFirstcon,
     getTariffTermsFile,
-    getDataProtectionFile
+    getDataProtectionFile,
+    verifyBankAccount,
+    validateIbanMod97
 };
 

@@ -8715,6 +8715,23 @@ html.swal2-height-auto:not(.alpha-modal-open) {
     cursor: text !important;
 }
 
+.octo-input-field::-webkit-outer-spin-button,
+.octo-input-field::-webkit-inner-spin-button {
+    -webkit-appearance: none !important;
+    margin: 0 !important;
+}
+
+.octo-input-field[type="number"] {
+    -moz-appearance: textfield !important;
+    appearance: textfield !important;
+}
+
+#calcAbschlag::placeholder {
+    font-size: 0.74rem !important;
+    font-weight: 600 !important;
+    letter-spacing: -0.015em !important;
+}
+
 #calcPlz.octo-input-field,
 input#calcPlz {
     flex: 1 1 60px !important;
@@ -9029,6 +9046,12 @@ input#calcPlz {
         font-size: 0.85rem !important;
     }
 
+    html body.octo-orange-body #calcAbschlag::placeholder {
+        font-size: 0.68rem !important;
+        font-weight: 600 !important;
+        letter-spacing: -0.02em !important;
+    }
+
     html body.octo-orange-body .octo-bottom-offer-box {
         padding: 22px 18px !important;
         gap: 18px !important;
@@ -9082,7 +9105,7 @@ input#calcPlz {
     html body.octo-orange-body .octo-consumption-group,
     html body.octo-orange-body .octo-consumption-group.is-htnt-mode {
         display: grid !important;
-        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+        grid-template-columns: minmax(100px, 0.66fr) minmax(0, 1.34fr) !important;
         gap: 8px !important;
     }
 

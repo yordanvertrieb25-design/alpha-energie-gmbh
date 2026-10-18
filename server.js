@@ -44,8 +44,8 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.use(cors());
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json({ limit: '5mb' }));
+app.use(express.urlencoded({ extended: true, limit: '5mb' }));
 
 // Canonical host redirect: redirect www.alpha-energie.de to https://alpha-energie.de
 app.use((req, res, next) => {
@@ -533,6 +533,7 @@ app.post('/api/tarife/calculate', async (req, res) => {
             }
         ];
 
+        const isSmallGasTier = isGas && kwh <= 4000;
         const gasTariffs = [
             {
                 id: 'alpha-basic',
@@ -541,9 +542,10 @@ app.post('/api/tarife/calculate', async (req, res) => {
                 name: 'ALPHA BASIC 24 GAS',
                 badge: 'Fair & Preisstabil',
                 isBestseller: false,
-                workingPriceCt: 16.52,
-                basePriceEurMonth: 28.25,
-                basePriceEur: 28.25,
+                workingPriceCt: isSmallGasTier ? 16.81 : 16.52,
+                basePriceEurMonth: isSmallGasTier ? 27.29 : 28.25,
+                basePriceEur: isSmallGasTier ? 27.29 : 28.25,
+                basePriceYearGross: isSmallGasTier ? 327.48 : 338.98,
                 bonusEur: 0,
                 priceGuaranteeMonths: 24,
                 contractTermMonths: 24,
@@ -562,9 +564,10 @@ app.post('/api/tarife/calculate', async (req, res) => {
                 name: 'ALPHA TIME 24 GAS',
                 badge: 'Bestseller & Spar-Vorteil',
                 isBestseller: true,
-                workingPriceCt: 17.71,
-                basePriceEurMonth: 28.25,
-                basePriceEur: 28.25,
+                workingPriceCt: isSmallGasTier ? 18.00 : 17.71,
+                basePriceEurMonth: isSmallGasTier ? 27.29 : 28.25,
+                basePriceEur: isSmallGasTier ? 27.29 : 28.25,
+                basePriceYearGross: isSmallGasTier ? 327.48 : 338.98,
                 bonusEur: 0,
                 priceGuaranteeMonths: 24,
                 contractTermMonths: 24,
@@ -583,9 +586,10 @@ app.post('/api/tarife/calculate', async (req, res) => {
                 name: 'ALPHA PREMIUM 24 GAS',
                 badge: '24 Monate Preisschutz & Komfort',
                 isBestseller: false,
-                workingPriceCt: 18.90,
-                basePriceEurMonth: 28.25,
-                basePriceEur: 28.25,
+                workingPriceCt: isSmallGasTier ? 19.19 : 18.90,
+                basePriceEurMonth: isSmallGasTier ? 27.29 : 28.25,
+                basePriceEur: isSmallGasTier ? 27.29 : 28.25,
+                basePriceYearGross: isSmallGasTier ? 327.48 : 338.98,
                 bonusEur: 0,
                 priceGuaranteeMonths: 24,
                 contractTermMonths: 24,
@@ -606,19 +610,24 @@ app.post('/api/tarife/calculate', async (req, res) => {
         const yearlyOld = Math.max(abschlagOld * 12, refGrundversorgerYearly);
 
         const calculatedTariffs = tariffs.map(t => {
-            const rawYearly = (kwh * (t.workingPriceCt / 100)) + (t.basePriceEurMonth * 12);
-            const monthlyPayment = Math.round(rawYearly / 12);
+            const baseYearGross = t.basePriceYearGross || (isGas ? 338.98 : 352.85);
+            const rawYearly = Math.round(((kwh * (t.workingPriceCt / 100)) + baseYearGross) * 100) / 100;
+            const totalPricePerMonthGross = Math.round((rawYearly / 12) * 100) / 100;
+            const monthlyPayment = Math.ceil(totalPricePerMonthGross);
             const savings = Math.max(40, Math.round(yearlyOld - rawYearly));
 
             return {
                 ...t,
+                basePriceYearGross: baseYearGross,
                 branch: normalizedBranch,
                 meterType: resolvedMeterType,
                 meterTypeId: resolvedMeterTypeId,
                 consumptionHt: resolvedHt,
                 consumptionNt: resolvedNt,
                 monthlyPayment,
-                grossYearlyEur: Math.round(rawYearly * 100) / 100,
+                monthlyAdvancePaymentGross: monthlyPayment,
+                totalPricePerMonthGross,
+                grossYearlyEur: rawYearly,
                 savingsEur: savings,
                 savingsYear: savings
             };
@@ -1224,6 +1233,87 @@ app.post('/api/b2b/rlm-tarife/sync-token', async (req, res) => {
     }
 });
 
+// 1.1c Live IBAN Verification Endpoint (/Verification/VerifyBankAccount + ISO-7064 Mod-97-10)
+const handleVerifyIban = async (req, res) => {
+    try {
+        const rawIban = (req.body && req.body.iban) || req.query.iban || '';
+        const token = (req.body && req.body.token) || req.query.token || process.env.FIRSTCON_ORDERFLOW_TOKEN;
+        if (!rawIban) {
+            return res.status(400).json({ success: false, valid: false, error: 'Bitte eine IBAN angeben.' });
+        }
+        const verification = await firstconService.verifyBankAccount(rawIban, token);
+        res.json({
+            success: true,
+            ...verification
+        });
+    } catch (error) {
+        res.status(500).json({ success: false, valid: false, error: error.message });
+    }
+};
+app.post(['/api/verify-iban', '/api/tarife/verify-iban', '/api/firstcon/verify-iban'], handleVerifyIban);
+app.get(['/api/verify-iban', '/api/tarife/verify-iban', '/api/firstcon/verify-iban'], handleVerifyIban);
+
+// Helper: Resolve PartnerUser and calculate commission + agency override for an order
+async function resolveOrderPartnerAttribution({ partnerCode, partnerId, subId, branch = 'strom', orderSource }) {
+    let partner = null;
+    if (partnerId) {
+        partner = await prisma.partnerUser.findUnique({ where: { id: Number(partnerId) } }).catch(() => null);
+    }
+    const cleanCode = String(partnerCode || '').trim();
+    if (!partner && cleanCode) {
+        partner = await prisma.partnerUser.findFirst({
+            where: {
+                OR: [
+                    { partnerCode: cleanCode },
+                    { partnerCode: cleanCode.toUpperCase() },
+                    { email: cleanCode.toLowerCase() }
+                ]
+            }
+        }).catch(() => null);
+    }
+
+    if (!partner) {
+        return {
+            partnerId: null,
+            partnerCode: cleanCode || null,
+            subId: subId ? String(subId).trim() : null,
+            orderSource: orderSource || (cleanCode ? 'AFFILIATE' : 'ONLINE'),
+            commissionStatus: cleanCode ? 'PENDING' : 'NONE',
+            commissionAmount: cleanCode ? 45.0 : 0,
+            overridePartnerId: null,
+            overrideAmount: 0
+        };
+    }
+
+    const normBranch = String(branch || 'strom').toLowerCase();
+    let commAmount = partner.stromCommissionEur || 55.0;
+    if (normBranch === 'gas') commAmount = partner.gasCommissionEur || 55.0;
+    else if (normBranch === 'waerme') commAmount = partner.waermeCommissionEur || 65.0;
+
+    let overridePartnerId = null;
+    let overrideAmount = 0;
+    if (partner.parentPartnerId) {
+        const parent = await prisma.partnerUser.findUnique({ where: { id: partner.parentPartnerId } }).catch(() => null);
+        if (parent) {
+            overridePartnerId = parent.id;
+            overrideAmount = parent.overrideCommissionEur || 10.0;
+        }
+    }
+
+    const resolvedSource = orderSource || (partner.role === 'D2D' ? 'D2D' : (partner.role === 'TIPPGEBER' ? 'TIPPGEBER' : 'AFFILIATE'));
+
+    return {
+        partnerId: partner.id,
+        partnerCode: partner.partnerCode,
+        subId: subId ? String(subId).trim() : null,
+        orderSource: resolvedSource,
+        commissionStatus: 'PENDING',
+        commissionAmount: commAmount,
+        overridePartnerId,
+        overrideAmount
+    };
+}
+
 // 1.2 Submit Order / Switching Application
 app.post('/api/order/submit', async (req, res) => {
     try {
@@ -1247,7 +1337,17 @@ app.post('/api/order/submit', async (req, res) => {
             birthDate,
             email,
             phone,
-            iban
+            iban,
+            partnerCode,
+            refCode,
+            aff,
+            ref,
+            partnerId,
+            subId,
+            sub_id,
+            subid,
+            orderSource,
+            signatureData
         } = req.body;
 
         if (!tariffName || !email || !firstName || !lastName || !meterNumber || !iban) {
@@ -1258,6 +1358,18 @@ app.post('/api/order/submit', async (req, res) => {
         }
 
         const orderNumber = 'AE-' + new Date().getFullYear() + '-' + Math.floor(100000 + Math.random() * 900000);
+        const rawPartnerCode = partnerCode || refCode || aff || ref || null;
+        const rawSubId = subId || sub_id || subid || null;
+
+        const attribution = await resolveOrderPartnerAttribution({
+            partnerCode: rawPartnerCode,
+            partnerId,
+            subId: rawSubId,
+            branch,
+            orderSource
+        });
+
+        const ibanCheck = firstconService.validateIbanMod97(iban);
 
         const newOrder = await prisma.energyOrder.create({
             data: {
@@ -1281,10 +1393,44 @@ app.post('/api/order/submit', async (req, res) => {
                 birthDate: birthDate || null,
                 email,
                 phone: phone || '',
-                iban,
-                status: 'RECEIVED'
+                iban: ibanCheck.clean || iban,
+                status: 'RECEIVED',
+                partnerId: attribution.partnerId,
+                partnerCode: attribution.partnerCode,
+                subId: attribution.subId,
+                orderSource: attribution.orderSource,
+                commissionStatus: attribution.commissionStatus,
+                commissionAmount: attribution.commissionAmount,
+                overridePartnerId: attribution.overridePartnerId,
+                overrideAmount: attribution.overrideAmount,
+                signatureData: signatureData || null,
+                signedAt: signatureData ? new Date() : null,
+                ibanValid: ibanCheck.valid,
+                bankName: ibanCheck.bankName || null,
+                bic: ibanCheck.bic || null
             }
         });
+
+        // Mark latest matching AffiliateClick as converted if applicable
+        if (attribution.partnerCode) {
+            try {
+                const latestClick = await prisma.affiliateClick.findFirst({
+                    where: {
+                        partnerCode: attribution.partnerCode,
+                        converted: false
+                    },
+                    orderBy: { createdAt: 'desc' }
+                });
+                if (latestClick) {
+                    await prisma.affiliateClick.update({
+                        where: { id: latestClick.id },
+                        data: { converted: true, orderNumber }
+                    });
+                }
+            } catch (clickErr) {
+                // Non-blocking
+            }
+        }
 
         // Forward order to Firstcon Orderflow API v2 (Validation & Contract submission)
         let firstconResult = null;
@@ -1293,6 +1439,15 @@ app.post('/api/order/submit', async (req, res) => {
                 ...req.body,
                 orderNumber
             });
+            if (firstconResult && firstconResult.firstconContractId) {
+                await prisma.energyOrder.update({
+                    where: { id: newOrder.id },
+                    data: {
+                        firstconContractId: String(firstconResult.firstconContractId),
+                        ibanValid: firstconResult.ibanValid ?? ibanCheck.valid
+                    }
+                }).catch(() => null);
+            }
         } catch (fcOrderErr) {
             console.warn("[Firstcon Orderflow] Order forwarding warning:", fcOrderErr.message);
             firstconResult = {
@@ -1349,6 +1504,8 @@ app.post('/api/order/submit', async (req, res) => {
             success: true,
             orderNumber: (firstconResult && firstconResult.firstconContractId) ? firstconResult.firstconContractId : orderNumber,
             internalOrderNumber: orderNumber,
+            partnerCode: attribution.partnerCode,
+            commissionAmount: attribution.commissionAmount,
             firstcon: firstconResult,
             message: 'Ihr Auftrag wurde erfolgreich an Firstcon übermittelt! Sie erhalten Ihre Auftragsbestätigung inkl. Vertragsunterlagen per E-Mail.'
         });
@@ -3242,6 +3399,1372 @@ app.post('/api/admin/partner-applications/create', authenticateAdmin, async (req
     } catch (e) {
         console.error("Error creating manual partner application:", e);
         res.status(500).json({ success: false, error: e.message });
+    }
+});
+
+// =========================================================================
+// 5. ALPHATARIFE IN-HOUSE PARTNER PORTAL & ADMIN COMMISSION ENGINE
+// =========================================================================
+const crypto = require('crypto');
+const PDFDocument = require('pdfkit');
+const PARTNER_JWT_SECRET = process.env.JWT_SECRET || 'alpha-energie-partner-secret-2026';
+
+function hashPartnerPassword(password) {
+    const salt = crypto.randomBytes(16).toString('hex');
+    const derived = crypto.scryptSync(String(password), salt, 64).toString('hex');
+    return `${salt}:${derived}`;
+}
+
+function verifyPartnerPassword(password, storedHash) {
+    if (!storedHash || !storedHash.includes(':')) return false;
+    const [salt, key] = storedHash.split(':');
+    const derived = crypto.scryptSync(String(password), salt, 64).toString('hex');
+    try {
+        return crypto.timingSafeEqual(Buffer.from(key, 'hex'), Buffer.from(derived, 'hex'));
+    } catch (e) {
+        return false;
+    }
+}
+
+function generateUniquePartnerCode(role = 'AFFILIATE', name = '') {
+    const prefixMap = {
+        D2D: 'VP',
+        AFFILIATE: 'AFF',
+        TIPPGEBER: 'TIP',
+        AGENCY: 'AG'
+    };
+    const prefix = prefixMap[String(role).toUpperCase()] || 'VP';
+    const cleanName = String(name || '').replace(/[^a-zA-Z]/g, '').toUpperCase().slice(0, 3) || 'ALP';
+    const rand = Math.floor(100 + Math.random() * 900);
+    return `${prefix}-${cleanName}${rand}`;
+}
+
+function sanitizePartnerUser(p) {
+    if (!p) return null;
+    const { passwordHash, ...rest } = p;
+    return rest;
+}
+
+const authenticatePartner = async (req, res, next) => {
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        return res.status(401).json({ success: false, error: 'Nicht autorisiert (Kein Partner-Token).' });
+    }
+    const token = authHeader.slice(7);
+    try {
+        const decoded = jwt.verify(token, PARTNER_JWT_SECRET);
+        if (!decoded || !decoded.partnerId) {
+            return res.status(401).json({ success: false, error: 'Ungültiges Partner-Token.' });
+        }
+        const partner = await prisma.partnerUser.findUnique({ where: { id: Number(decoded.partnerId) } });
+        if (!partner || partner.status === 'SUSPENDED') {
+            return res.status(403).json({ success: false, error: 'Partner-Konto nicht aktiv oder gesperrt.' });
+        }
+        req.partner = partner;
+        next();
+    } catch (err) {
+        return res.status(401).json({ success: false, error: 'Sitzung abgelaufen. Bitte neu einloggen.' });
+    }
+};
+
+// Seed default demo partners for instant testing & verification
+async function ensureDemoPartnersSeeded() {
+    try {
+        const count = await prisma.partnerUser.count();
+        if (count > 0) return;
+
+        const agency = await prisma.partnerUser.create({
+            data: {
+                partnerCode: 'AG-NRW01',
+                email: 'agentur@alpha-energie.de',
+                passwordHash: hashPartnerPassword('Alpha2026!'),
+                role: 'AGENCY',
+                status: 'ACTIVE',
+                salutation: 'Herr',
+                firstName: 'Markus',
+                lastName: 'Vogelsang',
+                fullName: 'Markus Vogelsang',
+                companyName: 'Vogelsang Energievertrieb NRW GmbH',
+                legalForm: 'GmbH',
+                phone: '0231 39989392',
+                street: 'Alter Hellweg',
+                houseNr: '50',
+                plz: '44379',
+                city: 'Dortmund',
+                isVatLiable: true,
+                taxId: '314/5781/2091',
+                iban: 'DE89370400440532013000',
+                bic: 'COBADEFFXXX',
+                bankName: 'Commerzbank',
+                stromCommissionEur: 75.0,
+                gasCommissionEur: 75.0,
+                waermeCommissionEur: 85.0,
+                overrideCommissionEur: 15.0
+            }
+        });
+
+        const d2dPartner = await prisma.partnerUser.create({
+            data: {
+                partnerCode: 'VP-D2D100',
+                email: 'd2d@alpha-energie.de',
+                passwordHash: hashPartnerPassword('Alpha2026!'),
+                role: 'D2D',
+                status: 'ACTIVE',
+                salutation: 'Herr',
+                firstName: 'Lukas',
+                lastName: 'Kowalski',
+                fullName: 'Lukas Kowalski',
+                phone: '0176 44219800',
+                street: 'Westhellweg',
+                houseNr: '12',
+                plz: '44137',
+                city: 'Dortmund',
+                isVatLiable: false,
+                iban: 'DE89370400440532013000',
+                bic: 'COBADEFFXXX',
+                bankName: 'Commerzbank',
+                stromCommissionEur: 65.0,
+                gasCommissionEur: 65.0,
+                waermeCommissionEur: 75.0,
+                parentPartnerId: agency.id
+            }
+        });
+
+        const affiliatePartner = await prisma.partnerUser.create({
+            data: {
+                partnerCode: 'AFF-MAX24',
+                email: 'affiliate@alpha-energie.de',
+                passwordHash: hashPartnerPassword('Alpha2026!'),
+                role: 'AFFILIATE',
+                status: 'ACTIVE',
+                salutation: 'Herr',
+                firstName: 'Maximilian',
+                lastName: 'Weber',
+                fullName: 'Maximilian Weber',
+                companyName: 'Weber Performance Media',
+                phone: '0151 88219012',
+                street: 'Königsallee',
+                houseNr: '44',
+                plz: '40212',
+                city: 'Düsseldorf',
+                isVatLiable: true,
+                iban: 'DE89370400440532013000',
+                bic: 'COBADEFFXXX',
+                bankName: 'Commerzbank',
+                website: 'https://stromvergleich-nrw.example.de',
+                stromCommissionEur: 55.0,
+                gasCommissionEur: 55.0,
+                waermeCommissionEur: 65.0
+            }
+        });
+
+        const tippgeberPartner = await prisma.partnerUser.create({
+            data: {
+                partnerCode: 'TIP-ANNA',
+                email: 'tippgeber@alpha-energie.de',
+                passwordHash: hashPartnerPassword('Alpha2026!'),
+                role: 'TIPPGEBER',
+                status: 'ACTIVE',
+                salutation: 'Frau',
+                firstName: 'Anna',
+                lastName: 'Bergmann',
+                fullName: 'Anna Bergmann',
+                phone: '0172 5543198',
+                street: 'Hohe Str.',
+                houseNr: '19',
+                plz: '44139',
+                city: 'Dortmund',
+                isVatLiable: false,
+                iban: 'DE89370400440532013000',
+                bic: 'COBADEFFXXX',
+                bankName: 'Commerzbank',
+                stromCommissionEur: 35.0,
+                gasCommissionEur: 35.0,
+                waermeCommissionEur: 40.0,
+                parentPartnerId: agency.id
+            }
+        });
+
+        await prisma.affiliateLink.upsert({
+            where: { code: 'AFF-MAX24' },
+            update: {},
+            create: { name: 'Maximilian Weber (Performance)', code: 'AFF-MAX24', clicks: 18 }
+        }).catch(() => {});
+
+        await prisma.energyOrder.createMany({
+            data: [
+                {
+                    orderNumber: 'AE-2026-810241',
+                    tariffId: 'alpha-strom-24',
+                    tariffName: 'AlphaStrom 24 Fix',
+                    branch: 'strom',
+                    consumption: 3500,
+                    monthlyPayment: 98.5,
+                    savings: 215.0,
+                    street: 'Rheinlanddamm',
+                    houseNr: '102',
+                    plz: '44139',
+                    city: 'Dortmund',
+                    meterNumber: '1ISK008941223',
+                    currentProvider: 'DEW21',
+                    salutation: 'Herr',
+                    firstName: 'Thomas',
+                    lastName: 'Schneider',
+                    birthDate: '1981-04-12',
+                    email: 't.schneider@example.de',
+                    phone: '0231 441298',
+                    iban: 'DE89370400440532013000',
+                    ibanValid: true,
+                    bankName: 'Commerzbank',
+                    bic: 'COBADEFFXXX',
+                    status: 'CONFIRMED',
+                    partnerId: d2dPartner.id,
+                    partnerCode: d2dPartner.partnerCode,
+                    subId: 'tablet_nord',
+                    orderSource: 'D2D',
+                    commissionStatus: 'APPROVED',
+                    commissionAmount: 65.0,
+                    overridePartnerId: agency.id,
+                    overrideAmount: 15.0,
+                    signedAt: new Date()
+                },
+                {
+                    orderNumber: 'AE-2026-810599',
+                    tariffId: 'alpha-gas-12',
+                    tariffName: 'AlphaGas 12 Klima',
+                    branch: 'gas',
+                    consumption: 14000,
+                    monthlyPayment: 134.0,
+                    savings: 310.0,
+                    street: 'Kaiserstr.',
+                    houseNr: '41',
+                    plz: '44135',
+                    city: 'Dortmund',
+                    meterNumber: '7GAS99120411',
+                    currentProvider: 'E.ON Energie',
+                    salutation: 'Frau',
+                    firstName: 'Sabine',
+                    lastName: 'Krämer',
+                    birthDate: '1976-09-23',
+                    email: 's.kraemer@example.de',
+                    phone: '0231 998123',
+                    iban: 'DE89370400440532013000',
+                    ibanValid: true,
+                    bankName: 'Commerzbank',
+                    bic: 'COBADEFFXXX',
+                    status: 'PAID',
+                    partnerId: affiliatePartner.id,
+                    partnerCode: affiliatePartner.partnerCode,
+                    subId: 'meta_reel_04',
+                    orderSource: 'AFFILIATE',
+                    commissionStatus: 'PAID',
+                    commissionAmount: 55.0
+                }
+            ]
+        });
+
+        await prisma.affiliateClick.createMany({
+            data: [
+                { partnerId: affiliatePartner.id, partnerCode: 'AFF-MAX24', subId: 'meta_reel_04', landingPage: '/versorger.html', converted: true, orderNumber: 'AE-2026-810599' },
+                { partnerId: affiliatePartner.id, partnerCode: 'AFF-MAX24', subId: 'meta_reel_04', landingPage: '/versorger.html', converted: false },
+                { partnerId: affiliatePartner.id, partnerCode: 'AFF-MAX24', subId: 'google_search_nrw', landingPage: '/oekostrom.html', converted: false },
+                { partnerId: d2dPartner.id, partnerCode: 'VP-D2D100', subId: 'qr_flyer', landingPage: '/versorger.html', converted: true, orderNumber: 'AE-2026-810241' }
+            ]
+        });
+
+        await prisma.partnerLead.create({
+            data: {
+                partnerId: tippgeberPartner.id,
+                partnerCode: tippgeberPartner.partnerCode,
+                customerName: 'Bäckerei Hülsmann GmbH',
+                customerPhone: '0231 7761230',
+                customerEmail: 'info@baeckerei-huelsmann.example.de',
+                plz: '44225',
+                city: 'Dortmund',
+                branch: 'strom',
+                estimatedConsumption: 42000,
+                notes: 'Inhaber wünscht Rückruf vormittags wegen Filial-Stromvertrag',
+                status: 'QUALIFIED',
+                commissionAmount: 35.0
+            }
+        });
+
+        await prisma.commissionPayout.create({
+            data: {
+                payoutNumber: 'GS-2026-1001',
+                partnerId: affiliatePartner.id,
+                periodLabel: 'Laufende Abrechnung 2026',
+                ordersCount: 1,
+                netAmount: 55.0,
+                vatAmount: 10.45,
+                grossAmount: 65.45,
+                status: 'PAID',
+                iban: affiliatePartner.iban,
+                bic: affiliatePartner.bic,
+                bankName: affiliatePartner.bankName,
+                paidAt: new Date()
+            }
+        });
+
+        console.log('[PartnerPortal] Seeded default demo partners (VP-D2D100, AFF-MAX24, TIP-ANNA, AG-NRW01).');
+    } catch (err) {
+        console.warn('[PartnerPortal] Demo seed skipped or failed:', err.message);
+    }
+}
+ensureDemoPartnersSeeded();
+
+// 5.1 Affiliate Click & Sub-ID Tracking
+app.post('/api/affiliate/click', async (req, res) => {
+    try {
+        const { partnerCode, refCode, aff, ref, subId, sub_id, landingPage, referrer } = req.body || {};
+        const rawCode = String(partnerCode || refCode || aff || ref || '').trim();
+        if (!rawCode) {
+            return res.json({ success: false, message: 'No partner code provided' });
+        }
+
+        const partner = await prisma.partnerUser.findFirst({
+            where: {
+                OR: [
+                    { partnerCode: rawCode },
+                    { partnerCode: rawCode.toUpperCase() }
+                ]
+            }
+        }).catch(() => null);
+
+        const clickRecord = await prisma.affiliateClick.create({
+            data: {
+                partnerId: partner ? partner.id : null,
+                partnerCode: partner ? partner.partnerCode : rawCode.toUpperCase(),
+                subId: subId || sub_id ? String(subId || sub_id).trim() : null,
+                landingPage: landingPage ? String(landingPage).slice(0, 255) : '/versorger.html',
+                referrer: referrer ? String(referrer).slice(0, 255) : null,
+                userAgent: req.headers['user-agent'] ? String(req.headers['user-agent']).slice(0, 255) : null
+            }
+        });
+
+        await prisma.affiliateLink.updateMany({
+            where: { code: partner ? partner.partnerCode : rawCode },
+            data: { clicks: { increment: 1 } }
+        }).catch(() => {});
+
+        res.json({
+            success: true,
+            clickId: clickRecord.id,
+            partnerCode: clickRecord.partnerCode,
+            subId: clickRecord.subId,
+            partnerName: partner ? (partner.companyName || partner.fullName) : null
+        });
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+// 5.2 Partner Self-Registration
+app.post('/api/partner/register', async (req, res) => {
+    try {
+        const body = req.body || {};
+        const email = String(body.email || '').trim().toLowerCase();
+        const password = String(body.password || '').trim();
+        const firstName = String(body.firstName || '').trim();
+        const lastName = String(body.lastName || '').trim();
+        const fullName = `${firstName} ${lastName}`.trim() || String(body.fullName || '').trim();
+        const role = ['D2D', 'AFFILIATE', 'TIPPGEBER', 'AGENCY'].includes(String(body.role || '').toUpperCase())
+            ? String(body.role).toUpperCase()
+            : 'AFFILIATE';
+
+        if (!email || !password || password.length < 6 || !fullName) {
+            return res.status(400).json({
+                success: false,
+                error: 'Bitte Name, gültige E-Mail-Adresse und ein Passwort (mind. 6 Zeichen) angeben.'
+            });
+        }
+
+        const existing = await prisma.partnerUser.findUnique({ where: { email } });
+        if (existing) {
+            return res.status(409).json({
+                success: false,
+                error: 'Für diese E-Mail-Adresse existiert bereits ein Partner-Zugang. Bitte loggen Sie sich ein.'
+            });
+        }
+
+        let parentPartnerId = null;
+        if (body.parentPartnerCode) {
+            const parent = await prisma.partnerUser.findFirst({
+                where: { partnerCode: String(body.parentPartnerCode).trim().toUpperCase() }
+            });
+            if (parent) parentPartnerId = parent.id;
+        }
+
+        let partnerCode = generateUniquePartnerCode(role, lastName || fullName);
+        for (let i = 0; i < 5; i++) {
+            const codeCheck = await prisma.partnerUser.findUnique({ where: { partnerCode } });
+            if (!codeCheck) break;
+            partnerCode = generateUniquePartnerCode(role, lastName || fullName);
+        }
+
+        const defaultCommissions = {
+            D2D: { strom: 65, gas: 65, waerme: 75, override: 0 },
+            AFFILIATE: { strom: 55, gas: 55, waerme: 65, override: 0 },
+            TIPPGEBER: { strom: 35, gas: 35, waerme: 40, override: 0 },
+            AGENCY: { strom: 75, gas: 75, waerme: 85, override: 15 }
+        }[role];
+
+        let ibanClean = body.iban ? String(body.iban).replace(/\s+/g, '').toUpperCase() : null;
+        let bic = body.bic || null;
+        let bankName = body.bankName || null;
+        if (ibanClean) {
+            const check = firstconService.validateIbanMod97(ibanClean);
+            if (check.valid) {
+                ibanClean = check.clean;
+                bic = bic || check.bic;
+                bankName = bankName || check.bankName;
+            }
+        }
+
+        const newPartner = await prisma.partnerUser.create({
+            data: {
+                partnerCode,
+                email,
+                passwordHash: hashPartnerPassword(password),
+                role,
+                status: 'ACTIVE',
+                salutation: body.salutation || 'Herr',
+                firstName: firstName || fullName.split(' ')[0] || '',
+                lastName: lastName || fullName.split(' ').slice(1).join(' ') || '',
+                fullName,
+                companyName: body.companyName || null,
+                legalForm: body.legalForm || null,
+                phone: body.phone || '',
+                birthDate: body.birthDate || null,
+                street: body.street || null,
+                houseNr: body.houseNr || null,
+                plz: body.plz || null,
+                city: body.city || null,
+                country: body.country || 'Deutschland',
+                isVatLiable: body.isVatLiable === true || body.isVatLiable === 'true',
+                taxId: body.taxId || null,
+                taxOffice: body.taxOffice || null,
+                iban: ibanClean,
+                bic,
+                bankName,
+                website: body.website || null,
+                stromCommissionEur: defaultCommissions.strom,
+                gasCommissionEur: defaultCommissions.gas,
+                waermeCommissionEur: defaultCommissions.waerme,
+                overrideCommissionEur: defaultCommissions.override,
+                parentPartnerId
+            }
+        });
+
+        await prisma.affiliateLink.upsert({
+            where: { code: partnerCode },
+            update: { name: `${fullName} (${role})` },
+            create: { name: `${fullName} (${role})`, code: partnerCode }
+        }).catch(() => {});
+
+        await prisma.partnerApplication.create({
+            data: {
+                salutation: newPartner.salutation,
+                firstName: newPartner.firstName,
+                lastName: newPartner.lastName,
+                fullName: newPartner.fullName,
+                email: newPartner.email,
+                phone: newPartner.phone || '',
+                experience: `Portal Self-Service (${role}) – Code: ${partnerCode}`,
+                companyName: newPartner.companyName,
+                street: newPartner.street,
+                houseNr: newPartner.houseNr,
+                plz: newPartner.plz,
+                city: newPartner.city,
+                iban: newPartner.iban,
+                bic: newPartner.bic,
+                bankName: newPartner.bankName,
+                isVatLiable: newPartner.isVatLiable,
+                taxId: newPartner.taxId,
+                masterDataStatus: 'SUBMITTED'
+            }
+        }).catch(() => {});
+
+        const token = jwt.sign(
+            { partnerId: newPartner.id, partnerCode: newPartner.partnerCode, role: newPartner.role },
+            PARTNER_JWT_SECRET,
+            { expiresIn: '30d' }
+        );
+
+        res.status(201).json({
+            success: true,
+            token,
+            partner: sanitizePartnerUser(newPartner)
+        });
+    } catch (error) {
+        console.error('[PartnerPortal] Registration error:', error);
+        res.status(500).json({ success: false, error: 'Registrierung fehlgeschlagen: ' + error.message });
+    }
+});
+
+// 5.3 Partner Login (supports email or partnerCode + password, plus demo quick-login)
+app.post('/api/partner/login', async (req, res) => {
+    try {
+        await ensureDemoPartnersSeeded();
+        const { email, identifier, password, demoRole } = req.body || {};
+
+        let partner = null;
+        if (demoRole) {
+            const roleMap = {
+                D2D: 'VP-D2D100',
+                AFFILIATE: 'AFF-MAX24',
+                TIPPGEBER: 'TIP-ANNA',
+                AGENCY: 'AG-NRW01'
+            };
+            const targetCode = roleMap[String(demoRole).toUpperCase()] || 'VP-D2D100';
+            partner = await prisma.partnerUser.findUnique({ where: { partnerCode: targetCode } });
+        } else {
+            const rawId = String(identifier || email || '').trim();
+            if (!rawId || !password) {
+                return res.status(400).json({ success: false, error: 'Bitte E-Mail / Partner-Code und Passwort eingeben.' });
+            }
+            partner = await prisma.partnerUser.findFirst({
+                where: {
+                    OR: [
+                        { email: rawId.toLowerCase() },
+                        { partnerCode: rawId.toUpperCase() },
+                        { partnerCode: rawId }
+                    ]
+                }
+            });
+            if (!partner || !verifyPartnerPassword(password, partner.passwordHash)) {
+                return res.status(401).json({ success: false, error: 'Ungültige Zugangsdaten. Bitte E-Mail/Partner-Code oder Passwort prüfen.' });
+            }
+        }
+
+        if (!partner) {
+            return res.status(404).json({ success: false, error: 'Partner-Konto nicht gefunden.' });
+        }
+
+        const token = jwt.sign(
+            { partnerId: partner.id, partnerCode: partner.partnerCode, role: partner.role },
+            PARTNER_JWT_SECRET,
+            { expiresIn: '30d' }
+        );
+
+        res.json({
+            success: true,
+            token,
+            partner: sanitizePartnerUser(partner)
+        });
+    } catch (error) {
+        console.error('[PartnerPortal] Login error:', error);
+        res.status(500).json({ success: false, error: 'Login fehlgeschlagen: ' + error.message });
+    }
+});
+
+// 5.4 Partner Dashboard Data (KPIs, Orders, Sub-IDs, Leads, Downline, Payouts)
+app.get('/api/partner/dashboard', authenticatePartner, async (req, res) => {
+    try {
+        const partner = req.partner;
+
+        const ownOrders = await prisma.energyOrder.findMany({
+            where: {
+                OR: [
+                    { partnerId: partner.id },
+                    { partnerCode: partner.partnerCode }
+                ]
+            },
+            orderBy: { createdAt: 'desc' }
+        });
+
+        const overrideOrders = await prisma.energyOrder.findMany({
+            where: { overridePartnerId: partner.id },
+            orderBy: { createdAt: 'desc' }
+        });
+
+        const clicks = await prisma.affiliateClick.findMany({
+            where: {
+                OR: [
+                    { partnerId: partner.id },
+                    { partnerCode: partner.partnerCode }
+                ]
+            },
+            orderBy: { createdAt: 'desc' },
+            take: 250
+        });
+
+        const leads = await prisma.partnerLead.findMany({
+            where: {
+                OR: [
+                    { partnerId: partner.id },
+                    { partnerCode: partner.partnerCode }
+                ]
+            },
+            orderBy: { createdAt: 'desc' }
+        });
+
+        const subPartnersRaw = await prisma.partnerUser.findMany({
+            where: { parentPartnerId: partner.id },
+            orderBy: { createdAt: 'desc' }
+        });
+
+        const subPartners = await Promise.all(subPartnersRaw.map(async (sp) => {
+            const spOrders = await prisma.energyOrder.count({ where: { partnerId: sp.id } });
+            const spVolume = await prisma.energyOrder.aggregate({
+                where: { partnerId: sp.id },
+                _sum: { commissionAmount: true }
+            });
+            return {
+                ...sanitizePartnerUser(sp),
+                ordersCount: spOrders,
+                totalCommissionEur: spVolume._sum.commissionAmount || 0
+            };
+        }));
+
+        const payouts = await prisma.commissionPayout.findMany({
+            where: { partnerId: partner.id },
+            orderBy: { createdAt: 'desc' }
+        });
+
+        const subIdMap = {};
+        clicks.forEach(c => {
+            const key = c.subId || '(Ohne Sub-ID)';
+            if (!subIdMap[key]) {
+                subIdMap[key] = { subId: key, clicks: 0, conversions: 0, commissionEur: 0 };
+            }
+            subIdMap[key].clicks += 1;
+        });
+        ownOrders.forEach(o => {
+            const key = o.subId || '(Ohne Sub-ID)';
+            if (!subIdMap[key]) {
+                subIdMap[key] = { subId: key, clicks: 0, conversions: 0, commissionEur: 0 };
+            }
+            subIdMap[key].conversions += 1;
+            if (o.status !== 'CANCELLED' && o.commissionStatus !== 'CANCELLED') {
+                subIdMap[key].commissionEur += Number(o.commissionAmount || 0);
+            }
+        });
+
+        const validOrders = ownOrders.filter(o => o.status !== 'CANCELLED' && o.commissionStatus !== 'CANCELLED');
+        const pendingCommission = validOrders
+            .filter(o => o.commissionStatus === 'PENDING')
+            .reduce((sum, o) => sum + Number(o.commissionAmount || 0), 0);
+        const approvedCommission = validOrders
+            .filter(o => o.commissionStatus === 'APPROVED')
+            .reduce((sum, o) => sum + Number(o.commissionAmount || 0), 0);
+        const paidCommission = validOrders
+            .filter(o => o.commissionStatus === 'PAID')
+            .reduce((sum, o) => sum + Number(o.commissionAmount || 0), 0);
+        const overrideCommissionTotal = overrideOrders
+            .filter(o => o.status !== 'CANCELLED')
+            .reduce((sum, o) => sum + Number(o.overrideAmount || 0), 0);
+        const leadCommissionTotal = leads
+            .filter(l => l.status === 'CONVERTED' || l.status === 'QUALIFIED')
+            .reduce((sum, l) => sum + Number(l.commissionAmount || 0), 0);
+
+        const totalClicks = clicks.length;
+        const totalOrders = ownOrders.length;
+        const conversionRate = totalClicks > 0 ? Number(((totalOrders / totalClicks) * 100).toFixed(1)) : (totalOrders > 0 ? 100 : 0);
+
+        res.json({
+            success: true,
+            partner: sanitizePartnerUser(partner),
+            kpis: {
+                totalClicks,
+                totalOrders,
+                conversionRate,
+                pendingCommission: Number(pendingCommission.toFixed(2)),
+                approvedCommission: Number(approvedCommission.toFixed(2)),
+                paidCommission: Number(paidCommission.toFixed(2)),
+                overrideCommissionTotal: Number(overrideCommissionTotal.toFixed(2)),
+                leadCommissionTotal: Number(leadCommissionTotal.toFixed(2)),
+                totalEarnedEur: Number((pendingCommission + approvedCommission + paidCommission + overrideCommissionTotal + leadCommissionTotal).toFixed(2)),
+                subPartnersCount: subPartners.length,
+                leadsCount: leads.length
+            },
+            orders: ownOrders,
+            overrideOrders,
+            subIdStats: Object.values(subIdMap),
+            leads,
+            subPartners,
+            payouts
+        });
+    } catch (error) {
+        console.error('[PartnerPortal] Dashboard error:', error);
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+// 5.5 Update Partner Profile & Bank/Tax Stammdaten
+app.patch('/api/partner/profile', authenticatePartner, async (req, res) => {
+    try {
+        const body = req.body || {};
+        const updateData = {};
+        const allowedFields = [
+            'salutation', 'firstName', 'lastName', 'companyName', 'legalForm',
+            'phone', 'birthDate', 'street', 'houseNr', 'plz', 'city',
+            'taxId', 'taxOffice', 'iban', 'bic', 'bankName', 'website'
+        ];
+        allowedFields.forEach(f => {
+            if (body[f] !== undefined) updateData[f] = body[f];
+        });
+        if (body.isVatLiable !== undefined) {
+            updateData.isVatLiable = body.isVatLiable === true || body.isVatLiable === 'true';
+        }
+        if (updateData.firstName !== undefined || updateData.lastName !== undefined) {
+            const fn = updateData.firstName !== undefined ? updateData.firstName : req.partner.firstName;
+            const ln = updateData.lastName !== undefined ? updateData.lastName : req.partner.lastName;
+            updateData.fullName = `${fn || ''} ${ln || ''}`.trim() || req.partner.fullName;
+        }
+        if (updateData.iban) {
+            const check = firstconService.validateIbanMod97(updateData.iban);
+            if (!check.valid) {
+                return res.status(400).json({ success: false, error: check.reason || 'Ungültige IBAN.' });
+            }
+            updateData.iban = check.clean;
+            updateData.bic = updateData.bic || check.bic;
+            updateData.bankName = updateData.bankName || check.bankName;
+        }
+        if (body.newPassword && String(body.newPassword).length >= 6) {
+            updateData.passwordHash = hashPartnerPassword(body.newPassword);
+        }
+
+        const updated = await prisma.partnerUser.update({
+            where: { id: req.partner.id },
+            data: updateData
+        });
+
+        res.json({ success: true, partner: sanitizePartnerUser(updated) });
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+// 5.6 D2D Direct Order Submission (with Tablet Signature or Remote Signing Link Token)
+app.post('/api/partner/orders', authenticatePartner, async (req, res) => {
+    try {
+        const partner = req.partner;
+        const body = req.body || {};
+        const {
+            tariffId,
+            tariffName,
+            branch = 'strom',
+            consumption,
+            monthlyPayment,
+            savings,
+            street,
+            houseNr,
+            plz,
+            city,
+            meterNumber,
+            currentProvider,
+            cancelOldContract = true,
+            salutation,
+            firstName,
+            lastName,
+            birthDate,
+            email,
+            phone,
+            iban,
+            subId,
+            signatureMode = 'PAD', // PAD or REMOTE
+            signatureData
+        } = body;
+
+        if (!tariffName || !firstName || !lastName || !meterNumber || !iban || !email) {
+            return res.status(400).json({
+                success: false,
+                error: 'Bitte alle Pflichtfelder (Tarif, Name, E-Mail, Zählernummer, IBAN) ausfüllen.'
+            });
+        }
+
+        const ibanCheck = firstconService.validateIbanMod97(iban);
+        if (!ibanCheck.valid) {
+            return res.status(400).json({
+                success: false,
+                error: ibanCheck.reason || 'Die eingegebene IBAN ist ungültig.'
+            });
+        }
+
+        const attribution = await resolveOrderPartnerAttribution({
+            partnerId: partner.id,
+            partnerCode: partner.partnerCode,
+            subId: subId || 'd2d_direct',
+            branch,
+            orderSource: signatureMode === 'REMOTE' ? 'REMOTE_SIGN' : 'D2D'
+        });
+
+        const orderNumber = 'AE-' + new Date().getFullYear() + '-' + Math.floor(100000 + Math.random() * 900000);
+        const isRemote = signatureMode === 'REMOTE' && !signatureData;
+        const signatureToken = isRemote ? ('SIGN-' + crypto.randomBytes(12).toString('hex')) : null;
+
+        const newOrder = await prisma.energyOrder.create({
+            data: {
+                orderNumber,
+                tariffId: tariffId || 'alpha-strom-smart',
+                tariffName,
+                branch,
+                consumption: parseInt(consumption, 10) || 2500,
+                monthlyPayment: parseFloat(monthlyPayment) || 0,
+                savings: savings ? parseFloat(savings) : null,
+                street: street || '',
+                houseNr: houseNr || '',
+                plz: plz || '',
+                city: city || '',
+                meterNumber,
+                currentProvider: currentProvider || null,
+                cancelOldContract: cancelOldContract !== false,
+                salutation: salutation || 'Herr',
+                firstName,
+                lastName,
+                birthDate: birthDate || null,
+                email,
+                phone: phone || '',
+                iban: ibanCheck.clean,
+                ibanValid: true,
+                bankName: ibanCheck.bankName || null,
+                bic: ibanCheck.bic || null,
+                status: isRemote ? 'AWAITING_SIGNATURE' : 'RECEIVED',
+                partnerId: partner.id,
+                partnerCode: partner.partnerCode,
+                subId: attribution.subId,
+                orderSource: attribution.orderSource,
+                commissionStatus: 'PENDING',
+                commissionAmount: attribution.commissionAmount,
+                overridePartnerId: attribution.overridePartnerId,
+                overrideAmount: attribution.overrideAmount,
+                signatureData: signatureData || null,
+                signatureToken,
+                signedAt: signatureData ? new Date() : null
+            }
+        });
+
+        const remoteSignUrl = signatureToken
+            ? `${req.protocol}://${req.get('host')}/vertriebspartner-portal.html?sign=${signatureToken}`
+            : null;
+
+        res.status(201).json({
+            success: true,
+            orderNumber: newOrder.orderNumber,
+            order: newOrder,
+            remoteSignUrl,
+            signatureToken
+        });
+    } catch (error) {
+        console.error('[PartnerPortal] D2D order error:', error);
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+// 5.7 Customer Remote eSign Lookup & Signature Submission
+app.get('/api/order/remote-sign/:token', async (req, res) => {
+    try {
+        const order = await prisma.energyOrder.findUnique({
+            where: { signatureToken: String(req.params.token) }
+        });
+        if (!order) {
+            return res.status(404).json({ success: false, error: 'Unterschrifts-Link nicht gefunden oder abgelaufen.' });
+        }
+        res.json({
+            success: true,
+            order: {
+                orderNumber: order.orderNumber,
+                tariffName: order.tariffName,
+                branch: order.branch,
+                consumption: order.consumption,
+                monthlyPayment: order.monthlyPayment,
+                salutation: order.salutation,
+                firstName: order.firstName,
+                lastName: order.lastName,
+                street: order.street,
+                houseNr: order.houseNr,
+                plz: order.plz,
+                city: order.city,
+                meterNumber: order.meterNumber,
+                ibanMasked: order.iban ? order.iban.slice(0, 6) + '••••••••••••' + order.iban.slice(-4) : '',
+                status: order.status,
+                signedAt: order.signedAt
+            }
+        });
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+app.post('/api/order/remote-sign/:token', async (req, res) => {
+    try {
+        const { signatureData } = req.body || {};
+        if (!signatureData || !String(signatureData).startsWith('data:image/')) {
+            return res.status(400).json({ success: false, error: 'Bitte unterschreiben Sie im Unterschriftsfeld.' });
+        }
+        const order = await prisma.energyOrder.findUnique({
+            where: { signatureToken: String(req.params.token) }
+        });
+        if (!order) {
+            return res.status(404).json({ success: false, error: 'Auftrag nicht gefunden.' });
+        }
+        const updated = await prisma.energyOrder.update({
+            where: { id: order.id },
+            data: {
+                signatureData,
+                signedAt: new Date(),
+                status: 'RECEIVED'
+            }
+        });
+        res.json({
+            success: true,
+            orderNumber: updated.orderNumber,
+            signedAt: updated.signedAt
+        });
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+// 5.8 Tippgeber Lead Submission
+app.post('/api/partner/leads', authenticatePartner, async (req, res) => {
+    try {
+        const partner = req.partner;
+        const { customerName, customerPhone, customerEmail, plz, city, branch = 'strom', estimatedConsumption, notes } = req.body || {};
+        if (!customerName || !customerPhone) {
+            return res.status(400).json({ success: false, error: 'Bitte Name und Telefonnummer des empfohlenen Kontakts angeben.' });
+        }
+        const lead = await prisma.partnerLead.create({
+            data: {
+                partnerId: partner.id,
+                partnerCode: partner.partnerCode,
+                customerName: String(customerName).trim(),
+                customerPhone: String(customerPhone).trim(),
+                customerEmail: customerEmail ? String(customerEmail).trim() : null,
+                plz: plz ? String(plz).trim() : null,
+                city: city ? String(city).trim() : null,
+                branch,
+                estimatedConsumption: estimatedConsumption ? parseInt(estimatedConsumption, 10) : null,
+                notes: notes ? String(notes).trim() : null,
+                status: 'NEW',
+                commissionAmount: partner.role === 'TIPPGEBER' ? (partner.stromCommissionEur || 35.0) : 35.0
+            }
+        });
+        res.status(201).json({ success: true, lead });
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+// 5.9 Agency Downline Sub-Partner Creation
+app.post('/api/partner/subpartners', authenticatePartner, async (req, res) => {
+    try {
+        const parent = req.partner;
+        const { firstName, lastName, email, phone, role = 'D2D', password, stromCommissionEur } = req.body || {};
+        const cleanEmail = String(email || '').trim().toLowerCase();
+        const fullName = `${firstName || ''} ${lastName || ''}`.trim();
+        if (!cleanEmail || !fullName) {
+            return res.status(400).json({ success: false, error: 'Name und E-Mail des Unterpartners sind erforderlich.' });
+        }
+        const exists = await prisma.partnerUser.findUnique({ where: { email: cleanEmail } });
+        if (exists) {
+            return res.status(409).json({ success: false, error: 'Diese E-Mail-Adresse ist bereits registriert.' });
+        }
+        const partnerCode = generateUniquePartnerCode(role, lastName || fullName);
+        const sub = await prisma.partnerUser.create({
+            data: {
+                partnerCode,
+                email: cleanEmail,
+                passwordHash: hashPartnerPassword(password || 'Alpha2026!'),
+                role: ['D2D', 'AFFILIATE', 'TIPPGEBER'].includes(String(role).toUpperCase()) ? String(role).toUpperCase() : 'D2D',
+                status: 'ACTIVE',
+                firstName: firstName || '',
+                lastName: lastName || '',
+                fullName,
+                phone: phone || '',
+                stromCommissionEur: stromCommissionEur ? parseFloat(stromCommissionEur) : 55.0,
+                gasCommissionEur: stromCommissionEur ? parseFloat(stromCommissionEur) : 55.0,
+                waermeCommissionEur: 65.0,
+                parentPartnerId: parent.id
+            }
+        });
+        res.status(201).json({ success: true, subPartner: sanitizePartnerUser(sub) });
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+// 5.10 PDF Commission Credit Note (Gutschrift PDF)
+app.get('/api/partner/payouts/:id/pdf', async (req, res) => {
+    try {
+        const payoutId = parseInt(req.params.id, 10);
+        const payout = await prisma.commissionPayout.findUnique({ where: { id: payoutId } });
+        if (!payout) {
+            return res.status(404).send('Gutschrift nicht gefunden');
+        }
+        const partner = await prisma.partnerUser.findUnique({ where: { id: payout.partnerId } });
+
+        res.setHeader('Content-Type', 'application/pdf');
+        res.setHeader('Content-Disposition', `inline; filename="Gutschrift-${payout.payoutNumber}.pdf"`);
+
+        const doc = new PDFDocument({ size: 'A4', margin: 50 });
+        doc.pipe(res);
+
+        doc.fontSize(18).fillColor('#0a1f44').text('ALPHA ENERGIE GMBH', 50, 50);
+        doc.fontSize(9).fillColor('#64748b').text('Alter Hellweg 50 · 44379 Dortmund · HRB 38030 Amtsgericht Dortmund', 50, 72);
+
+        doc.fontSize(11).fillColor('#0f172a').text(partner ? (partner.companyName || partner.fullName) : 'Vertriebspartner', 50, 120);
+        if (partner && partner.street) {
+            doc.fontSize(10).fillColor('#334155').text(`${partner.street} ${partner.houseNr || ''}`, 50, 136);
+            doc.text(`${partner.plz || ''} ${partner.city || ''}`, 50, 150);
+        }
+
+        doc.fontSize(16).fillColor('#0a1f44').text(`Provisionsgutschrift Nr. ${payout.payoutNumber}`, 50, 200);
+        doc.fontSize(10).fillColor('#475569').text(`Abrechnungszeitraum: ${payout.periodLabel}`, 50, 224);
+        doc.text(`Partner-Code: ${partner ? partner.partnerCode : '-'}   |   Datum: ${new Date(payout.createdAt).toLocaleDateString('de-DE')}`, 50, 240);
+
+        doc.moveTo(50, 265).lineTo(545, 265).strokeColor('#cbd5e1').stroke();
+
+        doc.fontSize(10).fillColor('#0f172a').text('Position', 50, 280);
+        doc.text('Anzahl Verträge', 280, 280);
+        doc.text('Betrag (EUR)', 450, 280, { align: 'right', width: 95 });
+
+        doc.moveTo(50, 298).lineTo(545, 298).strokeColor('#e2e8f0').stroke();
+
+        doc.fontSize(10).fillColor('#1e293b').text(`Abschlussprovisionen (${payout.periodLabel})`, 50, 312);
+        doc.text(`${payout.ordersCount}`, 280, 312);
+        doc.text(`${payout.netAmount.toFixed(2).replace('.', ',')} €`, 450, 312, { align: 'right', width: 95 });
+
+        doc.moveTo(50, 345).lineTo(545, 345).strokeColor('#cbd5e1').stroke();
+
+        doc.text('Nettobetrag:', 320, 360);
+        doc.text(`${payout.netAmount.toFixed(2).replace('.', ',')} €`, 450, 360, { align: 'right', width: 95 });
+
+        doc.text(payout.vatAmount > 0 ? 'zzgl. 19% Umsatzsteuer:' : 'Umsatzsteuer (0% / §19 UStG):', 320, 378);
+        doc.text(`${payout.vatAmount.toFixed(2).replace('.', ',')} €`, 450, 378, { align: 'right', width: 95 });
+
+        doc.fontSize(12).fillColor('#0a1f44').text('Auszahlungsbetrag (Brutto):', 300, 404);
+        doc.text(`${payout.grossAmount.toFixed(2).replace('.', ',')} €`, 450, 404, { align: 'right', width: 95 });
+
+        doc.fontSize(9).fillColor('#475569').text(
+            `Auszahlung auf hinterlegtes Bankkonto: IBAN ${payout.iban || (partner && partner.iban) || '-'} (${payout.bankName || (partner && partner.bankName) || '-'})`,
+            50, 460
+        );
+        doc.text(`Status: ${payout.status === 'PAID' ? 'AUSGEZAHLT' : 'FREIGEGEBEN'}`, 50, 476);
+
+        doc.end();
+    } catch (error) {
+        res.status(500).send('PDF Fehler: ' + error.message);
+    }
+});
+
+// 5.11 Admin Endpoints for EnergyOrders, PartnerUsers, PartnerLeads & CommissionPayouts
+app.get('/api/admin/portal-overview', authenticateAdmin, async (req, res) => {
+    try {
+        await ensureDemoPartnersSeeded();
+        const [orders, partners, leads, payouts, clicksCount] = await Promise.all([
+            prisma.energyOrder.findMany({ orderBy: { createdAt: 'desc' } }),
+            prisma.partnerUser.findMany({ orderBy: { createdAt: 'desc' } }),
+            prisma.partnerLead.findMany({ orderBy: { createdAt: 'desc' } }),
+            prisma.commissionPayout.findMany({ orderBy: { createdAt: 'desc' } }),
+            prisma.affiliateClick.count()
+        ]);
+
+        const totalCommissionPending = orders
+            .filter(o => o.commissionStatus === 'PENDING' && o.status !== 'CANCELLED')
+            .reduce((s, o) => s + Number(o.commissionAmount || 0) + Number(o.overrideAmount || 0), 0);
+        const totalCommissionApproved = orders
+            .filter(o => o.commissionStatus === 'APPROVED' && o.status !== 'CANCELLED')
+            .reduce((s, o) => s + Number(o.commissionAmount || 0) + Number(o.overrideAmount || 0), 0);
+        const totalCommissionPaid = orders
+            .filter(o => o.commissionStatus === 'PAID')
+            .reduce((s, o) => s + Number(o.commissionAmount || 0) + Number(o.overrideAmount || 0), 0);
+
+        res.json({
+            success: true,
+            kpis: {
+                ordersCount: orders.length,
+                partnersCount: partners.length,
+                leadsCount: leads.length,
+                clicksCount,
+                totalCommissionPending: Number(totalCommissionPending.toFixed(2)),
+                totalCommissionApproved: Number(totalCommissionApproved.toFixed(2)),
+                totalCommissionPaid: Number(totalCommissionPaid.toFixed(2))
+            },
+            orders,
+            partners: partners.map(sanitizePartnerUser),
+            leads,
+            payouts
+        });
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+app.patch('/api/admin/energy-orders/:id', authenticateAdmin, async (req, res) => {
+    try {
+        const id = parseInt(req.params.id, 10);
+        const { status, commissionStatus, commissionAmount, partnerCode, notes } = req.body || {};
+        const data = {};
+        if (status !== undefined) data.status = status;
+        if (commissionStatus !== undefined) data.commissionStatus = commissionStatus;
+        if (commissionAmount !== undefined) data.commissionAmount = parseFloat(commissionAmount) || 0;
+        if (partnerCode !== undefined) data.partnerCode = partnerCode;
+        if (notes !== undefined) data.notes = notes;
+
+        const updated = await prisma.energyOrder.update({ where: { id }, data });
+        res.json({ success: true, data: updated });
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+app.post('/api/admin/partner-users', authenticateAdmin, async (req, res) => {
+    try {
+        const body = req.body || {};
+        const email = String(body.email || '').trim().toLowerCase();
+        const fullName = String(body.fullName || `${body.firstName || ''} ${body.lastName || ''}`).trim();
+        const role = ['D2D', 'AFFILIATE', 'TIPPGEBER', 'AGENCY'].includes(String(body.role || '').toUpperCase())
+            ? String(body.role).toUpperCase()
+            : 'D2D';
+        if (!email || !fullName) {
+            return res.status(400).json({ success: false, error: 'Name und E-Mail sind erforderlich.' });
+        }
+        const partnerCode = body.partnerCode
+            ? String(body.partnerCode).trim().toUpperCase()
+            : generateUniquePartnerCode(role, fullName);
+        const rawPassword = body.password || 'Alpha2026!';
+
+        const created = await prisma.partnerUser.create({
+            data: {
+                partnerCode,
+                email,
+                passwordHash: hashPartnerPassword(rawPassword),
+                role,
+                status: 'ACTIVE',
+                firstName: body.firstName || fullName.split(' ')[0] || '',
+                lastName: body.lastName || fullName.split(' ').slice(1).join(' ') || '',
+                fullName,
+                companyName: body.companyName || null,
+                phone: body.phone || '',
+                iban: body.iban || null,
+                bic: body.bic || null,
+                bankName: body.bankName || null,
+                isVatLiable: body.isVatLiable === true || body.isVatLiable === 'true',
+                stromCommissionEur: parseFloat(body.stromCommissionEur) || 60.0,
+                gasCommissionEur: parseFloat(body.gasCommissionEur) || 60.0,
+                waermeCommissionEur: parseFloat(body.waermeCommissionEur) || 70.0,
+                overrideCommissionEur: parseFloat(body.overrideCommissionEur) || 10.0
+            }
+        });
+
+        await prisma.affiliateLink.upsert({
+            where: { code: partnerCode },
+            update: { name: `${fullName} (${role})` },
+            create: { name: `${fullName} (${role})`, code: partnerCode }
+        }).catch(() => {});
+
+        res.status(201).json({
+            success: true,
+            partner: sanitizePartnerUser(created),
+            generatedPassword: rawPassword
+        });
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+app.patch('/api/admin/partner-users/:id', authenticateAdmin, async (req, res) => {
+    try {
+        const id = parseInt(req.params.id, 10);
+        const body = req.body || {};
+        const data = {};
+        ['role', 'status', 'fullName', 'companyName', 'phone', 'iban', 'bic', 'bankName'].forEach(f => {
+            if (body[f] !== undefined) data[f] = body[f];
+        });
+        ['stromCommissionEur', 'gasCommissionEur', 'waermeCommissionEur', 'overrideCommissionEur'].forEach(f => {
+            if (body[f] !== undefined) data[f] = parseFloat(body[f]) || 0;
+        });
+        if (body.password && String(body.password).length >= 6) {
+            data.passwordHash = hashPartnerPassword(body.password);
+        }
+        const updated = await prisma.partnerUser.update({ where: { id }, data });
+        res.json({ success: true, partner: sanitizePartnerUser(updated) });
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+// 1-Click Activate PartnerUser from PartnerApplication in Admin
+app.post('/api/admin/partner-applications/:id/activate-portal', authenticateAdmin, async (req, res) => {
+    try {
+        const appId = parseInt(req.params.id, 10);
+        const application = await prisma.partnerApplication.findUnique({ where: { id: appId } });
+        if (!application) {
+            return res.status(404).json({ success: false, error: 'Bewerbung nicht gefunden.' });
+        }
+
+        const role = ['D2D', 'AFFILIATE', 'TIPPGEBER', 'AGENCY'].includes(String(req.body.role || '').toUpperCase())
+            ? String(req.body.role).toUpperCase()
+            : (String(application.experience || '').toLowerCase().includes('agentur') ? 'AGENCY' : 'D2D');
+
+        const email = String(application.email || '').trim().toLowerCase();
+        const existing = await prisma.partnerUser.findUnique({ where: { email } });
+        if (existing) {
+            return res.json({
+                success: true,
+                alreadyExisted: true,
+                partner: sanitizePartnerUser(existing),
+                generatedPassword: '(bereits vergeben)'
+            });
+        }
+
+        const generatedPassword = req.body.password || 'Alpha2026!';
+        const partnerCode = generateUniquePartnerCode(role, application.lastName || application.fullName);
+
+        const created = await prisma.partnerUser.create({
+            data: {
+                partnerCode,
+                email,
+                passwordHash: hashPartnerPassword(generatedPassword),
+                role,
+                status: 'ACTIVE',
+                salutation: application.salutation || 'Herr',
+                firstName: application.firstName || application.fullName.split(' ')[0] || '',
+                lastName: application.lastName || application.fullName.split(' ').slice(1).join(' ') || '',
+                fullName: application.fullName,
+                companyName: application.companyName,
+                legalForm: application.legalForm,
+                phone: application.phone,
+                birthDate: application.birthDate,
+                street: application.street,
+                houseNr: application.houseNr,
+                plz: application.plz,
+                city: application.city,
+                country: application.country || 'Deutschland',
+                isVatLiable: application.isVatLiable,
+                taxId: application.taxId,
+                taxOffice: application.taxOffice,
+                iban: application.iban,
+                bic: application.bic,
+                bankName: application.bankName,
+                website: application.website,
+                stromCommissionEur: role === 'AGENCY' ? 75 : (role === 'D2D' ? 65 : 55),
+                gasCommissionEur: role === 'AGENCY' ? 75 : (role === 'D2D' ? 65 : 55),
+                waermeCommissionEur: role === 'AGENCY' ? 85 : 70,
+                overrideCommissionEur: role === 'AGENCY' ? 15 : 0,
+                applicationId: application.id
+            }
+        });
+
+        await prisma.partnerApplication.update({
+            where: { id: application.id },
+            data: { masterDataStatus: 'APPROVED' }
+        }).catch(() => {});
+
+        await prisma.affiliateLink.upsert({
+            where: { code: partnerCode },
+            update: { name: `${application.fullName} (${role})` },
+            create: { name: `${application.fullName} (${role})`, code: partnerCode }
+        }).catch(() => {});
+
+        res.json({
+            success: true,
+            partner: sanitizePartnerUser(created),
+            generatedPassword
+        });
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+app.patch('/api/admin/partner-leads/:id', authenticateAdmin, async (req, res) => {
+    try {
+        const id = parseInt(req.params.id, 10);
+        const { status, commissionAmount, convertedOrderNo, notes } = req.body || {};
+        const data = {};
+        if (status !== undefined) data.status = status;
+        if (commissionAmount !== undefined) data.commissionAmount = parseFloat(commissionAmount) || 0;
+        if (convertedOrderNo !== undefined) data.convertedOrderNo = convertedOrderNo;
+        if (notes !== undefined) data.notes = notes;
+        const updated = await prisma.partnerLead.update({ where: { id }, data });
+        res.json({ success: true, lead: updated });
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+// Generate Commission Payout / Credit Note (Gutschrift) for a Partner
+app.post('/api/admin/payouts/create', authenticateAdmin, async (req, res) => {
+    try {
+        const { partnerId, periodLabel, markPaid = true } = req.body || {};
+        const partner = await prisma.partnerUser.findUnique({ where: { id: parseInt(partnerId, 10) } });
+        if (!partner) {
+            return res.status(404).json({ success: false, error: 'Partner nicht gefunden.' });
+        }
+
+        const payableOrders = await prisma.energyOrder.findMany({
+            where: {
+                partnerId: partner.id,
+                commissionStatus: { in: ['PENDING', 'APPROVED'] },
+                status: { not: 'CANCELLED' }
+            }
+        });
+
+        let netAmount = payableOrders.reduce((s, o) => s + Number(o.commissionAmount || 0), 0);
+        let ordersCount = payableOrders.length;
+
+        if (req.body.customNetAmount !== undefined && parseFloat(req.body.customNetAmount) > 0) {
+            netAmount = parseFloat(req.body.customNetAmount);
+            if (ordersCount === 0) ordersCount = parseInt(req.body.ordersCount, 10) || 1;
+        }
+
+        if (netAmount <= 0) {
+            return res.status(400).json({
+                success: false,
+                error: 'Keine offenen Provisionen für diesen Partner vorhanden.'
+            });
+        }
+
+        const vatAmount = partner.isVatLiable ? Number((netAmount * 0.19).toFixed(2)) : 0;
+        const grossAmount = Number((netAmount + vatAmount).toFixed(2));
+        const payoutNumber = 'GS-' + new Date().getFullYear() + '-' + Math.floor(1000 + Math.random() * 9000);
+
+        const payout = await prisma.commissionPayout.create({
+            data: {
+                payoutNumber,
+                partnerId: partner.id,
+                periodLabel: periodLabel || `Abrechnung ${new Date().toLocaleDateString('de-DE', { month: '2-digit', year: 'numeric' })}`,
+                ordersCount,
+                netAmount,
+                vatAmount,
+                grossAmount,
+                status: markPaid ? 'PAID' : 'APPROVED',
+                iban: partner.iban,
+                bic: partner.bic,
+                bankName: partner.bankName,
+                paidAt: markPaid ? new Date() : null
+            }
+        });
+
+        if (payableOrders.length > 0) {
+            await prisma.energyOrder.updateMany({
+                where: { id: { in: payableOrders.map(o => o.id) } },
+                data: { commissionStatus: markPaid ? 'PAID' : 'APPROVED' }
+            });
+        }
+
+        res.status(201).json({ success: true, payout });
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+app.patch('/api/admin/payouts/:id', authenticateAdmin, async (req, res) => {
+    try {
+        const id = parseInt(req.params.id, 10);
+        const { status } = req.body || {};
+        const updated = await prisma.commissionPayout.update({
+            where: { id },
+            data: {
+                status,
+                paidAt: status === 'PAID' ? new Date() : undefined
+            }
+        });
+        res.json({ success: true, payout: updated });
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
     }
 });
 

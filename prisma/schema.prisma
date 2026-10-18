@@ -123,33 +123,162 @@ model AffiliateLink {
 }
 
 model EnergyOrder {
-  id                Int      @id @default(autoincrement())
-  orderNumber       String   @unique
-  tariffId          String
-  tariffName        String
-  branch            String   @default("strom")
-  consumption       Int
-  monthlyPayment    Float
-  savings           Float?
+  id                 Int          @id @default(autoincrement())
+  orderNumber        String       @unique
+  tariffId           String
+  tariffName         String
+  branch             String       @default("strom")
+  consumption        Int
+  monthlyPayment     Float
+  savings            Float?
   
-  street            String
-  houseNr           String
-  plz               String
-  city              String
-  meterNumber       String
-  currentProvider   String?
-  cancelOldContract Boolean  @default(true)
+  street             String
+  houseNr            String
+  plz                String
+  city               String
+  meterNumber        String
+  currentProvider    String?
+  cancelOldContract  Boolean      @default(true)
   
-  salutation        String?
-  firstName         String
-  lastName          String
-  birthDate         String?
-  email             String
-  phone             String
-  iban              String
+  salutation         String?
+  firstName          String
+  lastName           String
+  birthDate          String?
+  email              String
+  phone              String
+  iban               String
   
-  status            String   @default("RECEIVED")
-  createdAt         DateTime @default(now())
+  status             String       @default("RECEIVED")
+  createdAt          DateTime     @default(now())
+
+  // --- Partner & Commission & eSign Fields ---
+  partnerId          Int?
+  partner            PartnerUser? @relation(fields: [partnerId], references: [id], onDelete: SetNull)
+  partnerCode        String?
+  subId              String?
+  orderSource        String?      @default("ONLINE") // ONLINE, AFFILIATE, D2D, REMOTE_SIGN, TIPPGEBER, B2B
+  commissionStatus   String?      @default("NONE")   // NONE, PENDING, APPROVED, PAID, CANCELLED
+  commissionAmount   Float?       @default(0)
+  overridePartnerId  Int?
+  overrideAmount     Float?       @default(0)
+  signatureData      String?
+  signedAt           DateTime?
+  remoteSignToken    String?
+  firstconContractId String?
+  ibanValid          Boolean?
+  bankName           String?
+  bic                String?
+}
+
+model PartnerUser {
+  id                     Int                @id @default(autoincrement())
+  email                  String             @unique
+  passwordHash           String
+  fullName               String
+  salutation             String?            @default("Herr")
+  firstName              String?
+  lastName               String?
+  phone                  String?
+  companyName            String?
+  legalForm              String?
+  partnerCode            String             @unique
+  role                   String             @default("D2D") // D2D, AFFILIATE, TIPPGEBER, AGENTUR
+  status                 String             @default("ACTIVE") // ACTIVE, PENDING, SUSPENDED
+  commissionTier         String             @default("PRO") // STARTER, PRO, ELITE
+  stromCommissionEur     Float              @default(55.0)
+  gasCommissionEur       Float              @default(55.0)
+  waermeCommissionEur    Float              @default(65.0)
+  tippgeberCommissionEur Float              @default(25.0)
+  b2bCommissionPct       Float              @default(15.0)
+  overrideCommissionEur  Float              @default(10.0)
+
+  // --- Downline / Agency Hierarchy ---
+  parentPartnerId        Int?
+  parentPartner          PartnerUser?       @relation("PartnerDownline", fields: [parentPartnerId], references: [id], onDelete: SetNull)
+  subPartners            PartnerUser[]      @relation("PartnerDownline")
+
+  // --- Address, Tax & Bank ---
+  street                 String?
+  houseNr                String?
+  plz                    String?
+  city                   String?
+  country                String?            @default("Deutschland")
+  isVatLiable            Boolean            @default(false)
+  taxId                  String?
+  taxOffice              String?
+  iban                   String?
+  bic                    String?
+  bankName               String?
+  firstconToken          String?
+  partnerApplicationId   Int?
+  notes                  String?
+  createdAt              DateTime           @default(now())
+  updatedAt              DateTime           @updatedAt
+
+  orders                 EnergyOrder[]
+  leads                  PartnerLead[]
+  clicks                 AffiliateClick[]
+  payouts                CommissionPayout[]
+}
+
+model PartnerLead {
+  id                 Int         @id @default(autoincrement())
+  partnerId          Int
+  partner            PartnerUser @relation(fields: [partnerId], references: [id], onDelete: Cascade)
+  partnerCode        String
+  leadType           String      @default("TIPPGEBER") // TIPPGEBER, D2D_FOLLOWUP, B2B
+  salutation         String?
+  firstName          String
+  lastName           String
+  customerName       String
+  companyName        String?
+  email              String?
+  phone              String
+  street             String?
+  houseNr            String?
+  plz                String
+  city               String?
+  branch             String      @default("strom") // strom, gas, waerme, b2b
+  consumption        Int?        @default(2500)
+  currentProvider    String?
+  meterNumber        String?
+  notes              String?
+  status             String      @default("NEW") // NEW, CONTACTED, CONVERTED, REJECTED
+  expectedCommission Float       @default(25.0)
+  convertedOrderId   Int?
+  createdAt          DateTime    @default(now())
+  updatedAt          DateTime    @updatedAt
+}
+
+model AffiliateClick {
+  id          Int          @id @default(autoincrement())
+  partnerId   Int?
+  partner     PartnerUser? @relation(fields: [partnerId], references: [id], onDelete: SetNull)
+  partnerCode String
+  subId       String?
+  targetPage  String?
+  referrer    String?
+  userAgent   String?
+  ipHash      String?
+  converted   Boolean      @default(false)
+  orderNumber String?
+  createdAt   DateTime     @default(now())
+}
+
+model CommissionPayout {
+  id           Int         @id @default(autoincrement())
+  payoutNumber String      @unique
+  partnerId    Int
+  partner      PartnerUser @relation(fields: [partnerId], references: [id], onDelete: Cascade)
+  period       String
+  ordersCount  Int         @default(0)
+  netAmount    Float       @default(0)
+  vatAmount    Float       @default(0)
+  grossAmount  Float       @default(0)
+  status       String      @default("PENDING") // PENDING, APPROVED, PAID
+  paidAt       DateTime?
+  notes        String?
+  createdAt    DateTime    @default(now())
 }
 
 model MeterReading {
