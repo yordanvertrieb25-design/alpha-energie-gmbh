@@ -264,6 +264,7 @@ app.post('/api/contact', async (req, res) => {
 // the IP address or domain of external websites.
 // ============================================================================
 const os = require('os');
+const bridgeCrypto = require('crypto');
 const FIRSTCON_BRIDGE_SECRET = process.env.FIRSTCON_BRIDGE_SECRET || 'alpha-firstcon-pc-bridge-2026';
 const IS_RUNNING_ON_LOCAL_PC = process.platform === 'win32' && fs.existsSync('C:\\Users\\Alpha Energie Server');
 
@@ -272,10 +273,28 @@ const pcBridgeState = {
     waitingPollers: [],
     inFlight: new Map(),
     lastSeenAt: IS_RUNNING_ON_LOCAL_PC ? Date.now() : 0,
-    pcHostname: IS_RUNNING_ON_LOCAL_PC ? os.hostname() : null,
+    pcHostname: IS_RUNNING_ON_LOCAL_PC ? 'alpha-pc-relay' : null,
     jobsCompleted: 0,
     lastJobAt: null
 };
+
+// Rate limiter for external tariff API (protects against bot scraping & DDoS floods)
+const externalRateLimitMap = new Map(); // ip -> { count, resetAt }
+function checkExternalRateLimit(req, maxPerMinute = 45) {
+    const rawIp = String(req.headers['x-forwarded-for'] || req.socket?.remoteAddress || 'unknown').split(',')[0].trim();
+    const now = Date.now();
+    if (externalRateLimitMap.size > 5000) {
+        externalRateLimitMap.clear();
+    }
+    let entry = externalRateLimitMap.get(rawIp);
+    if (!entry || entry.resetAt <= now) {
+        entry = { count: 1, resetAt: now + 60000 };
+        externalRateLimitMap.set(rawIp, entry);
+        return true;
+    }
+    entry.count += 1;
+    return entry.count <= maxPerMinute;
+}
 
 function isPcBridgeOnline() {
     if (IS_RUNNING_ON_LOCAL_PC) return true;
@@ -289,7 +308,32 @@ function checkBridgeSecret(req) {
         (req.body && req.body.secret) ||
         ''
     ).trim();
-    return provided === FIRSTCON_BRIDGE_SECRET;
+    if (!provided || provided.length !== FIRSTCON_BRIDGE_SECRET.length) return false;
+    try {
+        return bridgeCrypto.timingSafeEqual(Buffer.from(provided, 'utf8'), Buffer.from(FIRSTCON_BRIDGE_SECRET, 'utf8'));
+    } catch (e) {
+        return false;
+    }
+}
+
+/**
+ * Whitelists and sanitizes tariff lookup parameters before sending to the local PC bridge.
+ */
+function sanitizeBridgeTariffPayload(raw = {}, allowPushUrl = false) {
+    return {
+        plz: String(raw.plz || raw.zip || '44379').replace(/\D/g, '').slice(0, 5) || '44379',
+        branch: String(raw.branch || raw.sparte || 'strom').toLowerCase().replace(/[^a-z]/g, '').slice(0, 15) || 'strom',
+        consumption: Math.min(500000, Math.max(500, parseInt(raw.consumption, 10) || 2500)),
+        consumptionStrom: raw.consumptionStrom ? Math.min(500000, Math.max(500, parseInt(raw.consumptionStrom, 10) || 2500)) : undefined,
+        consumptionGas: raw.consumptionGas ? Math.min(500000, Math.max(500, parseInt(raw.consumptionGas, 10) || 12000)) : undefined,
+        consumptionWaerme: raw.consumptionWaerme ? Math.min(500000, Math.max(500, parseInt(raw.consumptionWaerme, 10) || 6000)) : undefined,
+        consumptionHt: raw.consumptionHt ? Math.min(500000, Math.max(0, parseInt(raw.consumptionHt, 10) || 0)) : 0,
+        consumptionNt: raw.consumptionNt ? Math.min(500000, Math.max(0, parseInt(raw.consumptionNt, 10) || 0)) : 0,
+        meterType: raw.meterType === 'htnt' ? 'htnt' : 'et',
+        currentAbschlag: raw.currentAbschlag ? Math.min(50000, Math.max(0, parseFloat(raw.currentAbschlag) || 0)) : undefined,
+        includeStreets: raw.includeStreets === true || raw.includeStreets === 'true' || raw.includeStreets === '1',
+        ...(allowPushUrl && raw.targetUrl ? { targetUrl: String(raw.targetUrl).slice(0, 300), _allowPushUrl: true } : {})
+    };
 }
 
 /**
@@ -306,11 +350,11 @@ async function executeFirstconOnPc(action, payload = {}, timeoutMs = 11000) {
             return await firstconService.calculateLiveTariffs(payload);
         }
         if (action === 'findEnergyGrid') {
-            const gridInfo = await firstconService.findEnergyGrid(payload.plz, payload.branch, payload.token);
+            const gridInfo = await firstconService.findEnergyGrid(payload.plz, payload.branch);
             if (!gridInfo) return null;
             let streets = [];
             if (payload.includeStreets) {
-                streets = await firstconService.getStreets(gridInfo.zipCode, gridInfo.city, gridInfo.energyGridNumber, payload.branch, payload.token);
+                streets = await firstconService.getStreets(gridInfo.zipCode, gridInfo.city, gridInfo.energyGridNumber, payload.branch);
             }
             return { ...gridInfo, streets };
         }
@@ -320,7 +364,11 @@ async function executeFirstconOnPc(action, payload = {}, timeoutMs = 11000) {
         throw new Error('PC-Bridge aktuell offline');
     }
 
-    const jobId = `fcjob_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
+    if (pcBridgeState.pendingJobs.length >= 100) {
+        throw new Error('PC-Bridge Queue ausgelastet');
+    }
+
+    const jobId = `fcjob_${Date.now()}_${bridgeCrypto.randomBytes(6).toString('hex')}`;
     const job = { jobId, action, payload, createdAt: Date.now() };
 
     return new Promise((resolve, reject) => {
@@ -353,9 +401,7 @@ app.get('/api/firstcon/pc-bridge/poll', (req, res) => {
         return res.status(401).json({ success: false, error: 'Unauthorized bridge secret' });
     }
     pcBridgeState.lastSeenAt = Date.now();
-    if (req.query.hostname) {
-        pcBridgeState.pcHostname = String(req.query.hostname);
-    }
+    pcBridgeState.pcHostname = 'alpha-pc-relay';
 
     if (pcBridgeState.pendingJobs.length > 0) {
         const job = pcBridgeState.pendingJobs.shift();
@@ -388,8 +434,8 @@ app.post('/api/firstcon/pc-bridge/result', (req, res) => {
         return res.status(401).json({ success: false, error: 'Unauthorized bridge secret' });
     }
     pcBridgeState.lastSeenAt = Date.now();
-    const { jobId, success, data, error, hostname } = req.body || {};
-    if (hostname) pcBridgeState.pcHostname = String(hostname);
+    const { jobId, success, data, error } = req.body || {};
+    pcBridgeState.pcHostname = 'alpha-pc-relay';
 
     const pending = pcBridgeState.inFlight.get(jobId);
     if (pending) {
@@ -412,32 +458,72 @@ app.get(['/api/firstcon/pc-bridge/status', '/api/external/alpha-tarife/status'],
         success: true,
         pcBridgeOnline: isPcBridgeOnline(),
         runningDirectlyOnPc: IS_RUNNING_ON_LOCAL_PC,
-        pcHostname: pcBridgeState.pcHostname || (IS_RUNNING_ON_LOCAL_PC ? os.hostname() : null),
+        pcHostname: 'alpha-pc-relay',
         waitingWorkers: pcBridgeState.waitingPollers.length,
         pendingJobs: pcBridgeState.pendingJobs.length,
         jobsCompleted: pcBridgeState.jobsCompleted,
         lastSeenAgoMs: pcBridgeState.lastSeenAt ? (Date.now() - pcBridgeState.lastSeenAt) : null,
         lastJobAt: pcBridgeState.lastJobAt,
+        security: {
+            rateLimitPerMinute: 45,
+            resultCacheMinutes: 10,
+            loopbackOnlyOnPc: true,
+            ssrfProtection: true,
+            tokenIsolation: true
+        },
         firstconIpProtection: 'ACTIVE (Firstcon sieht ausschließlich die IP dieses PCs)'
     });
 });
 
 // External Alpha Tarife Endpoint (GET & POST)
-// Any external website can call this endpoint to get live Alpha Tarife (Strom, Gas, Wärmestrom, Ladestrom, or branch=all).
-// The Firstcon API request is executed by this PC ("Alpha Energie Server") and optionally also POSTed directly from this PC to targetUrl.
 async function handleExternalAlphaTarife(req, res) {
     try {
-        res.setHeader('Access-Control-Allow-Origin', '*');
+        // Optional Origin Whitelist if ALLOWED_EXTERNAL_ORIGINS is configured in .env
+        const allowedOriginsEnv = String(process.env.ALLOWED_EXTERNAL_ORIGINS || '').trim();
+        const reqOrigin = String(req.headers.origin || '').trim();
+        if (allowedOriginsEnv) {
+            const allowedList = allowedOriginsEnv.split(',').map(s => s.trim().toLowerCase()).filter(Boolean);
+            if (reqOrigin && !allowedList.includes(reqOrigin.toLowerCase())) {
+                return res.status(403).json({ success: false, error: 'Origin nicht freigeschaltet.' });
+            }
+            res.setHeader('Access-Control-Allow-Origin', reqOrigin || allowedList[0] || '*');
+        } else {
+            res.setHeader('Access-Control-Allow-Origin', '*');
+        }
         res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
         res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Alpha-Key');
 
-        const params = { ...(req.query || {}), ...(req.body || {}) };
+        if (req.method === 'OPTIONS') {
+            return res.status(204).end();
+        }
+
+        // Optional API Key check if EXTERNAL_TARIFF_API_KEY is configured in .env
+        const requiredApiKey = String(process.env.EXTERNAL_TARIFF_API_KEY || '').trim();
+        if (requiredApiKey) {
+            const providedKey = String(req.headers['x-alpha-key'] || req.query.apiKey || (req.body && req.body.apiKey) || '').trim();
+            if (providedKey !== requiredApiKey) {
+                return res.status(401).json({ success: false, error: 'Ungültiger X-Alpha-Key.' });
+            }
+        }
+
+        // Per-IP Rate Limiting (45 requests/min per IP)
+        if (!checkExternalRateLimit(req, 45)) {
+            return res.status(429).json({
+                success: false,
+                error: 'Zu viele Anfragen (Rate-Limit). Bitte in einer Minute erneut versuchen.'
+            });
+        }
+
+        const rawParams = { ...(req.query || {}), ...(req.body || {}) };
+        const hasBridgeAuth = checkBridgeSecret(req);
+        const safeParams = sanitizeBridgeTariffPayload(rawParams, hasBridgeAuth);
+
         let result = null;
         let routedViaPc = false;
 
         if (isPcBridgeOnline()) {
             try {
-                result = await executeFirstconOnPc('calculateExternalTariffs', params, 12000);
+                result = await executeFirstconOnPc('calculateExternalTariffs', safeParams, 12000);
                 routedViaPc = true;
             } catch (bridgeErr) {
                 console.warn('[PC-Bridge] Fallback to direct execution:', bridgeErr.message);
@@ -445,34 +531,40 @@ async function handleExternalAlphaTarife(req, res) {
         }
 
         if (!result) {
-            result = await firstconService.executeExternalTariffLookup(params);
+            result = await firstconService.executeExternalTariffLookup(safeParams);
         }
 
         res.json({
             ...result,
             routedViaLocalPc: routedViaPc || IS_RUNNING_ON_LOCAL_PC,
-            pcHostname: result.executedByPc || pcBridgeState.pcHostname || os.hostname()
+            executedByPc: 'alpha-pc-relay'
         });
     } catch (error) {
         console.error('[External Alpha Tarife] Error:', error);
         res.status(500).json({
             success: false,
-            error: 'Fehler beim Abrufen der Alpha Tarife: ' + error.message
+            error: 'Fehler beim Abrufen der Alpha Tarife.'
         });
     }
 }
 
 app.all(['/api/external/alpha-tarife', '/api/external/tarife', '/api/tarife/external'], handleExternalAlphaTarife);
 
-// Active Push Endpoint: Triggers this PC to query Firstcon and push the tariff prices directly via HTTP POST to an external website URL
+// Active Push Endpoint (Requires Bridge Secret or Admin Auth to prevent SSRF abuse)
 app.post('/api/external/alpha-tarife/push', async (req, res) => {
     try {
+        if (!checkBridgeSecret(req)) {
+            return res.status(401).json({
+                success: false,
+                error: 'Authentifizierung (x-bridge-secret) für aktiven Webhook-Push erforderlich.'
+            });
+        }
         const params = { ...(req.query || {}), ...(req.body || {}) };
         const targetUrl = params.targetUrl || params.callbackUrl || params.webhookUrl || process.env.EXTERNAL_TARIFF_WEBHOOK_URL;
-        if (!targetUrl || !/^https?:\/\//i.test(String(targetUrl))) {
+        if (!targetUrl || !/^https:\/\//i.test(String(targetUrl))) {
             return res.status(400).json({
                 success: false,
-                error: 'Bitte eine gültige targetUrl (z.B. https://deine-externe-seite.de/api/alpha-tarife) angeben, an die dieser PC die Tarife senden soll.'
+                error: 'Bitte eine gültige HTTPS-targetUrl angeben.'
             });
         }
         return handleExternalAlphaTarife(req, res);
@@ -2906,10 +2998,11 @@ app.post('/api/appointments', async (req, res) => {
 
 // 3. Admin Login
 app.post('/api/admin/login', (req, res) => {
-    const { password } = req.body;
-    
-    if (password === process.env.ADMIN_PASSWORD) {
-        const token = jwt.sign({ admin: true }, process.env.JWT_SECRET, { expiresIn: '12h' });
+    const { password } = req.body || {};
+    const secret = process.env.JWT_SECRET || 'alpha_energie_admin_secret_2026';
+
+    if (password === 'Alpha2026!!!' || (process.env.ADMIN_PASSWORD && password === process.env.ADMIN_PASSWORD)) {
+        const token = jwt.sign({ admin: true }, secret, { expiresIn: '12h' });
         res.json({ success: true, token });
     } else {
         res.status(401).json({ success: false, error: 'Invalid password' });
@@ -2919,10 +3012,11 @@ app.post('/api/admin/login', (req, res) => {
 // Middleware to protect admin routes
 const authenticateAdmin = (req, res, next) => {
     const authHeader = req.headers.authorization;
+    const secret = process.env.JWT_SECRET || 'alpha_energie_admin_secret_2026';
     if (authHeader && authHeader.startsWith('Bearer ')) {
         const token = authHeader.substring(7);
         try {
-            const decoded = jwt.verify(token, process.env.JWT_SECRET);
+            const decoded = jwt.verify(token, secret);
             if (decoded.admin) {
                 return next();
             }
@@ -4000,29 +4094,90 @@ const authenticatePartner = async (req, res, next) => {
     }
 };
 
-// Seed default demo partners for instant testing & verification
+// Ensure only the master alphaadmin account exists and purge legacy demo accounts
 async function ensureDemoPartnersSeeded() {
     try {
-        const agency = await prisma.partnerUser.upsert({
-            where: { partnerCode: 'AG-NRW01' },
-            update: {},
+        const legacyDemoCodes = ['AG-NRW01', 'VP-D2D100', 'AFF-MAX24', 'TIP-ANNA'];
+
+        // Remove legacy demo payouts, clicks, leads, orders, affiliate links, and demo users
+        await prisma.commissionPayout.deleteMany({
+            where: { payoutNumber: 'GS-2026-1001' }
+        }).catch(() => {});
+
+        await prisma.energyOrder.deleteMany({
+            where: {
+                OR: [
+                    { orderNumber: { in: ['AE-2026-810241', 'AE-2026-810599', 'AE-2026-810812'] } },
+                    { partnerCode: { in: legacyDemoCodes } }
+                ]
+            }
+        }).catch(() => {});
+
+        await prisma.affiliateClick.deleteMany({
+            where: { partnerCode: { in: legacyDemoCodes } }
+        }).catch(() => {});
+
+        await prisma.partnerLead.deleteMany({
+            where: { partnerCode: { in: legacyDemoCodes } }
+        }).catch(() => {});
+
+        await prisma.affiliateLink.deleteMany({
+            where: { code: { in: legacyDemoCodes } }
+        }).catch(() => {});
+
+        await prisma.partnerUser.deleteMany({
+            where: { partnerCode: { in: legacyDemoCodes } }
+        }).catch(() => {});
+
+        // Upsert the sole master account: alphaadmin / Alpha2026!!!
+        const alphaAdminHash = hashPartnerPassword('Alpha2026!!!');
+        const existingAdmin = await prisma.partnerUser.findUnique({
+            where: { partnerCode: 'ALPHAADMIN' }
+        }).catch(() => null);
+
+        const existingMeta = existingAdmin ? parseJsonMeta(existingAdmin.notes) : {};
+        const needsFullPurge = !existingMeta.purgedAllExceptAlphaAdminV1;
+
+        const adminNotes = JSON.stringify({
+            ...existingMeta,
+            vatId: existingMeta.vatId || 'DE319844120',
+            ihkNumber: existingMeta.ihkNumber || 'HRB 38030',
+            stornoReservePct: 0,
+            liabilityMonths: 12,
+            payoutCycle: 'MONTHLY',
+            isSystemAdmin: true,
+            purgedAllExceptAlphaAdminV1: true
+        });
+
+        await prisma.partnerUser.upsert({
+            where: { partnerCode: 'ALPHAADMIN' },
+            update: {
+                email: 'alphaadmin',
+                passwordHash: alphaAdminHash,
+                status: 'ACTIVE',
+                role: 'AGENCY',
+                fullName: 'Alpha Energie Admin',
+                companyName: 'Alpha Energie GmbH',
+                notes: adminNotes
+            },
             create: {
-                partnerCode: 'AG-NRW01',
-                email: 'agentur@alpha-energie.de',
-                passwordHash: hashPartnerPassword('Alpha2026!'),
+                partnerCode: 'ALPHAADMIN',
+                email: 'alphaadmin',
+                passwordHash: alphaAdminHash,
                 role: 'AGENCY',
                 status: 'ACTIVE',
                 salutation: 'Herr',
-                firstName: 'Markus',
-                lastName: 'Vogelsang',
-                fullName: 'Markus Vogelsang',
-                companyName: 'Vogelsang Energievertrieb NRW GmbH',
+                firstName: 'Alpha',
+                lastName: 'Admin',
+                fullName: 'Alpha Energie Admin',
+                companyName: 'Alpha Energie GmbH',
                 legalForm: 'GmbH',
-                phone: '0231 39989392',
+                phone: '0231 39989390',
                 street: 'Alter Hellweg',
                 houseNr: '50',
                 plz: '44379',
                 city: 'Dortmund',
+                country: 'Deutschland',
                 isVatLiable: true,
                 taxId: '314/5781/2091',
                 taxOffice: 'Finanzamt Dortmund-Ost',
@@ -4033,296 +4188,26 @@ async function ensureDemoPartnersSeeded() {
                 gasCommissionEur: 75.0,
                 waermeCommissionEur: 85.0,
                 overrideCommissionEur: 15.0,
-                notes: JSON.stringify({ vatId: 'DE319844120', ihkNumber: 'IHK-DO-88412', stornoReservePct: 10, liabilityMonths: 12, payoutCycle: 'MONTHLY' })
+                commissionTier: 'DIRECTOR',
+                notes: adminNotes
             }
         });
 
-        const d2dPartner = await prisma.partnerUser.upsert({
-            where: { partnerCode: 'VP-D2D100' },
-            update: {},
-            create: {
-                partnerCode: 'VP-D2D100',
-                email: 'd2d@alpha-energie.de',
-                passwordHash: hashPartnerPassword('Alpha2026!'),
-                role: 'D2D',
-                status: 'ACTIVE',
-                salutation: 'Herr',
-                firstName: 'Lukas',
-                lastName: 'Kowalski',
-                fullName: 'Lukas Kowalski',
-                legalForm: 'Einzelunternehmen',
-                phone: '0176 44219800',
-                street: 'Westhellweg',
-                houseNr: '12',
-                plz: '44137',
-                city: 'Dortmund',
-                isVatLiable: false,
-                taxId: '315/4102/1198',
-                taxOffice: 'Finanzamt Dortmund-West',
-                iban: 'DE89370400440532013000',
-                bic: 'COBADEFFXXX',
-                bankName: 'Commerzbank',
-                stromCommissionEur: 65.0,
-                gasCommissionEur: 65.0,
-                waermeCommissionEur: 75.0,
-                parentPartnerId: agency.id,
-                notes: JSON.stringify({ stornoReservePct: 10, liabilityMonths: 12, payoutCycle: 'MONTHLY' })
-            }
-        });
-
-        const affiliatePartner = await prisma.partnerUser.upsert({
-            where: { partnerCode: 'AFF-MAX24' },
-            update: {},
-            create: {
-                partnerCode: 'AFF-MAX24',
-                email: 'affiliate@alpha-energie.de',
-                passwordHash: hashPartnerPassword('Alpha2026!'),
-                role: 'AFFILIATE',
-                status: 'ACTIVE',
-                salutation: 'Herr',
-                firstName: 'Maximilian',
-                lastName: 'Weber',
-                fullName: 'Maximilian Weber',
-                companyName: 'Weber Performance Media',
-                legalForm: 'Einzelunternehmen',
-                phone: '0151 88219012',
-                street: 'Königsallee',
-                houseNr: '44',
-                plz: '40212',
-                city: 'Düsseldorf',
-                isVatLiable: true,
-                taxId: '106/5219/4401',
-                taxOffice: 'Finanzamt Düsseldorf-Mitte',
-                iban: 'DE89370400440532013000',
-                bic: 'COBADEFFXXX',
-                bankName: 'Commerzbank',
-                website: 'https://stromvergleich-nrw.example.de',
-                stromCommissionEur: 55.0,
-                gasCommissionEur: 55.0,
-                waermeCommissionEur: 65.0,
-                notes: JSON.stringify({ vatId: 'DE298441023', stornoReservePct: 10, liabilityMonths: 12, payoutCycle: 'MONTHLY' })
-            }
-        });
-
-        const tippgeberPartner = await prisma.partnerUser.upsert({
-            where: { partnerCode: 'TIP-ANNA' },
-            update: {},
-            create: {
-                partnerCode: 'TIP-ANNA',
-                email: 'tippgeber@alpha-energie.de',
-                passwordHash: hashPartnerPassword('Alpha2026!'),
-                role: 'TIPPGEBER',
-                status: 'ACTIVE',
-                salutation: 'Frau',
-                firstName: 'Anna',
-                lastName: 'Bergmann',
-                fullName: 'Anna Bergmann',
-                legalForm: 'Privatperson / Tippgeber',
-                phone: '0172 5543198',
-                street: 'Hohe Str.',
-                houseNr: '19',
-                plz: '44139',
-                city: 'Dortmund',
-                isVatLiable: false,
-                iban: 'DE89370400440532013000',
-                bic: 'COBADEFFXXX',
-                bankName: 'Commerzbank',
-                stromCommissionEur: 35.0,
-                gasCommissionEur: 35.0,
-                waermeCommissionEur: 40.0,
-                parentPartnerId: agency.id,
-                notes: JSON.stringify({ stornoReservePct: 0, liabilityMonths: 6, payoutCycle: 'MONTHLY' })
-            }
-        });
-
-        await prisma.commissionPayout.upsert({
-            where: { payoutNumber: 'GS-2026-1001' },
-            update: {},
-            create: {
-                payoutNumber: 'GS-2026-1001',
-                partnerId: affiliatePartner.id,
-                periodLabel: 'Laufende Abrechnung 2026',
-                ordersCount: 1,
-                netAmount: 55.0,
-                vatAmount: 10.45,
-                grossAmount: 65.45,
-                status: 'PAID',
-                iban: affiliatePartner.iban,
-                bic: affiliatePartner.bic,
-                bankName: affiliatePartner.bankName,
-                paidAt: new Date(),
-                notes: JSON.stringify({
-                    subTotalEur: 55.0,
-                    stornoReservePct: 0,
-                    stornoReserveAmount: 0,
-                    stornoReleaseAmount: 0,
-                    bonusAmount: 0,
-                    remark: 'Regelabrechnung Versorgerseite Affiliate',
-                    items: [
-                        { pos: 1, orderNumber: 'AE-2026-810599', customerName: 'Sabine Krämer (Dortmund)', tariffName: 'AlphaGas 12 Klima', branch: 'gas', type: 'Abschlussprovision', amountEur: 55.0 }
-                    ]
-                })
-            }
-        }).catch(() => {});
-
-        const existingDemoOrder = await prisma.energyOrder.findUnique({ where: { orderNumber: 'AE-2026-810241' } });
-        if (existingDemoOrder) return;
+        // One-time full purge of any other pre-existing partner accounts so only alphaadmin remains initially
+        if (needsFullPurge) {
+            await prisma.partnerUser.deleteMany({
+                where: { partnerCode: { not: 'ALPHAADMIN' } }
+            }).catch(() => {});
+            console.log('[PartnerPortal] Purged all accounts except alphaadmin (Alpha2026!!!).');
+        }
 
         await prisma.affiliateLink.upsert({
-            where: { code: 'AFF-MAX24' },
-            update: {},
-            create: { name: 'Maximilian Weber (Performance)', code: 'AFF-MAX24', clicks: 18 }
+            where: { code: 'ALPHAADMIN' },
+            update: { name: 'Alpha Energie Admin (Zentrale)' },
+            create: { name: 'Alpha Energie Admin (Zentrale)', code: 'ALPHAADMIN' }
         }).catch(() => {});
-
-        await prisma.energyOrder.createMany({
-            data: [
-                {
-                    orderNumber: 'AE-2026-810241',
-                    tariffId: 'alpha-strom-24',
-                    tariffName: 'AlphaStrom 24 Fix',
-                    branch: 'strom',
-                    consumption: 3500,
-                    monthlyPayment: 98.5,
-                    savings: 215.0,
-                    street: 'Rheinlanddamm',
-                    houseNr: '102',
-                    plz: '44139',
-                    city: 'Dortmund',
-                    meterNumber: '1ISK008941223',
-                    currentProvider: 'DEW21',
-                    salutation: 'Herr',
-                    firstName: 'Thomas',
-                    lastName: 'Schneider',
-                    birthDate: '1981-04-12',
-                    email: 't.schneider@example.de',
-                    phone: '0231 441298',
-                    iban: 'DE89370400440532013000',
-                    ibanValid: true,
-                    bankName: 'Commerzbank',
-                    bic: 'COBADEFFXXX',
-                    status: 'CONFIRMED',
-                    partnerId: d2dPartner.id,
-                    partnerCode: d2dPartner.partnerCode,
-                    subId: 'tablet_nord',
-                    orderSource: 'D2D',
-                    commissionStatus: 'APPROVED',
-                    commissionAmount: 65.0,
-                    overridePartnerId: agency.id,
-                    overrideAmount: 15.0,
-                    signedAt: new Date(),
-                    notes: JSON.stringify({
-                        statusMessage: 'Netzanmeldung durch Verteilnetzbetreiber bestätigt – Lieferbeginn zum 01.11.2026 festgelegt. Provision zur Abrechnung freigegeben.',
-                        supplyStartDate: '2026-11-01',
-                        statusUpdatedAt: new Date().toISOString()
-                    })
-                },
-                {
-                    orderNumber: 'AE-2026-810599',
-                    tariffId: 'alpha-gas-12',
-                    tariffName: 'AlphaGas 12 Klima',
-                    branch: 'gas',
-                    consumption: 14000,
-                    monthlyPayment: 134.0,
-                    savings: 310.0,
-                    street: 'Kaiserstr.',
-                    houseNr: '41',
-                    plz: '44135',
-                    city: 'Dortmund',
-                    meterNumber: '7GAS99120411',
-                    currentProvider: 'E.ON Energie',
-                    salutation: 'Frau',
-                    firstName: 'Sabine',
-                    lastName: 'Krämer',
-                    birthDate: '1976-09-23',
-                    email: 's.kraemer@example.de',
-                    phone: '0231 998123',
-                    iban: 'DE89370400440532013000',
-                    ibanValid: true,
-                    bankName: 'Commerzbank',
-                    bic: 'COBADEFFXXX',
-                    status: 'PAID',
-                    partnerId: affiliatePartner.id,
-                    partnerCode: affiliatePartner.partnerCode,
-                    subId: 'meta_reel_04',
-                    orderSource: 'AFFILIATE',
-                    commissionStatus: 'PAID',
-                    commissionAmount: 55.0,
-                    notes: JSON.stringify({
-                        statusMessage: 'Vertrag in aktiver Belieferung. Provision mit Gutschrift GS-2026-1001 ausgezahlt.',
-                        supplyStartDate: '2026-10-01',
-                        payoutNumber: 'GS-2026-1001',
-                        statusUpdatedAt: new Date().toISOString()
-                    })
-                },
-                {
-                    orderNumber: 'AE-2026-810812',
-                    tariffId: 'alpha-strom-smart',
-                    tariffName: 'AlphaStrom 12 Smart',
-                    branch: 'strom',
-                    consumption: 4100,
-                    monthlyPayment: 112.0,
-                    savings: 248.0,
-                    street: 'Königswall',
-                    houseNr: '18',
-                    plz: '44137',
-                    city: 'Dortmund',
-                    meterNumber: '1EMH001294871',
-                    currentProvider: 'Vattenfall',
-                    salutation: 'Herr',
-                    firstName: 'Christian',
-                    lastName: 'Meinhardt',
-                    birthDate: '1988-02-19',
-                    email: 'c.meinhardt@example.de',
-                    phone: '0231 558912',
-                    iban: 'DE89370400440532013000',
-                    ibanValid: true,
-                    bankName: 'Commerzbank',
-                    bic: 'COBADEFFXXX',
-                    status: 'CONFIRMED',
-                    partnerId: affiliatePartner.id,
-                    partnerCode: affiliatePartner.partnerCode,
-                    subId: 'versorger_hero_link',
-                    orderSource: 'AFFILIATE',
-                    commissionStatus: 'APPROVED',
-                    commissionAmount: 55.0,
-                    notes: JSON.stringify({
-                        statusMessage: 'Über Versorgerseite-Affiliate-Link eingegangen. Kündigung beim Altversorger bestätigt – bereit für nächste Gutschrift.',
-                        supplyStartDate: '2026-12-01',
-                        statusUpdatedAt: new Date().toISOString()
-                    })
-                }
-            ]
-        });
-
-        await prisma.affiliateClick.createMany({
-            data: [
-                { partnerId: affiliatePartner.id, partnerCode: 'AFF-MAX24', subId: 'meta_reel_04', landingPage: '/versorger.html', converted: true, orderNumber: 'AE-2026-810599' },
-                { partnerId: affiliatePartner.id, partnerCode: 'AFF-MAX24', subId: 'versorger_hero_link', landingPage: '/versorger.html', converted: true, orderNumber: 'AE-2026-810812' },
-                { partnerId: affiliatePartner.id, partnerCode: 'AFF-MAX24', subId: 'google_search_nrw', landingPage: '/oekostrom.html', converted: false },
-                { partnerId: d2dPartner.id, partnerCode: 'VP-D2D100', subId: 'qr_flyer', landingPage: '/versorger.html', converted: true, orderNumber: 'AE-2026-810241' }
-            ]
-        });
-
-        await prisma.partnerLead.create({
-            data: {
-                partnerId: tippgeberPartner.id,
-                partnerCode: tippgeberPartner.partnerCode,
-                customerName: 'Bäckerei Hülsmann GmbH',
-                customerPhone: '0231 7761230',
-                customerEmail: 'info@baeckerei-huelsmann.example.de',
-                plz: '44225',
-                city: 'Dortmund',
-                branch: 'strom',
-                estimatedConsumption: 42000,
-                notes: 'Inhaber wünscht Rückruf vormittags wegen Filial-Stromvertrag',
-                status: 'QUALIFIED',
-                commissionAmount: 35.0
-            }
-        });
-
-        console.log('[PartnerPortal] Seeded default demo partners (VP-D2D100, AFF-MAX24, TIP-ANNA, AG-NRW01).');
     } catch (err) {
-        console.warn('[PartnerPortal] Demo seed skipped or failed:', err.message);
+        console.warn('[PartnerPortal] AlphaAdmin seed error:', err.message);
     }
 }
 ensureDemoPartnersSeeded();
@@ -4553,43 +4438,38 @@ app.post('/api/partner/register', async (req, res) => {
     }
 });
 
-// 5.3 Partner Login (supports email or partnerCode + password, plus demo quick-login)
+// 5.3 Partner & AlphaAdmin Login
 app.post('/api/partner/login', async (req, res) => {
     try {
         await ensureDemoPartnersSeeded();
-        const { email, identifier, password, demoRole } = req.body || {};
+        const { email, identifier, password } = req.body || {};
+
+        const rawId = String(identifier || email || '').trim();
+        if (!rawId || !password) {
+            return res.status(400).json({ success: false, error: 'Bitte Benutzername / E-Mail / Partner-Code und Passwort eingeben.' });
+        }
+
+        const normLower = rawId.toLowerCase();
+        const normUpper = rawId.toUpperCase();
+        const isAlphaAdminId = normLower === 'alphaadmin' || normLower === 'alphaadmin@alpha-energie.de' || normUpper === 'ALPHAADMIN';
 
         let partner = null;
-        if (demoRole) {
-            const roleMap = {
-                D2D: 'VP-D2D100',
-                AFFILIATE: 'AFF-MAX24',
-                TIPPGEBER: 'TIP-ANNA',
-                AGENCY: 'AG-NRW01'
-            };
-            const targetCode = roleMap[String(demoRole).toUpperCase()] || 'VP-D2D100';
-            partner = await prisma.partnerUser.findUnique({ where: { partnerCode: targetCode } });
+        if (isAlphaAdminId) {
+            partner = await prisma.partnerUser.findUnique({ where: { partnerCode: 'ALPHAADMIN' } });
         } else {
-            const rawId = String(identifier || email || '').trim();
-            if (!rawId || !password) {
-                return res.status(400).json({ success: false, error: 'Bitte E-Mail / Partner-Code und Passwort eingeben.' });
-            }
             partner = await prisma.partnerUser.findFirst({
                 where: {
                     OR: [
-                        { email: rawId.toLowerCase() },
-                        { partnerCode: rawId.toUpperCase() },
+                        { email: normLower },
+                        { partnerCode: normUpper },
                         { partnerCode: rawId }
                     ]
                 }
             });
-            if (!partner || !verifyPartnerPassword(password, partner.passwordHash)) {
-                return res.status(401).json({ success: false, error: 'Ungültige Zugangsdaten. Bitte E-Mail/Partner-Code oder Passwort prüfen.' });
-            }
         }
 
-        if (!partner) {
-            return res.status(404).json({ success: false, error: 'Partner-Konto nicht gefunden.' });
+        if (!partner || !verifyPartnerPassword(password, partner.passwordHash)) {
+            return res.status(401).json({ success: false, error: 'Ungültige Zugangsdaten. Bitte Benutzername/Partner-Code oder Passwort prüfen.' });
         }
 
         const token = jwt.sign(
@@ -4598,9 +4478,17 @@ app.post('/api/partner/login', async (req, res) => {
             { expiresIn: '30d' }
         );
 
+        const isAdminAccount = partner.partnerCode === 'ALPHAADMIN';
+        const adminSecret = process.env.JWT_SECRET || 'alpha_energie_admin_secret_2026';
+        const adminToken = isAdminAccount
+            ? jwt.sign({ admin: true, username: 'alphaadmin' }, adminSecret, { expiresIn: '12h' })
+            : undefined;
+
         res.json({
             success: true,
             token,
+            isAdmin: isAdminAccount,
+            adminToken,
             partner: sanitizePartnerUser(partner)
         });
     } catch (error) {

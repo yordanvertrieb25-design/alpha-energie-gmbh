@@ -1276,27 +1276,86 @@ function buildReferenceTariffsForBranch({ plz = '44379', branch = 'strom', consu
     };
 }
 
+const externalLookupCache = new Map(); // cacheKey -> { data, expiresAt }
+
+function isSafeExternalHttpsUrl(rawUrl) {
+    try {
+        const parsed = new URL(String(rawUrl || '').trim());
+        if (parsed.protocol !== 'https:') return false;
+        const host = parsed.hostname.toLowerCase();
+        if (
+            host === 'localhost' ||
+            host === '127.0.0.1' ||
+            host === '0.0.0.0' ||
+            host === '::1' ||
+            host === '[::1]' ||
+            host.endsWith('.local') ||
+            host.endsWith('.internal') ||
+            host.endsWith('.lan') ||
+            /^10\./.test(host) ||
+            /^192\.168\./.test(host) ||
+            /^169\.254\./.test(host) ||
+            /^172\.(1[6-9]|2\d|3[0-1])\./.test(host)
+        ) {
+            return false;
+        }
+        return true;
+    } catch (e) {
+        return false;
+    }
+}
+
 /**
  * Executes a Firstcon tariff calculation on this machine (masking the external caller's IP/headers)
- * and optionally forwards/pushes the result directly from this PC to an external targetUrl / webhookUrl.
+ * with strict input validation, anti-flood caching, and SSRF-safe optional webhook forwarding.
  */
 async function executeExternalTariffLookup(params = {}) {
     const cleanPlz = String(params.plz || params.zip || '44379').replace(/\D/g, '').slice(0, 5) || '44379';
     const rawBranch = String(params.branch || params.sparte || 'strom').toLowerCase().trim();
-    const token = params.orderflowToken || params.token;
+    const clampKwh = (val, fallback) => Math.min(500000, Math.max(500, parseInt(val, 10) || fallback));
+    const safeConsumption = clampKwh(params.consumption, rawBranch === 'gas' ? 12000 : (rawBranch === 'waerme' ? 6000 : 2500));
+    const safeHt = params.consumptionHt ? clampKwh(params.consumptionHt, safeConsumption) : 0;
+    const safeNt = params.consumptionNt ? Math.min(500000, Math.max(0, parseInt(params.consumptionNt, 10) || 0)) : 0;
+    const safeMeterType = params.meterType === 'htnt' ? 'htnt' : 'et';
+    const safeAbschlag = Math.min(50000, Math.max(0, parseFloat(params.currentAbschlag) || 0));
     const includeStreets = params.includeStreets === true || params.includeStreets === 'true' || params.includeStreets === '1' || params.streets === '1';
+
+    // Security: Never allow external untrusted callers to override the internal Firstcon token
+    const token = DEFAULT_FIRSTCON_TOKEN;
+
+    const cacheKey = `${cleanPlz}:${rawBranch}:${safeConsumption}:${safeMeterType}:${safeHt}:${safeNt}:${safeAbschlag}:${includeStreets ? 1 : 0}`;
+    const now = Date.now();
+    if (externalLookupCache.has(cacheKey)) {
+        const cached = externalLookupCache.get(cacheKey);
+        if (cached && cached.expiresAt > now) {
+            return {
+                ...cached.data,
+                cached: true,
+                timestamp: new Date().toISOString()
+            };
+        }
+    }
+
+    const sanitizedParams = {
+        plz: cleanPlz,
+        consumption: safeConsumption,
+        consumptionHt: safeHt,
+        consumptionNt: safeNt,
+        meterType: safeMeterType,
+        ...(safeAbschlag > 0 ? { currentAbschlag: safeAbschlag } : {})
+    };
 
     let responsePayload;
 
     if (rawBranch === 'all' || rawBranch === 'alle') {
         const branches = ['strom', 'gas', 'waerme', 'ladestrom'];
         const results = await Promise.all(branches.map(async (b) => {
-            const bKwh = b === 'gas' ? (params.consumptionGas || params.consumption || 12000)
-                : (b === 'waerme' ? (params.consumptionWaerme || params.consumption || 6000)
-                    : (params.consumptionStrom || params.consumption || 2500));
+            const bKwh = b === 'gas' ? clampKwh(params.consumptionGas || params.consumption, 12000)
+                : (b === 'waerme' ? clampKwh(params.consumptionWaerme || params.consumption, 6000)
+                    : clampKwh(params.consumptionStrom || params.consumption, 2500));
             try {
                 const live = await calculateLiveTariffs({
-                    ...params,
+                    ...sanitizedParams,
                     plz: cleanPlz,
                     consumption: bKwh,
                     branch: b,
@@ -1308,7 +1367,7 @@ async function executeExternalTariffLookup(params = {}) {
             } catch (e) {
                 // fallback
             }
-            return [b, buildReferenceTariffsForBranch({ ...params, plz: cleanPlz, consumption: bKwh, branch: b })];
+            return [b, buildReferenceTariffsForBranch({ ...sanitizedParams, plz: cleanPlz, consumption: bKwh, branch: b })];
         }));
 
         const byBranch = Object.fromEntries(results);
@@ -1317,7 +1376,7 @@ async function executeExternalTariffLookup(params = {}) {
             success: true,
             source: primary.source || 'firstcon-live',
             firstconConnected: true,
-            executedByPc: os.hostname(),
+            executedByPc: 'alpha-pc-relay',
             firstconIpMasked: true,
             plz: cleanPlz,
             city: primary.city || 'Dortmund',
@@ -1337,7 +1396,7 @@ async function executeExternalTariffLookup(params = {}) {
         let calc = null;
         try {
             calc = await calculateLiveTariffs({
-                ...params,
+                ...sanitizedParams,
                 plz: cleanPlz,
                 branch: normalizedBranch,
                 token
@@ -1346,7 +1405,7 @@ async function executeExternalTariffLookup(params = {}) {
             // fallback below
         }
         if (!calc || !Array.isArray(calc.tariffs) || calc.tariffs.length === 0) {
-            calc = buildReferenceTariffsForBranch({ ...params, plz: cleanPlz, branch: normalizedBranch });
+            calc = buildReferenceTariffsForBranch({ ...sanitizedParams, plz: cleanPlz, branch: normalizedBranch });
         }
 
         let streets = undefined;
@@ -1361,35 +1420,40 @@ async function executeExternalTariffLookup(params = {}) {
         responsePayload = {
             success: true,
             ...calc,
-            executedByPc: os.hostname(),
+            executedByPc: 'alpha-pc-relay',
             firstconIpMasked: true,
             ...(streets !== undefined ? { streets } : {}),
             timestamp: new Date().toISOString()
         };
     }
 
-    // If caller or environment specified an external targetUrl / callbackUrl / webhookUrl,
-    // this PC directly pushes the tariff payload to that external URL!
-    const forwardUrl = String(
-        params.targetUrl ||
-        params.callbackUrl ||
-        params.webhookUrl ||
-        process.env.EXTERNAL_TARIFF_WEBHOOK_URL ||
-        ''
-    ).trim();
+    // Cache valid responses for 10 minutes to protect Firstcon & this PC against flood/scraping attacks
+    if (externalLookupCache.size > 2000) {
+        externalLookupCache.clear();
+    }
+    externalLookupCache.set(cacheKey, {
+        data: responsePayload,
+        expiresAt: now + 10 * 60 * 1000
+    });
 
-    if (forwardUrl && /^https?:\/\//i.test(forwardUrl)) {
+    // SSRF-Protected Webhook Forwarding: Only allow configured EXTERNAL_TARIFF_WEBHOOK_URL or authenticated safe HTTPS URLs
+    const configuredWebhook = String(process.env.EXTERNAL_TARIFF_WEBHOOK_URL || '').trim();
+    const requestedUrl = String(params.targetUrl || params.callbackUrl || params.webhookUrl || '').trim();
+    const forwardUrl = configuredWebhook || (params._allowPushUrl && isSafeExternalHttpsUrl(requestedUrl) ? requestedUrl : '');
+
+    if (forwardUrl && isSafeExternalHttpsUrl(forwardUrl)) {
         try {
             const pushHeaders = {
                 'Content-Type': 'application/json',
                 'X-Source': 'Alpha-Energie-PC-Relay'
             };
-            if (params.targetSecret || process.env.EXTERNAL_TARIFF_WEBHOOK_SECRET) {
-                pushHeaders['X-Alpha-Secret'] = String(params.targetSecret || process.env.EXTERNAL_TARIFF_WEBHOOK_SECRET);
+            if (process.env.EXTERNAL_TARIFF_WEBHOOK_SECRET) {
+                pushHeaders['X-Alpha-Secret'] = String(process.env.EXTERNAL_TARIFF_WEBHOOK_SECRET);
             }
             const pushRes = await axios.post(forwardUrl, responsePayload, {
                 headers: pushHeaders,
                 timeout: 8000,
+                maxRedirects: 2,
                 validateStatus: () => true
             });
             responsePayload.forwardedFromPcToExternal = {
