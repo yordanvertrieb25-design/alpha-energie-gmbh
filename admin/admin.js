@@ -1523,9 +1523,10 @@ if (document.querySelector('.dashboard-container')) {
                 `Partner-Portal Zugang aktiv!\n\n` +
                 `Name: ${p.fullName}\n` +
                 `Partner-Code: ${p.partnerCode}\n` +
+                `Versorgerseite Affiliate-Link: ${window.location.origin}/versorger?ref=${p.partnerCode}\n` +
                 `Login E-Mail: ${p.email}\n` +
                 `Passwort: ${data.generatedPassword}\n\n` +
-                `Login-URL: ${window.location.origin}/vertriebspartner-portal.html`
+                `Login-URL: ${window.location.origin}/vp`
             );
             loadData();
         } catch (err) {
@@ -1541,6 +1542,17 @@ if (document.querySelector('.dashboard-container')) {
             .replace(/"/g, '&quot;')
             .replace(/'/g, '&#39;');
     }
+
+    window.copyAdminText = function(txt, btnEl) {
+        if (navigator.clipboard) {
+            navigator.clipboard.writeText(txt).catch(() => {});
+        }
+        if (btnEl) {
+            const old = btnEl.innerHTML;
+            btnEl.innerHTML = '✓ Kopiert';
+            setTimeout(() => { btnEl.innerHTML = old; }, 1500);
+        }
+    };
 
     window.loadAdminPortalOverview = async function() {
         try {
@@ -1558,17 +1570,20 @@ if (document.querySelector('.dashboard-container')) {
             setTxt('admin-kpi-comm-paid', fmtEurAdmin((k.totalCommissionApproved || 0) + (k.totalCommissionPaid || 0)));
             setTxt('admin-kpi-clicks', String(k.clicksCount || 0));
 
+            const origin = window.location.origin || 'https://alpha-energie.de';
+
             const ordersTbody = document.getElementById('admin-portal-orders-tbody');
             if (ordersTbody) {
                 const orders = data.orders || [];
                 if (orders.length === 0) {
-                    ordersTbody.innerHTML = '<tr><td colspan="8" class="text-center">Keine Energieaufträge vorhanden.</td></tr>';
+                    ordersTbody.innerHTML = '<tr><td colspan="9" class="text-center">Keine Energieaufträge vorhanden.</td></tr>';
                 } else {
                     ordersTbody.innerHTML = orders.map(o => `
                         <tr>
                             <td>
                                 <strong>${escAdmin(o.orderNumber)}</strong><br>
                                 <span style="font-size:0.75rem;color:#64748b;">${new Date(o.createdAt).toLocaleString('de-DE')}</span>
+                                ${o.payoutNumber ? `<br><span style="font-size:0.72rem;color:#15803d;font-weight:700;">Gutschrift: ${escAdmin(o.payoutNumber)}</span>` : ''}
                             </td>
                             <td>
                                 <strong>${escAdmin(o.firstName)} ${escAdmin(o.lastName)}</strong><br>
@@ -1590,17 +1605,27 @@ if (document.querySelector('.dashboard-container')) {
                                 ${o.signedAt
                                     ? `<span style="color:#16a34a;font-weight:700;font-size:0.78rem;">✓ eSign vorhanden</span>`
                                     : (o.signatureToken
-                                        ? `<a href="/vertriebspartner-portal.html?sign=${encodeURIComponent(o.signatureToken)}" target="_blank" style="color:#ea580c;font-weight:700;font-size:0.78rem;">Offener eSign-Link</a>`
+                                        ? `<a href="/vp?sign=${encodeURIComponent(o.signatureToken)}" target="_blank" style="color:#ea580c;font-weight:700;font-size:0.78rem;">Offener eSign-Link</a>`
                                         : `<span style="color:#64748b;font-size:0.75rem;">Web-Abschluss</span>`)}
                             </td>
                             <td>
-                                <select onchange="updateAdminEnergyOrder(${Number(o.id)}, { status: this.value })" style="padding:5px 8px;border-radius:6px;border:1px solid #cbd5e1;font-size:0.8rem;">
+                                <select onchange="updateAdminEnergyOrder(${Number(o.id)}, { status: this.value })" style="padding:5px 8px;border-radius:6px;border:1px solid #cbd5e1;font-size:0.8rem;width:100%;margin-bottom:4px;font-weight:700;">
                                     <option value="RECEIVED" ${o.status === 'RECEIVED' ? 'selected' : ''}>Eingegangen</option>
-                                    <option value="PENDING_SIGNATURE" ${(o.status === 'PENDING_SIGNATURE' || o.status === 'AWAITING_SIGNATURE') ? 'selected' : ''}>Wartet auf eSign</option>
+                                    <option value="AWAITING_SIGNATURE" ${(o.status === 'PENDING_SIGNATURE' || o.status === 'AWAITING_SIGNATURE') ? 'selected' : ''}>Wartet auf eSign</option>
                                     <option value="PROCESSING" ${o.status === 'PROCESSING' ? 'selected' : ''}>In Bearbeitung</option>
-                                    <option value="CONFIRMED" ${o.status === 'CONFIRMED' ? 'selected' : ''}>Bestätigt</option>
+                                    <option value="CONFIRMED" ${o.status === 'CONFIRMED' ? 'selected' : ''}>VNB Bestätigt</option>
+                                    <option value="IN_DELIVERY" ${o.status === 'IN_DELIVERY' ? 'selected' : ''}>In Belieferung</option>
+                                    <option value="CLARIFICATION" ${o.status === 'CLARIFICATION' ? 'selected' : ''}>Klärfall</option>
+                                    <option value="PAID" ${o.status === 'PAID' ? 'selected' : ''}>Abgerechnet</option>
                                     <option value="CANCELLED" ${o.status === 'CANCELLED' ? 'selected' : ''}>Storniert</option>
                                 </select>
+                                <input type="date" value="${escAdmin(o.supplyStartDate || '')}" onchange="updateAdminEnergyOrder(${Number(o.id)}, { supplyStartDate: this.value })" title="Lieferbeginn" style="width:100%;padding:4px 6px;border:1px solid #cbd5e1;border-radius:6px;font-size:0.75rem;">
+                            </td>
+                            <td style="min-width:220px;">
+                                <div style="display:flex;gap:4px;align-items:flex-start;">
+                                    <input type="text" id="adm-order-msg-${Number(o.id)}" value="${escAdmin(o.statusMessage || '')}" placeholder="Statusmeldung für VP eingeben..." style="flex:1;padding:6px 8px;border:1px solid #94a3b8;border-radius:6px;font-size:0.78rem;">
+                                    <button type="button" onclick="saveAdminOrderStatusMsg(${Number(o.id)})" style="background:#0f172a;color:#fff;border:none;border-radius:6px;padding:6px 9px;font-size:0.75rem;font-weight:700;cursor:pointer;" title="Statusmeldung speichern">💾</button>
+                                </div>
                             </td>
                             <td>
                                 <div style="font-weight:800;color:#0f172a;margin-bottom:4px;">${fmtEurAdmin(o.commissionAmount)}</div>
@@ -1620,10 +1645,25 @@ if (document.querySelector('.dashboard-container')) {
             const partnersTbody = document.getElementById('admin-portal-partners-tbody');
             if (partnersTbody) {
                 const partners = data.partners || [];
-                partnersTbody.innerHTML = partners.map(p => `
+                partnersTbody.innerHTML = partners.map(p => {
+                    const affUrl = `${origin}/versorger?ref=${encodeURIComponent(p.partnerCode)}`;
+                    return `
                     <tr>
-                        <td><strong style="color:#0284c7;">${escAdmin(p.partnerCode)}</strong></td>
-                        <td><strong>${escAdmin(p.fullName)}</strong>${p.companyName ? `<br><span style="font-size:0.78rem;color:#64748b;">${escAdmin(p.companyName)}</span>` : ''}</td>
+                        <td>
+                            <strong style="color:#0284c7;">${escAdmin(p.partnerCode)}</strong>
+                            <div style="font-size:0.72rem;color:#64748b;">Stufe: ${escAdmin(p.commissionTier || 'PRO')}</div>
+                        </td>
+                        <td>
+                            <strong>${escAdmin(p.fullName)}</strong>
+                            ${p.companyName ? `<br><span style="font-size:0.78rem;color:#0f172a;font-weight:600;">${escAdmin(p.companyName)} (${escAdmin(p.legalForm || '')})</span>` : ''}
+                            ${p.ihkNumber ? `<br><span style="font-size:0.72rem;color:#64748b;">IHK: ${escAdmin(p.ihkNumber)}</span>` : ''}
+                        </td>
+                        <td style="min-width:210px;">
+                            <div style="display:flex;gap:4px;align-items:center;">
+                                <input type="text" readonly value="${escAdmin(affUrl)}" style="flex:1;padding:5px 7px;font-size:0.74rem;border:1px solid #fdba74;border-radius:5px;background:#fff7ed;color:#0f172a;font-weight:700;">
+                                <button type="button" onclick="copyAdminText('${escAdmin(affUrl)}', this)" style="background:#ef8a00;color:#fff;border:none;border-radius:5px;padding:5px 8px;font-size:0.74rem;font-weight:700;cursor:pointer;">Kopieren</button>
+                            </div>
+                        </td>
                         <td>
                             <div style="display:flex;flex-direction:column;gap:4px;">
                                 <select onchange="updateAdminPartnerUser(${Number(p.id)}, { role: this.value })" style="padding:3px 6px;border-radius:5px;border:1px solid #cbd5e1;font-size:0.76rem;font-weight:700;">
@@ -1640,20 +1680,30 @@ if (document.querySelector('.dashboard-container')) {
                         </td>
                         <td>${escAdmin(p.email)}<br><span style="font-size:0.78rem;color:#64748b;">${escAdmin(p.phone || '-')}</span></td>
                         <td>
-                            <div style="display:flex;align-items:center;gap:4px;font-size:0.76rem;">
+                            <div style="display:flex;align-items:center;gap:4px;font-size:0.76rem;margin-bottom:4px;">
                                 <input type="number" value="${Number(p.stromCommissionEur || 0)}" onchange="updateAdminPartnerUser(${Number(p.id)}, { stromCommissionEur: parseFloat(this.value) || 0, gasCommissionEur: parseFloat(this.value) || 0 })" style="width:52px;padding:3px 5px;border:1px solid #cbd5e1;border-radius:4px;" title="Strom/Gas Provision (€)"> €
                                 <span>/ Override:</span>
                                 <input type="number" value="${Number(p.overrideCommissionEur || 0)}" onchange="updateAdminPartnerUser(${Number(p.id)}, { overrideCommissionEur: parseFloat(this.value) || 0 })" style="width:46px;padding:3px 5px;border:1px solid #cbd5e1;border-radius:4px;" title="Override Provision (€)"> €
                             </div>
+                            <div style="font-size:0.72rem;color:#64748b;">Stornoreserve: <strong>${Number(p.stornoReservePct ?? 10)}%</strong> (${Number(p.liabilityMonths || 12)}M)</div>
                         </td>
-                        <td><span style="font-family:monospace;font-size:0.76rem;">${escAdmin(p.iban || '-')}</span><br><span style="font-size:0.74rem;color:#64748b;">${p.isVatLiable ? 'Regelbesteuert (19% USt.)' : 'Kleinunternehmer (0% USt.)'}</span></td>
                         <td>
-                            <button onclick="createAdminCommissionPayout(${Number(p.id)})" style="background:#10b981;color:#fff;border:none;padding:6px 11px;border-radius:6px;font-size:0.78rem;font-weight:700;cursor:pointer;">
-                                <i class="fa-solid fa-file-invoice-dollar"></i> Gutschrift erstellen
-                            </button>
+                            <span style="font-family:monospace;font-size:0.76rem;">${escAdmin(p.iban || '-')}</span><br>
+                            <span style="font-size:0.74rem;color:${p.isVatLiable ? '#0369a1' : '#64748b'};font-weight:600;">${p.isVatLiable ? 'Regelbesteuert (19% USt.)' : 'Kleinunternehmer (§ 19 UStG)'}</span>
+                            ${(p.vatId || p.taxId) ? `<br><span style="font-size:0.72rem;color:#64748b;">St-Nr./USt-ID: ${escAdmin(p.vatId || p.taxId)}</span>` : ''}
+                        </td>
+                        <td>
+                            <div style="display:flex;flex-direction:column;gap:5px;">
+                                <button onclick="createAdminCommissionPayout(${Number(p.id)})" style="background:#10b981;color:#fff;border:none;padding:6px 11px;border-radius:6px;font-size:0.76rem;font-weight:700;cursor:pointer;">
+                                    <i class="fa-solid fa-file-invoice-dollar"></i> Schnell-Gutschrift
+                                </button>
+                                <a href="/vp?adminTab=admin-billing" target="_blank" style="background:#f1f5f9;color:#0f172a;border:1px solid #cbd5e1;padding:4px 8px;border-radius:6px;font-size:0.72rem;font-weight:700;text-decoration:none;text-align:center;">
+                                    ⚙️ Im Abrechnungstool
+                                </a>
+                            </div>
                         </td>
                     </tr>
-                `).join('');
+                `}).join('');
             }
 
             const leadsTbody = document.getElementById('admin-portal-leads-tbody');
@@ -1692,7 +1742,10 @@ if (document.querySelector('.dashboard-container')) {
                     payoutsTbody.innerHTML = payouts.map(po => `
                         <tr>
                             <td><strong>${escAdmin(po.payoutNumber)}</strong></td>
-                            <td>${escAdmin(po.periodLabel)} (${Number(po.ordersCount || 0)} Vertr.)</td>
+                            <td>
+                                ${escAdmin(po.periodLabel)} (${Number(po.ordersCount || 0)} Pos.)
+                                ${po.stornoReserveAmount > 0 ? `<br><span style="font-size:0.72rem;color:#b45309;">Reserve: -${fmtEurAdmin(po.stornoReserveAmount)} (${po.stornoReservePct}%)</span>` : ''}
+                            </td>
                             <td>${fmtEurAdmin(po.netAmount)} Netto<br><strong>${fmtEurAdmin(po.grossAmount)} Brutto</strong></td>
                             <td><a href="/api/partner/payouts/${Number(po.id)}/pdf" target="_blank" style="color:#ea580c;font-weight:700;text-decoration:underline;">PDF öffnen</a></td>
                         </tr>
@@ -1702,6 +1755,12 @@ if (document.querySelector('.dashboard-container')) {
         } catch (err) {
             console.error('Error loading admin portal overview:', err);
         }
+    };
+
+    window.saveAdminOrderStatusMsg = async function(orderId) {
+        const inp = document.getElementById(`adm-order-msg-${orderId}`);
+        if (!inp) return;
+        await window.updateAdminEnergyOrder(orderId, { statusMessage: inp.value.trim() });
     };
 
     window.updateAdminPartnerUser = async function(partnerId, patchData) {

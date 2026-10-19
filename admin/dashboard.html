@@ -395,13 +395,31 @@
 
         <!-- Aufträge & Provisionen Tab (In-House Partner Portal Management) -->
         <div id="portal-orders-tab" class="tab-content">
+            <!-- Admin /vp Bridge Banner -->
+            <div style="background: linear-gradient(135deg, #0a1f44 0%, #1e293b 100%); color: #fff; padding: 18px 22px; border-radius: 12px; margin-bottom: 22px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px; border: 1px solid rgba(255,122,0,0.4);">
+                <div>
+                    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+                        <span style="background: #ff7a00; color: #fff; font-size: 0.72rem; font-weight: 800; padding: 3px 9px; border-radius: 99px; text-transform: uppercase;">👑 Admin-Steuerzentrale (/admin &harr; /vp)</span>
+                        <strong style="font-size: 1rem;">Vertriebspartner-Portal, Versorgerseite-Affiliates &amp; § 14 UStG Abrechnungstool</strong>
+                    </div>
+                    <div style="font-size: 0.82rem; color: #cbd5e1;">
+                        Als eingeloggter Admin agieren Sie auch direkt unter <code>/vp</code> im Admin-Modus. VPs sehen in <code>/vp</code> ausschließlich ihre eigenen Aufträge, Statusmeldungen &amp; Gutschriften.
+                    </div>
+                </div>
+                <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                    <a href="/vp?adminTab=admin-orders" target="_blank" style="background: #ff7a00; color: #fff; text-decoration: none; padding: 9px 14px; border-radius: 8px; font-weight: 700; font-size: 0.82rem;">👑 Aufträge &amp; Statusmeldungen in /vp</a>
+                    <a href="/vp?adminTab=admin-partners" target="_blank" style="background: #0284c7; color: #fff; text-decoration: none; padding: 9px 14px; border-radius: 8px; font-weight: 700; font-size: 0.82rem;">👤 VP-Anlage &amp; Affiliate-Links in /vp</a>
+                    <a href="/vp?adminTab=admin-billing" target="_blank" style="background: #10b981; color: #fff; text-decoration: none; padding: 9px 14px; border-radius: 8px; font-weight: 700; font-size: 0.82rem;">💶 Abrechnungstool in /vp</a>
+                </div>
+            </div>
+
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 24px;">
                 <div style="background: white; padding: 18px; border-radius: 10px; border: 1px solid #e2e8f0;">
                     <div style="font-size: 0.8rem; color: #64748b; font-weight: 600;">Energieaufträge (Gesamt)</div>
                     <div id="admin-kpi-orders" style="font-size: 1.6rem; font-weight: 800; color: #0f172a; margin-top: 4px;">0</div>
                 </div>
                 <div style="background: white; padding: 18px; border-radius: 10px; border: 1px solid #e2e8f0;">
-                    <div style="font-size: 0.8rem; color: #64748b; font-weight: 600;">Aktive Portal-Partner</div>
+                    <div style="font-size: 0.8rem; color: #64748b; font-weight: 600;">Aktive Portal-Partner (VPs)</div>
                     <div id="admin-kpi-partners" style="font-size: 1.6rem; font-weight: 800; color: #0284c7; margin-top: 4px;">0</div>
                 </div>
                 <div style="background: white; padding: 18px; border-radius: 10px; border: 1px solid #e2e8f0;">
@@ -419,8 +437,11 @@
             </div>
 
             <div style="background: white; padding: 20px; border-radius: 10px; border: 1px solid #e2e8f0; margin-bottom: 24px;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
-                    <h3 style="margin: 0;">1. Eingereichte Energieaufträge (Online, D2D eSign &amp; Affiliate)</h3>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; flex-wrap: wrap; gap: 10px;">
+                    <div>
+                        <h3 style="margin: 0;">1. Eingereichte Energieaufträge &amp; Statusmeldungen für VPs</h3>
+                        <p style="margin: 4px 0 0 0; font-size: 0.82rem; color: #64748b;">Ändern Sie Auftragsstatus, Lieferbeginn und Statusmeldung – der jeweilige Vertriebspartner sieht die Statusmeldung sofort in seinem <code>/vp</code> Cockpit.</p>
+                    </div>
                     <button type="button" onclick="loadAdminPortalOverview()" class="btn" style="background: #0f172a; color: white; border: none; padding: 8px 14px; border-radius: 6px; cursor: pointer; font-weight: 600;">Aktualisieren</button>
                 </div>
                 <div class="table-container">
@@ -431,36 +452,46 @@
                                 <th>Kunde &amp; Lieferstelle</th>
                                 <th>Tarif &amp; Zähler</th>
                                 <th>IBAN / Bank</th>
-                                <th>Partner / Sub-ID</th>
+                                <th>VP-Code / Kanal</th>
                                 <th>eSign</th>
-                                <th>Auftragsstatus</th>
+                                <th>Auftragsstatus &amp; Lieferbeginn</th>
+                                <th>Statusmeldung (für VP sichtbar)</th>
                                 <th>Provision &amp; Freigabe</th>
                             </tr>
                         </thead>
                         <tbody id="admin-portal-orders-tbody">
-                            <tr><td colspan="8" class="text-center">Lade Aufträge...</td></tr>
+                            <tr><td colspan="9" class="text-center">Lade Aufträge...</td></tr>
                         </tbody>
                     </table>
                 </div>
             </div>
 
             <div style="background: white; padding: 20px; border-radius: 10px; border: 1px solid #e2e8f0; margin-bottom: 24px;">
-                <h3 style="margin: 0 0 14px 0;">2. Aktive Partner-Portal Zugänge (D2D, Affiliate, Tippgeber, Agentur) &amp; Gutschrift-Erstellung</h3>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; flex-wrap: wrap; gap: 10px;">
+                    <div>
+                        <h3 style="margin: 0;">2. Aktive Vertriebspartner (/vp), Versorgerseite-Affiliate-Links &amp; Abrechnungstool</h3>
+                        <p style="margin: 4px 0 0 0; font-size: 0.82rem; color: #64748b;">Jeder angelegte Vertriebspartner erhält automatisch seinen persönlichen Versorgerseite-Affiliate-Link (<code>/versorger?ref=CODE</code>).</p>
+                    </div>
+                    <div style="display: flex; gap: 8px;">
+                        <a href="/vp?adminTab=admin-partners" target="_blank" class="btn" style="background: #ef8a00; color: white; text-decoration: none; padding: 8px 14px; border-radius: 6px; font-weight: 700; font-size: 0.85rem;"><i class="fa-solid fa-user-plus"></i> + Neuen Vertriebspartner (VP) anlegen</a>
+                    </div>
+                </div>
                 <div class="table-container">
                     <table class="data-table">
                         <thead>
                             <tr>
                                 <th>Partner-Code</th>
-                                <th>Name / Firma</th>
+                                <th>Name / Firma / IHK</th>
+                                <th>Versorgerseite Affiliate-Link</th>
                                 <th>Rolle &amp; Status</th>
                                 <th>E-Mail &amp; Telefon</th>
-                                <th>Kondition (Strom / Gas / Override)</th>
-                                <th>Bank / USt.</th>
-                                <th>Aktion (Gutschrift)</th>
+                                <th>Kondition &amp; Reserve</th>
+                                <th>Bank / Steuer (§ 14 UStG)</th>
+                                <th>Abrechnung (Gutschrift)</th>
                             </tr>
                         </thead>
                         <tbody id="admin-portal-partners-tbody">
-                            <tr><td colspan="7" class="text-center">Lade Partner...</td></tr>
+                            <tr><td colspan="8" class="text-center">Lade Partner...</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -487,13 +518,13 @@
                 </div>
 
                 <div style="background: white; padding: 20px; border-radius: 10px; border: 1px solid #e2e8f0;">
-                    <h3 style="margin: 0 0 14px 0;">4. Erstellte Provisionsgutschriften (PDF)</h3>
+                    <h3 style="margin: 0 0 14px 0;">4. Erstellte Provisionsgutschriften (§ 14 UStG PDF)</h3>
                     <div class="table-container">
                         <table class="data-table">
                             <thead>
                                 <tr>
                                     <th>Gutschrift-Nr.</th>
-                                    <th>Zeitraum</th>
+                                    <th>Zeitraum / Reserve</th>
                                     <th>Netto / Brutto</th>
                                     <th>PDF Beleg</th>
                                 </tr>
@@ -737,6 +768,6 @@
         </div>
     </div>
 
-    <script src="admin.js?v=8"></script>
+    <script src="admin.js?v=20261019_vp_affiliate_billing1"></script>
 </body>
 </html>

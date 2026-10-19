@@ -90,9 +90,34 @@ document.addEventListener("DOMContentLoaded", async () => {
             }
             if (isHomePage && wantsTarife) {
                 const subParam = urlParams.get('subid') || urlParams.get('sub_id') || '';
-                window.location.href = `versorger.html?ref=${encodeURIComponent(refFromUrl)}${subParam ? '&subid=' + encodeURIComponent(subParam) : ''}`;
+                window.location.href = `/versorger?ref=${encodeURIComponent(refFromUrl)}${subParam ? '&subid=' + encodeURIComponent(subParam) : ''}`;
                 return;
             }
+        }
+
+        // Show verified Vertriebspartner recommendation badge on Versorgerseite when an affiliate ref is active
+        const attr = window.getAlphaAffiliateAttribution ? window.getAlphaAffiliateAttribution() : { partnerCode: null };
+        const rechnerTarget = document.getElementById('rechner') || document.getElementById('tarifrechner');
+        if (attr && attr.partnerCode && rechnerTarget && !document.getElementById('alphaAffiliatePartnerBanner')) {
+            fetch(`/api/affiliate/partner-info?ref=${encodeURIComponent(attr.partnerCode)}`)
+                .then(r => r.json())
+                .then(info => {
+                    if (!info || !info.success || !info.partner) return;
+                    const p = info.partner;
+                    const banner = document.createElement('div');
+                    banner.id = 'alphaAffiliatePartnerBanner';
+                    banner.style.cssText = 'max-width:960px;margin:0 auto 14px auto;background:linear-gradient(135deg,#0a1f44 0%,#132d5e 100%);color:#fff;padding:10px 18px;border-radius:12px;border:1px solid rgba(255,122,0,0.45);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;font-size:0.84rem;box-shadow:0 8px 24px rgba(10,31,68,0.12);';
+                    banner.innerHTML = `
+                        <div style="display:flex;align-items:center;gap:10px;">
+                            <span style="background:#16a34a;color:#fff;font-weight:800;font-size:0.7rem;padding:3px 9px;border-radius:99px;text-transform:uppercase;letter-spacing:0.04em;">✓ Verifizierter Partner-Link</span>
+                            <span>Persönliche Tarifempfehlung durch Ihren Alpha Energie Vertriebspartner: <strong style="color:#ff9a3c;">${String(p.companyName || p.displayName || p.partnerCode).replace(/</g, '&lt;')}</strong> <span style="opacity:0.75;font-size:0.76rem;">(Code: ${String(p.partnerCode).replace(/</g, '&lt;')})</span></span>
+                        </div>
+                        <span style="font-size:0.75rem;color:#cbd5e1;">100% Online-Wechselservice inklusive</span>
+                    `;
+                    const calcContainer = rechnerTarget.querySelector('.container') || rechnerTarget;
+                    calcContainer.insertBefore(banner, calcContainer.firstChild);
+                })
+                .catch(() => {});
         }
     } catch (e) {
         console.error('Error handling ref code routing:', e);
@@ -2557,7 +2582,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         try {
             const urlParams = new URLSearchParams(window.location.search);
             const urlPlz = urlParams.get('plz');
-            const rawUrlBranch = (urlParams.get('branch') || '').toLowerCase();
+            const rawUrlBranch = (urlParams.get('branch') || urlParams.get('sparte') || '').toLowerCase();
             const urlBranch = (rawUrlBranch === 'waerme' || rawUrlBranch === 'waermestrom' || rawUrlBranch === 'waermepumpe' || rawUrlBranch === 'htnt')
                 ? 'waerme'
                 : ((rawUrlBranch === 'ladestrom' || rawUrlBranch === 'autostrom' || rawUrlBranch === 'wallbox' || rawUrlBranch === 'mobility')

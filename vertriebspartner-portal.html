@@ -548,15 +548,39 @@
             </div>
         </section>
 
-        <!-- SECTION C: Logged-In Partner Cockpit -->
+        <!-- SECTION C: Logged-In Partner & Admin Cockpit (/vp) -->
         <section id="partnerCockpitSection" class="section-pad" style="display: none; background-color: #f1f5f9;">
             <div class="container">
+
+                <!-- ADMIN CONTROL BAR (Only visible when logged in as Admin via /admin) -->
+                <div id="vpAdminModeBanner" class="admin-mode-bar" style="display: none;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+                        <div>
+                            <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                                <span style="background: #f59e0b; color: #0f172a; font-size: 0.74rem; font-weight: 800; padding: 3px 10px; border-radius: 999px; text-transform: uppercase;">👑 Admin-Modus aktiv (/admin)</span>
+                                <span style="font-size: 0.85rem; color: #fde68a; font-weight: 700;">Vollzugriff: Statusmeldungen ändern • Vertriebspartner anlegen • Abrechnungen (Gutschriften) erstellen</span>
+                            </div>
+                            <p style="margin: 4px 0 0 0; font-size: 0.8rem; color: #cbd5e1;">
+                                Als Admin sehen Sie hier alle Aufträge &amp; Partner. Normale Vertriebspartner sehen im <code>/vp</code> ausschließlich ihre eigenen Aufträge, ihren Status und ihre eigenen Gutschriften.
+                            </p>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                            <label for="adminVpImpersonateSelect" style="font-size: 0.78rem; color: #cbd5e1; font-weight: 600;">👁️ VP-Ansicht prüfen:</label>
+                            <select id="adminVpImpersonateSelect" style="padding: 6px 10px; border-radius: 8px; border: 1px solid #475569; background: #1e293b; color: #fff; font-size: 0.82rem; font-weight: 700;">
+                                <option value="">-- Partner wählen --</option>
+                            </select>
+                            <a href="/admin" style="background: rgba(255,255,255,0.14); color: #fff; text-decoration: none; padding: 7px 13px; border-radius: 8px; font-size: 0.8rem; font-weight: 700; border: 1px solid rgba(255,255,255,0.25);">Zurück zu /admin</a>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Partner Top Banner -->
                 <div class="cockpit-header-card">
                     <div>
                         <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
                             <span id="cockpitPartnerRole" style="background: #ff7a00; color: #fff; font-size: 0.75rem; font-weight: 800; padding: 4px 10px; border-radius: 999px;">D2D Außendienst</span>
                             <span style="font-size: 0.85rem; color: #cbd5e1;">Partner-Code: <strong id="cockpitPartnerCode" style="color: #fff;">VP-D2D100</strong></span>
+                            <span id="cockpitRoleIsolationBadge" style="background: rgba(16, 185, 129, 0.2); border: 1px solid rgba(16, 185, 129, 0.45); color: #6ee7b7; font-size: 0.73rem; font-weight: 700; padding: 3px 9px; border-radius: 999px;">🔒 Geschützter VP-Bereich (Nur eigene Aufträge &amp; Status)</span>
                         </div>
                         <h2 id="cockpitPartnerName" style="color: #fff; margin: 6px 0 4px 0; font-size: 1.45rem;">Lukas Kowalski</h2>
                         <div id="cockpitPartnerRates" style="font-size: 0.82rem; color: #94a3b8;">Strom: 65 € | Gas: 65 € | Wärme: 75 €</div>
@@ -566,15 +590,43 @@
                     </div>
                 </div>
 
+                <!-- DEDICATED VERSORGERSEITE AFFILIATE-LINK HERO SECTION (Every VP gets their personal /versorger link right here!) -->
+                <div id="vpVersorgerAffiliateHero" class="versorger-affiliate-hero">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem;">
+                        <div style="flex: 1; min-width: 260px;">
+                            <div style="display: inline-flex; align-items: center; gap: 8px; background: #ffedd5; color: #c2410c; font-size: 0.75rem; font-weight: 800; padding: 4px 10px; border-radius: 999px; margin-bottom: 6px;">
+                                🔗 PERSÖNLICHER AFFILIATE-LINK ZUR VERSORGERSEITE (/versorger)
+                            </div>
+                            <h3 style="margin: 0 0 4px 0; color: #0a1f44; font-size: 1.18rem;">Ihr direkter Kunden-Empfehlungslink für die Versorgerseite</h3>
+                            <p style="margin: 0 0 10px 0; color: #475569; font-size: 0.85rem; line-height: 1.45;">
+                                Teilen Sie diesen Link per WhatsApp, E-Mail, Social Media oder QR-Code. Jeder Kunde, der über Ihren Link auf der <strong>Versorgerseite (<code>/versorger</code>)</strong> seinen Strom-, Gas-, Wärmestrom- oder Ladestromtarif abschließt, wird <strong>automatisch 90 Tage lang Ihrem Partner-Code (<span id="heroAffPartnerCodeLabel">VP-D2D100</span>)</strong> und Ihrer Provisionsabrechnung zugeordnet!
+                            </p>
+                            <div style="display: flex; gap: 8px; flex-wrap: wrap; align-items: center;">
+                                <input type="text" id="heroVersorgerAffiliateInput" readonly value="https://alpha-energie.de/versorger?ref=VP-D2D100" style="flex: 1; min-width: 240px; padding: 0.78rem 0.95rem; border: 2px solid #fdba74; border-radius: 10px; background: #ffffff; color: #0a1f44; font-weight: 800; font-size: 0.92rem;">
+                                <button type="button" id="btnHeroCopyVersorgerLink" class="btn btn-primary" style="border: none; padding: 0.78rem 1.2rem; border-radius: 10px; font-weight: 800; cursor: pointer;">📋 Link kopieren</button>
+                                <button type="button" id="btnHeroWhatsappShare" style="background: #16a34a; color: #fff; border: none; padding: 0.78rem 1rem; border-radius: 10px; font-weight: 700; font-size: 0.85rem; cursor: pointer;">💬 WhatsApp</button>
+                                <button type="button" id="btnHeroEmailShare" style="background: #0a1f44; color: #fff; border: none; padding: 0.78rem 1rem; border-radius: 10px; font-weight: 700; font-size: 0.85rem; cursor: pointer;">✉️ E-Mail</button>
+                                <a id="btnHeroOpenVersorger" href="/versorger?ref=VP-D2D100" target="_blank" style="background: #f1f5f9; color: #0a1f44; border: 1px solid #cbd5e1; padding: 0.75rem 1rem; border-radius: 10px; font-weight: 700; font-size: 0.85rem; text-decoration: none;">🌐 Versorgerseite öffnen ↗</a>
+                                <button type="button" id="btnHeroOpenDeepLinkTab" style="background: #fff7ed; color: #ea580c; border: 1px solid #fdba74; padding: 0.75rem 1rem; border-radius: 10px; font-weight: 700; font-size: 0.83rem; cursor: pointer;">⚙️ PLZ / Sparte / QR-Code</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Cockpit Navigation Tabs -->
                 <div class="cockpit-nav-tabs">
                     <button type="button" class="cockpit-nav-btn active" data-cockpit-tab="overview">1. Übersicht &amp; KPIs</button>
                     <button type="button" class="cockpit-nav-btn" data-cockpit-tab="d2d">2. D2D Tarifrechner &amp; eSign</button>
-                    <button type="button" class="cockpit-nav-btn" data-cockpit-tab="affiliate">3. Affiliate Links, QR &amp; Sub-IDs</button>
+                    <button type="button" class="cockpit-nav-btn" data-cockpit-tab="affiliate">3. Versorger-Affiliate, QR &amp; Sub-IDs</button>
                     <button type="button" class="cockpit-nav-btn" data-cockpit-tab="tippgeber">4. Tippgeber Lead-Box</button>
-                    <button type="button" class="cockpit-nav-btn" data-cockpit-tab="orders">5. Meine Verträge</button>
+                    <button type="button" class="cockpit-nav-btn" data-cockpit-tab="orders">5. Meine Aufträge &amp; Status</button>
                     <button type="button" class="cockpit-nav-btn" data-cockpit-tab="downline">6. Agentur &amp; Downline</button>
-                    <button type="button" class="cockpit-nav-btn" data-cockpit-tab="payouts">7. Gutschriften &amp; Stammdaten</button>
+                    <button type="button" class="cockpit-nav-btn" data-cockpit-tab="payouts">7. Abrechnungstool &amp; Stammdaten</button>
+
+                    <!-- ADMIN-ONLY TABS IN /vp (Hidden for VPs, unlocked when Admin enters via /admin) -->
+                    <button type="button" class="cockpit-nav-btn admin-tab-btn admin-only-vp-tab" data-cockpit-tab="admin-orders" style="display: none;">👑 Admin: Aufträge &amp; Statusmeldungen</button>
+                    <button type="button" class="cockpit-nav-btn admin-tab-btn admin-only-vp-tab" data-cockpit-tab="admin-partners" style="display: none;">👑 Admin: Vertriebspartner anlegen</button>
+                    <button type="button" class="cockpit-nav-btn admin-tab-btn admin-only-vp-tab" data-cockpit-tab="admin-billing" style="display: none;">👑 Admin: Abrechnungstool (Gutschriften)</button>
                 </div>
 
                 <!-- TAB 1: OVERVIEW -->
@@ -593,11 +645,11 @@
                             <div id="kpiPaidComm" style="font-size: 1.55rem; font-weight: 800; color: #16a34a; margin-top: 4px;">0,00 €</div>
                         </div>
                         <div class="cockpit-kpi-card">
-                            <div style="font-size: 0.78rem; color: #64748b; font-weight: 600;">Eingereichte Aufträge</div>
+                            <div style="font-size: 0.78rem; color: #64748b; font-weight: 600;">Meine Aufträge</div>
                             <div id="kpiTotalOrders" style="font-size: 1.55rem; font-weight: 800; color: #0a1f44; margin-top: 4px;">0</div>
                         </div>
                         <div class="cockpit-kpi-card">
-                            <div style="font-size: 0.78rem; color: #64748b; font-weight: 600;">Affiliate-Klicks &amp; CR</div>
+                            <div style="font-size: 0.78rem; color: #64748b; font-weight: 600;">Versorger-Link Klicks &amp; CR</div>
                             <div id="kpiTotalClicks" style="font-size: 1.2rem; font-weight: 800; color: #0a1f44; margin-top: 8px;">0 Klicks (0% CR)</div>
                         </div>
                         <div class="cockpit-kpi-card">
@@ -607,7 +659,10 @@
                     </div>
 
                     <div class="cockpit-card">
-                        <h3 style="margin: 0 0 1rem 0; color: #0a1f44; font-size: 1.1rem;">Letzte Energieaufträge &amp; Abschlüsse</h3>
+                        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 1rem;">
+                            <h3 style="margin: 0; color: #0a1f44; font-size: 1.1rem;">Meine letzten Energieaufträge &amp; aktuelle Statusmeldungen</h3>
+                            <span style="font-size: 0.78rem; color: #64748b;">Echtzeit-Synchronisation mit Backoffice &amp; Netzbetreiber</span>
+                        </div>
                         <div class="portal-table-wrap">
                             <table class="portal-table">
                                 <thead>
@@ -616,7 +671,7 @@
                                         <th>Kunde &amp; Ort</th>
                                         <th>Tarif &amp; Verbrauch</th>
                                         <th>Kanal / Sub-ID</th>
-                                        <th>Auftragsstatus</th>
+                                        <th>Auftragsstatus &amp; Statusmeldung</th>
                                         <th>Provision</th>
                                     </tr>
                                 </thead>
@@ -630,7 +685,7 @@
                 <div id="cockpit-pane-d2d" class="cockpit-tab-pane">
                     <div class="cockpit-card">
                         <h3 style="margin: 0 0 0.5rem 0; color: #0a1f44;">Schritt 1: Live-Tarifrechner für Vor-Ort-Beratung (Firstcon Engine)</h3>
-                        <p style="color: #64748b; font-size: 0.88rem; margin-bottom: 1rem;">Berechnen Sie den passenden Strom-, Gas- oder Wärmestromtarif nach Postleitzahl und wählen Sie eine Tarifkarte für den Direktabschluss aus.</p>
+                        <p style="color: #64748b; font-size: 0.88rem; margin-bottom: 1rem;">Berechnen Sie den passenden Strom-, Gas-, Wärmestrom- oder Ladestromtarif nach Postleitzahl und wählen Sie eine Tarifkarte für den Direktabschluss aus.</p>
                         <div class="form-grid-3" style="align-items: end; margin-bottom: 1rem;">
                             <div class="form-group" style="margin-bottom: 0;">
                                 <label for="d2dCalcBranch">Sparte</label>
@@ -762,35 +817,52 @@
                     </div>
                 </div>
 
-                <!-- TAB 3: AFFILIATE LINKS, QR & SUB-IDS -->
+                <!-- TAB 3: VERSORGERSEITE AFFILIATE-LINK, DEEP-LINK KONFIGURATOR, QR & SUB-IDS -->
                 <div id="cockpit-pane-affiliate" class="cockpit-tab-pane">
                     <div class="cockpit-card">
-                        <h3 style="margin: 0 0 0.5rem 0; color: #0a1f44;">90-Tage Affiliate-Link, Sub-ID &amp; QR-Code Generator</h3>
-                        <p style="color: #64748b; font-size: 0.88rem; margin-bottom: 1rem;">Jeder Besucher über Ihren Link wird 90 Tage lang per Cookie + LocalStorage Ihrem Partner-Code zugeordnet.</p>
+                        <h3 style="margin: 0 0 0.5rem 0; color: #0a1f44;">Versorgerseite Affiliate-Link &amp; Deep-Link Konfigurator (90-Tage Tracking)</h3>
+                        <p style="color: #64748b; font-size: 0.88rem; margin-bottom: 1rem;">
+                            Erstellen Sie maßgeschneiderte Empfehlungslinks für die <strong>Versorgerseite (<code>/versorger</code>)</strong>. Sie können sogar die <strong>Sparte, Postleitzahl und den kWh-Verbrauch Ihres Kunden direkt im Link vorbelegen</strong> – der Kunde landet dann sofort im fertig berechneten Tarif!
+                        </p>
 
                         <div class="form-grid-2">
                             <div class="form-group">
-                                <label for="affTargetPageSelect">Zielseite (Landingpage)</label>
+                                <label for="affTargetPageSelect">Zielseite (Versorgerseite / Sparte)</label>
                                 <select id="affTargetPageSelect">
-                                    <option value="/versorger.html">⚡ Haupt-Tarifrechner (/versorger.html)</option>
-                                    <option value="/versorger.html?branch=ladestrom">🔌 Ladestrom &amp; Wallbox Rechner (/versorger.html?branch=ladestrom)</option>
-                                    <option value="/oekostrom.html">🌱 Ökostrom Landingpage (/oekostrom.html)</option>
-                                    <option value="/oekogas.html">🔥 Ökogas Landingpage (/oekogas.html)</option>
-                                    <option value="/waermestrom.html">♨️ Wärmepumpen- &amp; Wärmestrom-Tarif (/waermestrom.html)</option>
+                                    <option value="/versorger">⚡ Versorgerseite – Haupt-Tarifrechner (/versorger)</option>
+                                    <option value="/versorger?branch=strom">🌱 Versorgerseite – Direkt Ökostrom (/versorger?branch=strom)</option>
+                                    <option value="/versorger?branch=gas">🔥 Versorgerseite – Direkt Erdgas (/versorger?branch=gas)</option>
+                                    <option value="/versorger?branch=waermestrom">♨️ Versorgerseite – Direkt Wärmestrom (/versorger?branch=waermestrom)</option>
+                                    <option value="/versorger?branch=ladestrom">🔌 Versorgerseite – Direkt Ladestrom &amp; Wallbox (/versorger?branch=ladestrom)</option>
+                                    <option value="/oekostrom.html">🌿 Ökostrom Info-Landingpage (/oekostrom.html)</option>
+                                    <option value="/oekogas.html">🔥 Ökogas Info-Landingpage (/oekogas.html)</option>
+                                    <option value="/waermestrom.html">♨️ Wärmepumpen-Landingpage (/waermestrom.html)</option>
                                     <option value="/stammdaten.html">🤝 Unterpartner-Recruiting (/stammdaten.html)</option>
                                 </select>
                             </div>
                             <div class="form-group">
-                                <label for="affSubIdInput">Kampagnen Sub-ID (optional, z. B. meta_ad_1, tiktok_bio)</label>
-                                <input type="text" id="affSubIdInput" placeholder="z. B. instagram_story_okt">
+                                <label for="affSubIdInput">Kampagnen Sub-ID (optional, z. B. whatsapp, flyer_do, meta_ad)</label>
+                                <input type="text" id="affSubIdInput" placeholder="z. B. whatsapp_empfehlung">
+                            </div>
+                        </div>
+
+                        <div class="form-grid-2">
+                            <div class="form-group">
+                                <label for="affPrefillPlzInput">Optional: Kunden-Postleitzahl auf Versorgerseite vorbelegen</label>
+                                <input type="text" id="affPrefillPlzInput" maxlength="5" placeholder="z. B. 44139 (leer lassen für allgemein)">
+                            </div>
+                            <div class="form-group">
+                                <label for="affPrefillKwhInput">Optional: Jahresverbrauch (kWh) auf Versorgerseite vorbelegen</label>
+                                <input type="number" id="affPrefillKwhInput" min="500" max="100000" step="100" placeholder="z. B. 3500 (leer lassen für Standard)">
                             </div>
                         </div>
 
                         <div class="form-group">
-                            <label for="affGeneratedUrlInput">Ihr persönlicher 90-Tage-Tracking-Link:</label>
+                            <label for="affGeneratedUrlInput">Ihr konfigurierter 90-Tage Versorgerseite-Affiliate-Link:</label>
                             <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-                                <input type="text" id="affGeneratedUrlInput" readonly style="flex: 1; min-width: 220px; background: #f8fafc; font-weight: 600;">
-                                <button type="button" id="btnCopyAffUrl" class="btn btn-primary" style="border: none; cursor: pointer; padding: 0.75rem 1.2rem;">Link kopieren</button>
+                                <input type="text" id="affGeneratedUrlInput" readonly style="flex: 1; min-width: 220px; background: #f8fafc; font-weight: 700; color: #0a1f44;">
+                                <button type="button" id="btnCopyAffUrl" class="btn btn-primary" style="border: none; cursor: pointer; padding: 0.75rem 1.2rem;">📋 Link kopieren</button>
+                                <button type="button" id="btnShareAffWhatsapp" style="background: #16a34a; color: #fff; border: none; border-radius: 10px; padding: 0.75rem 1.1rem; font-weight: 700; cursor: pointer;">💬 WhatsApp</button>
                             </div>
                         </div>
 
@@ -798,20 +870,20 @@
                             <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 14px; padding: 1rem; display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;">
                                 <canvas id="affQrCodeCanvas" width="180" height="180" style="border-radius: 10px; border: 1px solid #cbd5e1; background: #fff;"></canvas>
                                 <div style="flex: 1; min-width: 160px;">
-                                    <strong style="color: #0a1f44; display: block; margin-bottom: 4px;">Flyer &amp; Aufsteller QR-Code</strong>
-                                    <p style="font-size: 0.8rem; color: #64748b; margin: 0 0 10px 0;">Ideal für Visitenkarten, Thekenaufsteller und Print-Mailings.</p>
+                                    <strong style="color: #0a1f44; display: block; margin-bottom: 4px;">Versorgerseite QR-Code</strong>
+                                    <p style="font-size: 0.8rem; color: #64748b; margin: 0 0 10px 0;">Ideal für Visitenkarten, Thekenaufsteller, Flyer und Vor-Ort-Termine.</p>
                                     <button type="button" id="btnDownloadAffQr" class="btn btn-secondary" style="border: none; padding: 8px 14px; font-size: 0.82rem; cursor: pointer;">QR-Code als PNG laden</button>
                                 </div>
                             </div>
                             <div class="form-group" style="margin-bottom: 0;">
-                                <label for="affWidgetEmbedCode">iFrame Tarifrechner-Widget für Ihre Website:</label>
+                                <label for="affWidgetEmbedCode">iFrame Versorgerseite-Widget für Ihre eigene Website:</label>
                                 <textarea id="affWidgetEmbedCode" rows="5" readonly style="font-family: monospace; font-size: 0.78rem; background: #0f172a; color: #38bdf8;"></textarea>
                             </div>
                         </div>
                     </div>
 
                     <div class="cockpit-card">
-                        <h3 style="margin: 0 0 1rem 0; color: #0a1f44;">Sub-ID Kampagnen-Auswertung</h3>
+                        <h3 style="margin: 0 0 1rem 0; color: #0a1f44;">Sub-ID &amp; Versorgerseite Kampagnen-Auswertung</h3>
                         <div class="portal-table-wrap">
                             <table class="portal-table">
                                 <thead>
@@ -901,10 +973,16 @@
                     </div>
                 </div>
 
-                <!-- TAB 5: MEINE VERTRÄGE -->
+                <!-- TAB 5: MEINE AUFTRÄGE & STATUSMELDUNGEN (VP sees strictly only their own orders & status) -->
                 <div id="cockpit-pane-orders" class="cockpit-tab-pane">
                     <div class="cockpit-card">
-                        <h3 style="margin: 0 0 1rem 0; color: #0a1f44;">Alle zugeordneten Kundenverträge &amp; eSign-Status</h3>
+                        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 1rem;">
+                            <div>
+                                <h3 style="margin: 0 0 4px 0; color: #0a1f44;">Meine Kundenaufträge, Auftragsstatus &amp; Backoffice-Statusmeldungen</h3>
+                                <p style="margin: 0; font-size: 0.83rem; color: #64748b;">Hier sehen Sie alle über Ihren Versorgerseite-Affiliate-Link oder D2D eingereichten Aufträge inklusive aktueller Statusmeldung der Administration.</p>
+                            </div>
+                            <span style="background: #f1f5f9; color: #0a1f44; font-size: 0.78rem; font-weight: 700; padding: 6px 12px; border-radius: 8px;">🔒 Nur eigene Aufträge sichtbar</span>
+                        </div>
                         <div class="portal-table-wrap">
                             <table class="portal-table">
                                 <thead>
@@ -914,7 +992,7 @@
                                         <th>Tarif &amp; Zähler</th>
                                         <th>Quelle / Sub-ID</th>
                                         <th>eSign / Nachweis</th>
-                                        <th>Vertragsstatus</th>
+                                        <th>Aktueller Status &amp; Statusmeldung</th>
                                         <th>Provision</th>
                                     </tr>
                                 </thead>
@@ -928,7 +1006,7 @@
                 <div id="cockpit-pane-downline" class="cockpit-tab-pane">
                     <div class="cockpit-card">
                         <h3 style="margin: 0 0 0.5rem 0; color: #0a1f44;">Unterpartner (Team / Downline) direkt anlegen</h3>
-                        <p style="color: #64748b; font-size: 0.88rem; margin-bottom: 1rem;">Legen Sie neue Berater, Affiliates oder Tippgeber in Ihrer Struktur an. Bei jedem Abschluss Ihres Unterpartners erhalten Sie automatisch Ihre hinterlegte Override-Provision.</p>
+                        <p style="color: #64748b; font-size: 0.88rem; margin-bottom: 1rem;">Legen Sie neue Berater, Affiliates oder Tippgeber in Ihrer Struktur an. Jeder Unterpartner erhält automatisch seinen eigenen Versorgerseite-Affiliate-Link. Bei jedem Abschluss erhalten Sie Ihre Override-Provision.</p>
 
                         <form id="createSubPartnerForm">
                             <div class="form-grid-3">
@@ -964,7 +1042,7 @@
                                 </div>
                             </div>
                             <div id="subPartnerFormFeedback" style="display: none; font-weight: 700; font-size: 0.9rem; margin-bottom: 1rem;"></div>
-                            <button type="submit" id="btnCreateSubPartner" class="btn btn-primary" style="border: none; cursor: pointer;">Unterpartner jetzt freischalten</button>
+                            <button type="submit" id="btnCreateSubPartner" class="btn btn-primary" style="border: none; cursor: pointer;">Unterpartner &amp; Versorger-Link jetzt freischalten</button>
                         </form>
                     </div>
 
@@ -974,7 +1052,7 @@
                             <table class="portal-table">
                                 <thead>
                                     <tr>
-                                        <th>Partner-Code</th>
+                                        <th>Partner-Code &amp; Versorger-Link</th>
                                         <th>Name &amp; E-Mail</th>
                                         <th>Rolle</th>
                                         <th>Kondition (Strom/Gas)</th>
@@ -988,21 +1066,64 @@
                     </div>
                 </div>
 
-                <!-- TAB 7: GUTSCHRIFTEN & STAMMDATEN -->
+                <!-- TAB 7: ABRECHNUNGSTOOL (VP-ANSICHT), GUTSCHRIFTEN & STAMMDATEN -->
                 <div id="cockpit-pane-payouts" class="cockpit-tab-pane">
+                    <!-- Live Abrechnungsvorschau & Stornoreserve-Konto -->
+                    <div class="cockpit-card" style="background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%); border: 1px solid #cbd5e1;">
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem; margin-bottom: 1rem;">
+                            <div>
+                                <span style="background: #dbeafe; color: #1e40af; font-size: 0.74rem; font-weight: 800; padding: 3px 9px; border-radius: 999px;">💶 ABRECHNUNGSTOOL (§ 14 UStG GUTSCHRIFTSVERFAHREN)</span>
+                                <h3 style="margin: 6px 0 2px 0; color: #0a1f44;">Meine Live-Abrechnungsvorschau &amp; Stornoreserve-Konto</h3>
+                                <p style="margin: 0; font-size: 0.83rem; color: #64748b;">Automatische Kalkulation Ihrer nächsten Provisionsgutschrift auf Basis Ihrer offenen &amp; bestätigten Aufträge.</p>
+                            </div>
+                            <div id="vpTaxModeBadge" style="background: #f1f5f9; color: #0a1f44; font-size: 0.8rem; font-weight: 700; padding: 7px 12px; border-radius: 8px; border: 1px solid #cbd5e1;">
+                                Steuerart: Kleinunternehmer (§ 19 UStG)
+                            </div>
+                        </div>
+
+                        <div class="cockpit-kpi-grid" style="margin-bottom: 0;">
+                            <div class="cockpit-kpi-card" style="background: #fff;">
+                                <div style="font-size: 0.76rem; color: #64748b; font-weight: 600;">Offene Auftragsprovision (Basis)</div>
+                                <div id="vpPreviewBaseEur" style="font-size: 1.35rem; font-weight: 800; color: #0a1f44; margin-top: 4px;">0,00 €</div>
+                                <div id="vpPreviewEligibleCount" style="font-size: 0.74rem; color: #64748b; margin-top: 2px;">0 abrechenbare Verträge</div>
+                            </div>
+                            <div class="cockpit-kpi-card" style="background: #fff;">
+                                <div style="font-size: 0.76rem; color: #64748b; font-weight: 600;">./. Stornoreserve-Einbehalt</div>
+                                <div id="vpPreviewReserveEur" style="font-size: 1.35rem; font-weight: 800; color: #d97706; margin-top: 4px;">0,00 €</div>
+                                <div id="vpPreviewReservePct" style="font-size: 0.74rem; color: #64748b; margin-top: 2px;">Satz: 10 %</div>
+                            </div>
+                            <div class="cockpit-kpi-card" style="background: #fff;">
+                                <div style="font-size: 0.76rem; color: #64748b; font-weight: 600;">Netto-Auszahlung + USt.</div>
+                                <div id="vpPreviewNetAndVat" style="font-size: 1.25rem; font-weight: 800; color: #0a1f44; margin-top: 4px;">0,00 €</div>
+                                <div id="vpPreviewVatSub" style="font-size: 0.74rem; color: #64748b; margin-top: 2px;">zzgl. 0,00 € USt.</div>
+                            </div>
+                            <div class="cockpit-kpi-card" style="background: #f0fdf4; border-color: #bbf7d0;">
+                                <div style="font-size: 0.76rem; color: #166534; font-weight: 700;">Voraussichtliche Brutto-Auszahlung</div>
+                                <div id="vpPreviewGrossEur" style="font-size: 1.45rem; font-weight: 800; color: #15803d; margin-top: 4px;">0,00 €</div>
+                                <div style="font-size: 0.74rem; color: #166534; margin-top: 2px;">Nächster Gutschriftslauf</div>
+                            </div>
+                            <div class="cockpit-kpi-card" style="background: #eff6ff; border-color: #bfdbfe;">
+                                <div style="font-size: 0.76rem; color: #1e40af; font-weight: 700;">Stornoreserve-Konto (Bestand)</div>
+                                <div id="vpStornoReserveBalance" style="font-size: 1.35rem; font-weight: 800; color: #1d4ed8; margin-top: 4px;">0,00 €</div>
+                                <div id="vpLiabilityInfo" style="font-size: 0.74rem; color: #1e40af; margin-top: 2px;">Haftungszeit: 12 Monate</div>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="cockpit-card">
-                        <h3 style="margin: 0 0 1rem 0; color: #0a1f44;">Provisionsabrechnungen &amp; PDF-Gutschriften</h3>
+                        <h3 style="margin: 0 0 1rem 0; color: #0a1f44;">Meine Provisionsabrechnungen &amp; PDF-Gutschriften</h3>
                         <div class="portal-table-wrap">
                             <table class="portal-table">
                                 <thead>
                                     <tr>
                                         <th>Gutschrift-Nr.</th>
-                                        <th>Abrechnungszeitraum</th>
-                                        <th>Verträge</th>
+                                        <th>Abrechnungszeitraum &amp; Details</th>
+                                        <th>Positionen</th>
+                                        <th>Stornoreserve</th>
                                         <th>Netto</th>
                                         <th>USt. (19%)</th>
                                         <th>Brutto-Auszahlung</th>
-                                        <th>Status &amp; Beleg</th>
+                                        <th>Status &amp; PDF-Beleg</th>
                                     </tr>
                                 </thead>
                                 <tbody id="partnerPayoutsTableBody"></tbody>
@@ -1011,7 +1132,7 @@
                     </div>
 
                     <div class="cockpit-card">
-                        <h3 style="margin: 0 0 1rem 0; color: #0a1f44;">Partner-Stammdaten, Steuer &amp; Bankverbindung</h3>
+                        <h3 style="margin: 0 0 1rem 0; color: #0a1f44;">Meine Partner-Stammdaten, Steuer (§ 14 / § 19 UStG) &amp; SEPA-Bankverbindung</h3>
                         <form id="partnerProfileForm">
                             <div class="form-grid-3">
                                 <div class="form-group">
@@ -1029,9 +1150,19 @@
                             </div>
                             <div class="form-grid-3">
                                 <div class="form-group">
-                                    <label for="profPhone">Telefon</label>
+                                    <label for="profLegalForm">Rechtsform</label>
+                                    <input type="text" id="profLegalForm" placeholder="z. B. Einzelunternehmen / GmbH">
+                                </div>
+                                <div class="form-group">
+                                    <label for="profPhone">Telefon / Mobil</label>
                                     <input type="tel" id="profPhone">
                                 </div>
+                                <div class="form-group">
+                                    <label for="profIhkNumber">IHK- / Gewerberegisternummer</label>
+                                    <input type="text" id="profIhkNumber" placeholder="Optional">
+                                </div>
+                            </div>
+                            <div class="form-grid-3">
                                 <div class="form-group">
                                     <label for="profStreet">Straße &amp; Haus-Nr.</label>
                                     <div style="display: flex; gap: 6px;">
@@ -1045,6 +1176,10 @@
                                         <input type="text" id="profPlz" placeholder="PLZ" style="width: 90px;">
                                         <input type="text" id="profCity" placeholder="Ort" style="flex: 1;">
                                     </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="profTaxOffice">Zuständiges Finanzamt</label>
+                                    <input type="text" id="profTaxOffice" placeholder="z. B. Finanzamt Dortmund">
                                 </div>
                             </div>
                             <div class="form-grid-3">
@@ -1062,15 +1197,19 @@
                                     <input type="text" id="profBankName">
                                 </div>
                             </div>
-                            <div class="form-grid-2" style="align-items: center;">
+                            <div class="form-grid-3" style="align-items: center;">
                                 <div class="form-group">
-                                    <label for="profTaxId">Steuernummer / USt-IdNr.</label>
+                                    <label for="profTaxId">Steuernummer</label>
                                     <input type="text" id="profTaxId" placeholder="z. B. 314/5781/2091">
                                 </div>
+                                <div class="form-group">
+                                    <label for="profVatId">USt-IdNr. (falls vorhanden)</label>
+                                    <input type="text" id="profVatId" placeholder="z. B. DE123456789">
+                                </div>
                                 <div style="padding-top: 10px;">
-                                    <label style="display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 0.9rem; cursor: pointer;">
+                                    <label style="display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 0.88rem; cursor: pointer;">
                                         <input type="checkbox" id="profIsVatLiable" style="width: 18px; height: 18px;">
-                                        Regelbesteuert – Gutschriften zzgl. 19 % Umsatzsteuer ausstellen
+                                        Regelbesteuert (zzgl. 19 % USt. auf Gutschriften)
                                     </label>
                                 </div>
                             </div>
@@ -1079,6 +1218,418 @@
                         </form>
                     </div>
                 </div>
+
+                <!-- ===================================================================== -->
+                <!-- TAB 8 (ADMIN ONLY): AUFTRÄGE & STATUSMELDUNGEN FÜR ALLE VPs VERWALTEN -->
+                <!-- ===================================================================== -->
+                <div id="cockpit-pane-admin-orders" class="cockpit-tab-pane">
+                    <div class="cockpit-card" style="border: 2px solid #fde68a;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 1rem;">
+                            <div>
+                                <span style="background: #fef3c7; color: #92400e; font-size: 0.74rem; font-weight: 800; padding: 3px 9px; border-radius: 999px;">👑 ADMIN-STEUERUNG (/admin)</span>
+                                <h3 style="margin: 6px 0 2px 0; color: #0a1f44;">Auftragsstatus &amp; Statusmeldungen für Vertriebspartner ändern</h3>
+                                <p style="margin: 0; font-size: 0.84rem; color: #64748b;">
+                                    Ändern Sie hier den Vertragsstatus, Lieferbeginn, die Provisionsfreigabe und hinterlegen Sie eine <strong>offizielle Statusmeldung</strong> (z. B. <em>„Netzanmeldung bestätigt“</em> oder <em>„Klärfall: Zählernummer prüfen“</em>), die der jeweilige VP sofort in seinem Cockpit sieht.
+                                </p>
+                            </div>
+                            <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                                <select id="vpAdminOrdersFilterPartner" style="padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.84rem;">
+                                    <option value="">Alle Vertriebspartner</option>
+                                </select>
+                                <select id="vpAdminOrdersFilterStatus" style="padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.84rem;">
+                                    <option value="">Alle Auftragsstatus</option>
+                                    <option value="RECEIVED">RECEIVED (Eingegangen)</option>
+                                    <option value="AWAITING_SIGNATURE">AWAITING_SIGNATURE (Wartet auf eSign)</option>
+                                    <option value="CONFIRMED">CONFIRMED (VNB Bestätigt)</option>
+                                    <option value="IN_DELIVERY">IN_DELIVERY (In Belieferung)</option>
+                                    <option value="CLARIFICATION">CLARIFICATION (⚠️ Klärfall)</option>
+                                    <option value="PAID">PAID (Abgerechnet)</option>
+                                    <option value="CANCELLED">CANCELLED (Storno / Widerruf)</option>
+                                </select>
+                                <button type="button" id="btnVpAdminRefreshOrders" class="btn btn-primary" style="border: none; padding: 8px 14px; font-size: 0.84rem; cursor: pointer;">🔄 Aktualisieren</button>
+                            </div>
+                        </div>
+
+                        <div style="margin-bottom: 1rem; background: #f8fafc; padding: 10px 14px; border-radius: 10px; border: 1px solid #e2e8f0;">
+                            <div style="font-size: 0.78rem; font-weight: 700; color: #475569; margin-bottom: 6px;">💡 Schnell-Vorlagen für Statusmeldungen (Klick übernimmt Text in das zuletzt fokussierte Statusmeldungs-Feld):</div>
+                            <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+                                <button type="button" class="preset-pill" data-status-preset="Auftrag eingegangen – formelle Vorprüfung im Backoffice erfolgreich.">📥 Vorprüfung OK</button>
+                                <button type="button" class="preset-pill" data-status-preset="Netzanmeldung durch Verteilnetzbetreiber (VNB) bestätigt – Lieferbeginn terminiert.">✅ VNB-Anmeldung bestätigt</button>
+                                <button type="button" class="preset-pill" data-status-preset="Kündigung beim Altversorger bestätigt – Wechseltermin gesichert.">🔄 Altversorger gekündigt</button>
+                                <button type="button" class="preset-pill" data-status-preset="Zähler in aktiver Belieferung – Provision zur Gutschrift freigegeben.">⚡ In Belieferung (Freigegeben)</button>
+                                <button type="button" class="preset-pill" data-status-preset="⚠️ Klärfall: Zählernummer / MaLo-ID beim Netzbetreiber unbekannt. Bitte Zählerfoto nachreichen.">⚠️ Klärfall: Zählernummer</button>
+                                <button type="button" class="preset-pill" data-status-preset="⚠️ Klärfall: Vorversorger lehnt Kündigung wegen Restlaufzeit ab – bitte prüfen.">⚠️ Klärfall: Vertragsbindung</button>
+                                <button type="button" class="preset-pill" data-status-preset="❌ Storniert: Kundenwiderruf innerhalb der 14-tägigen Widerrufsfrist.">❌ Storno / Widerruf</button>
+                            </div>
+                        </div>
+
+                        <div class="portal-table-wrap">
+                            <table class="portal-table">
+                                <thead>
+                                    <tr>
+                                        <th>Auftrags-Nr. &amp; Datum</th>
+                                        <th>Kunde &amp; Tarif</th>
+                                        <th>Zugeordneter VP</th>
+                                        <th>Auftragsstatus &amp; Lieferbeginn</th>
+                                        <th>Statusmeldung für den VP (Sichtbar im VP-Portal)</th>
+                                        <th>Provision &amp; Status</th>
+                                        <th>Aktion</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="vpAdminAllOrdersTableBody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ===================================================================== -->
+                <!-- TAB 9 (ADMIN ONLY): VERTRIEBSPARTNER ANLEGEN MIT ALLEN WICHTIGEN DATEN -->
+                <!-- ===================================================================== -->
+                <div id="cockpit-pane-admin-partners" class="cockpit-tab-pane">
+                    <div class="cockpit-card" style="border: 2px solid #fde68a;">
+                        <span style="background: #fef3c7; color: #92400e; font-size: 0.74rem; font-weight: 800; padding: 3px 9px; border-radius: 999px;">👑 ADMIN: VERTRIEBSPARTNER-MANAGEMENT</span>
+                        <h3 style="margin: 6px 0 4px 0; color: #0a1f44;">Neuen Vertriebspartner mit allen Stammdaten &amp; Versorgerseite-Affiliate-Link anlegen</h3>
+                        <p style="margin: 0 0 1rem 0; font-size: 0.85rem; color: #64748b;">
+                            Erfassen Sie hier sämtliche relevanten Personal-, Gewerbe-, Steuer- (§ 14 / § 19 UStG), SEPA-Bank- und Provisionsdaten. Nach dem Speichern wird sofort der <strong>persönliche Affiliate-Link zur Versorgerseite (<code>/versorger?ref=CODE</code>)</strong> generiert.
+                        </p>
+
+                        <form id="vpAdminCreatePartnerForm">
+                            <input type="hidden" id="admVpEditId" value="">
+
+                            <div class="form-section-title">👤 1. Persönliche Daten, Login &amp; Rolle</div>
+                            <div class="form-grid-3">
+                                <div class="form-group">
+                                    <label for="admVpSalutation">Anrede</label>
+                                    <select id="admVpSalutation">
+                                        <option value="Herr">Herr</option>
+                                        <option value="Frau">Frau</option>
+                                        <option value="Firma">Firma</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="admVpFirstName">Vorname *</label>
+                                    <input type="text" id="admVpFirstName" required placeholder="z. B. Lukas">
+                                </div>
+                                <div class="form-group">
+                                    <label for="admVpLastName">Nachname *</label>
+                                    <input type="text" id="admVpLastName" required placeholder="z. B. Kowalski">
+                                </div>
+                            </div>
+                            <div class="form-grid-3">
+                                <div class="form-group">
+                                    <label for="admVpEmail">E-Mail-Adresse (Portal-Login) *</label>
+                                    <input type="email" id="admVpEmail" required placeholder="partner@beispiel.de">
+                                </div>
+                                <div class="form-group">
+                                    <label for="admVpPhone">Telefon / Mobil *</label>
+                                    <input type="tel" id="admVpPhone" required placeholder="0176 12345678">
+                                </div>
+                                <div class="form-group">
+                                    <label for="admVpBirthDate">Geburtsdatum</label>
+                                    <input type="date" id="admVpBirthDate">
+                                </div>
+                            </div>
+                            <div class="form-grid-3">
+                                <div class="form-group">
+                                    <label for="admVpRole">Partner-Rolle *</label>
+                                    <select id="admVpRole">
+                                        <option value="D2D">🚶‍♂️ D2D Außendienst / Direktvertrieb</option>
+                                        <option value="AFFILIATE">🌐 Affiliate / Online-Marketer</option>
+                                        <option value="TIPPGEBER">🤝 Tippgeber / Empfehler</option>
+                                        <option value="AGENCY">🏢 Vertriebsagentur / Struktur (mit Override)</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="admVpCode">Partner-Code (Leer = Auto-Generierung)</label>
+                                    <input type="text" id="admVpCode" placeholder="z. B. VP-MUELLER26">
+                                </div>
+                                <div class="form-group">
+                                    <label for="admVpPassword">Start-Passwort für /vp *</label>
+                                    <input type="text" id="admVpPassword" value="Alpha2026!" required>
+                                </div>
+                            </div>
+
+                            <div class="form-section-title">🏢 2. Firma, Gewerbe / IHK &amp; Anschrift</div>
+                            <div class="form-grid-3">
+                                <div class="form-group">
+                                    <label for="admVpCompany">Firmenname / Agenturname (optional)</label>
+                                    <input type="text" id="admVpCompany" placeholder="z. B. Muster Energievertrieb GmbH">
+                                </div>
+                                <div class="form-group">
+                                    <label for="admVpLegalForm">Rechtsform</label>
+                                    <select id="admVpLegalForm">
+                                        <option value="Einzelunternehmen">Einzelunternehmen / Gewerbetreibender</option>
+                                        <option value="GmbH">GmbH</option>
+                                        <option value="UG (haftungsbeschränkt)">UG (haftungsbeschränkt)</option>
+                                        <option value="GbR">GbR</option>
+                                        <option value="GmbH & Co. KG">GmbH &amp; Co. KG</option>
+                                        <option value="Privatperson / Tippgeber">Privatperson / Tippgeber (§ 22 Nr. 3 EStG)</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="admVpWebsite">Website / Social-Media-Kanal</label>
+                                    <input type="text" id="admVpWebsite" placeholder="https://...">
+                                </div>
+                            </div>
+                            <div class="form-grid-3">
+                                <div class="form-group">
+                                    <label for="admVpStreet">Straße &amp; Hausnummer *</label>
+                                    <div style="display: flex; gap: 6px;">
+                                        <input type="text" id="admVpStreet" placeholder="Straße" style="flex: 1;">
+                                        <input type="text" id="admVpHouseNr" placeholder="Nr." style="width: 80px;">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="admVpPlz">PLZ &amp; Ort *</label>
+                                    <div style="display: flex; gap: 6px;">
+                                        <input type="text" id="admVpPlz" placeholder="PLZ" style="width: 90px;">
+                                        <input type="text" id="admVpCity" placeholder="Ort" style="flex: 1;">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="admVpIhk">IHK- / Gewerberegisternummer &amp; Amt</label>
+                                    <div style="display: flex; gap: 6px;">
+                                        <input type="text" id="admVpIhk" placeholder="IHK/Gew.-Nr." style="flex: 1;">
+                                        <input type="text" id="admVpGewerbeCity" placeholder="Stadt" style="width: 110px;">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-section-title">⚖️ 3. Steuerdaten (für § 14 Abs. 2 UStG Gutschriftsverfahren) &amp; SEPA-Bank</div>
+                            <div class="form-grid-3">
+                                <div class="form-group">
+                                    <label for="admVpVatMode">Umsatzsteuer-Regelung *</label>
+                                    <select id="admVpVatMode">
+                                        <option value="true">Regelbesteuerung – Gutschrift zzgl. 19 % USt.</option>
+                                        <option value="false">Kleinunternehmer gem. § 19 UStG / Privat (0 % USt.)</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="admVpTaxId">Steuernummer</label>
+                                    <input type="text" id="admVpTaxId" placeholder="z. B. 314/5781/2091">
+                                </div>
+                                <div class="form-group">
+                                    <label for="admVpVatId">USt-IdNr. &amp; Finanzamt</label>
+                                    <div style="display: flex; gap: 6px;">
+                                        <input type="text" id="admVpVatId" placeholder="DE..." style="width: 120px;">
+                                        <input type="text" id="admVpTaxOffice" placeholder="Finanzamt" style="flex: 1;">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-grid-3">
+                                <div class="form-group">
+                                    <label for="admVpIban">SEPA-IBAN für Provisionsauszahlung (Live Mod-97 Check)</label>
+                                    <input type="text" id="admVpIban" placeholder="DE89 3704 0044 0532 0130 00">
+                                    <div id="admVpIbanBadge" style="display: none; font-size: 0.75rem; font-weight: 700; margin-top: 4px;"></div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="admVpBic">BIC</label>
+                                    <input type="text" id="admVpBic" placeholder="Automatisch / Manuell">
+                                </div>
+                                <div class="form-group">
+                                    <label for="admVpBankName">Kreditinstitut</label>
+                                    <input type="text" id="admVpBankName" placeholder="Automatisch / Manuell">
+                                </div>
+                            </div>
+
+                            <div class="form-section-title">💶 4. Provisionssätze, Stornoreserve &amp; Struktur</div>
+                            <div class="form-grid-3">
+                                <div class="form-group">
+                                    <label for="admVpStromComm">Provision Ökostrom (€ / Vertrag)</label>
+                                    <input type="number" id="admVpStromComm" value="65" step="1">
+                                </div>
+                                <div class="form-group">
+                                    <label for="admVpGasComm">Provision Erdgas (€ / Vertrag)</label>
+                                    <input type="number" id="admVpGasComm" value="65" step="1">
+                                </div>
+                                <div class="form-group">
+                                    <label for="admVpWaermeComm">Provision Wärmestrom (€ / Vertrag)</label>
+                                    <input type="number" id="admVpWaermeComm" value="75" step="1">
+                                </div>
+                            </div>
+                            <div class="form-grid-3">
+                                <div class="form-group">
+                                    <label for="admVpLadestromComm">Provision Ladestrom (€ / Vertrag)</label>
+                                    <input type="number" id="admVpLadestromComm" value="65" step="1">
+                                </div>
+                                <div class="form-group">
+                                    <label for="admVpTippComm">Tippgeber-Prämie (€) &amp; Override (€)</label>
+                                    <div style="display: flex; gap: 6px;">
+                                        <input type="number" id="admVpTippComm" value="35" step="1" title="Tippgeber (€)" style="flex: 1;">
+                                        <input type="number" id="admVpOverrideComm" value="10" step="1" title="Override (€)" style="flex: 1;">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="admVpStornoPct">Stornoreserve (%) &amp; Haftung (Monate)</label>
+                                    <div style="display: flex; gap: 6px;">
+                                        <input type="number" id="admVpStornoPct" value="10" min="0" max="50" step="1" title="Stornoreserve in %" style="flex: 1;">
+                                        <input type="number" id="admVpLiabilityMonths" value="12" min="0" max="36" step="1" title="Haftungszeit in Monaten" style="flex: 1;">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-grid-3">
+                                <div class="form-group">
+                                    <label for="admVpTier">Provisionsstufe</label>
+                                    <select id="admVpTier">
+                                        <option value="STARTER">STARTER</option>
+                                        <option value="PRO" selected>PRO</option>
+                                        <option value="ELITE">ELITE (Top-Konditionen)</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="admVpParentPartner">Übergeordnete Agentur (optional)</label>
+                                    <select id="admVpParentPartner">
+                                        <option value="">-- Keine (Direkt unter Alpha Energie) --</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="admVpRemarks">Interne Admin-Notiz zum Partner</label>
+                                    <input type="text" id="admVpRemarks" placeholder="z. B. Sondervereinbarung NRW">
+                                </div>
+                            </div>
+
+                            <div id="admCreateVpResultBox" style="display: none; padding: 14px 16px; border-radius: 12px; margin-bottom: 1rem;"></div>
+
+                            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                                <button type="submit" id="btnAdmSavePartner" class="btn btn-primary" style="border: none; padding: 0.9rem 1.8rem; font-weight: 800; cursor: pointer;">➕ Vertriebspartner speichern &amp; Versorgerseite-Affiliate-Link erzeugen</button>
+                                <button type="button" id="btnAdmResetPartnerForm" style="background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; border-radius: 10px; padding: 0.9rem 1.2rem; font-weight: 700; cursor: pointer;">Formular zurücksetzen</button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div class="cockpit-card">
+                        <h3 style="margin: 0 0 1rem 0; color: #0a1f44;">Alle angelegten Vertriebspartner &amp; ihre Versorgerseite Affiliate-Links</h3>
+                        <div class="portal-table-wrap">
+                            <table class="portal-table">
+                                <thead>
+                                    <tr>
+                                        <th>Partner-Code &amp; Rolle</th>
+                                        <th>Name, Firma &amp; Kontakt</th>
+                                        <th>Versorgerseite Affiliate-Link (<code>/versorger?ref=...</code>)</th>
+                                        <th>Steuer &amp; SEPA-Bank</th>
+                                        <th>Konditionen &amp; Reserve</th>
+                                        <th>Aktionen</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="vpAdminPartnersTableBody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ===================================================================== -->
+                <!-- TAB 10 (ADMIN ONLY): ABRECHNUNGSTOOL & GUTSCHRIFTEN ERSTELLEN         -->
+                <!-- ===================================================================== -->
+                <div id="cockpit-pane-admin-billing" class="cockpit-tab-pane">
+                    <div class="cockpit-card" style="border: 2px solid #fde68a;">
+                        <span style="background: #fef3c7; color: #92400e; font-size: 0.74rem; font-weight: 800; padding: 3px 9px; border-radius: 999px;">👑 ADMIN: ABRECHNUNGSTOOL (§ 14 UStG)</span>
+                        <h3 style="margin: 6px 0 4px 0; color: #0a1f44;">Provisionsabrechnung &amp; PDF-Gutschrift für Vertriebspartner erstellen</h3>
+                        <p style="margin: 0 0 1rem 0; font-size: 0.85rem; color: #64748b;">
+                            Wählen Sie einen Vertriebspartner aus, prüfen Sie die offenen/freigegebenen Aufträge, konfigurieren Sie Stornoreserve oder Sonderboni und erzeugen Sie mit einem Klick die rechtsgültige PDF-Provisionsgutschrift.
+                        </p>
+
+                        <form id="vpAdminBillingForm">
+                            <div class="form-grid-3">
+                                <div class="form-group">
+                                    <label for="billPartnerSelect">1. Vertriebspartner auswählen *</label>
+                                    <select id="billPartnerSelect" required>
+                                        <option value="">-- Bitte Vertriebspartner wählen --</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="billPeriodLabel">2. Abrechnungszeitraum / Titel *</label>
+                                    <input type="text" id="billPeriodLabel" value="Provisionsabrechnung 10/2026" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="billStatusSelect">3. Auszahlungs-Status</label>
+                                    <select id="billStatusSelect">
+                                        <option value="PAID">✅ Direkt als AUSGEZAHLT (PAID) buchen</option>
+                                        <option value="APPROVED">⏳ Als FREIGEGEBEN (APPROVED) vormerken</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!-- Selectable Open Orders for chosen Partner -->
+                            <div style="margin-bottom: 1rem; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 1rem;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-wrap: wrap; gap: 8px;">
+                                    <strong style="color: #0a1f44; font-size: 0.88rem;">📋 Offene &amp; freigegebene Aufträge des gewählten Vertriebspartners:</strong>
+                                    <label style="font-size: 0.8rem; font-weight: 700; color: #475569; cursor: pointer;">
+                                        <input type="checkbox" id="billSelectAllOrders" checked> Alle auswählen
+                                    </label>
+                                </div>
+                                <div id="billSelectableOrdersContainer" style="max-height: 220px; overflow-y: auto; font-size: 0.83rem;">
+                                    <div style="color: #64748b; padding: 8px 0;">Bitte oben einen Vertriebspartner auswählen...</div>
+                                </div>
+                            </div>
+
+                            <div class="form-grid-3">
+                                <div class="form-group">
+                                    <label for="billStornoPct">Stornoreserve-Einbehalt (%)</label>
+                                    <input type="number" id="billStornoPct" value="10" min="0" max="50" step="1">
+                                </div>
+                                <div class="form-group">
+                                    <label for="billStornoRelease">Freigabe aus Stornoreserve (+ €)</label>
+                                    <input type="number" id="billStornoRelease" value="0" min="0" step="0.01">
+                                </div>
+                                <div class="form-group">
+                                    <label for="billBonusEur">Sonderbonus / Staffelprämie (+ €)</label>
+                                    <input type="number" id="billBonusEur" value="0" min="0" step="0.01">
+                                </div>
+                            </div>
+
+                            <div class="form-grid-2">
+                                <div class="form-group">
+                                    <label for="billCustomNet">Optional: Manueller Netto-Pauschalbetrag (€) (überschreibt Einzelpositionen)</label>
+                                    <input type="number" id="billCustomNet" placeholder="Leer lassen für automatische Summe aus gewählten Aufträgen" step="0.01">
+                                </div>
+                                <div class="form-group">
+                                    <label for="billRemark">Bemerkung / Buchungstext auf der PDF-Gutschrift</label>
+                                    <input type="text" id="billRemark" placeholder="z. B. Inkl. Versorgerseite-Affiliate-Abschlüsse">
+                                </div>
+                            </div>
+
+                            <!-- Live Calculation Summary Box -->
+                            <div style="background: linear-gradient(135deg, #0a1f44 0%, #152f59 100%); color: #fff; border-radius: 14px; padding: 1.15rem 1.4rem; margin-bottom: 1rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+                                <div>
+                                    <div style="font-size: 0.78rem; color: #cbd5e1;">Live-Kalkulation Gutschrift (<span id="billLiveTaxLabel">Steuerprüfung...</span>)</div>
+                                    <div id="billLiveBreakdownText" style="font-size: 0.85rem; color: #94a3b8; margin-top: 3px;">
+                                        Zwischensumme: 0,00 € | ./. Stornoreserve: 0,00 € | + Bonus/Freigabe: 0,00 €
+                                    </div>
+                                </div>
+                                <div style="text-align: right;">
+                                    <div style="font-size: 0.78rem; color: #fde68a; font-weight: 700;">AUSZAHLUNGSBETRAG (BRUTTO INKL. USt.):</div>
+                                    <div id="billLiveGrossTotal" style="font-size: 1.6rem; font-weight: 800; color: #fff;">0,00 €</div>
+                                </div>
+                            </div>
+
+                            <div id="billCreateFeedback" style="display: none; padding: 12px 14px; border-radius: 10px; margin-bottom: 1rem; font-weight: 700;"></div>
+
+                            <button type="submit" id="btnBillCreateSubmit" class="btn btn-secondary" style="border: none; padding: 0.95rem 1.8rem; font-weight: 800; cursor: pointer;">🧾 Rechtsgültige Gutschrift jetzt erstellen &amp; PDF generieren</button>
+                        </form>
+                    </div>
+
+                    <div class="cockpit-card">
+                        <h3 style="margin: 0 0 1rem 0; color: #0a1f44;">Alle erstellten Gutschriften &amp; Abrechnungen (Alle VPs)</h3>
+                        <div class="portal-table-wrap">
+                            <table class="portal-table">
+                                <thead>
+                                    <tr>
+                                        <th>Gutschrift-Nr. &amp; Datum</th>
+                                        <th>Vertriebspartner</th>
+                                        <th>Zeitraum &amp; Positionen</th>
+                                        <th>Zwischensumme / Reserve</th>
+                                        <th>Netto</th>
+                                        <th>USt. (19%)</th>
+                                        <th>Brutto-Auszahlung</th>
+                                        <th>Status &amp; PDF</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="vpAdminAllPayoutsTableBody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
             </div>
         </section>
     </main>

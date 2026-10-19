@@ -5907,6 +5907,32 @@ app.patch('/api/admin/payouts/:id', authenticateAdmin, async (req, res) => {
     }
 });
 
+app.post('/api/admin/impersonate-partner', authenticateAdmin, async (req, res) => {
+    try {
+        await ensureDemoPortalPartners();
+        const { partnerCode, partnerId } = req.body || {};
+        let partner = null;
+        if (partnerId) {
+            partner = await prisma.partnerUser.findUnique({ where: { id: parseInt(partnerId, 10) } });
+        } else if (partnerCode) {
+            partner = await prisma.partnerUser.findUnique({ where: { partnerCode: String(partnerCode).trim() } });
+        } else {
+            partner = await prisma.partnerUser.findFirst({ orderBy: { id: 'asc' } });
+        }
+        if (!partner) {
+            return res.status(404).json({ success: false, error: 'Partner nicht gefunden.' });
+        }
+        const token = signPartnerToken(partner);
+        res.json({
+            success: true,
+            token,
+            partner: sanitizePartnerUser(partner)
+        });
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
 // Direct access routes for Stammdatenblatt via Werbelink
 app.get('/stammdate', (req, res) => {
     res.sendFile(path.join(__dirname, 'stammdaten.html'));
