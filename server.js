@@ -5909,7 +5909,7 @@ app.patch('/api/admin/payouts/:id', authenticateAdmin, async (req, res) => {
 
 app.post('/api/admin/impersonate-partner', authenticateAdmin, async (req, res) => {
     try {
-        await ensureDemoPortalPartners();
+        await ensureDemoPartnersSeeded();
         const { partnerCode, partnerId } = req.body || {};
         let partner = null;
         if (partnerId) {
@@ -5922,7 +5922,11 @@ app.post('/api/admin/impersonate-partner', authenticateAdmin, async (req, res) =
         if (!partner) {
             return res.status(404).json({ success: false, error: 'Partner nicht gefunden.' });
         }
-        const token = signPartnerToken(partner);
+        const token = jwt.sign(
+            { partnerId: partner.id, partnerCode: partner.partnerCode, role: partner.role },
+            PARTNER_JWT_SECRET,
+            { expiresIn: '30d' }
+        );
         res.json({
             success: true,
             token,
