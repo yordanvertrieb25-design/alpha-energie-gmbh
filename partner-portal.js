@@ -422,6 +422,11 @@
             currentPartner = data.partner;
             localStorage.setItem(STORAGE_TOKEN_KEY, currentToken);
             localStorage.setItem(STORAGE_USER_KEY, JSON.stringify(currentPartner));
+            if (data.adminToken) {
+                localStorage.setItem('adminToken', data.adminToken);
+            } else {
+                localStorage.removeItem('adminToken');
+            }
             await loadPartnerCockpit();
         } catch (err) {
             if (errEl) {
@@ -432,14 +437,6 @@
     }
 
     function initAuthForms() {
-        // 1-Click Demo Buttons
-        document.querySelectorAll('[data-demo-role]').forEach(btn => {
-            btn.addEventListener('click', () => {
-                const demoRole = btn.getAttribute('data-demo-role');
-                performLogin({ demoRole });
-            });
-        });
-
         // Login Form
         const loginForm = document.getElementById('partnerLoginFormEl');
         if (loginForm) {
@@ -498,6 +495,7 @@
                     currentPartner = data.partner;
                     localStorage.setItem(STORAGE_TOKEN_KEY, currentToken);
                     localStorage.setItem(STORAGE_USER_KEY, JSON.stringify(currentPartner));
+                    localStorage.removeItem('adminToken');
                     await loadPartnerCockpit();
                 } catch (err) {
                     if (errEl) {
@@ -515,10 +513,17 @@
                 currentToken = null;
                 currentPartner = null;
                 dashboardData = null;
+                isAdminInVp = false;
+                window.__adminAutoImpersonated = false;
+                window.__adminTabSwitched = false;
                 localStorage.removeItem(STORAGE_TOKEN_KEY);
                 localStorage.removeItem(STORAGE_USER_KEY);
+                localStorage.removeItem('adminToken');
                 const publicSec = document.getElementById('publicPortalAuthSection');
                 const cockpitSec = document.getElementById('partnerCockpitSection');
+                const adminBanner = document.getElementById('vpAdminModeBanner');
+                if (adminBanner) adminBanner.style.display = 'none';
+                document.querySelectorAll('.admin-only-vp-tab').forEach(b => { b.style.display = 'none'; });
                 if (cockpitSec) cockpitSec.style.display = 'none';
                 if (publicSec) publicSec.style.display = 'flex';
             });
@@ -548,17 +553,20 @@
         const cockpitSec = document.getElementById('partnerCockpitSection');
 
         try {
-            // If Admin enters /vp without a separate VP token, auto-login demo/first VP for preview while unlocking full Admin Mode
+            // If Admin enters /vp from /admin without a separate VP token, auto-impersonate ALPHAADMIN
             if (!currentToken && adminToken) {
-                const demoRes = await fetch('/api/partner/login', {
+                const impRes = await fetch('/api/admin/impersonate-partner', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ demoRole: 'D2D' })
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${adminToken}`
+                    },
+                    body: JSON.stringify({ partnerCode: 'ALPHAADMIN' })
                 }).catch(() => null);
-                if (demoRes && demoRes.ok) {
-                    const demoData = await demoRes.json();
-                    if (demoData.success && demoData.token) {
-                        currentToken = demoData.token;
+                if (impRes && impRes.ok) {
+                    const impData = await impRes.json();
+                    if (impData.success && impData.token) {
+                        currentToken = impData.token;
                         localStorage.setItem(STORAGE_TOKEN_KEY, currentToken);
                     }
                 }
@@ -597,7 +605,7 @@
                 }
             }
 
-            // Check if user is logged in as Admin via /admin
+            // Check if user is logged in as Admin (alphaadmin or via /admin)
             await checkAndLoadAdminModeInVp();
         } catch (err) {
             console.error('[PartnerPortal] Error loading cockpit:', err);
@@ -1417,8 +1425,8 @@
                 } catch (e) {}
             }
 
-            const publicSec = document.getElementById('portalPublicSection');
-            const cockpitSec = document.getElementById('portalCockpitSection');
+            const publicSec = document.getElementById('publicPortalAuthSection');
+            const cockpitSec = document.getElementById('partnerCockpitSection');
             if (publicSec) publicSec.style.display = 'none';
             if (cockpitSec) cockpitSec.style.display = 'block';
 

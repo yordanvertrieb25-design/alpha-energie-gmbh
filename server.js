@@ -465,6 +465,7 @@ app.get(['/api/firstcon/pc-bridge/status', '/api/external/alpha-tarife/status'],
         lastSeenAgoMs: pcBridgeState.lastSeenAt ? (Date.now() - pcBridgeState.lastSeenAt) : null,
         lastJobAt: pcBridgeState.lastJobAt,
         security: {
+            whitelistedDomains: ['energiedoc.de', 'www.energiedoc.de', 'alpha-energie.de'],
             rateLimitPerMinute: 45,
             resultCacheMinutes: 10,
             loopbackOnlyOnPc: true,
@@ -475,21 +476,65 @@ app.get(['/api/firstcon/pc-bridge/status', '/api/external/alpha-tarife/status'],
     });
 });
 
-// External Alpha Tarife Endpoint (GET & POST)
+function isAllowedExternalDomainHost(hostname) {
+    const h = String(hostname || '').toLowerCase().trim();
+    if (!h) return false;
+    if (
+        h === 'energiedoc.de' ||
+        h.endsWith('.energiedoc.de') ||
+        h === 'alpha-energie.de' ||
+        h.endsWith('.alpha-energie.de') ||
+        h === 'localhost' ||
+        h === '127.0.0.1'
+    ) {
+        return true;
+    }
+    const extraEnv = String(process.env.ALLOWED_EXTERNAL_ORIGINS || '').trim();
+    if (extraEnv) {
+        const extraHosts = extraEnv.split(',').map(s => s.trim().toLowerCase().replace(/^https?:\/\//, '').replace(/\/.*$/, '')).filter(Boolean);
+        if (extraHosts.includes(h)) return true;
+    }
+    return false;
+}
+
+// External Alpha Tarife Endpoint (GET & POST) — Locked to energiedoc.de & alpha-energie.de
 async function handleExternalAlphaTarife(req, res) {
     try {
-        // Optional Origin Whitelist if ALLOWED_EXTERNAL_ORIGINS is configured in .env
-        const allowedOriginsEnv = String(process.env.ALLOWED_EXTERNAL_ORIGINS || '').trim();
         const reqOrigin = String(req.headers.origin || '').trim();
-        if (allowedOriginsEnv) {
-            const allowedList = allowedOriginsEnv.split(',').map(s => s.trim().toLowerCase()).filter(Boolean);
-            if (reqOrigin && !allowedList.includes(reqOrigin.toLowerCase())) {
-                return res.status(403).json({ success: false, error: 'Origin nicht freigeschaltet.' });
+        const reqReferer = String(req.headers.referer || '').trim();
+
+        let matchedOriginHeader = 'https://energiedoc.de';
+        if (reqOrigin) {
+            let originHost = '';
+            try {
+                originHost = new URL(reqOrigin).hostname;
+            } catch (e) {
+                originHost = '';
             }
-            res.setHeader('Access-Control-Allow-Origin', reqOrigin || allowedList[0] || '*');
-        } else {
-            res.setHeader('Access-Control-Allow-Origin', '*');
+            if (!isAllowedExternalDomainHost(originHost)) {
+                return res.status(403).json({
+                    success: false,
+                    error: 'Zugriff verweigert: Diese Domain ist nicht für die Alpha-Tarif-Schnittstelle freigeschaltet (nur energiedoc.de).'
+                });
+            }
+            matchedOriginHeader = reqOrigin;
+        } else if (reqReferer) {
+            let refererHost = '';
+            try {
+                refererHost = new URL(reqReferer).hostname;
+            } catch (e) {
+                refererHost = '';
+            }
+            if (!isAllowedExternalDomainHost(refererHost)) {
+                return res.status(403).json({
+                    success: false,
+                    error: 'Zugriff verweigert: Referer-Domain ist nicht freigeschaltet (nur energiedoc.de).'
+                });
+            }
         }
+
+        res.setHeader('Access-Control-Allow-Origin', matchedOriginHeader);
+        res.setHeader('Vary', 'Origin');
         res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
         res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Alpha-Key');
 
