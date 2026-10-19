@@ -595,6 +595,67 @@ async function handleExternalAlphaTarife(req, res) {
 
 app.all(['/api/external/alpha-tarife', '/api/external/tarife', '/api/tarife/external'], handleExternalAlphaTarife);
 
+// One-time Master Data / Tariff Catalog Endpoint for energiedoc.de
+// Returns all Alpha Energie tariff definitions (names, IDs, features, durations, PDF links) across all 4 branches.
+app.get('/api/external/alpha-tarife/catalog', (req, res) => {
+    const reqOrigin = String(req.headers.origin || '').trim();
+    if (reqOrigin) {
+        try {
+            const originHost = new URL(reqOrigin).hostname;
+            if (!isAllowedExternalDomainHost(originHost)) {
+                return res.status(403).json({ success: false, error: 'Domain nicht freigeschaltet.' });
+            }
+            res.setHeader('Access-Control-Allow-Origin', reqOrigin);
+        } catch (e) {
+            return res.status(403).json({ success: false, error: 'Ungültiger Origin-Header.' });
+        }
+    } else {
+        res.setHeader('Access-Control-Allow-Origin', 'https://energiedoc.de');
+    }
+    res.setHeader('Vary', 'Origin');
+
+    const branches = ['strom', 'gas', 'waerme', 'ladestrom'];
+    const catalogByBranch = {};
+    for (const b of branches) {
+        const ref = firstconService.buildReferenceTariffsForBranch({ plz: '44379', branch: b });
+        catalogByBranch[b] = ref.tariffs.map(t => ({
+            id: t.id,
+            firstconTariffId: t.firstconTariffId,
+            firstconName: t.firstconName,
+            name: t.name,
+            providerName: 'Alpha Energie',
+            brandId: 54,
+            branch: b,
+            badge: t.badge,
+            isBestseller: t.isBestseller,
+            contractTermMonths: t.contractTermMonths || 24,
+            priceGuaranteeMonths: t.priceGuaranteeMonths || 24,
+            ecoCertificate: t.ecoCertificate,
+            agbPdfUrl: `https://alpha-energie.de/api/tarife/agb?branch=${b === 'gas' ? 'gas' : 'strom'}&tariffId=${t.firstconTariffId}`,
+            datenschutzPdfUrl: `https://alpha-energie.de/api/tarife/datenschutz?branch=${b === 'gas' ? 'gas' : 'strom'}&tariffId=${t.firstconTariffId}`,
+            referenceWorkingPriceCt: t.workingPriceCt,
+            referenceBasePriceEurMonth: t.basePriceEurMonth
+        }));
+    }
+
+    res.json({
+        success: true,
+        provider: {
+            name: 'Alpha Energie',
+            legalNote: 'Alpha Energie – Eine Marke der Firstcon GmbH',
+            brandId: 54,
+            logoUrl: 'https://alpha-energie.de/logo.png'
+        },
+        endpoints: {
+            catalog: 'https://alpha-energie.de/api/external/alpha-tarife/catalog',
+            liveCalculate: 'https://alpha-energie.de/api/external/alpha-tarife',
+            agbPdf: 'https://alpha-energie.de/api/tarife/agb',
+            datenschutzPdf: 'https://alpha-energie.de/api/tarife/datenschutz'
+        },
+        branches: catalogByBranch
+    });
+});
+
 // Active Push Endpoint (Requires Bridge Secret or Admin Auth to prevent SSRF abuse)
 app.post('/api/external/alpha-tarife/push', async (req, res) => {
     try {
