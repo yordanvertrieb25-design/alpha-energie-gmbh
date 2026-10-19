@@ -62,7 +62,7 @@ app.use((req, res, next) => {
         const lowerPath = req.path.toLowerCase();
         const cleanPath = lowerPath.replace(/\.html$/, '');
         const isHtml = lowerPath.endsWith('.html');
-        const isTargetPage = ['/index', '/vertriebspartner', '/agenturen', '/impressum'].includes(cleanPath);
+        const isTargetPage = ['/index', '/vertriebspartner', '/agenturen', '/impressum', '/vp', '/versorger'].includes(cleanPath);
         const isSitemapOrRobots = lowerPath === '/robots.txt' || lowerPath === '/sitemap.xml' || lowerPath.startsWith('/sitemap');
 
         if (isHtml || isTargetPage || isSitemapOrRobots) {
@@ -115,6 +115,14 @@ app.get(['/versorger', '/versorger.html'], (req, res) => {
     res.setHeader('Pragma', 'no-cache');
     res.setHeader('Expires', '0');
     res.sendFile(path.join(__dirname, 'versorger.html'));
+});
+
+// Dedicated route for /vp (Vertriebspartner-Portal, Versorger-Affiliate-Cockpit & Abrechnungstool)
+app.get(['/vp', '/vp/', '/vp.html', '/vertriebspartner-portal', '/vertriebspartner-portal.html'], (req, res) => {
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
+    res.sendFile(path.join(__dirname, 'vertriebspartner-portal.html'));
 });
 
 const staticNoCacheHeaders = (res, filePath) => {
@@ -249,6 +257,295 @@ app.post('/api/contact', async (req, res) => {
 
 // --- VERSORGER TARIFRECHNER & ORDER ROUTES (FIRSTCON API V2 CONNECTED) ---
 
+// ============================================================================
+// 0.9 FIRSTCON LOCAL PC RELAY BRIDGE & EXTERNAL TARIFF API
+// Ensures that Firstcon API calls are executed by the local Windows Server PC
+// ("Alpha Energie Server") so Firstcon only sees this PC's IP address and never
+// the IP address or domain of external websites.
+// ============================================================================
+const os = require('os');
+const FIRSTCON_BRIDGE_SECRET = process.env.FIRSTCON_BRIDGE_SECRET || 'alpha-firstcon-pc-bridge-2026';
+const IS_RUNNING_ON_LOCAL_PC = process.platform === 'win32' && fs.existsSync('C:\\Users\\Alpha Energie Server');
+
+const pcBridgeState = {
+    pendingJobs: [],
+    waitingPollers: [],
+    inFlight: new Map(),
+    lastSeenAt: IS_RUNNING_ON_LOCAL_PC ? Date.now() : 0,
+    pcHostname: IS_RUNNING_ON_LOCAL_PC ? os.hostname() : null,
+    jobsCompleted: 0,
+    lastJobAt: null
+};
+
+function isPcBridgeOnline() {
+    if (IS_RUNNING_ON_LOCAL_PC) return true;
+    return pcBridgeState.waitingPollers.length > 0 || (Date.now() - pcBridgeState.lastSeenAt) < 40000;
+}
+
+function checkBridgeSecret(req) {
+    const provided = String(
+        req.headers['x-bridge-secret'] ||
+        req.query.secret ||
+        (req.body && req.body.secret) ||
+        ''
+    ).trim();
+    return provided === FIRSTCON_BRIDGE_SECRET;
+}
+
+/**
+ * Dispatches a Firstcon task to the connected Windows Server PC ("Alpha Energie Server")
+ * via instant HTTP long-polling. If this server process is already running on the Windows PC,
+ * it executes directly.
+ */
+async function executeFirstconOnPc(action, payload = {}, timeoutMs = 11000) {
+    if (IS_RUNNING_ON_LOCAL_PC) {
+        if (action === 'calculateExternalTariffs') {
+            return await firstconService.executeExternalTariffLookup(payload);
+        }
+        if (action === 'calculateLiveTariffs') {
+            return await firstconService.calculateLiveTariffs(payload);
+        }
+        if (action === 'findEnergyGrid') {
+            const gridInfo = await firstconService.findEnergyGrid(payload.plz, payload.branch, payload.token);
+            if (!gridInfo) return null;
+            let streets = [];
+            if (payload.includeStreets) {
+                streets = await firstconService.getStreets(gridInfo.zipCode, gridInfo.city, gridInfo.energyGridNumber, payload.branch, payload.token);
+            }
+            return { ...gridInfo, streets };
+        }
+    }
+
+    if (!isPcBridgeOnline()) {
+        throw new Error('PC-Bridge aktuell offline');
+    }
+
+    const jobId = `fcjob_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
+    const job = { jobId, action, payload, createdAt: Date.now() };
+
+    return new Promise((resolve, reject) => {
+        const timer = setTimeout(() => {
+            pcBridgeState.inFlight.delete(jobId);
+            const idx = pcBridgeState.pendingJobs.findIndex(j => j.jobId === jobId);
+            if (idx !== -1) pcBridgeState.pendingJobs.splice(idx, 1);
+            reject(new Error('PC-Bridge Timeout'));
+        }, timeoutMs);
+
+        pcBridgeState.inFlight.set(jobId, { resolve, reject, timer, action, createdAt: Date.now() });
+
+        // Immediately wake up an idle long-polling worker from the Windows PC
+        while (pcBridgeState.waitingPollers.length > 0) {
+            const poller = pcBridgeState.waitingPollers.shift();
+            if (poller && !poller.res.writableEnded) {
+                clearTimeout(poller.timer);
+                poller.res.json({ success: true, job });
+                return;
+            }
+        }
+
+        pcBridgeState.pendingJobs.push(job);
+    });
+}
+
+// Long-Poll Endpoint for the local Windows PC Relay Daemon (scripts/firstcon-pc-relay.js)
+app.get('/api/firstcon/pc-bridge/poll', (req, res) => {
+    if (!checkBridgeSecret(req)) {
+        return res.status(401).json({ success: false, error: 'Unauthorized bridge secret' });
+    }
+    pcBridgeState.lastSeenAt = Date.now();
+    if (req.query.hostname) {
+        pcBridgeState.pcHostname = String(req.query.hostname);
+    }
+
+    if (pcBridgeState.pendingJobs.length > 0) {
+        const job = pcBridgeState.pendingJobs.shift();
+        return res.json({ success: true, job });
+    }
+
+    const pollerEntry = {
+        res,
+        timer: setTimeout(() => {
+            const idx = pcBridgeState.waitingPollers.indexOf(pollerEntry);
+            if (idx !== -1) pcBridgeState.waitingPollers.splice(idx, 1);
+            if (!res.writableEnded) {
+                res.json({ success: true, job: null, keepalive: true });
+            }
+        }, 22000)
+    };
+
+    req.on('close', () => {
+        clearTimeout(pollerEntry.timer);
+        const idx = pcBridgeState.waitingPollers.indexOf(pollerEntry);
+        if (idx !== -1) pcBridgeState.waitingPollers.splice(idx, 1);
+    });
+
+    pcBridgeState.waitingPollers.push(pollerEntry);
+});
+
+// Result Callback Endpoint where the local Windows PC returns the Firstcon response
+app.post('/api/firstcon/pc-bridge/result', (req, res) => {
+    if (!checkBridgeSecret(req)) {
+        return res.status(401).json({ success: false, error: 'Unauthorized bridge secret' });
+    }
+    pcBridgeState.lastSeenAt = Date.now();
+    const { jobId, success, data, error, hostname } = req.body || {};
+    if (hostname) pcBridgeState.pcHostname = String(hostname);
+
+    const pending = pcBridgeState.inFlight.get(jobId);
+    if (pending) {
+        clearTimeout(pending.timer);
+        pcBridgeState.inFlight.delete(jobId);
+        pcBridgeState.jobsCompleted += 1;
+        pcBridgeState.lastJobAt = new Date().toISOString();
+        if (success === false) {
+            pending.reject(new Error(error || 'PC Relay execution failed'));
+        } else {
+            pending.resolve(data);
+        }
+    }
+    res.json({ success: true, acknowledged: Boolean(pending) });
+});
+
+// Status Endpoint for PC Bridge & External Tariff Relay
+app.get(['/api/firstcon/pc-bridge/status', '/api/external/alpha-tarife/status'], (req, res) => {
+    res.json({
+        success: true,
+        pcBridgeOnline: isPcBridgeOnline(),
+        runningDirectlyOnPc: IS_RUNNING_ON_LOCAL_PC,
+        pcHostname: pcBridgeState.pcHostname || (IS_RUNNING_ON_LOCAL_PC ? os.hostname() : null),
+        waitingWorkers: pcBridgeState.waitingPollers.length,
+        pendingJobs: pcBridgeState.pendingJobs.length,
+        jobsCompleted: pcBridgeState.jobsCompleted,
+        lastSeenAgoMs: pcBridgeState.lastSeenAt ? (Date.now() - pcBridgeState.lastSeenAt) : null,
+        lastJobAt: pcBridgeState.lastJobAt,
+        firstconIpProtection: 'ACTIVE (Firstcon sieht ausschließlich die IP dieses PCs)'
+    });
+});
+
+// External Alpha Tarife Endpoint (GET & POST)
+// Any external website can call this endpoint to get live Alpha Tarife (Strom, Gas, Wärmestrom, Ladestrom, or branch=all).
+// The Firstcon API request is executed by this PC ("Alpha Energie Server") and optionally also POSTed directly from this PC to targetUrl.
+async function handleExternalAlphaTarife(req, res) {
+    try {
+        res.setHeader('Access-Control-Allow-Origin', '*');
+        res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+        res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Alpha-Key');
+
+        const params = { ...(req.query || {}), ...(req.body || {}) };
+        let result = null;
+        let routedViaPc = false;
+
+        if (isPcBridgeOnline()) {
+            try {
+                result = await executeFirstconOnPc('calculateExternalTariffs', params, 12000);
+                routedViaPc = true;
+            } catch (bridgeErr) {
+                console.warn('[PC-Bridge] Fallback to direct execution:', bridgeErr.message);
+            }
+        }
+
+        if (!result) {
+            result = await firstconService.executeExternalTariffLookup(params);
+        }
+
+        res.json({
+            ...result,
+            routedViaLocalPc: routedViaPc || IS_RUNNING_ON_LOCAL_PC,
+            pcHostname: result.executedByPc || pcBridgeState.pcHostname || os.hostname()
+        });
+    } catch (error) {
+        console.error('[External Alpha Tarife] Error:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Fehler beim Abrufen der Alpha Tarife: ' + error.message
+        });
+    }
+}
+
+app.all(['/api/external/alpha-tarife', '/api/external/tarife', '/api/tarife/external'], handleExternalAlphaTarife);
+
+// Active Push Endpoint: Triggers this PC to query Firstcon and push the tariff prices directly via HTTP POST to an external website URL
+app.post('/api/external/alpha-tarife/push', async (req, res) => {
+    try {
+        const params = { ...(req.query || {}), ...(req.body || {}) };
+        const targetUrl = params.targetUrl || params.callbackUrl || params.webhookUrl || process.env.EXTERNAL_TARIFF_WEBHOOK_URL;
+        if (!targetUrl || !/^https?:\/\//i.test(String(targetUrl))) {
+            return res.status(400).json({
+                success: false,
+                error: 'Bitte eine gültige targetUrl (z.B. https://deine-externe-seite.de/api/alpha-tarife) angeben, an die dieser PC die Tarife senden soll.'
+            });
+        }
+        return handleExternalAlphaTarife(req, res);
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+// Embeddable JavaScript SDK for External Websites (<script src="https://alpha-energie.de/api/external/alpha-tarife/embed.js"></script>)
+app.get('/api/external/alpha-tarife/embed.js', (req, res) => {
+    res.setHeader('Content-Type', 'application/javascript; charset=utf-8');
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Cache-Control', 'no-cache');
+    const apiOrigin = `${req.protocol}://${req.get('host')}`;
+    const scriptContent = `/**
+ * Alpha Energie Tarife – External Client SDK (IP-Protected via Local PC Relay)
+ * Firstcon sieht bei keiner Anfrage die IP oder Domain der externen Webseite.
+ */
+(function(window) {
+    const DEFAULT_ENDPOINT = "${apiOrigin}/api/external/alpha-tarife";
+
+    const AlphaTarifeAPI = {
+        endpoint: DEFAULT_ENDPOINT,
+
+        /**
+         * Holt Live-Preise für Alpha Basic 24, Alpha Time 24 & Alpha Premium 24 über den Alpha-Energie-PC.
+         * @param {Object} options - { plz: '44379', consumption: 2500, branch: 'strom' | 'gas' | 'waerme' | 'ladestrom' | 'all', meterType: 'et' | 'htnt', consumptionHt, consumptionNt, currentAbschlag, includeStreets, targetUrl }
+         */
+        async getTariffs(options = {}) {
+            const payload = {
+                plz: String(options.plz || '44379').trim(),
+                branch: options.branch || 'strom',
+                consumption: Number(options.consumption) || (options.branch === 'gas' ? 12000 : (options.branch === 'waerme' ? 6000 : 2500)),
+                ...(options.meterType ? { meterType: options.meterType } : {}),
+                ...(options.consumptionHt ? { consumptionHt: Number(options.consumptionHt) } : {}),
+                ...(options.consumptionNt ? { consumptionNt: Number(options.consumptionNt) } : {}),
+                ...(options.currentAbschlag ? { currentAbschlag: Number(options.currentAbschlag) } : {}),
+                ...(options.includeStreets ? { includeStreets: true } : {}),
+                ...(options.targetUrl ? { targetUrl: options.targetUrl } : {})
+            };
+
+            const response = await fetch(this.endpoint, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            if (!response.ok) {
+                throw new Error('AlphaTarifeAPI HTTP ' + response.status);
+            }
+            return await response.json();
+        },
+
+        /**
+         * Holt alle 4 Sparten (Strom, Gas, Wärmestrom, Ladestrom) gleichzeitig für eine PLZ.
+         */
+        async getAllBranches(plz = '44379', consumptions = {}) {
+            return await this.getTariffs({
+                plz,
+                branch: 'all',
+                consumptionStrom: consumptions.strom || 2500,
+                consumptionGas: consumptions.gas || 12000,
+                consumptionWaerme: consumptions.waerme || 6000
+            });
+        }
+    };
+
+    window.AlphaTarifeAPI = AlphaTarifeAPI;
+})(window);
+`;
+    res.send(scriptContent);
+});
+
 // 1.0 Firstcon Live Connection Status & Grid/Street Lookup
 app.get('/api/firstcon/status', async (req, res) => {
     try {
@@ -257,6 +554,8 @@ app.get('/api/firstcon/status', async (req, res) => {
         res.json({
             success: true,
             connected: true,
+            pcBridgeOnline: isPcBridgeOnline(),
+            pcHostname: pcBridgeState.pcHostname || (IS_RUNNING_ON_LOCAL_PC ? os.hostname() : null),
             user: auth.payload?.unique_name || 'alpha-energie-dev',
             brandId: auth.payload?.BrandId || 54,
             brandName: 'Alpha Energie',
@@ -267,6 +566,7 @@ app.get('/api/firstcon/status', async (req, res) => {
         res.status(200).json({
             success: false,
             connected: false,
+            pcBridgeOnline: isPcBridgeOnline(),
             error: error.message
         });
     }
@@ -277,12 +577,30 @@ app.get('/api/firstcon/grid', async (req, res) => {
         const plz = req.query.plz || req.query.zip || '44379';
         const branch = req.query.branch || 'strom';
         const token = req.query.token || process.env.FIRSTCON_ORDERFLOW_TOKEN;
+        const includeStreets = req.query.streets === '1' || req.query.streets === 'true';
+
+        if (isPcBridgeOnline() && !IS_RUNNING_ON_LOCAL_PC) {
+            try {
+                const pcGrid = await executeFirstconOnPc('findEnergyGrid', { plz, branch, token, includeStreets }, 9000);
+                if (pcGrid) {
+                    return res.json({
+                        success: true,
+                        found: true,
+                        executedByPc: pcBridgeState.pcHostname,
+                        ...pcGrid
+                    });
+                }
+            } catch (e) {
+                // fallback below
+            }
+        }
+
         const gridInfo = await firstconService.findEnergyGrid(plz, branch, token);
         if (!gridInfo) {
             return res.json({ success: false, found: false, plz });
         }
         let streets = [];
-        if (req.query.streets === '1' || req.query.streets === 'true') {
+        if (includeStreets) {
             streets = await firstconService.getStreets(gridInfo.zipCode, gridInfo.city, gridInfo.energyGridNumber, branch, token);
         }
         res.json({
@@ -349,7 +667,7 @@ app.get(['/api/tarife/datenschutz', '/api/firstcon/datenschutz'], async (req, re
     }
 });
 
-// 1.1 Calculate Tariffs dynamically (Firstcon Live API v2 + Fallback)
+// 1.1 Calculate Tariffs dynamically (Firstcon Live API v2 via Local PC Bridge + Fallback)
 app.all('/api/tarife/calculate', async (req, res) => {
     try {
         const params = { ...(req.query || {}), ...(req.body || {}) };
@@ -377,23 +695,38 @@ app.all('/api/tarife/calculate', async (req, res) => {
         const abschlagOld = parseFloat(currentAbschlag) || defaultAbschlag;
         const cleanPlz = String(plz || '44379').replace(/\D/g, '').slice(0, 5);
 
-        // Attempt live Firstcon API v2 calculation first
+        // Attempt live Firstcon API v2 calculation first (preferring execution on this Windows Server PC when connected)
         if (!useFallbackOnly && /^\d{5}$/.test(cleanPlz)) {
+            const calcArgs = {
+                plz: cleanPlz,
+                consumption: kwh,
+                consumptionHt: resolvedHt,
+                consumptionNt: resolvedNt,
+                meterType: resolvedMeterType,
+                currentAbschlag: abschlagOld,
+                branch: normalizedBranch,
+                token: orderflowToken,
+                targetUrl: params.targetUrl || params.callbackUrl || params.webhookUrl
+            };
             try {
-                const liveFirstcon = await firstconService.calculateLiveTariffs({
-                    plz: cleanPlz,
-                    consumption: kwh,
-                    consumptionHt: resolvedHt,
-                    consumptionNt: resolvedNt,
-                    meterType: resolvedMeterType,
-                    currentAbschlag: abschlagOld,
-                    branch: normalizedBranch,
-                    token: orderflowToken
-                });
+                let liveFirstcon = null;
+                let executedViaPcBridge = false;
+                if (isPcBridgeOnline() && !IS_RUNNING_ON_LOCAL_PC) {
+                    try {
+                        liveFirstcon = await executeFirstconOnPc('calculateExternalTariffs', calcArgs, 10000);
+                        executedViaPcBridge = true;
+                    } catch (bridgeErr) {
+                        console.warn('[PC-Bridge] Fallback to direct Firstcon calculation:', bridgeErr.message);
+                    }
+                }
+                if (!liveFirstcon) {
+                    liveFirstcon = await firstconService.calculateLiveTariffs(calcArgs);
+                }
                 if (liveFirstcon && Array.isArray(liveFirstcon.tariffs) && liveFirstcon.tariffs.length > 0) {
                     return res.json({
                         success: true,
                         ...liveFirstcon,
+                        routedViaLocalPc: executedViaPcBridge || IS_RUNNING_ON_LOCAL_PC,
                         currentAbschlag: abschlagOld
                     });
                 }
@@ -1514,7 +1847,13 @@ app.post('/api/order/submit', async (req, res) => {
                 signedAt: signatureData ? new Date() : null,
                 ibanValid: ibanCheck.valid,
                 bankName: ibanCheck.bankName || null,
-                bic: ibanCheck.bic || null
+                bic: ibanCheck.bic || null,
+                notes: JSON.stringify({
+                    statusMessage: attribution.partnerCode
+                        ? `Über Versorgerseite-Affiliate-Link (${attribution.partnerCode}${attribution.subId ? ' / ' + attribution.subId : ''}) eingegangen – Netzbetreiber-Prüfung läuft.`
+                        : 'Online-Auftrag über Versorgerseite eingegangen – Vorprüfung läuft.',
+                    statusUpdatedAt: new Date().toISOString()
+                })
             }
         });
 
@@ -3546,10 +3885,97 @@ function generateUniquePartnerCode(role = 'AFFILIATE', name = '') {
     return `${prefix}-${cleanName}${rand}`;
 }
 
+function parseJsonMeta(raw) {
+    if (!raw || typeof raw !== 'string') return {};
+    const trimmed = raw.trim();
+    if (trimmed.startsWith('{') && trimmed.endsWith('}')) {
+        try {
+            return JSON.parse(trimmed);
+        } catch (e) {
+            return { legacyNote: raw };
+        }
+    }
+    return { legacyNote: raw };
+}
+
+function packJsonMeta(existingRaw, updates = {}) {
+    const base = parseJsonMeta(existingRaw);
+    const merged = { ...base };
+    Object.keys(updates).forEach(k => {
+        if (updates[k] !== undefined) {
+            merged[k] = updates[k];
+        }
+    });
+    return JSON.stringify(merged);
+}
+
+const DEFAULT_ORDER_STATUS_MESSAGES = {
+    RECEIVED: 'Auftrag eingegangen – Formelle Vorprüfung & Weiterleitung an Netzbetreiber läuft.',
+    AWAITING_SIGNATURE: 'Wartet auf digitale Kundenunterschrift (Remote-Sign Link aktiv).',
+    CONFIRMED: 'Vertrag bestätigt & beim Verteilnetzbetreiber (VNB) angemeldet.',
+    IN_DELIVERY: 'Belieferung aktiv – Zähler wird beliefert, Provision freigegeben.',
+    CLARIFICATION: 'Klärfall: Rückfrage vom Netzbetreiber (bitte Zählernummer / Lieferadresse prüfen).',
+    PAID: 'Vertrag aktiv & Provision bereits per Gutschrift abgerechnet.',
+    CANCELLED: 'Auftrag storniert / Widerruf oder Netzbetreiber-Ablehnung.'
+};
+
+function enrichOrderForPortal(order, isAdmin = false) {
+    if (!order) return null;
+    const meta = parseJsonMeta(order.notes);
+    const customMsg = meta.statusMessage !== undefined
+        ? meta.statusMessage
+        : (meta.legacyNote || '');
+    const statusMessage = customMsg || DEFAULT_ORDER_STATUS_MESSAGES[order.status] || 'In Bearbeitung';
+    const result = {
+        ...order,
+        statusMessage,
+        hasCustomStatusMessage: Boolean(customMsg),
+        supplyStartDate: meta.supplyStartDate || null,
+        statusUpdatedAt: meta.statusUpdatedAt || order.createdAt,
+        payoutNumber: meta.payoutNumber || null,
+        ibanMasked: order.iban ? (order.iban.slice(0, 6) + '••••••••' + order.iban.slice(-4)) : ''
+    };
+    if (isAdmin) {
+        result.internalAdminNote = meta.internalAdminNote || '';
+    } else {
+        // VPs only see their own order status & statusMessage, never internal admin notes
+        delete result.internalAdminNote;
+    }
+    return result;
+}
+
+function enrichPayoutForPortal(payout) {
+    if (!payout) return null;
+    const meta = parseJsonMeta(payout.notes);
+    return {
+        ...payout,
+        subTotalEur: meta.subTotalEur !== undefined ? Number(meta.subTotalEur) : Number(payout.netAmount || 0),
+        stornoReservePct: meta.stornoReservePct !== undefined ? Number(meta.stornoReservePct) : 0,
+        stornoReserveAmount: meta.stornoReserveAmount !== undefined ? Number(meta.stornoReserveAmount) : 0,
+        stornoReleaseAmount: meta.stornoReleaseAmount !== undefined ? Number(meta.stornoReleaseAmount) : 0,
+        bonusAmount: meta.bonusAmount !== undefined ? Number(meta.bonusAmount) : 0,
+        items: Array.isArray(meta.items) ? meta.items : [],
+        remark: meta.remark || meta.legacyNote || ''
+    };
+}
+
 function sanitizePartnerUser(p) {
     if (!p) return null;
     const { passwordHash, ...rest } = p;
-    return rest;
+    const meta = parseJsonMeta(p.notes);
+    return {
+        ...rest,
+        vatId: meta.vatId || '',
+        ihkNumber: meta.ihkNumber || '',
+        gewerbeamtCity: meta.gewerbeamtCity || '',
+        stornoReservePct: meta.stornoReservePct !== undefined ? Number(meta.stornoReservePct) : 10,
+        liabilityMonths: meta.liabilityMonths !== undefined ? Number(meta.liabilityMonths) : 12,
+        payoutCycle: meta.payoutCycle || 'MONTHLY',
+        ladestromCommissionEur: meta.ladestromCommissionEur !== undefined ? Number(meta.ladestromCommissionEur) : (Number(p.stromCommissionEur) || 55),
+        adminRemarks: meta.adminRemarks || meta.legacyNote || '',
+        versorgerRelativeUrl: `/versorger?ref=${encodeURIComponent(p.partnerCode)}`,
+        versorgerAffiliateUrl: `https://alpha-energie.de/versorger?ref=${encodeURIComponent(p.partnerCode)}`
+    };
 }
 
 const authenticatePartner = async (req, res, next) => {
@@ -3599,13 +4025,15 @@ async function ensureDemoPartnersSeeded() {
                 city: 'Dortmund',
                 isVatLiable: true,
                 taxId: '314/5781/2091',
+                taxOffice: 'Finanzamt Dortmund-Ost',
                 iban: 'DE89370400440532013000',
                 bic: 'COBADEFFXXX',
                 bankName: 'Commerzbank',
                 stromCommissionEur: 75.0,
                 gasCommissionEur: 75.0,
                 waermeCommissionEur: 85.0,
-                overrideCommissionEur: 15.0
+                overrideCommissionEur: 15.0,
+                notes: JSON.stringify({ vatId: 'DE319844120', ihkNumber: 'IHK-DO-88412', stornoReservePct: 10, liabilityMonths: 12, payoutCycle: 'MONTHLY' })
             }
         });
 
@@ -3622,19 +4050,23 @@ async function ensureDemoPartnersSeeded() {
                 firstName: 'Lukas',
                 lastName: 'Kowalski',
                 fullName: 'Lukas Kowalski',
+                legalForm: 'Einzelunternehmen',
                 phone: '0176 44219800',
                 street: 'Westhellweg',
                 houseNr: '12',
                 plz: '44137',
                 city: 'Dortmund',
                 isVatLiable: false,
+                taxId: '315/4102/1198',
+                taxOffice: 'Finanzamt Dortmund-West',
                 iban: 'DE89370400440532013000',
                 bic: 'COBADEFFXXX',
                 bankName: 'Commerzbank',
                 stromCommissionEur: 65.0,
                 gasCommissionEur: 65.0,
                 waermeCommissionEur: 75.0,
-                parentPartnerId: agency.id
+                parentPartnerId: agency.id,
+                notes: JSON.stringify({ stornoReservePct: 10, liabilityMonths: 12, payoutCycle: 'MONTHLY' })
             }
         });
 
@@ -3652,19 +4084,23 @@ async function ensureDemoPartnersSeeded() {
                 lastName: 'Weber',
                 fullName: 'Maximilian Weber',
                 companyName: 'Weber Performance Media',
+                legalForm: 'Einzelunternehmen',
                 phone: '0151 88219012',
                 street: 'Königsallee',
                 houseNr: '44',
                 plz: '40212',
                 city: 'Düsseldorf',
                 isVatLiable: true,
+                taxId: '106/5219/4401',
+                taxOffice: 'Finanzamt Düsseldorf-Mitte',
                 iban: 'DE89370400440532013000',
                 bic: 'COBADEFFXXX',
                 bankName: 'Commerzbank',
                 website: 'https://stromvergleich-nrw.example.de',
                 stromCommissionEur: 55.0,
                 gasCommissionEur: 55.0,
-                waermeCommissionEur: 65.0
+                waermeCommissionEur: 65.0,
+                notes: JSON.stringify({ vatId: 'DE298441023', stornoReservePct: 10, liabilityMonths: 12, payoutCycle: 'MONTHLY' })
             }
         });
 
@@ -3681,6 +4117,7 @@ async function ensureDemoPartnersSeeded() {
                 firstName: 'Anna',
                 lastName: 'Bergmann',
                 fullName: 'Anna Bergmann',
+                legalForm: 'Privatperson / Tippgeber',
                 phone: '0172 5543198',
                 street: 'Hohe Str.',
                 houseNr: '19',
@@ -3693,7 +4130,8 @@ async function ensureDemoPartnersSeeded() {
                 stromCommissionEur: 35.0,
                 gasCommissionEur: 35.0,
                 waermeCommissionEur: 40.0,
-                parentPartnerId: agency.id
+                parentPartnerId: agency.id,
+                notes: JSON.stringify({ stornoReservePct: 0, liabilityMonths: 6, payoutCycle: 'MONTHLY' })
             }
         });
 
@@ -3712,7 +4150,18 @@ async function ensureDemoPartnersSeeded() {
                 iban: affiliatePartner.iban,
                 bic: affiliatePartner.bic,
                 bankName: affiliatePartner.bankName,
-                paidAt: new Date()
+                paidAt: new Date(),
+                notes: JSON.stringify({
+                    subTotalEur: 55.0,
+                    stornoReservePct: 0,
+                    stornoReserveAmount: 0,
+                    stornoReleaseAmount: 0,
+                    bonusAmount: 0,
+                    remark: 'Regelabrechnung Versorgerseite Affiliate',
+                    items: [
+                        { pos: 1, orderNumber: 'AE-2026-810599', customerName: 'Sabine Krämer (Dortmund)', tariffName: 'AlphaGas 12 Klima', branch: 'gas', type: 'Abschlussprovision', amountEur: 55.0 }
+                    ]
+                })
             }
         }).catch(() => {});
 
@@ -3760,7 +4209,12 @@ async function ensureDemoPartnersSeeded() {
                     commissionAmount: 65.0,
                     overridePartnerId: agency.id,
                     overrideAmount: 15.0,
-                    signedAt: new Date()
+                    signedAt: new Date(),
+                    notes: JSON.stringify({
+                        statusMessage: 'Netzanmeldung durch Verteilnetzbetreiber bestätigt – Lieferbeginn zum 01.11.2026 festgelegt. Provision zur Abrechnung freigegeben.',
+                        supplyStartDate: '2026-11-01',
+                        statusUpdatedAt: new Date().toISOString()
+                    })
                 },
                 {
                     orderNumber: 'AE-2026-810599',
@@ -3792,7 +4246,50 @@ async function ensureDemoPartnersSeeded() {
                     subId: 'meta_reel_04',
                     orderSource: 'AFFILIATE',
                     commissionStatus: 'PAID',
-                    commissionAmount: 55.0
+                    commissionAmount: 55.0,
+                    notes: JSON.stringify({
+                        statusMessage: 'Vertrag in aktiver Belieferung. Provision mit Gutschrift GS-2026-1001 ausgezahlt.',
+                        supplyStartDate: '2026-10-01',
+                        payoutNumber: 'GS-2026-1001',
+                        statusUpdatedAt: new Date().toISOString()
+                    })
+                },
+                {
+                    orderNumber: 'AE-2026-810812',
+                    tariffId: 'alpha-strom-smart',
+                    tariffName: 'AlphaStrom 12 Smart',
+                    branch: 'strom',
+                    consumption: 4100,
+                    monthlyPayment: 112.0,
+                    savings: 248.0,
+                    street: 'Königswall',
+                    houseNr: '18',
+                    plz: '44137',
+                    city: 'Dortmund',
+                    meterNumber: '1EMH001294871',
+                    currentProvider: 'Vattenfall',
+                    salutation: 'Herr',
+                    firstName: 'Christian',
+                    lastName: 'Meinhardt',
+                    birthDate: '1988-02-19',
+                    email: 'c.meinhardt@example.de',
+                    phone: '0231 558912',
+                    iban: 'DE89370400440532013000',
+                    ibanValid: true,
+                    bankName: 'Commerzbank',
+                    bic: 'COBADEFFXXX',
+                    status: 'CONFIRMED',
+                    partnerId: affiliatePartner.id,
+                    partnerCode: affiliatePartner.partnerCode,
+                    subId: 'versorger_hero_link',
+                    orderSource: 'AFFILIATE',
+                    commissionStatus: 'APPROVED',
+                    commissionAmount: 55.0,
+                    notes: JSON.stringify({
+                        statusMessage: 'Über Versorgerseite-Affiliate-Link eingegangen. Kündigung beim Altversorger bestätigt – bereit für nächste Gutschrift.',
+                        supplyStartDate: '2026-12-01',
+                        statusUpdatedAt: new Date().toISOString()
+                    })
                 }
             ]
         });
@@ -3800,7 +4297,7 @@ async function ensureDemoPartnersSeeded() {
         await prisma.affiliateClick.createMany({
             data: [
                 { partnerId: affiliatePartner.id, partnerCode: 'AFF-MAX24', subId: 'meta_reel_04', landingPage: '/versorger.html', converted: true, orderNumber: 'AE-2026-810599' },
-                { partnerId: affiliatePartner.id, partnerCode: 'AFF-MAX24', subId: 'meta_reel_04', landingPage: '/versorger.html', converted: false },
+                { partnerId: affiliatePartner.id, partnerCode: 'AFF-MAX24', subId: 'versorger_hero_link', landingPage: '/versorger.html', converted: true, orderNumber: 'AE-2026-810812' },
                 { partnerId: affiliatePartner.id, partnerCode: 'AFF-MAX24', subId: 'google_search_nrw', landingPage: '/oekostrom.html', converted: false },
                 { partnerId: d2dPartner.id, partnerCode: 'VP-D2D100', subId: 'qr_flyer', landingPage: '/versorger.html', converted: true, orderNumber: 'AE-2026-810241' }
             ]
@@ -3829,6 +4326,39 @@ async function ensureDemoPartnersSeeded() {
     }
 }
 ensureDemoPartnersSeeded();
+
+// 5.0 Public Affiliate Partner Verification for /versorger?ref=CODE
+app.get('/api/affiliate/partner-info', async (req, res) => {
+    try {
+        await ensureDemoPartnersSeeded();
+        const rawCode = String(req.query.ref || req.query.partner || req.query.vp || req.query.code || '').trim();
+        if (!rawCode) {
+            return res.json({ success: false, valid: false });
+        }
+        const partner = await prisma.partnerUser.findFirst({
+            where: {
+                OR: [
+                    { partnerCode: rawCode },
+                    { partnerCode: rawCode.toUpperCase() }
+                ]
+            }
+        });
+        if (!partner || partner.status === 'SUSPENDED') {
+            return res.json({ success: false, valid: false });
+        }
+        res.json({
+            success: true,
+            valid: true,
+            partnerCode: partner.partnerCode,
+            displayName: partner.companyName || partner.fullName,
+            fullName: partner.fullName,
+            role: partner.role,
+            city: partner.city || 'Deutschland'
+        });
+    } catch (err) {
+        res.status(500).json({ success: false, valid: false, error: err.message });
+    }
+});
 
 // 5.1 Affiliate Click & Sub-ID Tracking
 app.post('/api/affiliate/click', async (req, res) => {
@@ -4181,6 +4711,26 @@ app.get('/api/partner/dashboard', authenticatePartner, async (req, res) => {
         const leadCommissionTotal = leads
             .filter(l => l.status === 'CONVERTED' || l.status === 'QUALIFIED' || l.status === 'PAID')
             .reduce((sum, l) => sum + Number(l.commissionAmount || 0), 0);
+        const openLeadCommission = leads
+            .filter(l => l.status === 'CONVERTED' || l.status === 'QUALIFIED')
+            .reduce((sum, l) => sum + Number(l.commissionAmount || 0), 0);
+
+        const sanitizedPartner = sanitizePartnerUser(partner);
+        const enrichedOrders = ownOrders.map(o => enrichOrderForPortal(o, false));
+        const enrichedOverrideOrders = overrideOrders.map(o => enrichOrderForPortal(o, false));
+        const enrichedPayouts = payouts.map(enrichPayoutForPortal);
+
+        const stornoReserveBalance = enrichedPayouts.reduce(
+            (sum, p) => sum + Number(p.stornoReserveAmount || 0) - Number(p.stornoReleaseAmount || 0),
+            0
+        );
+
+        const nextPayoutBaseEur = Number((pendingCommission + approvedCommission + openLeadCommission).toFixed(2));
+        const reservePct = Number(sanitizedPartner.stornoReservePct ?? 10);
+        const nextPayoutReserveEur = Number(((nextPayoutBaseEur * reservePct) / 100).toFixed(2));
+        const nextPayoutNetEur = Number(Math.max(0, nextPayoutBaseEur - nextPayoutReserveEur).toFixed(2));
+        const nextPayoutVatEur = sanitizedPartner.isVatLiable ? Number((nextPayoutNetEur * 0.19).toFixed(2)) : 0;
+        const nextPayoutGrossEur = Number((nextPayoutNetEur + nextPayoutVatEur).toFixed(2));
 
         const totalClicks = clicks.length;
         const totalOrders = ownOrders.length;
@@ -4188,7 +4738,7 @@ app.get('/api/partner/dashboard', authenticatePartner, async (req, res) => {
 
         res.json({
             success: true,
-            partner: sanitizePartnerUser(partner),
+            partner: sanitizedPartner,
             kpis: {
                 totalClicks,
                 totalOrders,
@@ -4199,15 +4749,25 @@ app.get('/api/partner/dashboard', authenticatePartner, async (req, res) => {
                 overrideCommissionTotal: Number(overrideCommissionTotal.toFixed(2)),
                 leadCommissionTotal: Number(leadCommissionTotal.toFixed(2)),
                 totalEarnedEur: Number((pendingCommission + approvedCommission + paidCommission + overrideCommissionTotal + leadCommissionTotal).toFixed(2)),
+                stornoReserveBalance: Number(Math.max(0, stornoReserveBalance).toFixed(2)),
                 subPartnersCount: subPartners.length,
-                leadsCount: leads.length
+                leadsCount: leads.length,
+                nextPayoutPreview: {
+                    baseEur: nextPayoutBaseEur,
+                    reservePct,
+                    reserveEur: nextPayoutReserveEur,
+                    netEur: nextPayoutNetEur,
+                    vatEur: nextPayoutVatEur,
+                    grossEur: nextPayoutGrossEur,
+                    eligibleOrdersCount: validOrders.filter(o => o.commissionStatus === 'PENDING' || o.commissionStatus === 'APPROVED').length
+                }
             },
-            orders: ownOrders,
-            overrideOrders,
+            orders: enrichedOrders,
+            overrideOrders: enrichedOverrideOrders,
             subIdStats: Object.values(subIdMap),
             leads,
             subPartners,
-            payouts
+            payouts: enrichedPayouts
         });
     } catch (error) {
         console.error('[PartnerPortal] Dashboard error:', error);
@@ -4244,6 +4804,13 @@ app.patch('/api/partner/profile', authenticatePartner, async (req, res) => {
             updateData.iban = check.clean;
             updateData.bic = updateData.bic || check.bic;
             updateData.bankName = updateData.bankName || check.bankName;
+        }
+        if (body.vatId !== undefined || body.ihkNumber !== undefined || body.gewerbeamtCity !== undefined) {
+            updateData.notes = packJsonMeta(req.partner.notes, {
+                vatId: body.vatId,
+                ihkNumber: body.ihkNumber,
+                gewerbeamtCity: body.gewerbeamtCity
+            });
         }
         if (body.newPassword && String(body.newPassword).length >= 6) {
             updateData.passwordHash = hashPartnerPassword(body.newPassword);
@@ -4355,18 +4922,24 @@ app.post('/api/partner/orders', authenticatePartner, async (req, res) => {
                 overrideAmount: attribution.overrideAmount,
                 signatureData: signatureData || null,
                 signatureToken,
-                signedAt: signatureData ? new Date() : null
+                signedAt: signatureData ? new Date() : null,
+                notes: JSON.stringify({
+                    statusMessage: isRemote
+                        ? 'Wartet auf digitale Kundenunterschrift über Remote-Sign Link.'
+                        : 'D2D-Auftrag mit digitaler Unterschrift eingegangen – Netzbetreiber-Prüfung läuft.',
+                    statusUpdatedAt: new Date().toISOString()
+                })
             }
         });
 
         const remoteSignUrl = signatureToken
-            ? `${req.protocol}://${req.get('host')}/vertriebspartner-portal.html?sign=${signatureToken}`
+            ? `${req.protocol}://${req.get('host')}/vp?sign=${signatureToken}`
             : null;
 
         res.status(201).json({
             success: true,
             orderNumber: newOrder.orderNumber,
-            order: newOrder,
+            order: enrichOrderForPortal(newOrder, false),
             remoteSignUrl,
             signatureToken
         });
@@ -4440,7 +5013,11 @@ app.post('/api/order/remote-sign/:token', async (req, res) => {
             data: {
                 signatureData,
                 signedAt: new Date(),
-                status: order.status === 'PENDING_SIGNATURE' ? 'RECEIVED' : order.status
+                status: (order.status === 'PENDING_SIGNATURE' || order.status === 'AWAITING_SIGNATURE') ? 'RECEIVED' : order.status,
+                notes: packJsonMeta(order.notes, {
+                    statusMessage: 'Digitale Kundenunterschrift erfolgreich eingegangen – Weiterleitung an Netzbetreiber.',
+                    statusUpdatedAt: new Date().toISOString()
+                })
             }
         });
         res.json({
@@ -4530,48 +5107,148 @@ app.post('/api/partner/subpartners', authenticatePartner, async (req, res) => {
     }
 });
 
-function buildCreditNotePdfBuffer(payout, partner) {
-    const cleanPdfText = (s) => String(s || '')
-        .replace(/€/g, 'EUR')
-        .replace(/ä/g, 'ae').replace(/ö/g, 'oe').replace(/ü/g, 'ue')
-        .replace(/Ä/g, 'Ae').replace(/Ö/g, 'Oe').replace(/Ü/g, 'Ue')
-        .replace(/ß/g, 'ss').replace(/§/g, 'Par.')
-        .replace(/[()\\]/g, '');
+// Helper: Generate § 14 Abs. 2 & 4 UStG compliant PDF 1.4 Commission Credit Note (Provisionsgutschrift)
+function buildCreditNotePdfBuffer(rawPayout, rawPartner) {
+    const payout = enrichPayoutForPortal(rawPayout);
+    const partner = sanitizePartnerUser(rawPartner) || {};
+    const createdDateStr = new Date(payout.createdAt || Date.now()).toLocaleDateString('de-DE');
+    const paidDateStr = payout.paidAt ? new Date(payout.paidAt).toLocaleDateString('de-DE') : createdDateStr;
 
-    const lines = [
-        'ALPHA ENERGIE GMBH - Alter Hellweg 50 - 44379 Dortmund',
-        '----------------------------------------------------------------------',
-        `PROVISIONSGUTSCHRIFT NR. ${cleanPdfText(payout.payoutNumber)}`,
-        `Datum: ${new Date(payout.createdAt).toLocaleDateString('de-DE')}`,
-        `Empfaenger: ${cleanPdfText(partner ? (partner.companyName || partner.fullName) : 'Vertriebspartner')}`,
-        `Partner-Code: ${cleanPdfText(partner ? partner.partnerCode : '-')}`,
-        `Abrechnungszeitraum: ${cleanPdfText(payout.periodLabel)}`,
-        '----------------------------------------------------------------------',
-        `Abgerechnete Vertraege: ${payout.ordersCount}`,
-        `Netto-Provision:        ${payout.netAmount.toFixed(2)} EUR`,
-        `Umsatzsteuer (19%):     ${payout.vatAmount.toFixed(2)} EUR`,
-        `Auszahlungsbetrag:      ${payout.grossAmount.toFixed(2)} EUR`,
-        '----------------------------------------------------------------------',
-        `Auszahlung auf IBAN:    ${cleanPdfText(payout.iban || (partner && partner.iban) || '-')}`,
-        `Bank / BIC:             ${cleanPdfText(payout.bankName || (partner && partner.bankName) || '-')} (${cleanPdfText(payout.bic || (partner && partner.bic) || '-')})`,
-        `Status:                 ${payout.status === 'PAID' ? 'AUSGEZAHLT' : 'FREIGEGEBEN'}`
-    ];
+    const ops = [];
+    // Header Banner (Navy #0a1f44)
+    ops.push('0.039 0.122 0.267 rg');
+    ops.push('0 755 595 87 re f');
+    // Orange Accent Bar (#ff7a00)
+    ops.push('1 0.478 0 rg');
+    ops.push('0 751 595 4 re f');
 
-    let y = 760;
-    const ops = ['BT', '/F1 11 Tf'];
-    for (const line of lines) {
-        ops.push(`1 0 0 1 50 ${y} Tm (${line}) Tj`);
-        y -= 20;
+    // Header Text (White)
+    ops.push('BT /F2 16 Tf 1 1 1 rg 45 806 Td ' + toPdfWinAnsiString('ALPHA ENERGIE GMBH') + ' Tj ET');
+    ops.push('BT /F1 9.5 Tf 0.82 0.87 0.95 rg 45 789 Td ' + toPdfWinAnsiString('Provisionsabrechnung im Gutschriftsverfahren gem. § 14 Abs. 2 Satz 2 UStG') + ' Tj ET');
+    ops.push('BT /F1 9 Tf 0.82 0.87 0.95 rg 45 772 Td ' + toPdfWinAnsiString(`Gutschrift-Nr.: ${payout.payoutNumber}   |   Ausstellungsdatum: ${createdDateStr}   |   Partner-Code: ${partner.partnerCode || '-'}`) + ' Tj ET');
+
+    // Recipient Block (Left) & Document Metadata (Right)
+    ops.push('BT /F1 8 Tf 0.40 0.47 0.56 rg 45 724 Td ' + toPdfWinAnsiString('Alpha Energie GmbH - Alter Hellweg 50 - 44379 Dortmund') + ' Tj ET');
+    ops.push('BT /F2 11 Tf 0.039 0.122 0.267 rg 45 706 Td ' + toPdfWinAnsiString(partner.companyName || partner.fullName || 'Vertriebspartner') + ' Tj ET');
+    let addrY = 692;
+    if (partner.companyName && partner.fullName) {
+        ops.push('BT /F1 9.5 Tf 0.15 0.22 0.32 rg 45 ' + addrY + ' Td ' + toPdfWinAnsiString(`z. Hd. ${partner.salutation || ''} ${partner.fullName}`.trim()) + ' Tj ET');
+        addrY -= 13;
     }
-    ops.push('ET');
-    const streamContent = ops.join('\n');
+    ops.push('BT /F1 9.5 Tf 0.15 0.22 0.32 rg 45 ' + addrY + ' Td ' + toPdfWinAnsiString(`${partner.street || ''} ${partner.houseNr || ''}`.trim() || 'Anschrift hinterlegt') + ' Tj ET');
+    addrY -= 13;
+    ops.push('BT /F1 9.5 Tf 0.15 0.22 0.32 rg 45 ' + addrY + ' Td ' + toPdfWinAnsiString(`${partner.plz || ''} ${partner.city || ''}`.trim() || 'Deutschland') + ' Tj ET');
 
+    // Right Metadata Box
+    ops.push('0.969 0.980 0.988 rg 325 655 225 75 re f');
+    ops.push('0.85 0.89 0.93 RG 0.8 w 325 655 225 75 re S');
+    ops.push('BT /F2 9 Tf 0.039 0.122 0.267 rg 335 714 Td ' + toPdfWinAnsiString(`Beleg-Nr.: ${payout.payoutNumber}`) + ' Tj ET');
+    ops.push('BT /F1 8.5 Tf 0.20 0.27 0.36 rg 335 699 Td ' + toPdfWinAnsiString(`Leistungszeitraum: ${payout.periodLabel || 'Laufend'}`) + ' Tj ET');
+    ops.push('BT /F1 8.5 Tf 0.20 0.27 0.36 rg 335 685 Td ' + toPdfWinAnsiString(`Steuer-Nr./USt-ID: ${partner.vatId || partner.taxId || 'gem. Stammdaten'}`) + ' Tj ET');
+    ops.push('BT /F1 8.5 Tf 0.20 0.27 0.36 rg 335 671 Td ' + toPdfWinAnsiString(`Steuerart: ${partner.isVatLiable ? 'Regelbesteuerung (19% USt.)' : 'Kleinunternehmer (§ 19 UStG)'}`) + ' Tj ET');
+
+    // Title
+    ops.push('BT /F2 13 Tf 0.039 0.122 0.267 rg 45 628 Td ' + toPdfWinAnsiString(`PROVISIONSGUTSCHRIFT ${payout.payoutNumber}`) + ' Tj ET');
+    ops.push('BT /F1 9 Tf 0.35 0.42 0.52 rg 45 613 Td ' + toPdfWinAnsiString(`Abrechnung vermittelter Energielieferverträge (${payout.ordersCount} Positionen) über Versorgerseite / VP-Portal`) + ' Tj ET');
+
+    // Table Header
+    ops.push('0.039 0.122 0.267 rg 45 584 505 20 re f');
+    ops.push('BT /F2 8.5 Tf 1 1 1 rg 52 591 Td ' + toPdfWinAnsiString('Pos.') + ' Tj ET');
+    ops.push('BT /F2 8.5 Tf 1 1 1 rg 82 591 Td ' + toPdfWinAnsiString('Auftrags-Nr.') + ' Tj ET');
+    ops.push('BT /F2 8.5 Tf 1 1 1 rg 175 591 Td ' + toPdfWinAnsiString('Kunde / Verbrauchsstelle') + ' Tj ET');
+    ops.push('BT /F2 8.5 Tf 1 1 1 rg 335 591 Td ' + toPdfWinAnsiString('Tarif / Sparte') + ' Tj ET');
+    ops.push('BT /F2 8.5 Tf 1 1 1 rg 480 591 Td ' + toPdfWinAnsiString('Netto EUR') + ' Tj ET');
+
+    let rowY = 568;
+    const items = (Array.isArray(payout.items) && payout.items.length > 0)
+        ? payout.items.slice(0, 12)
+        : [{
+            pos: 1,
+            orderNumber: `Sammelpos. (${payout.ordersCount})`,
+            customerName: 'Vermittelte Energieaufträge lt. Nachweis',
+            tariffName: payout.periodLabel || 'Ökostrom / Erdgas',
+            amountEur: payout.subTotalEur || payout.netAmount
+        }];
+
+    items.forEach((it, idx) => {
+        if (idx % 2 === 0) {
+            ops.push(`0.975 0.982 0.992 rg 45 ${rowY - 4} 505 17 re f`);
+        }
+        ops.push('BT /F1 8.5 Tf 0.1 0.15 0.22 rg 52 ' + rowY + ' Td ' + toPdfWinAnsiString(String(it.pos || idx + 1)) + ' Tj ET');
+        ops.push('BT /F2 8.5 Tf 0.05 0.12 0.26 rg 82 ' + rowY + ' Td ' + toPdfWinAnsiString(String(it.orderNumber || '-').slice(0, 18)) + ' Tj ET');
+        ops.push('BT /F1 8.5 Tf 0.1 0.15 0.22 rg 175 ' + rowY + ' Td ' + toPdfWinAnsiString(String(it.customerName || '-').slice(0, 30)) + ' Tj ET');
+        ops.push('BT /F1 8.5 Tf 0.25 0.32 0.42 rg 335 ' + rowY + ' Td ' + toPdfWinAnsiString(String(it.tariffName || it.type || '-').slice(0, 26)) + ' Tj ET');
+        ops.push('BT /F2 8.5 Tf 0.05 0.12 0.26 rg 480 ' + rowY + ' Td ' + toPdfWinAnsiString(`${Number(it.amountEur || 0).toFixed(2)} EUR`) + ' Tj ET');
+        rowY -= 17;
+    });
+
+    if (Array.isArray(payout.items) && payout.items.length > 12) {
+        ops.push('BT /F1 8 Tf 0.35 0.42 0.52 rg 52 ' + rowY + ' Td ' + toPdfWinAnsiString(`+ ${payout.items.length - 12} weitere abgerechnete Vertragspositionen im Abrechnungszeitraum`) + ' Tj ET');
+        rowY -= 16;
+    }
+
+    // Divider line
+    ops.push(`0.82 0.86 0.90 RG 1 w 45 ${rowY + 6} m 550 ${rowY + 6} l S`);
+
+    // Totals Calculation Box
+    const boxTop = Math.min(rowY - 6, 360);
+    ops.push(`0.969 0.980 0.988 rg 270 ${boxTop - 115} 280 115 re f`);
+    ops.push(`0.85 0.89 0.93 RG 0.8 w 270 ${boxTop - 115} 280 115 re S`);
+
+    let calcY = boxTop - 16;
+    const summaryRows = [
+        ['Zwischensumme Provisionen (Netto):', `${Number(payout.subTotalEur || payout.netAmount || 0).toFixed(2)} EUR`, false]
+    ];
+    if (Number(payout.stornoReserveAmount || 0) > 0) {
+        summaryRows.push([`./. Stornoreserve-Einbehalt (${payout.stornoReservePct || 10}%):`, `-${Number(payout.stornoReserveAmount).toFixed(2)} EUR`, false]);
+    }
+    if (Number(payout.stornoReleaseAmount || 0) > 0) {
+        summaryRows.push(['+ Freigabe Stornoreserve:', `+${Number(payout.stornoReleaseAmount).toFixed(2)} EUR`, false]);
+    }
+    if (Number(payout.bonusAmount || 0) > 0) {
+        summaryRows.push(['+ Sonderbonus / Staffelprämie:', `+${Number(payout.bonusAmount).toFixed(2)} EUR`, false]);
+    }
+    summaryRows.push(
+        ['Auszahlungsbetrag Netto:', `${Number(payout.netAmount || 0).toFixed(2)} EUR`, true],
+        [partner.isVatLiable ? '+ 19% Umsatzsteuer (Regelbesteuerung):' : 'Umsatzsteuer (gem. § 19 UStG steuerfrei):', `${Number(payout.vatAmount || 0).toFixed(2)} EUR`, false],
+        ['AUSZAHLUNGSBETRAG (BRUTTO):', `${Number(payout.grossAmount || 0).toFixed(2)} EUR`, true]
+    );
+
+    summaryRows.forEach(([label, val, bold]) => {
+        const font = bold ? '/F2 9.5 Tf' : '/F1 8.5 Tf';
+        ops.push(`BT ${font} 0.05 0.12 0.26 rg 280 ${calcY} Td ` + toPdfWinAnsiString(label) + ' Tj ET');
+        ops.push(`BT ${font} 0.05 0.12 0.26 rg 475 ${calcY} Td ` + toPdfWinAnsiString(val) + ' Tj ET');
+        calcY -= 15;
+    });
+
+    // Left Bank & Status Info
+    let bankY = boxTop - 16;
+    ops.push(`BT /F2 9.5 Tf 0.039 0.122 0.267 rg 45 ${bankY} Td ` + toPdfWinAnsiString('SEPA-Auszahlungsinformationen:') + ' Tj ET');
+    bankY -= 16;
+    ops.push(`BT /F1 8.5 Tf 0.20 0.27 0.36 rg 45 ${bankY} Td ` + toPdfWinAnsiString(`IBAN: ${payout.iban || partner.iban || '-'}`) + ' Tj ET');
+    bankY -= 14;
+    ops.push(`BT /F1 8.5 Tf 0.20 0.27 0.36 rg 45 ${bankY} Td ` + toPdfWinAnsiString(`Bank / BIC: ${payout.bankName || partner.bankName || '-'} (${payout.bic || partner.bic || '-'})`) + ' Tj ET');
+    bankY -= 14;
+    ops.push(`BT /F2 8.5 Tf 0.05 0.45 0.25 rg 45 ${bankY} Td ` + toPdfWinAnsiString(`Abrechnungsstatus: ${payout.status === 'PAID' ? `AUSGEZAHLT am ${paidDateStr}` : 'FREIGEGEBEN ZUR ÜBERWEISUNG'}`) + ' Tj ET');
+    if (payout.remark) {
+        bankY -= 15;
+        ops.push(`BT /F1 8 Tf 0.35 0.42 0.52 rg 45 ${bankY} Td ` + toPdfWinAnsiString(`Hinweis: ${String(payout.remark).slice(0, 42)}`) + ' Tj ET');
+    }
+
+    // Legal Footer
+    ops.push('0.82 0.86 0.90 RG 0.8 w 45 120 m 550 120 l S');
+    ops.push('BT /F1 8 Tf 0.35 0.42 0.52 rg 45 104 Td ' + toPdfWinAnsiString('Hinweis gem. § 14 Abs. 2 UStG: Dieses Dokument gilt als Abrechnung im Gutschriftsverfahren. Sofern keine Umsatzsteuer ausgewiesen ist,') + ' Tj ET');
+    ops.push('BT /F1 8 Tf 0.35 0.42 0.52 rg 45 92 Td ' + toPdfWinAnsiString('erfolgt die Abrechnung steuerfrei gem. § 19 UStG (Kleinunternehmerregelung) bzw. § 4 Nr. 11 UStG.') + ' Tj ET');
+    ops.push('BT /F2 8.5 Tf 0.15 0.22 0.32 rg 45 75 Td ' + toPdfWinAnsiString('Alpha Energie GmbH  |  Alter Hellweg 50, 44379 Dortmund  |  Tel.: 0231 39989390  |  info@alpha-energie.de') + ' Tj ET');
+
+    const streamContent = ops.join('\n');
     const objects = [
         '1 0 obj\n<< /Type /Catalog /Pages 2 0 R >>\nendobj\n',
         '2 0 obj\n<< /Type /Pages /Kids [3 0 R] /Count 1 >>\nendobj\n',
-        '3 0 obj\n<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Contents 4 0 R /Resources << /Font << /F1 5 0 R >> >> >>\nendobj\n',
+        '3 0 obj\n<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Contents 4 0 R /Resources << /Font << /F1 5 0 R /F2 6 0 R >> >> >>\nendobj\n',
         `4 0 obj\n<< /Length ${Buffer.byteLength(streamContent, 'utf8')} >>\nstream\n${streamContent}\nendstream\nendobj\n`,
-        '5 0 obj\n<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>\nendobj\n'
+        '5 0 obj\n<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>\nendobj\n',
+        '6 0 obj\n<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>\nendobj\n'
     ];
 
     let pdf = '%PDF-1.4\n';
@@ -4636,21 +5313,27 @@ app.get('/api/admin/portal-overview', authenticateAdmin, async (req, res) => {
             .filter(o => o.commissionStatus === 'PAID')
             .reduce((s, o) => s + Number(o.commissionAmount || 0) + Number(o.overrideAmount || 0), 0) + paidLeadsSum;
 
+        const enrichedOrders = orders.map(o => enrichOrderForPortal(o, true));
+        const enrichedPartners = partners.map(sanitizePartnerUser);
+        const enrichedPayouts = payouts.map(enrichPayoutForPortal);
+
         res.json({
             success: true,
             kpis: {
                 ordersCount: orders.length,
+                clarificationCount: orders.filter(o => o.status === 'CLARIFICATION').length,
                 partnersCount: partners.filter(p => p.status === 'ACTIVE').length,
                 leadsCount: leads.length,
                 clicksCount,
+                payoutsCount: payouts.length,
                 totalCommissionPending: Number(totalCommissionPending.toFixed(2)),
                 totalCommissionApproved: Number(totalCommissionApproved.toFixed(2)),
                 totalCommissionPaid: Number(totalCommissionPaid.toFixed(2))
             },
-            orders,
-            partners: partners.map(sanitizePartnerUser),
+            orders: enrichedOrders,
+            partners: enrichedPartners,
             leads,
-            payouts
+            payouts: enrichedPayouts
         });
     } catch (error) {
         res.status(500).json({ success: false, error: error.message });
@@ -4660,16 +5343,63 @@ app.get('/api/admin/portal-overview', authenticateAdmin, async (req, res) => {
 app.patch('/api/admin/energy-orders/:id', authenticateAdmin, async (req, res) => {
     try {
         const id = parseInt(req.params.id, 10);
-        const { status, commissionStatus, commissionAmount, partnerCode, notes } = req.body || {};
+        const existing = await prisma.energyOrder.findUnique({ where: { id } });
+        if (!existing) {
+            return res.status(404).json({ success: false, error: 'Auftrag nicht gefunden.' });
+        }
+
+        const {
+            status,
+            commissionStatus,
+            commissionAmount,
+            overrideAmount,
+            partnerCode,
+            partnerId,
+            statusMessage,
+            supplyStartDate,
+            internalAdminNote,
+            notes
+        } = req.body || {};
+
         const data = {};
         if (status !== undefined) data.status = status;
         if (commissionStatus !== undefined) data.commissionStatus = commissionStatus;
         if (commissionAmount !== undefined) data.commissionAmount = parseFloat(commissionAmount) || 0;
-        if (partnerCode !== undefined) data.partnerCode = partnerCode;
-        if (notes !== undefined) data.notes = notes;
+        if (overrideAmount !== undefined) data.overrideAmount = parseFloat(overrideAmount) || 0;
+
+        if (partnerCode !== undefined) {
+            const cleanCode = String(partnerCode || '').trim().toUpperCase();
+            data.partnerCode = cleanCode || null;
+            if (cleanCode) {
+                const matchedPartner = await prisma.partnerUser.findFirst({
+                    where: { partnerCode: cleanCode }
+                });
+                if (matchedPartner) {
+                    data.partnerId = matchedPartner.id;
+                }
+            } else {
+                data.partnerId = null;
+            }
+        } else if (partnerId !== undefined) {
+            data.partnerId = partnerId ? parseInt(partnerId, 10) : null;
+        }
+
+        if (statusMessage !== undefined || supplyStartDate !== undefined || internalAdminNote !== undefined) {
+            data.notes = packJsonMeta(existing.notes, {
+                statusMessage: statusMessage !== undefined ? String(statusMessage).trim() : undefined,
+                supplyStartDate: supplyStartDate !== undefined ? String(supplyStartDate).trim() : undefined,
+                internalAdminNote: internalAdminNote !== undefined ? String(internalAdminNote).trim() : undefined,
+                statusUpdatedAt: new Date().toISOString()
+            });
+        } else if (notes !== undefined) {
+            data.notes = packJsonMeta(existing.notes, {
+                statusMessage: String(notes).trim(),
+                statusUpdatedAt: new Date().toISOString()
+            });
+        }
 
         const updated = await prisma.energyOrder.update({ where: { id }, data });
-        res.json({ success: true, data: updated });
+        res.json({ success: true, data: enrichOrderForPortal(updated, true) });
     } catch (error) {
         res.status(500).json({ success: false, error: error.message });
     }
@@ -4686,10 +5416,48 @@ app.post('/api/admin/partner-users', authenticateAdmin, async (req, res) => {
         if (!email || !fullName) {
             return res.status(400).json({ success: false, error: 'Name und E-Mail sind erforderlich.' });
         }
+
+        const existsEmail = await prisma.partnerUser.findUnique({ where: { email } });
+        if (existsEmail) {
+            return res.status(409).json({ success: false, error: 'Für diese E-Mail-Adresse existiert bereits ein Vertriebspartner.' });
+        }
+
         const partnerCode = body.partnerCode
             ? String(body.partnerCode).trim().toUpperCase()
-            : generateUniquePartnerCode(role, fullName);
+            : generateUniquePartnerCode(role, body.lastName || fullName);
         const rawPassword = body.password || 'Alpha2026!';
+
+        let ibanClean = body.iban ? String(body.iban).replace(/\s+/g, '').toUpperCase() : null;
+        let bic = body.bic || null;
+        let bankName = body.bankName || null;
+        if (ibanClean) {
+            const check = firstconService.validateIbanMod97(ibanClean);
+            if (!check.valid) {
+                return res.status(400).json({ success: false, error: check.reason || 'Ungültige IBAN (Mod-97 Prüffehler).' });
+            }
+            ibanClean = check.clean;
+            bic = bic || check.bic;
+            bankName = bankName || check.bankName;
+        }
+
+        let parentPartnerId = body.parentPartnerId ? parseInt(body.parentPartnerId, 10) : null;
+        if (!parentPartnerId && body.parentPartnerCode) {
+            const parent = await prisma.partnerUser.findFirst({
+                where: { partnerCode: String(body.parentPartnerCode).trim().toUpperCase() }
+            });
+            if (parent) parentPartnerId = parent.id;
+        }
+
+        const metaNotes = packJsonMeta(null, {
+            vatId: body.vatId || '',
+            ihkNumber: body.ihkNumber || '',
+            gewerbeamtCity: body.gewerbeamtCity || '',
+            stornoReservePct: body.stornoReservePct !== undefined ? parseFloat(body.stornoReservePct) : 10,
+            liabilityMonths: body.liabilityMonths !== undefined ? parseInt(body.liabilityMonths, 10) : 12,
+            payoutCycle: body.payoutCycle || 'MONTHLY',
+            ladestromCommissionEur: body.ladestromCommissionEur !== undefined ? parseFloat(body.ladestromCommissionEur) : (parseFloat(body.stromCommissionEur) || 60),
+            adminRemarks: body.adminRemarks || ''
+        });
 
         const created = await prisma.partnerUser.create({
             data: {
@@ -4697,20 +5465,36 @@ app.post('/api/admin/partner-users', authenticateAdmin, async (req, res) => {
                 email,
                 passwordHash: hashPartnerPassword(rawPassword),
                 role,
-                status: 'ACTIVE',
+                status: body.status || 'ACTIVE',
+                commissionTier: body.commissionTier || (role === 'AGENCY' ? 'ELITE' : 'PRO'),
+                salutation: body.salutation || 'Herr',
                 firstName: body.firstName || fullName.split(' ')[0] || '',
                 lastName: body.lastName || fullName.split(' ').slice(1).join(' ') || '',
                 fullName,
+                birthDate: body.birthDate || null,
                 companyName: body.companyName || null,
+                legalForm: body.legalForm || null,
+                website: body.website || null,
                 phone: body.phone || '',
-                iban: body.iban || null,
-                bic: body.bic || null,
-                bankName: body.bankName || null,
+                street: body.street || null,
+                houseNr: body.houseNr || null,
+                plz: body.plz || null,
+                city: body.city || null,
+                country: body.country || 'Deutschland',
+                iban: ibanClean,
+                bic,
+                bankName,
                 isVatLiable: body.isVatLiable === true || body.isVatLiable === 'true',
+                taxId: body.taxId || null,
+                taxOffice: body.taxOffice || null,
                 stromCommissionEur: parseFloat(body.stromCommissionEur) || 60.0,
                 gasCommissionEur: parseFloat(body.gasCommissionEur) || 60.0,
                 waermeCommissionEur: parseFloat(body.waermeCommissionEur) || 70.0,
-                overrideCommissionEur: parseFloat(body.overrideCommissionEur) || 10.0
+                tippgeberCommissionEur: parseFloat(body.tippgeberCommissionEur) || 35.0,
+                b2bCommissionPct: parseFloat(body.b2bCommissionPct) || 15.0,
+                overrideCommissionEur: parseFloat(body.overrideCommissionEur) || (role === 'AGENCY' ? 15.0 : 0.0),
+                parentPartnerId,
+                notes: metaNotes
             }
         });
 
@@ -4733,19 +5517,74 @@ app.post('/api/admin/partner-users', authenticateAdmin, async (req, res) => {
 app.patch('/api/admin/partner-users/:id', authenticateAdmin, async (req, res) => {
     try {
         const id = parseInt(req.params.id, 10);
+        const existing = await prisma.partnerUser.findUnique({ where: { id } });
+        if (!existing) {
+            return res.status(404).json({ success: false, error: 'Vertriebspartner nicht gefunden.' });
+        }
         const body = req.body || {};
         const data = {};
-        ['role', 'status', 'fullName', 'companyName', 'phone', 'iban', 'bic', 'bankName'].forEach(f => {
+        const stringFields = [
+            'role', 'status', 'commissionTier', 'salutation', 'firstName', 'lastName',
+            'fullName', 'birthDate', 'companyName', 'legalForm', 'website', 'phone',
+            'street', 'houseNr', 'plz', 'city', 'country', 'taxId', 'taxOffice', 'iban', 'bic', 'bankName'
+        ];
+        stringFields.forEach(f => {
             if (body[f] !== undefined) data[f] = body[f];
         });
-        ['stromCommissionEur', 'gasCommissionEur', 'waermeCommissionEur', 'overrideCommissionEur'].forEach(f => {
+        if (body.isVatLiable !== undefined) {
+            data.isVatLiable = body.isVatLiable === true || body.isVatLiable === 'true';
+        }
+        if (body.parentPartnerId !== undefined) {
+            data.parentPartnerId = body.parentPartnerId ? parseInt(body.parentPartnerId, 10) : null;
+        }
+        ['stromCommissionEur', 'gasCommissionEur', 'waermeCommissionEur', 'tippgeberCommissionEur', 'b2bCommissionPct', 'overrideCommissionEur'].forEach(f => {
             if (body[f] !== undefined) data[f] = parseFloat(body[f]) || 0;
         });
+        if (data.iban) {
+            const check = firstconService.validateIbanMod97(data.iban);
+            if (!check.valid) {
+                return res.status(400).json({ success: false, error: check.reason || 'Ungültige IBAN.' });
+            }
+            data.iban = check.clean;
+            data.bic = data.bic || check.bic;
+            data.bankName = data.bankName || check.bankName;
+        }
+        if (
+            body.vatId !== undefined ||
+            body.ihkNumber !== undefined ||
+            body.gewerbeamtCity !== undefined ||
+            body.stornoReservePct !== undefined ||
+            body.liabilityMonths !== undefined ||
+            body.payoutCycle !== undefined ||
+            body.ladestromCommissionEur !== undefined ||
+            body.adminRemarks !== undefined
+        ) {
+            data.notes = packJsonMeta(existing.notes, {
+                vatId: body.vatId,
+                ihkNumber: body.ihkNumber,
+                gewerbeamtCity: body.gewerbeamtCity,
+                stornoReservePct: body.stornoReservePct !== undefined ? parseFloat(body.stornoReservePct) : undefined,
+                liabilityMonths: body.liabilityMonths !== undefined ? parseInt(body.liabilityMonths, 10) : undefined,
+                payoutCycle: body.payoutCycle,
+                ladestromCommissionEur: body.ladestromCommissionEur !== undefined ? parseFloat(body.ladestromCommissionEur) : undefined,
+                adminRemarks: body.adminRemarks
+            });
+        }
         if (body.password && String(body.password).length >= 6) {
             data.passwordHash = hashPartnerPassword(body.password);
         }
         const updated = await prisma.partnerUser.update({ where: { id }, data });
         res.json({ success: true, partner: sanitizePartnerUser(updated) });
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+app.delete('/api/admin/partner-users/:id', authenticateAdmin, async (req, res) => {
+    try {
+        const id = parseInt(req.params.id, 10);
+        await prisma.partnerUser.delete({ where: { id } });
+        res.json({ success: true });
     } catch (error) {
         res.status(500).json({ success: false, error: error.message });
     }
@@ -4850,26 +5689,46 @@ app.patch('/api/admin/partner-leads/:id', authenticateAdmin, async (req, res) =>
     }
 });
 
-// Generate Commission Payout / Credit Note (Gutschrift) for a Partner
+// Generate Commission Payout / Credit Note (Gutschrift) for a Partner (Abrechnungstool)
 app.post('/api/admin/payouts/create', authenticateAdmin, async (req, res) => {
     try {
-        const { partnerId, periodLabel, markPaid = true } = req.body || {};
-        const partner = await prisma.partnerUser.findUnique({ where: { id: parseInt(partnerId, 10) } });
-        if (!partner) {
+        const {
+            partnerId,
+            periodLabel,
+            markPaid = true,
+            orderIds,
+            stornoReservePct,
+            stornoReleaseAmount = 0,
+            bonusAmount = 0,
+            remark = ''
+        } = req.body || {};
+
+        const rawPartner = await prisma.partnerUser.findUnique({ where: { id: parseInt(partnerId, 10) } });
+        if (!rawPartner) {
             return res.status(404).json({ success: false, error: 'Partner nicht gefunden.' });
         }
+        const partner = sanitizePartnerUser(rawPartner);
 
         const lastPayout = await prisma.commissionPayout.findFirst({
             where: { partnerId: partner.id },
             orderBy: { createdAt: 'desc' }
         });
 
+        const orderWhere = {
+            OR: [
+                { partnerId: partner.id },
+                { partnerCode: partner.partnerCode }
+            ],
+            commissionStatus: { in: ['PENDING', 'APPROVED'] },
+            status: { not: 'CANCELLED' }
+        };
+        if (Array.isArray(orderIds) && orderIds.length > 0) {
+            orderWhere.id = { in: orderIds.map(id => parseInt(id, 10)).filter(Boolean) };
+        }
+
         const payableOrders = await prisma.energyOrder.findMany({
-            where: {
-                partnerId: partner.id,
-                commissionStatus: { in: ['PENDING', 'APPROVED'] },
-                status: { not: 'CANCELLED' }
-            }
+            where: orderWhere,
+            orderBy: { createdAt: 'asc' }
         });
 
         const overrideWhere = {
@@ -4893,28 +5752,96 @@ app.post('/api/admin/payouts/create', authenticateAdmin, async (req, res) => {
             }
         });
 
+        const items = [];
+        let posCounter = 1;
+        payableOrders.forEach(o => {
+            items.push({
+                pos: posCounter++,
+                orderId: o.id,
+                orderNumber: o.orderNumber,
+                customerName: `${o.firstName || ''} ${o.lastName || ''} (${o.city || o.plz || '-'})`.trim(),
+                tariffName: o.tariffName || o.branch || 'Energietarif',
+                branch: o.branch || 'strom',
+                type: 'Abschlussprovision',
+                amountEur: Number(o.commissionAmount || 0)
+            });
+        });
+        payableOverrideOrders.forEach(o => {
+            items.push({
+                pos: posCounter++,
+                orderId: o.id,
+                orderNumber: o.orderNumber,
+                customerName: `Downline (${o.partnerCode || 'Sub-VP'})`,
+                tariffName: `Superprovision ${o.tariffName || ''}`.trim(),
+                branch: o.branch || 'strom',
+                type: 'Override',
+                amountEur: Number(o.overrideAmount || 0)
+            });
+        });
+        payableLeads.forEach(l => {
+            items.push({
+                pos: posCounter++,
+                leadId: l.id,
+                orderNumber: l.convertedOrderNo || `LEAD-${l.id}`,
+                customerName: l.customerName,
+                tariffName: `Tippgeber-Prämie (${l.branch || 'strom'})`,
+                branch: l.branch || 'strom',
+                type: 'Tippgeber',
+                amountEur: Number(l.commissionAmount || 0)
+            });
+        });
+
         const directNet = payableOrders.reduce((s, o) => s + Number(o.commissionAmount || 0), 0);
         const overrideNet = payableOverrideOrders.reduce((s, o) => s + Number(o.overrideAmount || 0), 0);
         const leadsNet = payableLeads.reduce((s, l) => s + Number(l.commissionAmount || 0), 0);
 
-        let netAmount = Number((directNet + overrideNet + leadsNet).toFixed(2));
-        let ordersCount = payableOrders.length + payableOverrideOrders.length + payableLeads.length;
+        let subTotalEur = Number((directNet + overrideNet + leadsNet).toFixed(2));
+        let ordersCount = items.length;
 
         if (req.body.customNetAmount !== undefined && parseFloat(req.body.customNetAmount) > 0) {
-            netAmount = parseFloat(req.body.customNetAmount);
-            if (ordersCount === 0) ordersCount = parseInt(req.body.ordersCount, 10) || 1;
+            subTotalEur = parseFloat(req.body.customNetAmount);
+            if (ordersCount === 0) {
+                ordersCount = parseInt(req.body.ordersCount, 10) || 1;
+                items.push({
+                    pos: 1,
+                    orderNumber: 'MANUELL',
+                    customerName: 'Pauschale / Manuelle Provisionsabrechnung',
+                    tariffName: periodLabel || 'Sonderabrechnung',
+                    type: 'Provision',
+                    amountEur: subTotalEur
+                });
+            }
         }
+
+        const effectiveReservePct = stornoReservePct !== undefined
+            ? Math.max(0, Math.min(50, parseFloat(stornoReservePct) || 0))
+            : Number(partner.stornoReservePct ?? 0);
+        const stornoReserveAmount = Number(((subTotalEur * effectiveReservePct) / 100).toFixed(2));
+        const cleanRelease = Number(Math.max(0, parseFloat(stornoReleaseAmount) || 0).toFixed(2));
+        const cleanBonus = Number(Math.max(0, parseFloat(bonusAmount) || 0).toFixed(2));
+
+        const netAmount = Number((subTotalEur - stornoReserveAmount + cleanRelease + cleanBonus).toFixed(2));
 
         if (netAmount <= 0) {
             return res.status(400).json({
                 success: false,
-                error: 'Keine offenen Provisionen für diesen Partner vorhanden.'
+                error: 'Keine offenen Provisionen bzw. positiver Netto-Auszahlungsbetrag für diesen Partner vorhanden.'
             });
         }
 
         const vatAmount = partner.isVatLiable ? Number((netAmount * 0.19).toFixed(2)) : 0;
         const grossAmount = Number((netAmount + vatAmount).toFixed(2));
         const payoutNumber = 'GS-' + new Date().getFullYear() + '-' + Math.floor(1000 + Math.random() * 9000);
+
+        const payoutNotes = JSON.stringify({
+            subTotalEur,
+            stornoReservePct: effectiveReservePct,
+            stornoReserveAmount,
+            stornoReleaseAmount: cleanRelease,
+            bonusAmount: cleanBonus,
+            remark: String(remark || '').trim(),
+            items
+        });
 
         const payout = await prisma.commissionPayout.create({
             data: {
@@ -4929,15 +5856,25 @@ app.post('/api/admin/payouts/create', authenticateAdmin, async (req, res) => {
                 iban: partner.iban,
                 bic: partner.bic,
                 bankName: partner.bankName,
-                paidAt: markPaid ? new Date() : null
+                paidAt: markPaid ? new Date() : null,
+                notes: payoutNotes
             }
         });
 
-        if (payableOrders.length > 0) {
-            await prisma.energyOrder.updateMany({
-                where: { id: { in: payableOrders.map(o => o.id) } },
-                data: { commissionStatus: markPaid ? 'PAID' : 'APPROVED' }
-            });
+        for (const o of payableOrders) {
+            const existingMeta = parseJsonMeta(o.notes);
+            await prisma.energyOrder.update({
+                where: { id: o.id },
+                data: {
+                    commissionStatus: markPaid ? 'PAID' : 'APPROVED',
+                    status: (markPaid && o.status === 'CONFIRMED') ? 'PAID' : o.status,
+                    notes: packJsonMeta(o.notes, {
+                        payoutNumber,
+                        statusMessage: existingMeta.statusMessage || `Provision mit Gutschrift ${payoutNumber} abgerechnet.`,
+                        statusUpdatedAt: new Date().toISOString()
+                    })
+                }
+            }).catch(() => {});
         }
 
         if (payableLeads.length > 0 && markPaid) {
@@ -4947,7 +5884,7 @@ app.post('/api/admin/payouts/create', authenticateAdmin, async (req, res) => {
             });
         }
 
-        res.status(201).json({ success: true, payout });
+        res.status(201).json({ success: true, payout: enrichPayoutForPortal(payout) });
     } catch (error) {
         res.status(500).json({ success: false, error: error.message });
     }
@@ -4964,7 +5901,7 @@ app.patch('/api/admin/payouts/:id', authenticateAdmin, async (req, res) => {
                 paidAt: status === 'PAID' ? new Date() : undefined
             }
         });
-        res.json({ success: true, payout: updated });
+        res.json({ success: true, payout: enrichPayoutForPortal(updated) });
     } catch (error) {
         res.status(500).json({ success: false, error: error.message });
     }

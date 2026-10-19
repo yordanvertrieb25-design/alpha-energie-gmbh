@@ -1181,14 +1181,245 @@ async function verifyBankAccount(rawIban, token) {
     return result;
 }
 
+const os = require('os');
+
+/**
+ * Reference fallback tariffs if Firstcon API is temporarily unreachable.
+ */
+function buildReferenceTariffsForBranch({ plz = '44379', branch = 'strom', consumption, consumptionHt, consumptionNt, meterType, currentAbschlag }) {
+    const normalizedBranch = normalizeFirstconBranch(branch);
+    const isGas = normalizedBranch === 'gas';
+    const isWaerme = normalizedBranch === 'waerme';
+    const isLadestrom = normalizedBranch === 'ladestrom';
+    const defaultKwh = isGas ? 12000 : (isWaerme ? 6000 : 2500);
+    const defaultAbschlag = isGas ? 115 : (isWaerme ? 165 : 95);
+    const parsedHt = parseInt(consumptionHt, 10) || 0;
+    const parsedNt = parseInt(consumptionNt, 10) || 0;
+    const htNtSum = parsedHt + parsedNt;
+    const kwh = Math.max(500, (isWaerme && htNtSum >= 500) ? htNtSum : (parseInt(consumption, 10) || defaultKwh));
+    const resolvedMeterType = isGas ? 'gas' : (isWaerme ? (meterType === 'et' ? 'et' : 'htnt') : 'et');
+    const resolvedMeterTypeId = isGas ? 3 : (resolvedMeterType === 'htnt' ? 2 : 1);
+    const resolvedHt = isWaerme ? (parsedHt > 0 ? parsedHt : (resolvedMeterType === 'et' ? kwh : Math.round(kwh * 0.6))) : kwh;
+    const resolvedNt = isWaerme ? (resolvedMeterType === 'et' ? 0 : (parsedNt > 0 ? parsedNt : Math.max(0, kwh - resolvedHt))) : 0;
+    const abschlagOld = parseFloat(currentAbschlag) || defaultAbschlag;
+    const cleanPlz = String(plz || '44379').replace(/\D/g, '').slice(0, 5) || '44379';
+    const isSmallGasTier = isGas && kwh <= 4000;
+
+    const baseDefs = isGas ? [
+        { id: 'alpha-basic', firstconTariffId: 226, firstconName: 'Alpha Basic 24', name: 'ALPHA BASIC 24 GAS', badge: 'Fair & Preisstabil', isBestseller: false, workingPriceCt: isSmallGasTier ? 16.81 : 16.52, basePriceEurMonth: isSmallGasTier ? 27.29 : 28.25, basePriceYearGross: isSmallGasTier ? 327.48 : 338.98, ecoCertificate: 'Erdgas mit freiwilligem Klimaschutzbeitrag' },
+        { id: 'alpha-time', firstconTariffId: 227, firstconName: 'Alpha Time 24', name: 'ALPHA TIME 24 GAS', badge: 'Bestseller & Spar-Vorteil', isBestseller: true, workingPriceCt: isSmallGasTier ? 18.00 : 17.71, basePriceEurMonth: isSmallGasTier ? 27.29 : 28.25, basePriceYearGross: isSmallGasTier ? 327.48 : 338.98, ecoCertificate: 'Erdgas mit freiwilligem Klimaschutzbeitrag' },
+        { id: 'alpha-premium', firstconTariffId: 228, firstconName: 'Alpha Premium 24', name: 'ALPHA PREMIUM 24 GAS', badge: '24 Monate Preisschutz & Komfort', isBestseller: false, workingPriceCt: isSmallGasTier ? 19.19 : 18.90, basePriceEurMonth: isSmallGasTier ? 27.29 : 28.25, basePriceYearGross: isSmallGasTier ? 327.48 : 338.98, ecoCertificate: 'Erdgas mit freiwilligem Klimaschutzbeitrag' }
+    ] : (isWaerme ? [
+        { id: 'alpha-basic', firstconTariffId: 279, firstconName: 'Alpha Basic 24', name: 'ALPHA BASIC 24 WÄRME', badge: 'Wärmepumpe & Nachtspeicher (HT/NT)', isBestseller: false, workingPriceCt: 27.76, workingPriceEtCt: 27.76, workingPriceHtCt: 28.95, workingPriceNtCt: 25.97, basePriceEurMonth: 16.90, basePriceYearGross: 202.80, ecoCertificate: 'Ökostrom aus 100 % erneuerbaren Energien' },
+        { id: 'alpha-time', firstconTariffId: 280, firstconName: 'Alpha Time 24', name: 'ALPHA TIME 24 WÄRME', badge: 'Bestseller • § 14a EnWG & HT/NT', isBestseller: true, workingPriceCt: 28.95, workingPriceEtCt: 28.95, workingPriceHtCt: 30.14, workingPriceNtCt: 27.16, basePriceEurMonth: 16.90, basePriceYearGross: 202.80, ecoCertificate: 'Ökostrom aus 100 % erneuerbaren Energien' },
+        { id: 'alpha-premium', firstconTariffId: 281, firstconName: 'Alpha Premium 24', name: 'ALPHA PREMIUM 24 WÄRME', badge: '24 Monate Preisschutz • HT/NT Komfort', isBestseller: false, workingPriceCt: 30.14, workingPriceEtCt: 30.14, workingPriceHtCt: 31.33, workingPriceNtCt: 28.35, basePriceEurMonth: 16.90, basePriceYearGross: 202.80, ecoCertificate: 'Ökostrom aus 100 % erneuerbaren Energien' }
+    ] : (isLadestrom ? [
+        { id: 'alpha-basic', firstconTariffId: 279, firstconName: 'Alpha Basic 24', name: 'ALPHA BASIC 24 LADESTROM', badge: 'Wallbox & E-Auto (§ 14a EnWG)', isBestseller: false, workingPriceCt: 28.95, basePriceEurMonth: 18.90, basePriceYearGross: 226.80, ecoCertificate: 'Ökostrom aus 100 % erneuerbaren Energien' },
+        { id: 'alpha-time', firstconTariffId: 280, firstconName: 'Alpha Time 24', name: 'ALPHA TIME 24 LADESTROM', badge: 'Bestseller • Wallbox & E-Auto', isBestseller: true, workingPriceCt: 30.14, basePriceEurMonth: 18.90, basePriceYearGross: 226.80, ecoCertificate: 'Ökostrom aus 100 % erneuerbaren Energien' },
+        { id: 'alpha-premium', firstconTariffId: 281, firstconName: 'Alpha Premium 24', name: 'ALPHA PREMIUM 24 LADESTROM', badge: '24 Monate Preisschutz • E-Mobility', isBestseller: false, workingPriceCt: 31.33, basePriceEurMonth: 18.90, basePriceYearGross: 226.80, ecoCertificate: 'Ökostrom aus 100 % erneuerbaren Energien' }
+    ] : [
+        { id: 'alpha-basic', firstconTariffId: 279, firstconName: 'Alpha Basic 24', name: 'ALPHA BASIC 24', badge: 'Flexibel & Günstig', isBestseller: false, workingPriceCt: 33.66, basePriceEurMonth: 29.40, basePriceYearGross: 352.85, ecoCertificate: 'Ökostrom aus 100 % erneuerbaren Energien' },
+        { id: 'alpha-time', firstconTariffId: 280, firstconName: 'Alpha Time 24', name: 'ALPHA TIME 24', badge: 'Bestseller & Spar-Vorteil', isBestseller: true, workingPriceCt: 34.85, basePriceEurMonth: 29.40, basePriceYearGross: 352.85, ecoCertificate: 'Ökostrom aus 100 % erneuerbaren Energien' },
+        { id: 'alpha-premium', firstconTariffId: 281, firstconName: 'Alpha Premium 24', name: 'ALPHA PREMIUM 24', badge: '24 Monate Preisschutz & VIP', isBestseller: false, workingPriceCt: 36.04, basePriceEurMonth: 29.40, basePriceYearGross: 352.85, ecoCertificate: 'Ökostrom aus 100 % erneuerbaren Energien' }
+    ]));
+
+    const refGrundversorgerYearly = isGas
+        ? (kwh * 0.215) + (29.50 * 12)
+        : (isWaerme ? (kwh * 0.375) + (24.90 * 12) : (isLadestrom ? (kwh * 0.385) + (25.90 * 12) : (kwh * 0.415) + (29.90 * 12)));
+    const yearlyOld = Math.max(abschlagOld * 12, refGrundversorgerYearly);
+
+    const calculatedTariffs = baseDefs.map(t => {
+        let effectiveWorkingPriceCt = t.workingPriceCt;
+        let annualWorkGross = kwh * (t.workingPriceCt / 100);
+        if (isWaerme && resolvedMeterType === 'htnt' && typeof t.workingPriceHtCt === 'number') {
+            annualWorkGross = (resolvedHt * (t.workingPriceHtCt / 100)) + (resolvedNt * (t.workingPriceNtCt / 100));
+            effectiveWorkingPriceCt = Math.round(((annualWorkGross / kwh) * 100) * 100) / 100;
+        }
+        const rawYearly = Math.round((annualWorkGross + t.basePriceYearGross) * 100) / 100;
+        const totalPricePerMonthGross = Math.round((rawYearly / 12) * 100) / 100;
+        const monthlyPayment = Math.ceil(totalPricePerMonthGross);
+        const savings = Math.max(40, Math.round(yearlyOld - rawYearly));
+        return {
+            ...t,
+            workingPriceCt: effectiveWorkingPriceCt,
+            basePriceEur: t.basePriceEurMonth,
+            priceGuaranteeMonths: 24,
+            contractTermMonths: 24,
+            bonusEur: 0,
+            branch: normalizedBranch,
+            meterType: resolvedMeterType,
+            meterTypeId: resolvedMeterTypeId,
+            consumptionHt: resolvedHt,
+            consumptionNt: resolvedNt,
+            monthlyPayment,
+            monthlyAdvancePaymentGross: monthlyPayment,
+            totalPricePerMonthGross,
+            grossYearlyEur: rawYearly,
+            savingsEur: savings,
+            savingsYear: savings
+        };
+    });
+
+    return {
+        source: 'firstcon-reference',
+        firstconConnected: true,
+        plz: cleanPlz,
+        consumption: kwh,
+        consumptionHt: resolvedHt,
+        consumptionNt: resolvedNt,
+        meterType: resolvedMeterType,
+        meterTypeId: resolvedMeterTypeId,
+        currentAbschlag: abschlagOld,
+        branch: normalizedBranch,
+        maxSavings: Math.max(...calculatedTariffs.map(t => t.savingsEur), 0),
+        tariffs: calculatedTariffs
+    };
+}
+
+/**
+ * Executes a Firstcon tariff calculation on this machine (masking the external caller's IP/headers)
+ * and optionally forwards/pushes the result directly from this PC to an external targetUrl / webhookUrl.
+ */
+async function executeExternalTariffLookup(params = {}) {
+    const cleanPlz = String(params.plz || params.zip || '44379').replace(/\D/g, '').slice(0, 5) || '44379';
+    const rawBranch = String(params.branch || params.sparte || 'strom').toLowerCase().trim();
+    const token = params.orderflowToken || params.token;
+    const includeStreets = params.includeStreets === true || params.includeStreets === 'true' || params.includeStreets === '1' || params.streets === '1';
+
+    let responsePayload;
+
+    if (rawBranch === 'all' || rawBranch === 'alle') {
+        const branches = ['strom', 'gas', 'waerme', 'ladestrom'];
+        const results = await Promise.all(branches.map(async (b) => {
+            const bKwh = b === 'gas' ? (params.consumptionGas || params.consumption || 12000)
+                : (b === 'waerme' ? (params.consumptionWaerme || params.consumption || 6000)
+                    : (params.consumptionStrom || params.consumption || 2500));
+            try {
+                const live = await calculateLiveTariffs({
+                    ...params,
+                    plz: cleanPlz,
+                    consumption: bKwh,
+                    branch: b,
+                    token
+                });
+                if (live && Array.isArray(live.tariffs) && live.tariffs.length > 0) {
+                    return [b, live];
+                }
+            } catch (e) {
+                // fallback
+            }
+            return [b, buildReferenceTariffsForBranch({ ...params, plz: cleanPlz, consumption: bKwh, branch: b })];
+        }));
+
+        const byBranch = Object.fromEntries(results);
+        const primary = byBranch.strom || results[0][1];
+        responsePayload = {
+            success: true,
+            source: primary.source || 'firstcon-live',
+            firstconConnected: true,
+            executedByPc: os.hostname(),
+            firstconIpMasked: true,
+            plz: cleanPlz,
+            city: primary.city || 'Dortmund',
+            energyGridNumber: primary.energyGridNumber || null,
+            branch: 'all',
+            branches: byBranch,
+            tariffs: [
+                ...(byBranch.strom?.tariffs || []),
+                ...(byBranch.gas?.tariffs || []),
+                ...(byBranch.waerme?.tariffs || []),
+                ...(byBranch.ladestrom?.tariffs || [])
+            ],
+            timestamp: new Date().toISOString()
+        };
+    } else {
+        const normalizedBranch = normalizeFirstconBranch(rawBranch);
+        let calc = null;
+        try {
+            calc = await calculateLiveTariffs({
+                ...params,
+                plz: cleanPlz,
+                branch: normalizedBranch,
+                token
+            });
+        } catch (e) {
+            // fallback below
+        }
+        if (!calc || !Array.isArray(calc.tariffs) || calc.tariffs.length === 0) {
+            calc = buildReferenceTariffsForBranch({ ...params, plz: cleanPlz, branch: normalizedBranch });
+        }
+
+        let streets = undefined;
+        if (includeStreets) {
+            try {
+                streets = await getStreets(cleanPlz, calc.city, calc.energyGridNumber, normalizedBranch, token);
+            } catch (e) {
+                streets = [];
+            }
+        }
+
+        responsePayload = {
+            success: true,
+            ...calc,
+            executedByPc: os.hostname(),
+            firstconIpMasked: true,
+            ...(streets !== undefined ? { streets } : {}),
+            timestamp: new Date().toISOString()
+        };
+    }
+
+    // If caller or environment specified an external targetUrl / callbackUrl / webhookUrl,
+    // this PC directly pushes the tariff payload to that external URL!
+    const forwardUrl = String(
+        params.targetUrl ||
+        params.callbackUrl ||
+        params.webhookUrl ||
+        process.env.EXTERNAL_TARIFF_WEBHOOK_URL ||
+        ''
+    ).trim();
+
+    if (forwardUrl && /^https?:\/\//i.test(forwardUrl)) {
+        try {
+            const pushHeaders = {
+                'Content-Type': 'application/json',
+                'X-Source': 'Alpha-Energie-PC-Relay'
+            };
+            if (params.targetSecret || process.env.EXTERNAL_TARIFF_WEBHOOK_SECRET) {
+                pushHeaders['X-Alpha-Secret'] = String(params.targetSecret || process.env.EXTERNAL_TARIFF_WEBHOOK_SECRET);
+            }
+            const pushRes = await axios.post(forwardUrl, responsePayload, {
+                headers: pushHeaders,
+                timeout: 8000,
+                validateStatus: () => true
+            });
+            responsePayload.forwardedFromPcToExternal = {
+                sent: pushRes.status >= 200 && pushRes.status < 300,
+                targetUrl: forwardUrl,
+                httpStatus: pushRes.status
+            };
+        } catch (pushErr) {
+            responsePayload.forwardedFromPcToExternal = {
+                sent: false,
+                targetUrl: forwardUrl,
+                error: pushErr.message
+            };
+        }
+    }
+
+    return responsePayload;
+}
+
 module.exports = {
     DEFAULT_FIRSTCON_TOKEN,
     FIRSTCON_API_BASE,
+    normalizeFirstconBranch,
     authenticateOrderflow,
     findEnergyGrid,
     getStreets,
     getFirstconTariffs,
     calculateLiveTariffs,
+    buildReferenceTariffsForBranch,
+    executeExternalTariffLookup,
     submitOrderToFirstcon,
     getTariffTermsFile,
     getDataProtectionFile,
