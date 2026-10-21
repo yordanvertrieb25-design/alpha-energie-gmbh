@@ -1222,10 +1222,15 @@ document.addEventListener("DOMContentLoaded", async () => {
                     tr: 'Ev tipi Wallbox (11 kW / 22 kW) & elektrikli araçlar (§ 14a EnWG) için',
                     ar: 'لمحطات الشحن المنزلية Wallbox (11/22 ك.و) والسيارات الكهربائية (§ 14a EnWG)'
                 },
-                'Ökostrom aus 100 % erneuerbaren Energien (ok-power)': {
-                    en: 'Green electricity from 100% renewable energy (ok-power)',
-                    tr: '%100 yenilenebilir enerjiden yeşil elektrik (ok-power)',
-                    ar: 'كهرباء خضراء من طاقة متجددة 100% (ok-power)'
+                'Ökostrom aus 100 % erneuerbaren Energien (EnergieVision-plus)': {
+                    en: 'Green electricity from 100% renewable energy (EnergieVision-plus)',
+                    tr: '%100 yenilenebilir enerjiden yeşil elektrik (EnergieVision-plus)',
+                    ar: 'كهرباء خضراء من طاقة متجددة 100% (EnergieVision-plus)'
+                },
+                'EnergieVision-plus-zertifiziert': {
+                    en: 'EnergieVision-plus certified',
+                    tr: 'EnergieVision-plus sertifikalı',
+                    ar: 'معتمد بختم EnergieVision-plus'
                 },
                 'Ökostrom aus 100 % erneuerbaren Energien': {
                     en: 'Green electricity from 100% renewable energy',
@@ -1684,6 +1689,11 @@ document.addEventListener("DOMContentLoaded", async () => {
                                 }
                                 if (/^100\s*%?\s*Ökostrom$/i.test(String(f).trim())) {
                                     return 'Ökostrom aus 100 % erneuerbaren Energien';
+                                }
+                                if (/ok[\s\-_]?power/i.test(f)) {
+                                    return String(f)
+                                        .replace(/ok[\s\-_]?power\+?[\s\-]*zertifiziert/gi, 'EnergieVision-plus-zertifiziert')
+                                        .replace(/ok[\s\-_]?power\+?/gi, 'EnergieVision-plus');
                                 }
                                 return f;
                             })
@@ -4510,7 +4520,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                 index: 0,
                 label: 'Schritt 1 von 4: Haushaltsstrom & Zähler',
                 badge: 'Station 1 von 4',
-                modeLabel: '100 % Ökostrom (ok-power)',
+                modeLabel: '100 % Ökostrom (EnergieVision-plus)',
                 savings: 'bis zu 380 € / Jahr',
                 compare: 'Grundversorger: 1.140 € &rarr; Alpha Energie: <strong>760 €</strong>',
                 targetProgress: 0.08
@@ -5800,6 +5810,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         if (
             src.includes('logo') ||
             src.includes('ok-power') ||
+            src.includes('energievision') ||
             src.includes('bdeb') ||
             src.includes('favicon') ||
             src.includes('apple-touch') ||

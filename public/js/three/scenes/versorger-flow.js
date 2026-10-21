@@ -92,7 +92,7 @@
             this.modes = {
                 strom: {
                     name: 'strom',
-                    label: '100% Ökostrom (ok-power)',
+                    label: '100% Ökostrom (EnergieVision-plus)',
                     primary: 0x00E676,       // Alpha Emerald Green
                     secondary: 0x00D2FF,     // Electric Cyan
                     accent: 0xFFD700,        // Solar Gold
@@ -1584,7 +1584,7 @@
                     localPosition: new THREE.Vector3(2.85, 1.45, 2.7),
                     badge: '💡 Haushaltsstrom & Zähler',
                     headline: 'Wir bieten 100 % Ökostromtarife für Ihren Hausstrom an',
-                    benefit: 'Bis zu 380 € pro Jahr gegenüber der Grundversorgung sparen mit voller Preisgarantie und ok-power Siegel!',
+                    benefit: 'Bis zu 380 € pro Jahr gegenüber der Grundversorgung sparen mit voller Preisgarantie und EnergieVision-plus-Siegel!',
                     ctaText: 'Hausstrom berechnen →',
                     colorClass: 'alpha-anchor-strom anchor-strom',
                     accentColor: '#00E676'

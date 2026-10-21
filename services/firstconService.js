@@ -597,7 +597,7 @@ async function calculateLiveTariffs({ plz, consumption, consumptionHt, consumpti
         ] : (isLadestrom ? [
             `${fcTariff.PriceGuaranteeDuration || 24} Monate volle Preisgarantie`,
             'Für Heim-Wallbox (11 kW / 22 kW) & Elektroauto (§ 14a EnWG)',
-            'Ökostrom aus 100 % erneuerbaren Energien (ok-power+)',
+            'Ökostrom aus 100 % erneuerbaren Energien (EnergieVision-plus)',
             'Kostenloser & automatischer Wechselservice'
         ] : [
             `${fcTariff.PriceGuaranteeDuration || 24} Monate volle Preisgarantie`,
@@ -618,6 +618,11 @@ async function calculateLiveTariffs({ plz, consumption, consumptionHt, consumpti
                     }
                     if (/^100\s*%?\s*Ökostrom$/i.test(f.trim())) {
                         return 'Ökostrom aus 100 % erneuerbaren Energien';
+                    }
+                    if (/ok[\s\-_]?power/i.test(f)) {
+                        return f
+                            .replace(/ok[\s\-_]?power\+?[\s\-]*zertifiziert/gi, 'EnergieVision-plus-zertifiziert')
+                            .replace(/ok[\s\-_]?power\+?/gi, 'EnergieVision-plus');
                     }
                     return f;
                 })

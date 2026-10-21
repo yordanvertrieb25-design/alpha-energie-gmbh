@@ -152,17 +152,27 @@ app.get('/clean_energy_home.jpg', (req, res) => {
     res.status(404).send('Not Found');
 });
 
-// Dedicated route for ok-power Gütesiegel to ensure 100% availability and image/png content-type
-app.get('/ok-power-siegel.png', (req, res) => {
-    const pubFile = path.join(__dirname, 'public', 'ok-power-siegel.png');
+// Dedicated route for EnergieVision-plus – Das Ökostromsiegel (and legacy /ok-power-siegel.png) to ensure 100% availability and image/png content-type
+app.get(['/energievision-plus-siegel.png', '/ok-power-siegel.png'], (req, res) => {
+    const pubFile = path.join(__dirname, 'public', 'energievision-plus-siegel.png');
     if (fs.existsSync(pubFile)) {
         res.setHeader('Content-Type', 'image/png');
         return res.sendFile(pubFile);
     }
-    const rootFile = path.join(__dirname, 'ok-power-siegel.png');
+    const rootFile = path.join(__dirname, 'energievision-plus-siegel.png');
     if (fs.existsSync(rootFile)) {
         res.setHeader('Content-Type', 'image/png');
         return res.sendFile(rootFile);
+    }
+    const legacyPub = path.join(__dirname, 'public', 'ok-power-siegel.png');
+    if (fs.existsSync(legacyPub)) {
+        res.setHeader('Content-Type', 'image/png');
+        return res.sendFile(legacyPub);
+    }
+    const legacyRoot = path.join(__dirname, 'ok-power-siegel.png');
+    if (fs.existsSync(legacyRoot)) {
+        res.setHeader('Content-Type', 'image/png');
+        return res.sendFile(legacyRoot);
     }
     res.status(404).send('Not Found');
 });
