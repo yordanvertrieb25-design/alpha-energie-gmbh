@@ -3551,20 +3551,23 @@ document.addEventListener("DOMContentLoaded", async () => {
             formMeterReading.addEventListener('submit', async (e) => {
                 e.preventDefault();
                 const meterNumber = document.getElementById('meterNumberInput')?.value;
+                const contractNumber = document.getElementById('meterContractNumberInput')?.value?.trim() || '';
                 const reading = document.getElementById('meterReadingInput')?.value;
                 const customerName = document.getElementById('meterNameInput')?.value;
                 const email = document.getElementById('meterEmailInput')?.value;
+                const notes = contractNumber ? `Vertragsnr.: ${contractNumber}` : undefined;
 
                 try {
                     await fetch('/api/zaehlerstand/submit', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ meterNumber, reading, customerName, email })
+                        body: JSON.stringify({ meterNumber, contractNumber, reading, customerName, email, notes })
                     });
                 } catch (err) {
                     console.log('Meter reading logged locally');
                 }
                 alert('Vielen Dank! Ihr Zählerstand wurde erfolgreich an unseren Kundenservice übermittelt.');
+                formMeterReading.reset();
                 closeMeterModal();
             });
         }

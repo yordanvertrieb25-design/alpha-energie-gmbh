@@ -312,6 +312,7 @@
             // Meter Modal
             modal_meter_title: 'Report Meter Reading Online',
             modal_meter_number: 'Meter number *',
+            modal_meter_contract_nr: 'Contract number (optional)',
             modal_meter_reading: 'Current meter reading (kWh) *',
             modal_meter_name: 'Your first and last name *',
             modal_meter_email: 'Your email address *',
@@ -958,6 +959,7 @@
             // Meter Modal
             modal_meter_title: 'Online Sayaç Bildirimi',
             modal_meter_number: 'Sayaç numarası *',
+            modal_meter_contract_nr: 'Sözleşme numarası (isteğe bağlı)',
             modal_meter_reading: 'Mevcut sayaç değeri (kWh) *',
             modal_meter_name: 'Adınız ve soyadınız *',
             modal_meter_email: 'E-posta adresiniz *',
@@ -1604,6 +1606,7 @@
             // Meter Modal
             modal_meter_title: 'إبلاغ قراءة العداد عبر الإنترنت',
             modal_meter_number: 'رقم العداد *',
+            modal_meter_contract_nr: 'رقم العقد (اختياري)',
             modal_meter_reading: 'قراءة العداد الحالية (kWh) *',
             modal_meter_name: 'الاسم الكامل *',
             modal_meter_email: 'بريدك الإلكتروني *',
@@ -2272,6 +2275,7 @@
         // Meter Reading Modal
         { selector: '#meterModal .modal-header-title', key: 'modal_meter_title' },
         { selector: 'label[for="meterNumberInput"]', key: 'modal_meter_number' },
+        { selector: 'label[for="meterContractNumberInput"]', key: 'modal_meter_contract_nr' },
         { selector: 'label[for="meterReadingInput"]', key: 'modal_meter_reading' },
         { selector: 'label[for="meterNameInput"]', key: 'modal_meter_name' },
         { selector: 'label[for="meterEmailInput"]', key: 'modal_meter_email' },

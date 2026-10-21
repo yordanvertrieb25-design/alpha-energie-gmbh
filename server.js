@@ -2163,12 +2163,19 @@ app.post('/api/order/submit', async (req, res) => {
 // 1.3 Submit Meter Reading (Zählerstand melden)
 app.post('/api/zaehlerstand/submit', async (req, res) => {
     try {
-        const { meterNumber, reading, readingDate, customerName, email, notes } = req.body;
+        const { meterNumber, contractNumber, reading, readingDate, customerName, email, notes } = req.body;
         if (!meterNumber || reading === undefined || !customerName || !email) {
             return res.status(400).json({
                 success: false,
                 error: 'Bitte füllen Sie Zählernummer, Zählerstand, Name und E-Mail aus.'
             });
+        }
+
+        const trimmedContract = contractNumber ? String(contractNumber).trim() : '';
+        const trimmedNotes = notes ? String(notes).trim() : '';
+        let combinedNotes = trimmedNotes || null;
+        if (trimmedContract && !trimmedNotes.includes(trimmedContract)) {
+            combinedNotes = trimmedNotes ? `Vertragsnr.: ${trimmedContract} | ${trimmedNotes}` : `Vertragsnr.: ${trimmedContract}`;
         }
 
         const newReading = await prisma.meterReading.create({
@@ -2178,7 +2185,7 @@ app.post('/api/zaehlerstand/submit', async (req, res) => {
                 readingDate: readingDate || new Date().toISOString().split('T')[0],
                 customerName,
                 email,
-                notes: notes || null
+                notes: combinedNotes
             }
         });
 
