@@ -258,6 +258,26 @@ app.post('/api/contact', async (req, res) => {
         const newContact = await prisma.contactRequest.create({
             data: { name, phone, email, subject, message }
         });
+
+        (async () => {
+            try {
+                const transporter = getMailTransporter();
+                if (!transporter) return;
+                const targetEmail = process.env.NOTIFICATION_EMAIL || 'info@alpha-energy.network';
+                const mailSubject = `Neue Kontaktanfrage: ${subject || 'Website'} – ${name || 'Unbekannt'}`;
+                const mailText = `Eine neue Kontaktanfrage ist über die Website eingegangen:\n\nName: ${name || 'Unbekannt'}\nE-Mail: ${email || 'Nicht angegeben'}\nTelefon: ${phone || 'Nicht angegeben'}\nBetreff: ${subject || 'Allgemeine Anfrage'}\nNachricht:\n${message || '–'}\n\nBitte im Admin-Panel prüfen: https://alpha-energie.de/admin`;
+                await transporter.sendMail({
+                    from: getSenderEmail(),
+                    to: targetEmail,
+                    replyTo: (email && String(email).includes('@')) ? String(email).trim() : undefined,
+                    subject: mailSubject,
+                    text: mailText
+                });
+            } catch (mailErr) {
+                console.warn('[Contact] Notification email error:', mailErr.message);
+            }
+        })();
+
         res.status(201).json({ success: true, data: newContact });
     } catch (error) {
         console.error("Error saving contact:", error);
@@ -1695,7 +1715,7 @@ async function handleRlmLeadSubmit(req, res) {
         try {
             const transporter = typeof getMailTransporter === 'function' ? getMailTransporter() : null;
             if (transporter) {
-                const adminEmail = process.env.NOTIFICATION_EMAIL || 'info@alpha-energie.de';
+                const adminEmail = process.env.NOTIFICATION_EMAIL || 'info@alpha-energy.network';
                 const summaryHtml = `
                     <div style="font-family: Arial, sans-serif; color: #1e293b; max-width: 650px; margin: 0 auto; padding: 24px; border: 1px solid #e2e8f0; border-radius: 10px;">
                         <h2 style="color: #0a1f44; margin-top: 0;">Neue B2B / RLM Angebotserstellung (${offerNumber})</h2>
@@ -2590,7 +2610,7 @@ app.post('/api/kuendigung/submit', async (req, res) => {
                     ]
                 });
 
-                const backofficeEmail = process.env.NOTIFICATION_EMAIL || 'info@alpha-energie.de';
+                const backofficeEmail = process.env.NOTIFICATION_EMAIL || 'info@alpha-energy.network';
                 await transporter.sendMail({
                     from: sender,
                     to: backofficeEmail,
@@ -2670,8 +2690,8 @@ function escapeHtml(str) {
 function getMailTransporter() {
     const host = process.env.SMTP_HOST || 'smtp.ionos.de';
     const port = parseInt(process.env.SMTP_PORT, 10) || 465;
-    const user = process.env.SMTP_USER;
-    const pass = process.env.SMTP_PASS;
+    const user = process.env.SMTP_USER || 'info@alpha-energy.network';
+    const pass = process.env.SMTP_PASS || 'infoalpha1000050000';
 
     if (!user || !pass) {
         return null;
@@ -2689,11 +2709,88 @@ function getMailTransporter() {
 }
 
 function getSenderEmail() {
-    const rawFrom = process.env.SMTP_FROM || 'noreply@alpha-energie.de';
+    const rawFrom = process.env.SMTP_FROM || process.env.SMTP_USER || 'info@alpha-energy.network';
     if (rawFrom.includes('<') && rawFrom.includes('>')) {
         return rawFrom;
     }
     return `"Alpha Energie GmbH" <${rawFrom}>`;
+}
+
+/**
+ * Sends partner/application notifications to both the direct IONOS mailbox
+ * (bewerbung@alpha-energy.network) and bewerbung@alpha-energie.de.
+ * Why both? Because alpha-energie.de MX (mail.eg-on.com) forwards to
+ * bewerbung@alpha-energy.network on IONOS without SRS, causing IONOS to block
+ * hairpin-forwarded emails that originated from @alpha-energy.network (SPF fail).
+ * Delivering directly to bewerbung@alpha-energy.network guarantees instant
+ * in-network IONOS delivery with 100% SPF/DKIM pass.
+ */
+async function sendBewerbungNotification({ subject, text, html, replyTo, attachments }) {
+    const sender = getSenderEmail();
+    const configured = process.env.BEWERBUNG_EMAIL ? String(process.env.BEWERBUNG_EMAIL).split(',').map(s => s.trim()) : [];
+    const targets = [...new Set([
+        ...configured,
+        'bewerbung@alpha-energy.network',
+        'bewerbung@alpha-energie.de'
+    ].filter(Boolean))];
+
+    for (const target of targets) {
+        try {
+            const transporter = getMailTransporter();
+            if (!transporter) {
+                console.warn('[Mail] SMTP credentials missing. Bewerbung notification not sent.');
+                return false;
+            }
+            await transporter.sendMail({
+                from: sender,
+                to: target,
+                subject,
+                text,
+                html: html || undefined,
+                replyTo: (replyTo && String(replyTo).includes('@')) ? String(replyTo).trim() : undefined,
+                attachments: attachments && attachments.length ? attachments : undefined
+            });
+            console.log(`[Mail] Bewerbung notification successfully sent to ${target}: ${subject}`);
+        } catch (err) {
+            console.error(`[Mail] Failed to send Bewerbung notification to ${target}:`, err.message);
+        }
+    }
+    return true;
+}
+
+function getPartnerBackofficeNotificationHtml(title, subtitle, rows, footerNote) {
+    const rowsHtml = (rows || [])
+        .filter(r => r && r.label)
+        .map(r => `
+            <tr>
+                <td style="padding: 8px 10px; border-bottom: 1px solid #e2e8f0; color: #64748b; width: 38%; font-weight: 600; vertical-align: top;">${escapeHtml(r.label)}</td>
+                <td style="padding: 8px 10px; border-bottom: 1px solid #e2e8f0; color: #0f172a; font-weight: 500; vertical-align: top;">${r.isHtml ? r.value : escapeHtml(r.value || 'Nicht angegeben')}</td>
+            </tr>
+        `).join('');
+
+    return `<!DOCTYPE html>
+<html lang="de">
+<head><meta charset="UTF-8"><title>${escapeHtml(title)}</title></head>
+<body style="margin:0;padding:0;background:#f1f5f9;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;color:#1e293b;">
+  <div style="padding:28px 14px;">
+    <div style="max-width:620px;margin:0 auto;background:#ffffff;border-radius:12px;overflow:hidden;border:1px solid #e2e8f0;box-shadow:0 4px 20px rgba(0,0,0,0.06);">
+      <div style="background:linear-gradient(135deg,#0b1120 0%,#1e3b6a 100%);padding:26px 24px;text-align:center;border-bottom:4px solid #ef8a00;">
+        <h1 style="color:#ffffff;margin:0;font-size:1.25rem;">${escapeHtml(title)}</h1>
+        ${subtitle ? `<p style="color:#cbd5e1;margin:6px 0 0 0;font-size:0.9rem;">${escapeHtml(subtitle)}</p>` : ''}
+      </div>
+      <div style="padding:26px 24px;">
+        <table style="width:100%;font-size:0.92rem;border-collapse:collapse;background:#f8fafc;border-radius:8px;overflow:hidden;border:1px solid #e2e8f0;">
+          ${rowsHtml}
+        </table>
+        ${footerNote ? `<p style="margin:20px 0 0 0;font-size:0.9rem;color:#475569;">${escapeHtml(footerNote)}</p>` : ''}
+        <div style="text-align:center;margin:26px 0 8px 0;">
+          <a href="https://alpha-energie.de/admin" target="_blank" style="background:#ef8a00;color:#ffffff;padding:12px 26px;text-decoration:none;border-radius:8px;font-weight:700;font-size:0.95rem;display:inline-block;">Im Admin-Panel öffnen &rarr;</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>`;
 }
 
 function formatGermanDate(dateStr) {
@@ -2950,6 +3047,7 @@ app.post('/api/partner-application', async (req, res) => {
         const { fullName, email, phone, experience, refCode, companyName, notes } = req.body;
         
         let affiliateLinkId = null;
+        let affiliateInfo = null;
         if (refCode) {
             const affiliate = await prisma.affiliateLink.findFirst({
                 where: {
@@ -2961,6 +3059,7 @@ app.post('/api/partner-application', async (req, res) => {
             });
             if (affiliate) {
                 affiliateLinkId = affiliate.id;
+                affiliateInfo = `${affiliate.name} (Code: ${affiliate.code})`;
             }
         }
 
@@ -2979,41 +3078,62 @@ app.post('/api/partner-application', async (req, res) => {
         // 1. Send confirmation email to applicant & 2. notification to backoffice asynchronously (non-blocking)
         (async () => {
             try {
-                const transporter = getMailTransporter();
-                if (!transporter) {
-                    console.log("SMTP credentials missing. Partner registration emails not sent.");
-                    return;
-                }
-
                 const sender = getSenderEmail();
 
                 // A. Beautiful confirmation email to the applicant
                 if (email) {
                     try {
-                        await transporter.sendMail({
-                            from: sender,
-                            to: email,
-                            subject: 'Willkommen bei Alpha Energie – Deine Registrierung war erfolgreich!',
-                            html: getPartnerRegistrationConfirmationHtml(fullName, email, phone, experience)
-                        });
-                        console.log(`Confirmation email successfully sent to applicant: ${email}`);
+                        const transporter = getMailTransporter();
+                        if (transporter) {
+                            await transporter.sendMail({
+                                from: sender,
+                                to: email,
+                                subject: 'Willkommen bei Alpha Energie – Deine Registrierung war erfolgreich!',
+                                html: getPartnerRegistrationConfirmationHtml(fullName, email, phone, experience)
+                            });
+                            console.log(`Confirmation email successfully sent to applicant: ${email}`);
+                        }
                     } catch (applicantMailErr) {
                         console.error(`Failed to send confirmation email to applicant (${email}):`, applicantMailErr);
                     }
                 }
 
-                // B. Notification email to backoffice
-                try {
-                    await transporter.sendMail({
-                        from: sender,
-                        to: 'bewerbung@alpha-energie.de',
-                        subject: `Neue Registrierung (Agentur/VP): ${fullName}${companyName ? ` (${companyName})` : ''}`,
-                        text: `Eine neue Partner-Registrierung ist eingegangen:\n\nName: ${fullName}\nFirma / Agentur: ${companyName || 'Nicht angegeben'}\nE-Mail: ${email}\nTelefon: ${phone || 'Nicht angegeben'}\nPartnermodell / Erfahrung: ${experience || 'Nicht angegeben'}\nNachricht: ${notes || 'Keine'}\n\nBitte im Admin-Panel prüfen.`
-                    });
-                    console.log(`Notification email successfully sent to bewerbung@alpha-energie.de for ${fullName}`);
-                } catch (backofficeMailErr) {
-                    console.error("Failed to send partner registration notification to backoffice:", backofficeMailErr);
-                }
+                // B. Notification email to backoffice (bewerbung@alpha-energy.network & bewerbung@alpha-energie.de)
+                const subject = `Neue Partner-Bewerbung (Agentur/VP): ${fullName || 'Unbekannt'}${companyName ? ` (${companyName})` : ''}`;
+                const text = `Eine neue Partner-Registrierung ist über die Website eingegangen:\n\n` +
+                    `Bewerbungs-ID: #${newApp.id}\n` +
+                    `Name: ${fullName || 'Unbekannt'}\n` +
+                    `Firma / Agentur: ${companyName || 'Nicht angegeben'}\n` +
+                    `E-Mail: ${email || 'Nicht angegeben'}\n` +
+                    `Telefon: ${phone || 'Nicht angegeben'}\n` +
+                    `Partnermodell / Erfahrung: ${experience || 'Nicht angegeben'}\n` +
+                    `Werbelink / Empfehler: ${affiliateInfo || refCode || 'Direkt über Website'}\n` +
+                    `Nachricht: ${notes || 'Keine'}\n\n` +
+                    `Stammdaten-Link für diesen Bewerber: https://alpha-energie.de/stammdaten.html?id=${newApp.id}\n` +
+                    `Bitte im Admin-Panel prüfen: https://alpha-energie.de/admin`;
+
+                const html = getPartnerBackofficeNotificationHtml(
+                    'Neue Partner-Bewerbung eingegangen',
+                    `Bewerbungs-ID #${newApp.id} • Eingang am ${new Date().toLocaleString('de-DE')}`,
+                    [
+                        { label: 'Vor- und Nachname', value: fullName || 'Unbekannt' },
+                        { label: 'Firma / Agentur', value: companyName || 'Nicht angegeben' },
+                        { label: 'E-Mail-Adresse', value: email || 'Nicht angegeben' },
+                        { label: 'Telefonnummer', value: phone || 'Nicht angegeben' },
+                        { label: 'Partnermodell / Erfahrung', value: experience || 'Nicht angegeben' },
+                        { label: 'Werbelink / Empfehler', value: affiliateInfo || refCode || 'Direkt über Website' },
+                        { label: 'Nachricht / Notiz', value: notes || 'Keine' },
+                        { label: 'Stammdatenblatt-Link', value: `<a href="https://alpha-energie.de/stammdaten.html?id=${newApp.id}" style="color:#ef8a00;">https://alpha-energie.de/stammdaten.html?id=${newApp.id}</a>`, isHtml: true }
+                    ],
+                    'Sie können direkt auf diese E-Mail antworten, um den Bewerber zu kontaktieren.'
+                );
+
+                await sendBewerbungNotification({
+                    subject,
+                    text,
+                    html,
+                    replyTo: email
+                });
             } catch (mailError) {
                 console.error("Error in partner registration email worker:", mailError);
             }
@@ -3070,42 +3190,49 @@ app.post('/api/appointments', async (req, res) => {
         // 1. Send confirmation email to applicant & 2. notification to backoffice asynchronously (non-blocking)
         (async () => {
             try {
-                const transporter = getMailTransporter();
-                if (!transporter) {
-                    console.log("SMTP credentials missing. Appointment emails not sent.");
-                    return;
-                }
-
                 const sender = getSenderEmail();
                 const dateFormatted = formatGermanDate(date);
 
                 // A. Beautiful confirmation email to the applicant
                 if (email) {
                     try {
-                        await transporter.sendMail({
-                            from: sender,
-                            to: email,
-                            subject: `Terminbestätigung: Dein Kennenlerngespräch am ${dateFormatted} um ${time} Uhr`,
-                            html: getAppointmentConfirmationHtml(name, email, phone, dateFormatted, time)
-                        });
-                        console.log(`Appointment confirmation email successfully sent to: ${email}`);
+                        const transporter = getMailTransporter();
+                        if (transporter) {
+                            await transporter.sendMail({
+                                from: sender,
+                                to: email,
+                                subject: `Terminbestätigung: Dein Kennenlerngespräch am ${dateFormatted} um ${time} Uhr`,
+                                html: getAppointmentConfirmationHtml(name, email, phone, dateFormatted, time)
+                            });
+                            console.log(`Appointment confirmation email successfully sent to: ${email}`);
+                        }
                     } catch (applicantMailErr) {
                         console.error(`Failed to send appointment confirmation email to (${email}):`, applicantMailErr);
                     }
                 }
 
                 // B. Notification email to backoffice
-                try {
-                    await transporter.sendMail({
-                        from: sender,
-                        to: 'bewerbung@alpha-energie.de',
-                        subject: `Neuer Termin gebucht: ${dateFormatted} um ${time} Uhr`,
-                        text: `Ein neuer Termin wurde gebucht:\n\nName: ${name}\nE-Mail: ${email}\nTelefon: ${phone || 'Nicht angegeben'}\nDatum: ${dateFormatted} (${date})\nUhrzeit: ${time}\n\nBitte im Admin-Panel prüfen.`
-                    });
-                    console.log(`Notification email successfully sent to bewerbung@alpha-energie.de for appointment on ${dateFormatted} at ${time}`);
-                } catch (backofficeMailErr) {
-                    console.error("Failed to send appointment notification to backoffice:", backofficeMailErr);
-                }
+                const subject = `Neuer Onboarding-Termin gebucht: ${name} (${dateFormatted} um ${time} Uhr)`;
+                const text = `Ein neuer Termin für ein Partner-Kennenlerngespräch wurde gebucht:\n\nName: ${name}\nE-Mail: ${email}\nTelefon: ${phone || 'Nicht angegeben'}\nDatum: ${dateFormatted} (${date})\nUhrzeit: ${time} Uhr\n\nBitte im Admin-Panel prüfen: https://alpha-energie.de/admin`;
+                const html = getPartnerBackofficeNotificationHtml(
+                    'Neuer Onboarding-Termin gebucht',
+                    `${dateFormatted} um ${time} Uhr`,
+                    [
+                        { label: 'Name des Partners', value: name || 'Unbekannt' },
+                        { label: 'E-Mail-Adresse', value: email || 'Nicht angegeben' },
+                        { label: 'Telefonnummer', value: phone || 'Nicht angegeben' },
+                        { label: 'Datum', value: `${dateFormatted} (${date})` },
+                        { label: 'Uhrzeit', value: `${time} Uhr` }
+                    ],
+                    'Bitte den Bewerber zum vereinbarten Termin telefonisch kontaktieren.'
+                );
+
+                await sendBewerbungNotification({
+                    subject,
+                    text,
+                    html,
+                    replyTo: email
+                });
             } catch (mailError) {
                 console.error("Error in appointment email worker:", mailError);
             }
@@ -3356,6 +3483,7 @@ const handleStammdatenSubmit = async (req, res) => {
         }
 
         let refCode = data.refCode || data.ref || data.partner;
+        let affiliateInfo = null;
         if (refCode) {
             const affiliate = await prisma.affiliateLink.findFirst({
                 where: {
@@ -3367,19 +3495,114 @@ const handleStammdatenSubmit = async (req, res) => {
             });
             if (affiliate) {
                 payload.affiliateLinkId = affiliate.id;
+                affiliateInfo = `${affiliate.name} (Code: ${affiliate.code})`;
             }
         }
 
+        let savedApp = null;
         if (isNew) {
-            const newApp = await prisma.partnerApplication.create({ data: payload });
-            return res.json({ success: true, data: newApp });
+            savedApp = await prisma.partnerApplication.create({ data: payload });
         } else {
-            const updatedApp = await prisma.partnerApplication.update({
+            savedApp = await prisma.partnerApplication.update({
                 where: { id: appId },
                 data: payload
             });
-            return res.json({ success: true, data: updatedApp });
         }
+
+        // Send confirmation email (if new) & backoffice notification to bewerbung@ asynchronously
+        (async () => {
+            try {
+                if (isNew && savedApp.email) {
+                    try {
+                        const transporter = getMailTransporter();
+                        if (transporter) {
+                            await transporter.sendMail({
+                                from: getSenderEmail(),
+                                to: savedApp.email,
+                                subject: 'Willkommen bei Alpha Energie – Deine Stammdaten wurden erfolgreich übermittelt!',
+                                html: getPartnerRegistrationConfirmationHtml(savedApp.fullName, savedApp.email, savedApp.phone, savedApp.experience)
+                            });
+                        }
+                    } catch (appErr) {
+                        console.error('[Stammdaten] Failed to send confirmation email to applicant:', appErr.message);
+                    }
+                }
+
+                const attachments = [];
+                if (req.files) {
+                    if (req.files.tradeLicense && req.files.tradeLicense[0]) {
+                        attachments.push({
+                            filename: `Gewerbeanmeldung_${req.files.tradeLicense[0].originalname || req.files.tradeLicense[0].filename}`,
+                            path: req.files.tradeLicense[0].path
+                        });
+                    }
+                    if (req.files.idCardFront && req.files.idCardFront[0]) {
+                        attachments.push({
+                            filename: `Ausweis_Vorderseite_${req.files.idCardFront[0].originalname || req.files.idCardFront[0].filename}`,
+                            path: req.files.idCardFront[0].path
+                        });
+                    }
+                    if (req.files.idCardBack && req.files.idCardBack[0]) {
+                        attachments.push({
+                            filename: `Ausweis_Rueckseite_${req.files.idCardBack[0].originalname || req.files.idCardBack[0].filename}`,
+                            path: req.files.idCardBack[0].path
+                        });
+                    }
+                }
+
+                const addressStr = `${savedApp.street || ''} ${savedApp.houseNr || ''}, ${savedApp.plz || ''} ${savedApp.city || ''} (${savedApp.country || 'Deutschland'})`.replace(/^[\s,]+|[\s,]+$/g, '');
+                const subject = isNew
+                    ? `Neue Partner-Bewerbung (Stammdatenblatt): ${savedApp.fullName}${savedApp.companyName ? ` (${savedApp.companyName})` : ''}`
+                    : `Stammdaten eingereicht (#${savedApp.id}): ${savedApp.fullName}${savedApp.companyName ? ` (${savedApp.companyName})` : ''}`;
+
+                const text = `${isNew ? 'Eine neue Partner-Bewerbung über das Stammdatenblatt' : 'Ein Bewerber hat seine Stammdaten vollständig'} eingereicht:\n\n` +
+                    `Bewerbungs-ID: #${savedApp.id}\n` +
+                    `Anrede / Name: ${savedApp.salutation || ''} ${savedApp.fullName}\n` +
+                    `Geburtsdatum: ${savedApp.birthDate || 'Nicht angegeben'}\n` +
+                    `E-Mail: ${savedApp.email || 'Nicht angegeben'}\n` +
+                    `Telefon: ${savedApp.phone || 'Nicht angegeben'}\n` +
+                    `Anschrift: ${addressStr || 'Nicht angegeben'}\n` +
+                    `Firma / Rechtsform: ${savedApp.companyName || '–'} (${savedApp.legalForm || '–'})\n` +
+                    `Steuernummer / Finanzamt: ${savedApp.taxId || '–'} / ${savedApp.taxOffice || '–'}\n` +
+                    `Umsatzsteuerpflichtig: ${savedApp.isVatLiable ? 'Ja (19% MwSt.)' : 'Nein (Kleinunternehmer § 19 UStG)'}\n` +
+                    `Bankverbindung: IBAN ${savedApp.iban || '–'} | BIC ${savedApp.bic || '–'} (${savedApp.bankName || '–'})\n` +
+                    `Website: ${savedApp.website || '–'}\n` +
+                    `Werbelink / Empfehler: ${affiliateInfo || refCode || 'Direkt'}\n\n` +
+                    `Bitte im Admin-Panel prüfen und ggf. VP-Portal freischalten: https://alpha-energie.de/admin`;
+
+                const html = getPartnerBackofficeNotificationHtml(
+                    isNew ? 'Neue Partner-Bewerbung (Stammdatenblatt)' : 'Partner-Stammdaten eingereicht',
+                    `Bewerbungs-ID #${savedApp.id} • Status: ${savedApp.masterDataStatus}`,
+                    [
+                        { label: 'Anrede & Name', value: `${savedApp.salutation || ''} ${savedApp.fullName}`.trim() },
+                        { label: 'Geburtsdatum', value: savedApp.birthDate || 'Nicht angegeben' },
+                        { label: 'E-Mail-Adresse', value: savedApp.email || 'Nicht angegeben' },
+                        { label: 'Telefonnummer', value: savedApp.phone || 'Nicht angegeben' },
+                        { label: 'Anschrift', value: addressStr || 'Nicht angegeben' },
+                        { label: 'Firma / Rechtsform', value: `${savedApp.companyName || '–'} (${savedApp.legalForm || '–'})` },
+                        { label: 'Steuernummer / Finanzamt', value: `${savedApp.taxId || '–'} / ${savedApp.taxOffice || '–'}` },
+                        { label: 'Umsatzsteuerpflichtig', value: savedApp.isVatLiable ? 'Ja (19% MwSt.)' : 'Nein (§ 19 UStG)' },
+                        { label: 'IBAN / BIC / Bank', value: `${savedApp.iban || '–'} | ${savedApp.bic || '–'} (${savedApp.bankName || '–'})` },
+                        { label: 'Website', value: savedApp.website || '–' },
+                        { label: 'Werbelink / Empfehler', value: affiliateInfo || refCode || 'Direkt' },
+                        { label: 'Hochgeladene Dokumente', value: attachments.length ? `${attachments.length} Datei(en) im Anhang dieser E-Mail` : 'Keine Dateien hochgeladen' }
+                    ],
+                    'Sie können den Partner jetzt direkt im Admin-Panel prüfen und für das VP-Portal aktivieren.'
+                );
+
+                await sendBewerbungNotification({
+                    subject,
+                    text,
+                    html,
+                    replyTo: savedApp.email,
+                    attachments
+                });
+            } catch (mailErr) {
+                console.error('[Stammdaten] Error in notification worker:', mailErr);
+            }
+        })();
+
+        return res.json({ success: true, data: savedApp });
     } catch (e) {
         console.error("Stammdaten submit error:", e);
         res.status(500).json({ success: false, error: e.message });
@@ -4544,6 +4767,76 @@ app.post('/api/partner/register', async (req, res) => {
             }
         }).catch(() => {});
 
+        // Send confirmation email to newly registered partner & notification to bewerbung@ asynchronously
+        (async () => {
+            try {
+                if (newPartner.email) {
+                    try {
+                        const transporter = getMailTransporter();
+                        if (transporter) {
+                            await transporter.sendMail({
+                                from: getSenderEmail(),
+                                to: newPartner.email,
+                                subject: `Willkommen im Alpha Energie VP-Portal – Dein Partner-Code: ${newPartner.partnerCode}`,
+                                html: getPartnerRegistrationConfirmationHtml(
+                                    newPartner.fullName,
+                                    newPartner.email,
+                                    newPartner.phone,
+                                    `Portal Self-Service (${role}) – Partner-Code: ${newPartner.partnerCode}`
+                                )
+                            });
+                        }
+                    } catch (applicantErr) {
+                        console.error('[PartnerPortal] Failed to send welcome email to new partner:', applicantErr.message);
+                    }
+                }
+
+                const addressStr = `${newPartner.street || ''} ${newPartner.houseNr || ''}, ${newPartner.plz || ''} ${newPartner.city || ''}`.replace(/^[\s,]+|[\s,]+$/g, '');
+                const subject = `Neue VP-Portal Registrierung (${role}): ${newPartner.fullName} [${newPartner.partnerCode}]`;
+                const text = `Ein neuer Vertriebspartner hat sich über das VP-Portal registriert:\n\n` +
+                    `Partner-Code: ${newPartner.partnerCode}\n` +
+                    `Rolle / Modell: ${role}\n` +
+                    `Name: ${newPartner.salutation || ''} ${newPartner.fullName}\n` +
+                    `Firma / Rechtsform: ${newPartner.companyName || '–'} (${newPartner.legalForm || '–'})\n` +
+                    `E-Mail: ${newPartner.email}\n` +
+                    `Telefon: ${newPartner.phone || 'Nicht angegeben'}\n` +
+                    `Anschrift: ${addressStr || 'Nicht angegeben'}\n` +
+                    `Steuernummer / Finanzamt: ${newPartner.taxId || '–'} / ${newPartner.taxOffice || '–'}\n` +
+                    `Umsatzsteuerpflichtig: ${newPartner.isVatLiable ? 'Ja (19% MwSt.)' : 'Nein (§ 19 UStG)'}\n` +
+                    `IBAN / Bank: ${newPartner.iban || '–'} (${newPartner.bankName || '–'})\n` +
+                    `Oberpartner-Code: ${body.parentPartnerCode || 'Direkt'}\n\n` +
+                    `Bitte im Admin-Panel prüfen: https://alpha-energie.de/admin`;
+
+                const html = getPartnerBackofficeNotificationHtml(
+                    'Neue VP-Portal Selbstregistrierung',
+                    `Partner-Code: ${newPartner.partnerCode} • Rolle: ${role}`,
+                    [
+                        { label: 'Partner-Code', value: newPartner.partnerCode },
+                        { label: 'Vertriebsmodell / Rolle', value: role },
+                        { label: 'Name', value: `${newPartner.salutation || ''} ${newPartner.fullName}`.trim() },
+                        { label: 'Firma / Agentur', value: `${newPartner.companyName || '–'} (${newPartner.legalForm || '–'})` },
+                        { label: 'E-Mail-Adresse', value: newPartner.email },
+                        { label: 'Telefonnummer', value: newPartner.phone || 'Nicht angegeben' },
+                        { label: 'Anschrift', value: addressStr || 'Nicht angegeben' },
+                        { label: 'Steuernummer / Finanzamt', value: `${newPartner.taxId || '–'} / ${newPartner.taxOffice || '–'}` },
+                        { label: 'Umsatzsteuerpflichtig', value: newPartner.isVatLiable ? 'Ja (19% MwSt.)' : 'Nein (§ 19 UStG)' },
+                        { label: 'IBAN / Bank', value: `${newPartner.iban || '–'} (${newPartner.bankName || '–'})` },
+                        { label: 'Oberpartner-Code', value: body.parentPartnerCode || 'Direkt' }
+                    ],
+                    'Der Partner hat sich direkt im VP-Portal registriert.'
+                );
+
+                await sendBewerbungNotification({
+                    subject,
+                    text,
+                    html,
+                    replyTo: newPartner.email
+                });
+            } catch (mailErr) {
+                console.error('[PartnerPortal] Error sending registration notification:', mailErr.message);
+            }
+        })();
+
         const token = jwt.sign(
             { partnerId: newPartner.id, partnerCode: newPartner.partnerCode, role: newPartner.role },
             PARTNER_JWT_SECRET,
@@ -5112,6 +5405,38 @@ app.post('/api/partner/subpartners', authenticatePartner, async (req, res) => {
             update: { name: `${fullName} (${subRole})` },
             create: { name: `${fullName} (${subRole})`, code: partnerCode }
         }).catch(() => {});
+
+        (async () => {
+            try {
+                const subject = `Neuer Unterpartner angelegt (${subRole}): ${fullName} [${partnerCode}]`;
+                const text = `Ein neuer Unterpartner wurde durch ${parent.fullName} (${parent.partnerCode}) im VP-Portal angelegt:\n\n` +
+                    `Unterpartner-Code: ${partnerCode}\n` +
+                    `Rolle: ${subRole}\n` +
+                    `Name: ${fullName}\n` +
+                    `E-Mail: ${cleanEmail}\n` +
+                    `Telefon: ${phone || 'Nicht angegeben'}\n` +
+                    `Provision (Strom/Gas): ${clampedComm} €\n` +
+                    `Oberpartner: ${parent.fullName} (${parent.partnerCode})`;
+                const html = getPartnerBackofficeNotificationHtml(
+                    'Neuer Unterpartner im VP-Portal angelegt',
+                    `Unterpartner-Code: ${partnerCode} • Oberpartner: ${parent.fullName} (${parent.partnerCode})`,
+                    [
+                        { label: 'Unterpartner-Code', value: partnerCode },
+                        { label: 'Rolle', value: subRole },
+                        { label: 'Name', value: fullName },
+                        { label: 'E-Mail-Adresse', value: cleanEmail },
+                        { label: 'Telefonnummer', value: phone || 'Nicht angegeben' },
+                        { label: 'Provision (Strom/Gas)', value: `${clampedComm} €` },
+                        { label: 'Oberpartner / Agentur', value: `${parent.fullName} (${parent.partnerCode})` }
+                    ],
+                    'Der Unterpartner wurde direkt durch den Oberpartner im VP-Portal angelegt.'
+                );
+                await sendBewerbungNotification({ subject, text, html, replyTo: cleanEmail });
+            } catch (mailErr) {
+                console.error('[PartnerPortal] Subpartner notification error:', mailErr.message);
+            }
+        })();
+
         res.status(201).json({ success: true, subPartner: sanitizePartnerUser(sub) });
     } catch (error) {
         res.status(500).json({ success: false, error: error.message });

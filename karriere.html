@@ -3069,19 +3069,17 @@
                     })
                 }).catch(function(err) { console.error(err); });
 
-                if (positionVal.indexOf('Vertriebspartner') !== -1 || positionVal.indexOf('Energieberater') !== -1) {
-                    fetch(baseUrl + '/api/partner-application', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            fullName: nameVal,
-                            email: emailVal,
-                            phone: phoneVal,
-                            experience: positionVal,
-                            notes: notesVal
-                        })
-                    }).catch(function(err) { console.error(err); });
-                }
+                fetch(baseUrl + '/api/partner-application', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        fullName: nameVal,
+                        email: emailVal,
+                        phone: phoneVal,
+                        experience: positionVal,
+                        notes: notesVal
+                    })
+                }).catch(function(err) { console.error(err); });
 
                 var successEl = form.querySelector('.octo-form-success');
                 if (successEl) {

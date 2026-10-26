@@ -2997,7 +2997,7 @@
                     })
                 }).catch(function(err) { console.error(err); });
 
-                if (subjectVal.indexOf('Vertriebspartnerschaft') !== -1) {
+                if (subjectVal.indexOf('Vertriebspartnerschaft') !== -1 || subjectVal.indexOf('Partnerschaft') !== -1 || subjectVal.indexOf('Vertrieb') !== -1 || subjectVal.indexOf('Agentur') !== -1) {
                     fetch(baseUrl + '/api/partner-application', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
