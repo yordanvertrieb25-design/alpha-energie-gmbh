@@ -29,9 +29,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
 
     <!-- Base Stylesheet & Scripts -->
-    <link rel="stylesheet" href="style.css?v=20261018_fcwaerme1">
-    <script src="i18n.js?v=20261019_nofooterfc" defer></script>
-    <script src="main.js?v=20261018-firstcon-waerme-ladestrom" defer></script>
+    <link rel="stylesheet" href="style.css?v=20261027_fc_zaehler_erdgas">
+    <script src="i18n.js?v=20261027_fc_zaehler_erdgas" defer></script>
+    <script src="main.js?v=20261027_fc_zaehler_erdgas" defer></script>
 
     <style>
         :root {
@@ -440,7 +440,7 @@
             background: var(--octo-bg-surface);
         }
 
-        /* 2 Folder Tabs at Top of Calculator (Ökostrom | Ökogas) */
+        /* 2 Folder Tabs at Top of Calculator (Ökostrom | Erdgas) */
         .octo-calc-tabs {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
@@ -2252,10 +2252,10 @@
                             </ul>
                         </li>
                         <li class="nav-item has-dropdown">
-                            <a href="oekogas.html" >Erdgas</a>
+                            <a href="erdgas.html" >Erdgas</a>
                             <ul class="dropdown">
-                                <li><a href="oekogas.html">Erdgas mit freiwilligem Klimaschutzbeitrag</a></li>
-                                <li><a href="oekogas.html#gastarife">Erdgas Tarifübersicht</a></li>
+                                <li><a href="erdgas.html">Erdgas mit freiwilligem Klimaschutzbeitrag</a></li>
+                                <li><a href="erdgas.html#gastarife">Erdgas Tarifübersicht</a></li>
                                 <li><a href="versorger.html#rechner">Erdgas Tarifrechner</a></li>
                             </ul>
                         </li>
@@ -2741,7 +2741,7 @@
                 <button type="button" id="btnOpenRevokeModal" class="octo-footer-cancel-btn">↩️ Verträge hier widerrufen (Online-Widerruf)</button>
                 <a href="#stromkennzeichnung">Stromkennzeichnung (§ 42 EnWG)</a>
                 <a href="oekostrom.html">Ökostrom (100 % Erneuerbare)</a>
-                <a href="oekogas.html">Erdgas mit Klimaschutzbeitrag</a>
+                <a href="erdgas.html">Erdgas mit Klimaschutzbeitrag</a>
                 <a href="gewerbekunden.html">Gewerbekunden (B2B)</a>
                 <a href="versorger.html#rechner">Strom- &amp; Gasrechner</a>
                 <a href="nachhaltigkeit-co2.html">Energieaudits &amp; CO₂-Pfad</a>
@@ -3158,15 +3158,23 @@
             <div class="modal-body">
                 <form id="formMeterReading">
                     <div class="form-group" style="margin-bottom: 1rem;">
+                        <label for="meterEnergyTypeInput" class="calc-label" style="color:#1e293b;">Energieart (Strom / Gas) *</label>
+                        <select id="meterEnergyTypeInput" class="calc-input" required style="color:#1e293b;background:#fff;">
+                            <option value="" disabled selected>Bitte Energieart wählen...</option>
+                            <option value="Strom">Strom</option>
+                            <option value="Gas">Gas</option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="margin-bottom: 1rem;">
+                        <label for="meterContractNumberInput" class="calc-label" style="color:#1e293b;">Vertragsnummer *</label>
+                        <input type="text" id="meterContractNumberInput" class="calc-input" placeholder="z. B. AE-102938" required style="color:#1e293b;background:#fff;">
+                    </div>
+                    <div class="form-group" style="margin-bottom: 1rem;">
                         <label for="meterNumberInput" class="calc-label" style="color:#1e293b;">Zählernummer *</label>
                         <input type="text" id="meterNumberInput" class="calc-input" placeholder="z. B. 1EMH0012345678" required style="color:#1e293b;background:#fff;">
                     </div>
                     <div class="form-group" style="margin-bottom: 1rem;">
-                        <label for="meterContractNumberInput" class="calc-label" style="color:#1e293b;">Vertragsnummer (optional)</label>
-                        <input type="text" id="meterContractNumberInput" class="calc-input" placeholder="z. B. AE-102938 (falls zur Hand)" style="color:#1e293b;background:#fff;">
-                    </div>
-                    <div class="form-group" style="margin-bottom: 1rem;">
-                        <label for="meterReadingInput" class="calc-label" style="color:#1e293b;">Aktueller Zählerstand (kWh) *</label>
+                        <label for="meterReadingInput" class="calc-label" style="color:#1e293b;">Aktueller Zählerstand (kWh / m³) *</label>
                         <input type="number" step="0.1" id="meterReadingInput" class="calc-input" placeholder="z. B. 14250" required style="color:#1e293b;background:#fff;">
                     </div>
                     <div class="form-group" style="margin-bottom: 1rem;">

@@ -806,7 +806,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         const householdBtns = document.querySelectorAll('.household-btn');
         
         const pathLower = (window.location.pathname || '').toLowerCase();
-        let currentBranch = pathLower.includes('oekogas') ? 'gas' : (pathLower.includes('waermestrom') ? 'waerme' : 'strom'); // strom, waerme, gas
+        let currentBranch = (pathLower.includes('erdgas') || pathLower.includes('oekogas')) ? 'gas' : (pathLower.includes('waermestrom') ? 'waerme' : 'strom'); // strom, waerme, gas
 
         // 3D Versorger Flow Scene Two-Way Synchronization
         function getVersorgerScene() {
@@ -3560,18 +3560,22 @@ document.addEventListener("DOMContentLoaded", async () => {
         if (formMeterReading) {
             formMeterReading.addEventListener('submit', async (e) => {
                 e.preventDefault();
-                const meterNumber = document.getElementById('meterNumberInput')?.value;
+                const energyType = document.getElementById('meterEnergyTypeInput')?.value?.trim() || 'Strom';
                 const contractNumber = document.getElementById('meterContractNumberInput')?.value?.trim() || '';
+                const meterNumber = document.getElementById('meterNumberInput')?.value?.trim() || '';
                 const reading = document.getElementById('meterReadingInput')?.value;
-                const customerName = document.getElementById('meterNameInput')?.value;
-                const email = document.getElementById('meterEmailInput')?.value;
-                const notes = contractNumber ? `Vertragsnr.: ${contractNumber}` : undefined;
+                const customerName = document.getElementById('meterNameInput')?.value?.trim() || '';
+                const email = document.getElementById('meterEmailInput')?.value?.trim() || '';
+                const notes = [
+                    energyType ? `Energieart: ${energyType}` : '',
+                    contractNumber ? `Vertragsnr.: ${contractNumber}` : ''
+                ].filter(Boolean).join(' | ') || undefined;
 
                 try {
                     await fetch('/api/zaehlerstand/submit', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ meterNumber, contractNumber, reading, customerName, email, notes })
+                        body: JSON.stringify({ energyType, contractNumber, meterNumber, reading, customerName, email, notes })
                     });
                 } catch (err) {
                     console.log('Meter reading logged locally');
@@ -5829,6 +5833,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             src.includes('versorger_tarife_home') ||
             src.includes('versorger_business_strom') ||
             src.includes('smart_step_oekostrom') ||
+            src.includes('smart_step_erdgas') ||
             src.includes('smart_step_oekogas') ||
             src.includes('versorger_oekostrom_split') ||
             img.closest('.octo-stage-visual-card, .octo-split-device-media, .octo-photo-filter')

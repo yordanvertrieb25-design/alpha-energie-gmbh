@@ -109,6 +109,19 @@ faviconAssets.forEach(asset => {
     });
 });
 
+// Redirect legacy /oekogas and /oekogas.html to /erdgas.html (Firstcon compliance: no "oekogas" in URL)
+app.get(['/oekogas', '/oekogas.html'], (req, res) => {
+    const query = req.url.includes('?') ? req.url.slice(req.url.indexOf('?')) : '';
+    return res.redirect(301, `/erdgas.html${query}`);
+});
+
+app.get(['/erdgas', '/erdgas.html'], (req, res) => {
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
+    res.sendFile(path.join(__dirname, 'erdgas.html'));
+});
+
 // Dedicated route for /versorger (must be before express.static with extensions: ['html'])
 app.get(['/versorger', '/versorger.html'], (req, res) => {
     res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
@@ -2193,20 +2206,28 @@ app.post('/api/order/submit', async (req, res) => {
 // 1.3 Submit Meter Reading (Zählerstand melden)
 app.post('/api/zaehlerstand/submit', async (req, res) => {
     try {
-        const { meterNumber, contractNumber, reading, readingDate, customerName, email, notes } = req.body;
+        const { energyType, contractNumber, meterNumber, reading, readingDate, customerName, email, notes } = req.body;
         if (!meterNumber || reading === undefined || !customerName || !email) {
             return res.status(400).json({
                 success: false,
-                error: 'Bitte füllen Sie Zählernummer, Zählerstand, Name und E-Mail aus.'
+                error: 'Bitte füllen Sie Energieart, Vertragsnummer, Zählernummer, Zählerstand, Name und E-Mail aus.'
             });
         }
 
+        const trimmedEnergy = energyType ? String(energyType).trim() : '';
         const trimmedContract = contractNumber ? String(contractNumber).trim() : '';
         const trimmedNotes = notes ? String(notes).trim() : '';
-        let combinedNotes = trimmedNotes || null;
-        if (trimmedContract && !trimmedNotes.includes(trimmedContract)) {
-            combinedNotes = trimmedNotes ? `Vertragsnr.: ${trimmedContract} | ${trimmedNotes}` : `Vertragsnr.: ${trimmedContract}`;
+        const metaParts = [];
+        if (trimmedEnergy && !trimmedNotes.includes(trimmedEnergy)) {
+            metaParts.push(`Energieart: ${trimmedEnergy}`);
         }
+        if (trimmedContract && !trimmedNotes.includes(trimmedContract)) {
+            metaParts.push(`Vertragsnr.: ${trimmedContract}`);
+        }
+        if (trimmedNotes) {
+            metaParts.push(trimmedNotes);
+        }
+        const combinedNotes = metaParts.length > 0 ? metaParts.join(' | ') : null;
 
         const newReading = await prisma.meterReading.create({
             data: {

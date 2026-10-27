@@ -29,9 +29,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
 
     <!-- Base Stylesheet & Scripts -->
-    <link rel="stylesheet" href="style.css?v=20261018_fcwaerme1">
-    <script src="i18n.js?v=20261019_nofooterfc" defer></script>
-    <script src="main.js?v=20261018-firstcon-waerme-ladestrom" defer></script>
+    <link rel="stylesheet" href="style.css?v=20261027_fc_zaehler_erdgas">
+    <script src="i18n.js?v=20261027_fc_zaehler_erdgas" defer></script>
+    <script src="main.js?v=20261027_fc_zaehler_erdgas" defer></script>
 
     <style>
         :root {
@@ -440,7 +440,7 @@
             background: var(--octo-bg-surface);
         }
 
-        /* 2 Folder Tabs at Top of Calculator (Ökostrom | Ökogas) */
+        /* 2 Folder Tabs at Top of Calculator (Ökostrom | Erdgas) */
         .octo-calc-tabs {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
@@ -2224,11 +2224,11 @@
                             </ul>
                         </li>
                         <li class="nav-item has-dropdown">
-                            <a href="oekogas.html" >Ökogas</a>
+                            <a href="erdgas.html">Erdgas</a>
                             <ul class="dropdown">
-                                <li><a href="oekogas.html">Klimaneutrales Ökogas</a></li>
-                                <li><a href="oekogas.html#gastarife">Ökogas Tarifübersicht</a></li>
-                                <li><a href="versorger.html#rechner">Ökogas Tarifrechner</a></li>
+                                <li><a href="erdgas.html">Erdgas mit freiwilligem Klimaschutzbeitrag</a></li>
+                                <li><a href="erdgas.html#gastarife">Erdgas Tarifübersicht</a></li>
+                                <li><a href="versorger.html#rechner">Erdgas Tarifrechner</a></li>
                             </ul>
                         </li>
                         <li class="nav-item has-dropdown">
@@ -2329,30 +2329,40 @@
                         <span class="octo-pill-badge">Strom &amp; Gas</span>
                         <h2 class="octo-card-h3" style="font-size:1.6rem;margin-bottom:8px;">Zählerstand online übermitteln</h2>
                         <p class="octo-card-p" style="margin-bottom:20px;">Für deine Jahresabrechnung, den Lieferbeginn oder zur Zwischenablesung kannst du uns deinen aktuellen Zählerstand hier direkt mitteilen.</p>
-                        <form class="octo-interactive-form">
+                        <form id="serviceMeterForm" class="octo-interactive-form">
                             <div class="octo-form-grid" style="margin-bottom:14px;">
                                 <div>
-                                    <label class="octo-field-label">Vertragsnummer (optional)</label>
-                                    <input type="text" class="octo-field-input" placeholder="z. B. AE-102938 (falls zur Hand)">
+                                    <label for="serviceMeterEnergyType" class="octo-field-label">Energieart (Strom / Gas) *</label>
+                                    <select id="serviceMeterEnergyType" class="octo-field-input" required>
+                                        <option value="" disabled selected>Bitte Energieart wählen...</option>
+                                        <option value="Strom">Strom</option>
+                                        <option value="Gas">Gas</option>
+                                    </select>
                                 </div>
                                 <div>
-                                    <label class="octo-field-label">Zählernummer *</label>
-                                    <input type="text" class="octo-field-input" placeholder="z. B. 1EMH0012345678" required>
+                                    <label for="serviceMeterContractNumber" class="octo-field-label">Vertragsnummer *</label>
+                                    <input type="text" id="serviceMeterContractNumber" class="octo-field-input" placeholder="z. B. AE-102938" required>
                                 </div>
                             </div>
                             <div class="octo-form-grid" style="margin-bottom:14px;">
                                 <div>
-                                    <label class="octo-field-label">Aktueller Zählerstand (kWh / m³) *</label>
-                                    <input type="number" step="0.1" class="octo-field-input" placeholder="z. B. 14250" required>
+                                    <label for="serviceMeterNumber" class="octo-field-label">Zählernummer *</label>
+                                    <input type="text" id="serviceMeterNumber" class="octo-field-input" placeholder="z. B. 1EMH0012345678" required>
                                 </div>
                                 <div>
-                                    <label class="octo-field-label">Ablesedatum *</label>
-                                    <input type="date" class="octo-field-input" required>
+                                    <label for="serviceMeterReading" class="octo-field-label">Aktueller Zählerstand (kWh / m³) *</label>
+                                    <input type="number" step="0.1" id="serviceMeterReading" class="octo-field-input" placeholder="z. B. 14250" required>
                                 </div>
                             </div>
-                            <div style="margin-bottom:18px;">
-                                <label class="octo-field-label">E-Mail-Adresse für die Bestätigung *</label>
-                                <input type="email" class="octo-field-input" placeholder="deine@email.de" required>
+                            <div class="octo-form-grid" style="margin-bottom:18px;">
+                                <div>
+                                    <label for="serviceMeterDate" class="octo-field-label">Ablesedatum *</label>
+                                    <input type="date" id="serviceMeterDate" class="octo-field-input" required>
+                                </div>
+                                <div>
+                                    <label for="serviceMeterEmail" class="octo-field-label">E-Mail-Adresse für die Bestätigung *</label>
+                                    <input type="email" id="serviceMeterEmail" class="octo-field-input" placeholder="deine@email.de" required>
+                                </div>
                             </div>
                             <button type="submit" class="octo-btn-solid-orange" style="width:100%;">Zählerstand verbindlich speichern &rarr;</button>
                             <div class="octo-form-success" style="display:none;margin-top:14px;padding:12px 16px;background:#fff9eb;border:1.5px solid #e95e24;border-radius:12px;color:#9a3412;font-weight:700;font-size:0.9rem;">
@@ -2366,36 +2376,45 @@
                         <span class="octo-pill-badge">Kostenlose Tarifmitnahme</span>
                         <h2 class="octo-card-h3" style="font-size:1.6rem;margin-bottom:8px;">Umzugsservice &amp; Adressänderung</h2>
                         <p class="octo-card-p" style="margin-bottom:20px;">Du ziehst um? Nimm deinen günstigen Alpha Energie Tarif samt Preisgarantie einfach mit in dein neues Zuhause!</p>
-                        <form class="octo-interactive-form">
+                        <form id="serviceMoveForm" class="octo-interactive-form">
                             <div class="octo-form-grid" style="margin-bottom:14px;">
                                 <div>
-                                    <label class="octo-field-label">Vor- und Nachname *</label>
-                                    <input type="text" class="octo-field-input" placeholder="Max Mustermann" required>
+                                    <label for="serviceMoveEnergyType" class="octo-field-label">Energieart (Strom / Gas) *</label>
+                                    <select id="serviceMoveEnergyType" class="octo-field-input" required>
+                                        <option value="" disabled selected>Bitte Energieart wählen...</option>
+                                        <option value="Strom">Strom</option>
+                                        <option value="Gas">Gas</option>
+                                        <option value="Strom & Gas">Strom &amp; Gas</option>
+                                    </select>
                                 </div>
                                 <div>
-                                    <label class="octo-field-label">Kundennummer (falls zur Hand)</label>
-                                    <input type="text" class="octo-field-input" placeholder="z. B. AE-102938">
+                                    <label for="serviceMoveContractNumber" class="octo-field-label">Vertragsnummer *</label>
+                                    <input type="text" id="serviceMoveContractNumber" class="octo-field-input" placeholder="z. B. AE-102938" required>
                                 </div>
                             </div>
                             <div class="octo-form-grid" style="margin-bottom:14px;">
                                 <div>
-                                    <label class="octo-field-label">Neue Anschrift (Straße, PLZ, Ort) *</label>
-                                    <input type="text" class="octo-field-input" placeholder="Musterstr. 12, 44379 Dortmund" required>
+                                    <label for="serviceMoveName" class="octo-field-label">Vor- und Nachname *</label>
+                                    <input type="text" id="serviceMoveName" class="octo-field-input" placeholder="Max Mustermann" required>
                                 </div>
                                 <div>
-                                    <label class="octo-field-label">Einzugs- / Übergabedatum *</label>
-                                    <input type="date" class="octo-field-input" required>
+                                    <label for="serviceMoveEmail" class="octo-field-label">Deine E-Mail-Adresse *</label>
+                                    <input type="email" id="serviceMoveEmail" class="octo-field-input" placeholder="deine@email.de" required>
                                 </div>
                             </div>
-                            <div class="octo-form-grid" style="margin-bottom:18px;">
+                            <div class="octo-form-grid" style="margin-bottom:14px;">
                                 <div>
-                                    <label class="octo-field-label">Zählernummer neue Wohnung</label>
-                                    <input type="text" class="octo-field-input" placeholder="Optional nachreichbar">
+                                    <label for="serviceMoveAddress" class="octo-field-label">Neue Anschrift (Straße, PLZ, Ort) *</label>
+                                    <input type="text" id="serviceMoveAddress" class="octo-field-input" placeholder="Musterstr. 12, 44379 Dortmund" required>
                                 </div>
                                 <div>
-                                    <label class="octo-field-label">Deine E-Mail-Adresse *</label>
-                                    <input type="email" class="octo-field-input" placeholder="deine@email.de" required>
+                                    <label for="serviceMoveDate" class="octo-field-label">Einzugs- / Übergabedatum *</label>
+                                    <input type="date" id="serviceMoveDate" class="octo-field-input" required>
                                 </div>
+                            </div>
+                            <div style="margin-bottom:18px;">
+                                <label for="serviceMoveMeter" class="octo-field-label">Zählernummer neue Wohnung (optional nachreichbar)</label>
+                                <input type="text" id="serviceMoveMeter" class="octo-field-input" placeholder="Optional nachreichbar (z. B. 1EMH0012345678)">
                             </div>
                             <button type="submit" class="octo-btn-solid-orange" style="width:100%;">Umzug jetzt online melden &rarr;</button>
                             <div class="octo-form-success" style="display:none;margin-top:14px;padding:12px 16px;background:#fff9eb;border:1.5px solid #e95e24;border-radius:12px;color:#9a3412;font-weight:700;font-size:0.9rem;">
@@ -2467,13 +2486,13 @@
                 <div class="octo-bottom-offer-box">
                     <div>
                         <h3 class="octo-card-h3" style="font-size:1.55rem;margin-bottom:6px;">Hol' dir jetzt dein persönliches Tarifangebot</h3>
-                        <p class="octo-card-p">Gib deine Postleitzahl ein und wechsle direkt zum Live-Tarifrechner für Ökostrom oder Ökogas.</p>
+                        <p class="octo-card-p">Gib deine Postleitzahl ein und wechsle direkt zum Live-Tarifrechner für Ökostrom oder Erdgas.</p>
                     </div>
 
                     <form id="subpageQuickOfferForm" class="octo-bottom-offer-form">
                         <select id="subOfferBranch" class="octo-bottom-offer-select" aria-label="Sparte wählen">
                             <option value="strom">Ökostrom</option>
-                            <option value="gas">Ökogas</option>
+                            <option value="gas">Erdgas</option>
                         </select>
                         <input type="text" id="subOfferPlz" class="octo-bottom-offer-input" placeholder="Deine Postleitzahl (z.B. 44379)" maxlength="5" pattern="[0-9]{5}" required>
                         <button type="submit" class="octo-bottom-offer-btn">Angebot berechnen</button>
@@ -2555,7 +2574,7 @@
                     <div>
                         <h3 class="octo-card-h3" style="font-size:1.4rem;margin-bottom:14px;">Positive Energie direkt in dein Postfach</h3>
                         <p class="octo-card-p" style="margin-bottom:18px;">
-                            Sichere dir exklusive Tarif-Vorteile, Energiespartipps und Neuigkeiten rund um 100 % Ökostrom und klimaneutrales Ökogas der Alpha Energie GmbH.
+                            Sichere dir exklusive Tarif-Vorteile, Energiespartipps und Neuigkeiten rund um 100 % Ökostrom und Erdgas mit freiwilligem Klimaschutzbeitrag der Alpha Energie GmbH.
                         </p>
 
                         <form id="octoNewsletterForm">
@@ -2564,7 +2583,7 @@
 
                             <label style="display:flex;align-items:flex-start;gap:10px;font-size:0.8rem;color:#57534e;line-height:1.5;margin:8px 0 18px 0;cursor:pointer;">
                                 <input type="checkbox" required style="margin-top:4px;accent-color:#f9b233;">
-                                <span>Ja, ich möchte gerne von der Alpha Energie GmbH spannende Infos zu Ökostrom- und Ökogas-Tarifen sowie Aktionen per E-Mail erhalten. Abmeldung jederzeit möglich. Weitere Infos in der <a href="datenschutz.html" style="color:#e95e24;text-decoration:underline;">Datenschutzerklärung</a>.</span>
+                                <span>Ja, ich möchte gerne von der Alpha Energie GmbH spannende Infos zu Ökostrom- und Erdgas-Tarifen sowie Aktionen per E-Mail erhalten. Abmeldung jederzeit möglich. Weitere Infos in der <a href="datenschutz.html" style="color:#e95e24;text-decoration:underline;">Datenschutzerklärung</a>.</span>
                             </label>
 
                             <button type="submit" class="octo-btn-solid-orange" style="width:100%;">Jetzt anmelden</button>
@@ -2587,7 +2606,7 @@
                 <button type="button" id="btnOpenCancelModal" style="color:#e95e24;font-weight:700;">Verträge hier kündigen (§ 312k BGB)</button>
                 <button type="button" id="btnOpenRevokeModal" style="color:#e95e24;font-weight:700;">Verträge hier widerrufen</button>
                 <a href="oekostrom.html">100% Ökostrom</a>
-                <a href="oekogas.html">Klimaneutrales Ökogas</a>
+                <a href="erdgas.html">Erdgas mit Klimaschutzbeitrag</a>
                 <a href="gewerbekunden.html">Gewerbekunden (B2B)</a>
                 <a href="versorger.html#rechner">Strom- &amp; Gasrechner</a>
                 <a href="nachhaltigkeit-co2.html">Energieaudits &amp; CO₂-Pfad</a>
@@ -2910,15 +2929,23 @@
             <div class="modal-body">
                 <form id="formMeterReading">
                     <div class="form-group" style="margin-bottom: 1rem;">
+                        <label for="meterEnergyTypeInput" class="calc-label" style="color:#1e293b;">Energieart (Strom / Gas) *</label>
+                        <select id="meterEnergyTypeInput" class="calc-input" required style="color:#1e293b;background:#fff;">
+                            <option value="" disabled selected>Bitte Energieart wählen...</option>
+                            <option value="Strom">Strom</option>
+                            <option value="Gas">Gas</option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="margin-bottom: 1rem;">
+                        <label for="meterContractNumberInput" class="calc-label" style="color:#1e293b;">Vertragsnummer *</label>
+                        <input type="text" id="meterContractNumberInput" class="calc-input" placeholder="z. B. AE-102938" required style="color:#1e293b;background:#fff;">
+                    </div>
+                    <div class="form-group" style="margin-bottom: 1rem;">
                         <label for="meterNumberInput" class="calc-label" style="color:#1e293b;">Zählernummer *</label>
                         <input type="text" id="meterNumberInput" class="calc-input" placeholder="z. B. 1EMH0012345678" required style="color:#1e293b;background:#fff;">
                     </div>
                     <div class="form-group" style="margin-bottom: 1rem;">
-                        <label for="meterContractNumberInput" class="calc-label" style="color:#1e293b;">Vertragsnummer (optional)</label>
-                        <input type="text" id="meterContractNumberInput" class="calc-input" placeholder="z. B. AE-102938 (falls zur Hand)" style="color:#1e293b;background:#fff;">
-                    </div>
-                    <div class="form-group" style="margin-bottom: 1rem;">
-                        <label for="meterReadingInput" class="calc-label" style="color:#1e293b;">Aktueller Zählerstand (kWh) *</label>
+                        <label for="meterReadingInput" class="calc-label" style="color:#1e293b;">Aktueller Zählerstand (kWh / m³) *</label>
                         <input type="number" step="0.1" id="meterReadingInput" class="calc-input" placeholder="z. B. 14250" required style="color:#1e293b;background:#fff;">
                     </div>
                     <div class="form-group" style="margin-bottom: 1rem;">
@@ -3006,18 +3033,28 @@
             form.addEventListener('submit', function(e) {
                 e.preventDefault();
                 var inputs = form.querySelectorAll('input.octo-field-input');
-                var isUmzug = form.closest('#umzug') !== null;
+                var isUmzug = form.closest('#umzug') !== null || form.id === 'serviceMoveForm';
                 var isLocalDev = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') && window.location.port !== '3000';
                 var isFileProtocol = window.location.protocol === 'file:';
                 var baseUrl = (isLocalDev || isFileProtocol) ? 'http://localhost:3000' : '';
 
                 if (isUmzug) {
-                    var uName = inputs[0] ? inputs[0].value.trim() : 'Kunde';
-                    var uCustNo = inputs[1] ? inputs[1].value.trim() : '';
-                    var uAddress = inputs[2] ? inputs[2].value.trim() : '';
-                    var uDate = inputs[3] ? inputs[3].value.trim() : '';
-                    var uMeter = inputs[4] ? inputs[4].value.trim() : '';
-                    var uEmail = inputs[5] ? inputs[5].value.trim() : '';
+                    var uEnergyEl = document.getElementById('serviceMoveEnergyType');
+                    var uContractEl = document.getElementById('serviceMoveContractNumber');
+                    var uNameEl = document.getElementById('serviceMoveName');
+                    var uEmailEl = document.getElementById('serviceMoveEmail');
+                    var uAddressEl = document.getElementById('serviceMoveAddress');
+                    var uDateEl = document.getElementById('serviceMoveDate');
+                    var uMeterEl = document.getElementById('serviceMoveMeter');
+
+                    var uEnergy = uEnergyEl ? uEnergyEl.value.trim() : 'Strom';
+                    var uCustNo = uContractEl ? uContractEl.value.trim() : (inputs[0] ? inputs[0].value.trim() : '');
+                    var uName = uNameEl ? uNameEl.value.trim() : (inputs[1] ? inputs[1].value.trim() : 'Kunde');
+                    var uEmail = uEmailEl ? uEmailEl.value.trim() : (inputs[2] ? inputs[2].value.trim() : '');
+                    var uAddress = uAddressEl ? uAddressEl.value.trim() : (inputs[3] ? inputs[3].value.trim() : '');
+                    var uDate = uDateEl ? uDateEl.value.trim() : (inputs[4] ? inputs[4].value.trim() : '');
+                    var uMeter = uMeterEl ? uMeterEl.value.trim() : (inputs[5] ? inputs[5].value.trim() : '');
+
                     fetch(baseUrl + '/api/contact', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
@@ -3025,37 +3062,48 @@
                             name: uName,
                             phone: '',
                             email: uEmail,
-                            subject: 'Umzugsmeldung' + (uCustNo ? ' (' + uCustNo + ')' : ''),
-                            message: 'Neue Anschrift: ' + uAddress + ' | Einzugsdatum: ' + uDate + ' | Zählernr.: ' + (uMeter || 'wird nachgereicht')
+                            subject: 'Umzugsmeldung [' + uEnergy + ']' + (uCustNo ? ' (Vertragsnr.: ' + uCustNo + ')' : ''),
+                            message: 'Energieart: ' + uEnergy + ' | Vertragsnr.: ' + (uCustNo || 'nicht angegeben') + ' | Neue Anschrift: ' + uAddress + ' | Einzugsdatum: ' + uDate + ' | Zählernr.: ' + (uMeter || 'wird nachgereicht')
                         })
                     }).catch(function(err) { console.error(err); });
                 } else {
-                    var mContract = inputs[0] ? inputs[0].value.trim() : '';
-                    var mMeter = inputs[1] ? inputs[1].value.trim() : '';
-                    var mReading = inputs[2] ? inputs[2].value.trim() : '0';
-                    var mDate = inputs[3] ? inputs[3].value.trim() : '';
-                    var mEmail = inputs[4] ? inputs[4].value.trim() : '';
+                    var mEnergyEl = document.getElementById('serviceMeterEnergyType');
+                    var mContractEl = document.getElementById('serviceMeterContractNumber');
+                    var mMeterEl = document.getElementById('serviceMeterNumber');
+                    var mReadingEl = document.getElementById('serviceMeterReading');
+                    var mDateEl = document.getElementById('serviceMeterDate');
+                    var mEmailEl = document.getElementById('serviceMeterEmail');
+
+                    var mEnergy = mEnergyEl ? mEnergyEl.value.trim() : 'Strom';
+                    var mContract = mContractEl ? mContractEl.value.trim() : (inputs[0] ? inputs[0].value.trim() : '');
+                    var mMeter = mMeterEl ? mMeterEl.value.trim() : (inputs[1] ? inputs[1].value.trim() : '');
+                    var mReading = mReadingEl ? mReadingEl.value.trim() : (inputs[2] ? inputs[2].value.trim() : '0');
+                    var mDate = mDateEl ? mDateEl.value.trim() : (inputs[3] ? inputs[3].value.trim() : '');
+                    var mEmail = mEmailEl ? mEmailEl.value.trim() : (inputs[4] ? inputs[4].value.trim() : '');
+
                     fetch(baseUrl + '/api/zaehlerstand/submit', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
+                            energyType: mEnergy,
+                            contractNumber: mContract,
                             meterNumber: mMeter,
                             reading: mReading,
                             readingDate: mDate,
                             customerName: mContract || 'Online-Meldung',
                             email: mEmail,
-                            notes: 'Vertragsnr.: ' + mContract
+                            notes: 'Energieart: ' + mEnergy + ' | Vertragsnr.: ' + mContract
                         })
                     }).catch(function(err) { console.error(err); });
                     fetch(baseUrl + '/api/contact', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
-                            name: 'Vertrag ' + (mContract || mMeter),
+                            name: 'Vertrag ' + (mContract || mMeter) + ' (' + mEnergy + ')',
                             phone: '',
                             email: mEmail,
-                            subject: 'Zählerstand: ' + mMeter,
-                            message: 'Zählernr.: ' + mMeter + ' | Stand: ' + mReading + ' kWh | Ablesedatum: ' + mDate + ' | Vertragsnr.: ' + mContract
+                            subject: 'Zählerstand [' + mEnergy + ']: ' + mMeter,
+                            message: 'Energieart: ' + mEnergy + ' | Vertragsnr.: ' + mContract + ' | Zählernr.: ' + mMeter + ' | Stand: ' + mReading + ' | Ablesedatum: ' + mDate
                         })
                     }).catch(function(err) { console.error(err); });
                 }
