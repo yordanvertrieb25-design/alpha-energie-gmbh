@@ -2914,8 +2914,8 @@ function getPartnerRegistrationConfirmationHtml(fullName, email, phone, experien
                             <div style="width: 26px; height: 26px; border-radius: 50%; background-color: #ef8a00; color: #ffffff; font-weight: 700; font-size: 0.85rem; text-align: center; line-height: 26px;">2</div>
                         </td>
                         <td style="vertical-align: top; padding-left: 10px;">
-                            <strong style="color: #0f172a; font-size: 0.95rem;">Kennenlerngespräch buchen</strong>
-                            <div style="color: #475569; font-size: 0.9rem; margin-top: 2px;">Sichere Dir direkt Deinen Wunschtermin für ein kurzes, persönliches Kennenlerngespräch (ca. 15–20 Min.).</div>
+                            <strong style="color: #0f172a; font-size: 0.95rem;">Persönliche Kontaktaufnahme</strong>
+                            <div style="color: #475569; font-size: 0.9rem; margin-top: 2px;">Unser Team meldet sich zeitnah telefonisch oder per E-Mail bei Dir für ein kurzes, persönliches Kennenlerngespräch.</div>
                         </td>
                     </tr>
                     <tr>
@@ -2928,13 +2928,6 @@ function getPartnerRegistrationConfirmationHtml(fullName, email, phone, experien
                         </td>
                     </tr>
                 </table>
-
-                <!-- Prominent CTA Button -->
-                <div style="text-align: center; margin: 32px 0 28px 0;">
-                    <a href="https://alpha-energie.de/onboarding.html" target="_blank" style="background: linear-gradient(135deg, #ef8a00 0%, #d97706 100%); background-color: #ef8a00; color: #ffffff; padding: 15px 32px; text-decoration: none; border-radius: 8px; font-weight: 700; font-size: 1rem; display: inline-block; box-shadow: 0 4px 14px rgba(239, 138, 0, 0.35); text-shadow: 0 1px 1px rgba(0,0,0,0.15);">
-                        Jetzt Kennenlerngespräch buchen &rarr;
-                    </a>
-                </div>
 
                 <p style="font-size: 0.9rem; color: #64748b; margin: 24px 0 8px 0; border-top: 1px solid #f1f5f9; padding-top: 16px;">
                     Du hast vorab Fragen oder Anmerkungen? Antworte einfach direkt auf diese E-Mail oder melde Dich telefonisch bei uns.
@@ -2990,7 +2983,7 @@ function getAppointmentConfirmationHtml(name, email, phone, dateFormatted, time)
             <!-- Main Content -->
             <div style="padding: 32px 28px;">
                 <p style="font-size: 1.05rem; margin-top: 0; color: #0f172a;">Hallo <strong>${safeName}</strong>,</p>
-                <p style="color: #334155; font-size: 0.95rem; margin-bottom: 24px;">vielen Dank für Deine Buchung! Dein Termin für unser telefonisches Kennenlerngespräch ist erfolgreich eingetragen und verbindlich für Dich reserviert. Wir freuen uns auf den persönlichen Austausch mit Dir.</p>
+                <p style="color: #334155; font-size: 0.95rem; margin-bottom: 24px;">unser Partnermanagement hat Deinen Termin für unser telefonisches Kennenlerngespräch eingetragen und verbindlich für Dich reserviert. Wir freuen uns auf den persönlichen Austausch mit Dir.</p>
                 
                 <!-- Highlighted Appointment Box -->
                 <div style="background: #fff7ed; border: 1px solid #fed7aa; border-left: 5px solid #ff7a00; padding: 20px 22px; border-radius: 8px; margin: 24px 0;">
@@ -3167,8 +3160,26 @@ app.post('/api/partner-application', async (req, res) => {
     }
 });
 
-// 2b. Get Available Appointment Slots
-app.get('/api/appointments/available', async (req, res) => {
+// Middleware to protect admin routes
+const authenticateAdmin = (req, res, next) => {
+    const authHeader = req.headers.authorization;
+    const secret = process.env.JWT_SECRET || 'alpha_energie_admin_secret_2026';
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+        const token = authHeader.substring(7);
+        try {
+            const decoded = jwt.verify(token, secret);
+            if (decoded.admin) {
+                return next();
+            }
+        } catch (err) {
+            return res.status(401).json({ success: false, error: 'Invalid or expired token' });
+        }
+    }
+    return res.status(401).json({ success: false, error: 'Unauthorized' });
+};
+
+// 2b. Get Available Appointment Slots (Admin only - registrars cannot self-book)
+app.get('/api/appointments/available', authenticateAdmin, async (req, res) => {
     try {
         const { date } = req.query; // format: YYYY-MM-DD
         if (!date) return res.status(400).json({ success: false, error: 'Date is required' });
@@ -3192,10 +3203,13 @@ app.get('/api/appointments/available', async (req, res) => {
     }
 });
 
-// 2c. Book an Appointment
-app.post('/api/appointments', async (req, res) => {
+// 2c. Create an Appointment (Admin only - registrars cannot self-book)
+const handleAdminCreateAppointment = async (req, res) => {
     try {
         const { name, email, phone, date, time } = req.body;
+        if (!name || !date || !time) {
+            return res.status(400).json({ success: false, error: 'Name, Datum und Uhrzeit sind erforderlich.' });
+        }
         
         const existing = await prisma.appointment.findFirst({
             where: { date, time }
@@ -3205,7 +3219,7 @@ app.post('/api/appointments', async (req, res) => {
         }
         
         const newAppointment = await prisma.appointment.create({
-            data: { name, email, phone, date, time }
+            data: { name, email: email || '', phone: phone || '', date, time }
         });
 
         // 1. Send confirmation email to applicant & 2. notification to backoffice asynchronously (non-blocking)
@@ -3233,10 +3247,10 @@ app.post('/api/appointments', async (req, res) => {
                 }
 
                 // B. Notification email to backoffice
-                const subject = `Neuer Onboarding-Termin gebucht: ${name} (${dateFormatted} um ${time} Uhr)`;
-                const text = `Ein neuer Termin für ein Partner-Kennenlerngespräch wurde gebucht:\n\nName: ${name}\nE-Mail: ${email}\nTelefon: ${phone || 'Nicht angegeben'}\nDatum: ${dateFormatted} (${date})\nUhrzeit: ${time} Uhr\n\nBitte im Admin-Panel prüfen: https://alpha-energie.de/admin`;
+                const subject = `Neuer Onboarding-Termin eingetragen: ${name} (${dateFormatted} um ${time} Uhr)`;
+                const text = `Ein neuer Termin für ein Partner-Kennenlerngespräch wurde im Admin-Portal eingetragen:\n\nName: ${name}\nE-Mail: ${email || 'Nicht angegeben'}\nTelefon: ${phone || 'Nicht angegeben'}\nDatum: ${dateFormatted} (${date})\nUhrzeit: ${time} Uhr\n\nBitte im Admin-Panel prüfen: https://alpha-energie.de/admin`;
                 const html = getPartnerBackofficeNotificationHtml(
-                    'Neuer Onboarding-Termin gebucht',
+                    'Neuer Onboarding-Termin eingetragen',
                     `${dateFormatted} um ${time} Uhr`,
                     [
                         { label: 'Name des Partners', value: name || 'Unbekannt' },
@@ -3264,7 +3278,9 @@ app.post('/api/appointments', async (req, res) => {
         console.error("Error creating appointment:", error);
         res.status(500).json({ success: false, error: 'Internal Server Error' });
     }
-});
+};
+app.post('/api/appointments', authenticateAdmin, handleAdminCreateAppointment);
+app.post('/api/admin/appointments', authenticateAdmin, handleAdminCreateAppointment);
 
 
 // 3. Admin Login
@@ -3279,24 +3295,6 @@ app.post('/api/admin/login', (req, res) => {
         res.status(401).json({ success: false, error: 'Invalid password' });
     }
 });
-
-// Middleware to protect admin routes
-const authenticateAdmin = (req, res, next) => {
-    const authHeader = req.headers.authorization;
-    const secret = process.env.JWT_SECRET || 'alpha_energie_admin_secret_2026';
-    if (authHeader && authHeader.startsWith('Bearer ')) {
-        const token = authHeader.substring(7);
-        try {
-            const decoded = jwt.verify(token, secret);
-            if (decoded.admin) {
-                return next();
-            }
-        } catch (err) {
-            return res.status(401).json({ success: false, error: 'Invalid or expired token' });
-        }
-    }
-    return res.status(401).json({ success: false, error: 'Unauthorized' });
-};
 
 // 4. Get Admin Data (Protected)
 app.get('/api/admin/data', authenticateAdmin, async (req, res) => {

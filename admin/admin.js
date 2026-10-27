@@ -208,7 +208,10 @@ if (document.querySelector('.dashboard-container')) {
 
         tbody.innerHTML = apps.map(a => {
             const hasAppt = appointments.some(appt => appt.email && appt.email.toLowerCase() === a.email.toLowerCase());
-            const apptStatus = hasAppt ? '<span style="color: #10b981; font-weight: bold;"><i class="fa-solid fa-check"></i> Ja</span>' : '<span style="color: #64748b;">Nein</span>';
+            const matchedAppt = appointments.find(appt => appt.email && a.email && appt.email.toLowerCase() === a.email.toLowerCase());
+            const apptStatus = matchedAppt
+                ? `<div style="display:flex;flex-direction:column;align-items:center;gap:4px;"><span style="color:#10b981;font-weight:bold;font-size:0.82rem;"><i class="fa-solid fa-calendar-check"></i> ${matchedAppt.date} (${matchedAppt.time} Uhr)</span></div>`
+                : `<div style="display:flex;flex-direction:column;align-items:center;gap:4px;"><span style="color:#64748b;font-size:0.82rem;">Kein Termin</span><button onclick="openAppointmentModal(${a.id})" style="background:#f1f5f9;color:#0f172a;border:1px solid #cbd5e1;border-radius:4px;padding:4px 8px;font-size:0.75rem;font-weight:600;cursor:pointer;"><i class="fa-regular fa-calendar-plus" style="color:#ef8a00;"></i> Termin legen</button></div>`;
             const displayNotes = a.notes ? a.notes.replace(/\n/g, '<br>') : '<span style="color: #94a3b8; font-style: italic;">Keine Notizen</span>';
             const rawNotes = (a.notes || '').replace(/'/g, "\\'").replace(/"/g, '&quot;').replace(/\n/g, '\\n');
             const affiliateBadge = a.affiliateLink 
@@ -387,6 +390,87 @@ if (document.querySelector('.dashboard-container')) {
     }
 
     loadData();
+
+    // --- Admin Appointment Scheduling (Only Admin can schedule appointments) ---
+    window.openAppointmentModal = function(appId) {
+        const modal = document.getElementById('appointment-modal');
+        if (!modal) return;
+        const nameInput = document.getElementById('admin-appt-name');
+        const emailInput = document.getElementById('admin-appt-email');
+        const phoneInput = document.getElementById('admin-appt-phone');
+        const dateInput = document.getElementById('admin-appt-date');
+        const timeInput = document.getElementById('admin-appt-time');
+
+        if (appId) {
+            const app = cachedPartnerApplications.find(a => a.id === appId);
+            if (app) {
+                if (nameInput) nameInput.value = app.fullName || '';
+                if (emailInput) emailInput.value = app.email || '';
+                if (phoneInput) phoneInput.value = app.phone || '';
+            }
+        } else {
+            if (nameInput) nameInput.value = '';
+            if (emailInput) emailInput.value = '';
+            if (phoneInput) phoneInput.value = '';
+        }
+
+        if (dateInput && !dateInput.value) {
+            const tomorrow = new Date();
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            dateInput.value = tomorrow.toISOString().slice(0, 10);
+        }
+        if (timeInput && !timeInput.value) {
+            timeInput.value = '10:00';
+        }
+        modal.style.display = 'flex';
+    };
+
+    window.closeAppointmentModal = function() {
+        const modal = document.getElementById('appointment-modal');
+        if (modal) modal.style.display = 'none';
+    };
+
+    document.getElementById('admin-appointment-form')?.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const submitBtn = document.getElementById('admin-appt-submit');
+        const name = document.getElementById('admin-appt-name')?.value.trim() || '';
+        const email = document.getElementById('admin-appt-email')?.value.trim() || '';
+        const phone = document.getElementById('admin-appt-phone')?.value.trim() || '';
+        const date = document.getElementById('admin-appt-date')?.value || '';
+        const time = document.getElementById('admin-appt-time')?.value || '';
+
+        if (!name || !date || !time) return;
+
+        if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.innerText = 'Speichert...';
+        }
+
+        try {
+            const res = await fetch(`${API_URL}/admin/appointments`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ name, email, phone, date, time })
+            });
+            const data = await res.json();
+            if (res.ok && data.success) {
+                closeAppointmentModal();
+                loadData();
+            } else {
+                alert('Fehler beim Speichern des Termins: ' + (data.error || 'Unbekannt'));
+            }
+        } catch (err) {
+            alert('Netzwerkfehler beim Speichern des Termins.');
+        } finally {
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.innerText = 'Termin speichern';
+            }
+        }
+    });
 
     // --- Campaign Logic ---
     let currentCampaignId = null;
