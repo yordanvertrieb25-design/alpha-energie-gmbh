@@ -379,7 +379,7 @@ async function resolveDeliveryAddress({ plz, city, street, houseNumber }) {
 
 /**
  * Normalize delivery start date to YYYY-MM-DD.
- * Defaults to the 1st of next month if omitted.
+ * Defaults to the 1st of the month at least 45 days in the future (so providers with a 6-week lead time like EVITA & E.ON are always active).
  */
 function normalizeDeliveryStart(dateInput) {
     if (dateInput && typeof dateInput === 'string') {
@@ -395,9 +395,9 @@ function normalizeDeliveryStart(dateInput) {
             return `${isoMatch[1]}-${isoMatch[2]}-${isoMatch[3]}`;
         }
     }
-    const now = new Date();
-    const nextMonth = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 1));
-    return nextMonth.toISOString().slice(0, 10);
+    const leadDate = new Date(Date.now() + 45 * 24 * 60 * 60 * 1000);
+    const firstOfMonth = new Date(Date.UTC(leadDate.getUTCFullYear(), leadDate.getUTCMonth() + 1, 1));
+    return firstOfMonth.toISOString().slice(0, 10);
 }
 
 /**
@@ -491,7 +491,29 @@ function buildTariffVariantsForProduct({
                 ? round4(rawWorkPriceCt / (1 + taxRate / 100))
                 : round4(rawWorkPriceCt);
 
-            const durationMonths = Number(period.timeSeries) || Number(wpEntry.contractDurationMonths) || 12;
+            let durationMonths = Number(period.timeSeries) || Number(wpEntry.contractDurationMonths) || 12;
+            if (durationMonths > 0 && durationMonths <= 6) {
+                durationMonths = durationMonths * 12;
+            }
+            if (!period.timeSeries && period.from && period.to) {
+                const dFrom = new Date(`${period.from}T00:00:00Z`);
+                const dTo = new Date(`${period.to}T00:00:00Z`);
+                if (!Number.isNaN(dFrom.getTime()) && !Number.isNaN(dTo.getTime()) && dTo > dFrom) {
+                    const spanMonths = Math.round((dTo.getTime() - dFrom.getTime()) / (30.4375 * 86400000));
+                    if (spanMonths >= 12) {
+                        durationMonths = spanMonths;
+                    }
+                }
+            }
+
+            const paymentIntervalAttr = (Array.isArray(product.attributes) ? product.attributes : [])
+                .find(a => a && a.key === 'paymentInterval');
+            const paymentInterval = paymentIntervalAttr && Number(paymentIntervalAttr.value) > 0
+                ? Number(paymentIntervalAttr.value)
+                : 12;
+            const effectiveMeasurement = (wpEntry.isSlp && !wpEntry.isRlm)
+                ? 'SLP'
+                : ((wpEntry.isRlm && !wpEntry.isSlp) ? 'RLM' : measurement);
 
             // Find matching BASE_PRICE entry for this duration/timeSeries
             let matchedBaseMonthlyNetto = 0;
@@ -571,8 +593,8 @@ function buildTariffVariantsForProduct({
                 : `${product.name} – ${durationMonths} Monate`;
 
             variants.push({
-                id: `rlm-${product.id}-${durationMonths}m`,
-                tariffId: `rlm-${product.id}-${durationMonths}m`,
+                id: `${effectiveMeasurement.toLowerCase()}-${product.id}-${durationMonths}m`,
+                tariffId: `${effectiveMeasurement.toLowerCase()}-${product.id}-${durationMonths}m`,
                 priceId: wpEntry.id,
                 productId: product.id,
                 name: tariffLabel,
@@ -582,16 +604,18 @@ function buildTariffVariantsForProduct({
                 notice: wpEntry.notice || '',
                 basePriceNotice: matchedBaseNotice,
                 branch,
-                measurement,
+                measurement: effectiveMeasurement,
                 gridLayer,
                 consumption,
-                peakLoad: isRlm ? peakLoad : null,
-                leistungKw: isRlm ? peakLoad : null,
-                usageHours: isRlm ? usageHours : null,
-                benutzungsstunden: isRlm ? usageHours : null,
+                peakLoad: effectiveMeasurement === 'RLM' ? peakLoad : null,
+                leistungKw: effectiveMeasurement === 'RLM' ? peakLoad : null,
+                usageHours: effectiveMeasurement === 'RLM' ? usageHours : null,
+                benutzungsstunden: effectiveMeasurement === 'RLM' ? usageHours : null,
                 contractDurationMonths: durationMonths,
                 contractTermMonths: durationMonths,
                 priceGuaranteeMonths: durationMonths,
+                paymentInterval,
+                abschlaegeProJahr: paymentInterval,
                 deliveryFrom,
                 deliveryTo,
                 taxRate,
@@ -752,76 +776,103 @@ async function calculateRlmTariffs(params = {}) {
         houseNumber: params.houseNumber || params.hausnummer || '1'
     });
 
-    // Step 2: Build GraphQL inputs for FindProductOffer and PriceSpecialContractCalculation
-    const searchTypes = isGas
-        ? {
-            SPECIAL_CONTRACT_GAS: {
-                businessSector,
-                loadProfile,
-                gridLayer,
-                measurement,
-                meterId: gasMeterId,
-                contractOrderType: 'NEW',
-                consumption,
-                deliveryStart,
-                ...(measurement === 'RLM' ? { usageHours, peakLoad } : {})
+    // Step 2: Helper to query FindProductOffer for a specific (measurement, consumption, deliveryStart) tuple
+    const buildOfferPromise = (meas, offerCons, dStart) => {
+        const mGasMeterId = parseInt(params.meterId || (meas === 'RLM' ? 65 : 5), 10);
+        const sTypes = isGas
+            ? {
+                SPECIAL_CONTRACT_GAS: {
+                    businessSector,
+                    loadProfile,
+                    gridLayer,
+                    measurement: meas,
+                    meterId: mGasMeterId,
+                    contractOrderType: 'NEW',
+                    consumption: offerCons,
+                    deliveryStart: dStart,
+                    ...(meas === 'RLM' ? { usageHours, peakLoad } : {})
+                }
             }
-        }
-        : {
-            SPECIAL_CONTRACT_ELECTRICITY: {
-                businessSector,
-                loadProfile,
-                gridLayer,
-                measurement,
-                meterType,
-                contractOrderType: 'NEW',
-                consumption,
-                deliveryStart,
-                ...(measurement === 'RLM' ? { usageHours, peakLoad } : {})
-            }
-        };
+            : {
+                SPECIAL_CONTRACT_ELECTRICITY: {
+                    businessSector,
+                    loadProfile,
+                    gridLayer,
+                    measurement: meas,
+                    meterType,
+                    contractOrderType: 'NEW',
+                    consumption: offerCons,
+                    deliveryStart: dStart,
+                    ...(meas === 'RLM' ? { usageHours, peakLoad } : {})
+                }
+            };
 
-    const offerPromise = vpGraphql(
-        'FindProductOffer',
-        `query FindProductOffer($orderBaseData: AddOrderBaseData!, $customerType: ProductCustomerTypeEnum!, $searchTypes: findProductOfferSearchProductTypes, $productList: [AddOrderByProductOfferOrderProductInput!]) {
-            findProductOffer(orderBaseData: $orderBaseData, customerType: $customerType, searchTypes: $searchTypes, productList: $productList) {
-                productType
-                searchQuery
-                baseSurcharge
-                allProducts {
-                    disabled
-                    hidden
-                    product {
-                        id
-                        name
-                        description
-                        productType
-                        provider { id name logo }
-                        prices
-                        pricesWithoutSurcharge
-                        surcharges { min max inputMin inputMax priceType surchargeSetting step }
-                        periods { termType period periodType activeFrom activeTo endDate }
-                        attributes { key value }
+        return vpGraphql(
+            'FindProductOffer',
+            `query FindProductOffer($orderBaseData: AddOrderBaseData!, $customerType: ProductCustomerTypeEnum!, $searchTypes: findProductOfferSearchProductTypes, $productList: [AddOrderByProductOfferOrderProductInput!]) {
+                findProductOffer(orderBaseData: $orderBaseData, customerType: $customerType, searchTypes: $searchTypes, productList: $productList) {
+                    productType
+                    searchQuery
+                    baseSurcharge
+                    allProducts {
+                        disabled
+                        hidden
+                        product {
+                            id
+                            name
+                            description
+                            productType
+                            provider { id name logo }
+                            prices
+                            pricesWithoutSurcharge
+                            surcharges { min max inputMin inputMax priceType surchargeSetting step }
+                            periods { termType period periodType activeFrom activeTo endDate }
+                            attributes { key value }
+                        }
+                        priceOverview { notice totalNetto totalBrutto prices }
                     }
-                    priceOverview { notice totalNetto totalBrutto prices }
                 }
+            }`,
+            {
+                orderBaseData: {
+                    deliveryAddress: {
+                        country: address.country,
+                        zip: address.zip,
+                        city: address.city,
+                        street: address.street,
+                        houseNumber: address.houseNumber
+                    }
+                },
+                customerType: 'COMMERCIAL',
+                searchTypes: sTypes,
+                productList: []
             }
-        }`,
-        {
-            orderBaseData: {
-                deliveryAddress: {
-                    country: address.country,
-                    zip: address.zip,
-                    city: address.city,
-                    street: address.street,
-                    houseNumber: address.houseNumber
-                }
-            },
-            customerType: 'COMMERCIAL',
-            searchTypes,
-            productList: []
+        ).then(res => ({ res, meas, dStart }));
+    };
+
+    // Build parallel offer queries so EVITA (SLP up to 1,000,000 kWh), E.ON (SLP & RLM), and meistro (SLP & RLM) are all captured
+    const offerQueries = [];
+    const rlmOfferCons = (!isGas && measurement === 'RLM' && consumption === 100000)
+        ? 100001
+        : ((isGas && measurement === 'RLM' && consumption <= 1000000) ? 1000001 : consumption);
+
+    offerQueries.push(buildOfferPromise(measurement, measurement === 'RLM' ? rlmOfferCons : consumption, deliveryStart));
+
+    // Also include SLP offers when consumption <= 1,000,000 kWh (unless explicitly disabled via includeSlp: false)
+    // because EVITA (E.VITA Wochenpreis Strom/Gas) is configured under SLP up to 1,000,000 kWh
+    const includeSlpOffers = params.includeSlp !== false && rawMeasurement !== 'RLM_ONLY' && consumption <= 1000000;
+    if (measurement === 'RLM' && includeSlpOffers) {
+        offerQueries.push(buildOfferPromise('SLP', consumption, deliveryStart));
+    }
+
+    // If the caller passed a deliveryStart earlier than the 6-week lead time on the server clock (2026-12-01),
+    // also query '2027-01-01' so EVITA & E.ON (which require 6 weeks lead time) are always returned alongside meistro.
+    if (deliveryStart < '2026-12-01') {
+        offerQueries.push(buildOfferPromise(measurement, measurement === 'RLM' ? rlmOfferCons : consumption, '2027-01-01'));
+        if (measurement === 'RLM' && includeSlpOffers) {
+            offerQueries.push(buildOfferPromise('SLP', consumption, '2027-01-01'));
         }
-    );
+    }
 
     const calcPromise = isGas
         ? vpGraphql(
@@ -890,34 +941,45 @@ async function calculateRlmTariffs(params = {}) {
             }
         );
 
-    const [offerRes, calcRes] = await Promise.all([offerPromise, calcPromise]);
-
-    const offerBlock = (offerRes.data && Array.isArray(offerRes.data.findProductOffer))
-        ? offerRes.data.findProductOffer.find(b => b.productType === productType) || offerRes.data.findProductOffer[0]
-        : null;
+    const [offerResults, calcRes] = await Promise.all([Promise.all(offerQueries), calcPromise]);
 
     const drittkostenCalc = isGas
         ? (calcRes.data && calcRes.data.productFinder_priceSpecialContractCalculationGas) || null
         : (calcRes.data && calcRes.data.productFinder_priceSpecialContractCalculationElectricity) || null;
 
     const includeAllPortalProducts = Boolean(params.includeAllPortalProducts);
-    const rawProducts = (offerBlock && Array.isArray(offerBlock.allProducts))
-        ? offerBlock.allProducts.filter(ap => ap && ap.product && !ap.hidden && (includeAllPortalProducts || !ap.disabled))
-        : [];
+    const seenProductIds = new Set();
+    const rawProductEntries = [];
+
+    for (const { res: offerRes, meas: queryMeas, dStart: queryDStart } of offerResults) {
+        const offerBlock = (offerRes.data && Array.isArray(offerRes.data.findProductOffer))
+            ? offerRes.data.findProductOffer.find(b => b.productType === productType) || offerRes.data.findProductOffer[0]
+            : null;
+        const list = (offerBlock && Array.isArray(offerBlock.allProducts))
+            ? offerBlock.allProducts.filter(ap => ap && ap.product && !ap.hidden && (includeAllPortalProducts || !ap.disabled))
+            : [];
+        for (const ap of list) {
+            const pid = Number(ap.product.id);
+            if (!seenProductIds.has(pid)) {
+                seenProductIds.add(pid);
+                rawProductEntries.push({ ap, queryMeas, queryDStart });
+            }
+        }
+    }
 
     const tariffs = [];
     const productsSummary = [];
 
-    for (const ap of rawProducts) {
+    for (const { ap, queryMeas, queryDStart } of rawProductEntries) {
         const variants = buildTariffVariantsForProduct({
             product: ap.product,
             branch,
-            measurement,
+            measurement: queryMeas,
             consumption,
             peakLoad,
             usageHours,
             gridLayer,
-            deliveryStart,
+            deliveryStart: queryDStart,
             surchargeCt,
             drittkostenCalc,
             currentYearlyNetto,
@@ -929,6 +991,7 @@ async function calculateRlmTariffs(params = {}) {
             productId: ap.product.id,
             productName: ap.product.name,
             providerName: ap.product.provider ? ap.product.provider.name : null,
+            measurement: variants[0] ? variants[0].measurement : queryMeas,
             variantsCount: variants.length,
             variants
         });
@@ -1721,13 +1784,33 @@ async function getRlmBlankoPdfs(params = {}) {
         }
     }
 
-    // Ensure known E.ON RLM/SLP catalog IDs are also indexed alongside live-discovered tariffs
+    // Ensure all 22 portal B2B/RLM/SLP catalog IDs (EVITA, E.ON, meistro) are indexed alongside live-discovered tariffs
     const knownCatalogDefaults = [
-        { productId: 1573, tariffId: 'rlm-1573-12m', tariffName: 'E.ON Strom RLM (< 2.500 h/a)', providerName: 'E.ON Energie Deutschland GmbH', branch: 'strom', measurement: 'RLM', contractDurationMonths: 12 },
-        { productId: 1586, tariffId: 'rlm-1586-12m', tariffName: 'E.ON Strom RLM (>= 2.500 h/a)', providerName: 'E.ON Energie Deutschland GmbH', branch: 'strom', measurement: 'RLM', contractDurationMonths: 12 },
-        { productId: 1585, tariffId: 'slp-1585-12m', tariffName: 'E.ON BusinessStrom (SLP Gewerbe)', providerName: 'E.ON Energie Deutschland GmbH', branch: 'strom', measurement: 'SLP', contractDurationMonths: 12 },
-        { productId: 1587, tariffId: 'slp-1587-12m', tariffName: 'E.ON ÖkoStrom Gewerbe (SLP)', providerName: 'E.ON Energie Deutschland GmbH', branch: 'strom', measurement: 'SLP', contractDurationMonths: 12 },
-        { productId: 1574, tariffId: 'rlm-1574-12m', tariffName: 'E.ON Gas RLM / Gewerbe', providerName: 'E.ON Energie Deutschland GmbH', branch: 'gas', measurement: 'RLM', contractDurationMonths: 12 }
+        // EVITA (E.VITA Wochenpreis - SLP Strom & Gas bis 1.000.000 kWh)
+        { productId: 1572, tariffId: 'slp-1572-12m', tariffName: 'E.VITA Wochenpreis Strom (Lieferende 2027)', providerName: 'EVITA', branch: 'strom', measurement: 'SLP', contractDurationMonths: 12 },
+        { productId: 1571, tariffId: 'slp-1571-24m', tariffName: 'E.VITA Wochenpreis Strom (Lieferende 2028)', providerName: 'EVITA', branch: 'strom', measurement: 'SLP', contractDurationMonths: 24 },
+        { productId: 1573, tariffId: 'slp-1573-36m', tariffName: 'E.VITA Wochenpreis Strom (Lieferende 2029)', providerName: 'EVITA', branch: 'strom', measurement: 'SLP', contractDurationMonths: 36 },
+        { productId: 1574, tariffId: 'slp-1574-12m', tariffName: 'E.VITA Wochenpreis Gas  (Lieferende 2027)', providerName: 'EVITA', branch: 'gas', measurement: 'SLP', contractDurationMonths: 12 },
+        { productId: 1575, tariffId: 'slp-1575-24m', tariffName: 'E.VITA Wochenpreis Gas  (Lieferende 2028)', providerName: 'EVITA', branch: 'gas', measurement: 'SLP', contractDurationMonths: 24 },
+        { productId: 1576, tariffId: 'slp-1576-36m', tariffName: 'E.VITA Wochenpreis Gas  (Lieferende 2029)', providerName: 'EVITA', branch: 'gas', measurement: 'SLP', contractDurationMonths: 36 },
+        // E.ON (SLP & RLM Strom & Gas)
+        { productId: 1586, tariffId: 'slp-1586-12m', tariffName: 'E.ON BusinessStrom fix (SLP)', providerName: 'E.ON Digital Technology GmbH', branch: 'strom', measurement: 'SLP', contractDurationMonths: 12 },
+        { productId: 1587, tariffId: 'slp-1587-12m', tariffName: 'E.ON BusinessStrom fix öko basic (SLP)', providerName: 'E.ON Digital Technology GmbH', branch: 'strom', measurement: 'SLP', contractDurationMonths: 12 },
+        { productId: 1579, tariffId: 'rlm-1579-12m', tariffName: 'E.ON BusinessStrom fix (RLM ≤999.999)', providerName: 'E.ON Digital Technology GmbH', branch: 'strom', measurement: 'RLM', contractDurationMonths: 12 },
+        { productId: 1585, tariffId: 'rlm-1585-12m', tariffName: 'E.ON BusinessStrom fix öko basic (RLM ≤999.999)', providerName: 'E.ON Digital Technology GmbH', branch: 'strom', measurement: 'RLM', contractDurationMonths: 12 },
+        { productId: 1580, tariffId: 'rlm-1580-12m', tariffName: 'E.ON BusinessStrom fix (RLM ≥1.000.000)', providerName: 'E.ON Digital Technology GmbH', branch: 'strom', measurement: 'RLM', contractDurationMonths: 12 },
+        { productId: 1588, tariffId: 'rlm-1588-12m', tariffName: 'E.ON BusinessStrom fix öko basic (RLM ≥1.000.000)', providerName: 'E.ON Digital Technology GmbH', branch: 'strom', measurement: 'RLM', contractDurationMonths: 12 },
+        { productId: 1577, tariffId: 'slp-1577-12m', tariffName: 'E.ON BusinessGas fix (SLP)', providerName: 'E.ON Digital Technology GmbH', branch: 'gas', measurement: 'SLP', contractDurationMonths: 12 },
+        { productId: 1578, tariffId: 'slp-1578-12m', tariffName: 'E.ON BusinessGas fix klima (SLP)', providerName: 'E.ON Digital Technology GmbH', branch: 'gas', measurement: 'SLP', contractDurationMonths: 12 },
+        { productId: 1581, tariffId: 'rlm-1581-12m', tariffName: 'E.ON BusinessGas fix (RLM ≤1.499.999)', providerName: 'E.ON Digital Technology GmbH', branch: 'gas', measurement: 'RLM', contractDurationMonths: 12 },
+        { productId: 1582, tariffId: 'rlm-1582-12m', tariffName: 'E.ON BusinessGas fix klima (RLM ≤1.499.999)', providerName: 'E.ON Digital Technology GmbH', branch: 'gas', measurement: 'RLM', contractDurationMonths: 12 },
+        { productId: 1583, tariffId: 'rlm-1583-12m', tariffName: 'E.ON BusinessGas fix (RLM ≥1.500.000)', providerName: 'E.ON Digital Technology GmbH', branch: 'gas', measurement: 'RLM', contractDurationMonths: 12 },
+        { productId: 1584, tariffId: 'rlm-1584-12m', tariffName: 'E.ON BusinessGas fix klima (RLM ≥1.500.000)', providerName: 'E.ON Digital Technology GmbH', branch: 'gas', measurement: 'RLM', contractDurationMonths: 12 },
+        // meistro (SLP & RLM Strom & Gas)
+        { productId: 1135, tariffId: 'rlm-1135-12m', tariffName: 'meistro Strom (Lieferbeginn ab dem 01.01.2026)', providerName: 'meistro Energie GmbH', branch: 'strom', measurement: 'RLM', contractDurationMonths: 12 },
+        { productId: 1136, tariffId: 'rlm-1136-12m', tariffName: 'meistro Strom (Lieferbeginn ab dem 01.01.2027)', providerName: 'meistro Energie GmbH', branch: 'strom', measurement: 'RLM', contractDurationMonths: 12 },
+        { productId: 1206, tariffId: 'rlm-1206-12m', tariffName: 'meistro Gas (Lieferbeginn ab dem 01.01.2026)', providerName: 'meistro Energie GmbH', branch: 'gas', measurement: 'RLM', contractDurationMonths: 12 },
+        { productId: 1207, tariffId: 'rlm-1207-12m', tariffName: 'meistro Gas (Lieferbeginn ab dem 01.01.2027)', providerName: 'meistro Energie GmbH', branch: 'gas', measurement: 'RLM', contractDurationMonths: 12 }
     ];
     for (const item of knownCatalogDefaults) {
         if (branches.includes(item.branch) && !discoveredTariffsByProductId.has(item.productId)) {
