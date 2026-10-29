@@ -1437,8 +1437,13 @@ async function handleRlmLeadSubmit(req, res) {
     const startTime = Date.now();
     try {
         const body = req.body || {};
-        const isOfferRoute = req.path.includes('offer') || req.path.includes('angebot');
-        const isOffer = body.isOffer !== undefined ? Boolean(body.isOffer) : (isOfferRoute || body.mode === 'offer' || body.type === 'offer' || true);
+        const isSubmitOrderRoute =
+            req.path.includes('submit') ||
+            req.path.includes('order/submit') ||
+            String(body.mode || '').toLowerCase() === 'order' ||
+            String(body.type || '').toLowerCase() === 'order' ||
+            String(body.type || '').toLowerCase() === 'auftrag';
+        const isOffer = body.isOffer !== undefined ? Boolean(body.isOffer) : !isSubmitOrderRoute;
 
         // 1. Live Tariff Calculation & Selection in the RLM Portal (if not pre-calculated or to get all runtime variants)
         let matchedTariff = body.selectedTariff || null;
@@ -1531,9 +1536,9 @@ async function handleRlmLeadSubmit(req, res) {
         const partnerCode = String(body.partnerCode || body.affiliateCode || body.vermittler || '10011').trim();
         const notes = String(body.notes || body.bemerkung || body.message || '').trim();
 
-        // 2. Create Offer / Documents in RLM Portal (`vp.alpha-energie.de`) if enabled
+        // 2. Create Offer / Order & Documents in RLM Portal (`vp.alpha-energie.de`) if enabled
         let vpPortalResult = { vpOrderId: null, vpOrderNumber: null, documents: [], vpPortalError: null };
-        const shouldGenerateDocs = body.generateDocuments !== undefined ? Boolean(body.generateDocuments) : Boolean(body.includePdf || body.withDocuments);
+        const shouldGenerateDocs = body.generateDocuments !== undefined ? Boolean(body.generateDocuments) : true;
         if (body.syncToVpPortal !== false) {
             try {
                 vpPortalResult = await createVpPortalOffer(
@@ -1562,7 +1567,7 @@ async function handleRlmLeadSubmit(req, res) {
                         surchargeCt,
                         meterNumber: meterNumber !== 'B2B-ANFRAGE' ? meterNumber : '',
                         maloId,
-                        isOffer: true,
+                        isOffer,
                         generateDocuments: shouldGenerateDocs
                     },
                     matchedTariff

@@ -1267,17 +1267,47 @@ async function createVpPortalOffer(params = {}, matchedTariff = null) {
 
     const companyName = String(params.companyName || params.firma || params.unternehmen || 'Gewerbekunde').trim();
     const legalForm = String(params.legalForm || params.rechtsform || 'GmbH').trim();
+    const commercialRegisterNumber = String(params.commercialRegisterNumber || params.hrb || params.handelsregister || '').trim();
+    const registerCourt = String(params.registerCourt || params.amtsgericht || '').trim();
     const rawSalutation = String(params.salutation || params.anrede || 'Herr').trim();
     const salutation = ['Herr', 'Frau', 'Divers'].includes(rawSalutation) ? rawSalutation : 'Herr';
+    const academicTitle = String(params.academicTitle || params.titel || '').trim();
     const firstName = String(params.firstName || params.vorname || 'Max').trim();
     const lastName = String(params.lastName || params.nachname || 'Mustermann').trim();
+    const dateOfBirth = params.dateOfBirth || params.birthDate || params.geburtsdatum || null;
     const email = String(params.email || params.mail || 'b2b@alpha-energie.de').trim();
     const phone = String(params.phone || params.telefon || '').trim();
     const meterNumber = String(params.meterNumber || params.zaehlernummer || '').trim();
     const maloId = String(params.maloId || params.marktlokationsId || '').trim();
+    const previousCustomerNumber = String(params.previousCustomerNumber || params.kundennummerVorversorger || '').trim();
     const contractOrderType = params.contractOrderType || (params.currentProvider || params.vorversorger ? 'CHANGE_PROVIDER' : 'NEW');
     const isOffer = params.isOffer !== false;
     const isDraft = Boolean(params.isDraft);
+
+    // Optional separate billing address (Abweichende Rechnungsadresse)
+    const billingObj = params.billingAddress && typeof params.billingAddress === 'object' ? params.billingAddress : {};
+    const billingDifferent = Boolean(
+        params.billingAddressDifferent ||
+        params.abweichendeRechnungsadresse ||
+        billingObj.street ||
+        billingObj.plz ||
+        params.billingStreet ||
+        params.billingPlz
+    );
+    const billingAddress = billingDifferent
+        ? {
+            country: 'DE',
+            zip: String(billingObj.plz || billingObj.zip || params.billingPlz || params.billingZip || address.zip).trim(),
+            city: String(billingObj.city || billingObj.ort || params.billingCity || address.city).trim(),
+            street: String(billingObj.street || billingObj.strasse || params.billingStreet || address.street).trim(),
+            houseNumber: String(billingObj.houseNumber || billingObj.houseNr || params.billingHouseNumber || params.billingHouseNr || address.houseNumber).trim()
+        }
+        : null;
+
+    const cleanIban = String(params.iban || '').replace(/\s+/g, '').trim();
+    const hasValidIban = cleanIban.length >= 15 && cleanIban !== 'AUF-ANFRAGE';
+    const accountHolder = String(params.accountHolder || params.kontoinhaber || '').trim();
+    const bankAccountHolderIsDifferent = Boolean(accountHolder && accountHolder.toLowerCase() !== companyName.toLowerCase());
 
     const contactMediumList = [{ contactType: 'EMAIL', contactValue: email }];
     if (phone) {
@@ -1310,9 +1340,10 @@ async function createVpPortalOffer(params = {}, matchedTariff = null) {
     if (contractOrderType === 'CHANGE_PROVIDER' && (params.currentProvider || params.vorversorger)) {
         contractOrderData.previousProvider = {
             id: Number(params.previousProviderId) || 1,
-            name: String(params.currentProvider || params.vorversorger)
+            name: String(params.currentProvider || params.vorversorger),
+            ...(previousCustomerNumber ? { customerNumber: previousCustomerNumber } : {})
         };
-        contractOrderData.deliveryASAP = true;
+        contractOrderData.deliveryASAP = params.deliveryASAP !== false;
     }
 
     const orderInput = {
@@ -1322,7 +1353,9 @@ async function createVpPortalOffer(params = {}, matchedTariff = null) {
                 contactPersonIsDifferent: false,
                 personType_COMMERCIAL: {
                     companyName,
-                    legalForm
+                    legalForm,
+                    ...(commercialRegisterNumber ? { commercialRegisterNumber } : {}),
+                    ...(registerCourt ? { registerCourt } : {})
                 }
             },
             deliveryAddress: {
@@ -1332,22 +1365,26 @@ async function createVpPortalOffer(params = {}, matchedTariff = null) {
                 street: address.street,
                 houseNumber: address.houseNumber
             },
+            ...(billingAddress ? { billingAddress } : {}),
             contactPersonList: [
                 {
                     salutation,
                     firstName: firstName.length >= 2 ? firstName : 'Max',
                     lastName: lastName.length >= 2 ? lastName : 'Mustermann',
-                    academicTitle: '',
-                    dateOfBirth: null
+                    academicTitle,
+                    dateOfBirth: dateOfBirth || null
                 }
             ],
             contactMediumList,
-            productPayment: params.iban && String(params.iban).length > 10
+            productPayment: hasValidIban
                 ? {
                     paymentType: 'DEBIT_CHARGE',
                     paymentType_DEBIT_CHARGE: {
-                        bankAccount: { iban: String(params.iban).replace(/\s+/g, '') },
-                        bankAccountHolderIsDifferent: false
+                        bankAccount: {
+                            iban: cleanIban,
+                            ...(accountHolder ? { owner: accountHolder } : {})
+                        },
+                        bankAccountHolderIsDifferent
                     }
                 }
                 : {
