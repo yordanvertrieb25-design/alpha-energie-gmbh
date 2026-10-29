@@ -584,6 +584,11 @@ function buildTariffVariantsForProduct({
                 branch,
                 measurement,
                 gridLayer,
+                consumption,
+                peakLoad: isRlm ? peakLoad : null,
+                leistungKw: isRlm ? peakLoad : null,
+                usageHours: isRlm ? usageHours : null,
+                benutzungsstunden: isRlm ? usageHours : null,
                 contractDurationMonths: durationMonths,
                 contractTermMonths: durationMonths,
                 priceGuaranteeMonths: durationMonths,
@@ -703,15 +708,23 @@ async function calculateRlmTariffs(params = {}) {
     const defaultUsageHours = isGas ? 1600 : 3125;
     let peakLoad = parseInt(params.peakLoad || params.leistungKw || params.jahreshoechstleistung || 0, 10);
     let usageHours = parseInt(params.usageHours || params.benutzungsstunden || 0, 10);
+    let autoCalculatedUsageHours = false;
+    let autoCalculatedPeakLoad = false;
 
     if (peakLoad > 0 && !usageHours) {
         usageHours = Math.max(100, Math.min(8760, Math.round(consumption / peakLoad)));
+        autoCalculatedUsageHours = true;
     } else if (usageHours > 0 && !peakLoad) {
         peakLoad = Math.max(1, Math.round(consumption / usageHours));
+        autoCalculatedPeakLoad = true;
     } else if (!peakLoad && !usageHours) {
         usageHours = defaultUsageHours;
         peakLoad = Math.max(1, Math.round(consumption / usageHours));
+        autoCalculatedUsageHours = true;
+        autoCalculatedPeakLoad = true;
     }
+    const usageHoursExact = peakLoad > 0 ? round2(consumption / peakLoad) : usageHours;
+    const usageHoursZone = usageHours >= 2500 ? '>= 2.500 h/a' : '< 2.500 h/a';
 
     const gridLayer = normalizeGridLayer(params.gridLayer || params.netzebene || params.druckstufe);
     const deliveryStart = normalizeDeliveryStart(params.deliveryStart || params.lieferbeginn);
@@ -944,13 +957,32 @@ async function calculateRlmTariffs(params = {}) {
         success: true,
         source: 'vp.alpha-energie.de (Live RLM/B2B GraphQL)',
         responseTimeMs: Date.now() - startTime,
+        consumption,
+        verbrauch: consumption,
+        measurement,
+        peakLoad: measurement === 'RLM' ? peakLoad : null,
+        leistungKw: measurement === 'RLM' ? peakLoad : null,
+        jahreshoechstleistung: measurement === 'RLM' ? peakLoad : null,
+        usageHours: measurement === 'RLM' ? usageHours : null,
+        benutzungsstunden: measurement === 'RLM' ? usageHours : null,
+        usageHoursExact: measurement === 'RLM' ? usageHoursExact : null,
+        usageHoursZone: measurement === 'RLM' ? usageHoursZone : null,
+        autoCalculatedUsageHours: measurement === 'RLM' ? autoCalculatedUsageHours : false,
+        autoCalculatedPeakLoad: measurement === 'RLM' ? autoCalculatedPeakLoad : false,
         query: {
             branch,
             productType,
             measurement,
             consumption,
+            verbrauch: consumption,
             peakLoad: measurement === 'RLM' ? peakLoad : null,
+            leistungKw: measurement === 'RLM' ? peakLoad : null,
             usageHours: measurement === 'RLM' ? usageHours : null,
+            benutzungsstunden: measurement === 'RLM' ? usageHours : null,
+            usageHoursExact: measurement === 'RLM' ? usageHoursExact : null,
+            usageHoursZone: measurement === 'RLM' ? usageHoursZone : null,
+            autoCalculatedUsageHours: measurement === 'RLM' ? autoCalculatedUsageHours : false,
+            autoCalculatedPeakLoad: measurement === 'RLM' ? autoCalculatedPeakLoad : false,
             gridLayer,
             deliveryStart,
             surchargeCt,

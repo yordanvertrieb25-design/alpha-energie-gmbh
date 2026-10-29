@@ -1359,6 +1359,50 @@ app.get('/api/b2b/rlm-tarife/calculate', handleRlmCalculateRequest);
 app.post('/api/b2b/tarife/calculate', handleRlmCalculateRequest);
 app.post('/api/rlm/calculate', handleRlmCalculateRequest);
 
+// Instant helper for bidirectional Benutzungsstunden <-> Jahreshöchstleistung (kW) calculation
+function handleRlmUsageHoursCalculation(req, res) {
+    const p = req.method === 'GET' ? req.query : (req.body || {});
+    const isGas = String(p.branch || p.sparte || 'strom').toLowerCase().includes('gas');
+    const consumption = Math.max(1, parseInt(p.consumption || p.verbrauch || p.jahresverbrauch || 100000, 10) || 100000);
+    let peakLoad = parseInt(p.peakLoad || p.leistungKw || p.jahreshoechstleistung || 0, 10);
+    let usageHours = parseInt(p.usageHours || p.benutzungsstunden || 0, 10);
+    let autoCalculatedUsageHours = false;
+    let autoCalculatedPeakLoad = false;
+
+    if (peakLoad > 0 && !usageHours) {
+        usageHours = Math.max(100, Math.min(8760, Math.round(consumption / peakLoad)));
+        autoCalculatedUsageHours = true;
+    } else if (usageHours > 0 && !peakLoad) {
+        peakLoad = Math.max(1, Math.round(consumption / usageHours));
+        autoCalculatedPeakLoad = true;
+    } else if (!peakLoad && !usageHours) {
+        usageHours = isGas ? 1600 : 3125;
+        peakLoad = Math.max(1, Math.round(consumption / usageHours));
+        autoCalculatedUsageHours = true;
+        autoCalculatedPeakLoad = true;
+    }
+
+    const usageHoursExact = peakLoad > 0 ? Math.round((consumption / peakLoad) * 100) / 100 : usageHours;
+    res.json({
+        success: true,
+        consumption,
+        verbrauch: consumption,
+        peakLoad,
+        leistungKw: peakLoad,
+        jahreshoechstleistung: peakLoad,
+        usageHours,
+        benutzungsstunden: usageHours,
+        usageHoursExact,
+        usageHoursZone: usageHours >= 2500 ? '>= 2.500 h/a' : '< 2.500 h/a',
+        autoCalculatedUsageHours,
+        autoCalculatedPeakLoad
+    });
+}
+app.get('/api/b2b/rlm-tarife/usage-hours', handleRlmUsageHoursCalculation);
+app.post('/api/b2b/rlm-tarife/usage-hours', handleRlmUsageHoursCalculation);
+app.get('/api/b2b/rlm-tarife/benutzungsstunden', handleRlmUsageHoursCalculation);
+app.post('/api/b2b/rlm-tarife/benutzungsstunden', handleRlmUsageHoursCalculation);
+
 // Address lookup helper (resolves City & Streets for a PLZ from the RLM portal)
 app.get('/api/b2b/rlm-tarife/address', async (req, res) => {
     try {
