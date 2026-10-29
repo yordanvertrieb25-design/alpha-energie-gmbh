@@ -32,7 +32,11 @@ const {
     resolveDeliveryAddress,
     getRlmPortalOptions,
     createVpPortalOffer,
+    syncVpOrderForPdfGeneration,
     generateVpOrderDocuments,
+    getRlmBlankoPdfs,
+    extractPureBlankoPdfBuffer,
+    fetchPdfBufferFromSignedUrl,
     getVpPortalOrders,
     ensureFreshVpSession,
     saveCookiesToDisk
@@ -1887,15 +1891,93 @@ app.post('/api/b2b/order/submit', handleRlmLeadSubmit);
 app.post('/api/rlm/submit', handleRlmLeadSubmit);
 
 // Generate official RLM Portal PDF documents ("Angebot.pdf" & "Auftragsformular.pdf") on demand
-app.post('/api/b2b/rlm-tarife/documents', async (req, res) => {
+async function handleRlmDocumentsRequest(req, res) {
     try {
-        const docs = await generateVpOrderDocuments(req.body || {});
+        const params = req.method === 'GET' ? req.query : { ...(req.query || {}), ...(req.body || {}) };
+        const docs = await generateVpOrderDocuments(params);
+        const shouldDownload = String(params.download || '').toLowerCase() === 'true' || params.download === '1';
+
+        if (shouldDownload && docs.length > 0) {
+            const docType = String(params.type || params.docType || 'auftrag').toLowerCase();
+            const targetDoc = docType.includes('angebot')
+                ? (docs.find(d => d.type === 'angebot') || docs[0])
+                : (docs.find(d => d.type === 'auftragsformular') || docs[0]);
+
+            let pdfBuffer = await fetchPdfBufferFromSignedUrl(targetDoc.signedUrl);
+            let outFilename = targetDoc.filename || 'Dokument.pdf';
+
+            if (docType === 'blanko' || String(params.mode || '').toLowerCase() === 'blanko') {
+                pdfBuffer = extractPureBlankoPdfBuffer(pdfBuffer);
+                outFilename = `Blanko_${outFilename}`;
+            }
+
+            res.setHeader('Content-Type', 'application/pdf');
+            res.setHeader('Content-Disposition', `inline; filename="${outFilename}"`);
+            res.setHeader('Content-Length', pdfBuffer.length);
+            return res.send(pdfBuffer);
+        }
+
         res.json({ success: true, count: docs.length, documents: docs });
     } catch (error) {
         console.error('[RLM-API] Documents generation error:', error);
         res.status(500).json({ success: false, error: error.message });
     }
-});
+}
+app.post('/api/b2b/rlm-tarife/documents', handleRlmDocumentsRequest);
+app.get('/api/b2b/rlm-tarife/documents', handleRlmDocumentsRequest);
+app.post('/api/b2b/rlm-tarife/pdfs', handleRlmDocumentsRequest);
+app.get('/api/b2b/rlm-tarife/pdfs', handleRlmDocumentsRequest);
+
+// Auto-discover active tariffs & fetch/stream their official Blanko-PDFs (with automatic update on new tariffs)
+async function handleRlmBlankoPdfsRequest(req, res) {
+    try {
+        const params = req.method === 'GET' ? req.query : { ...(req.query || {}), ...(req.body || {}) };
+        const shouldDownload = String(params.download || '').toLowerCase() === 'true' || params.download === '1';
+        const mode = String(params.mode || 'blanko').toLowerCase();
+
+        const result = await getRlmBlankoPdfs({
+            ...params,
+            mode,
+            includeBuffers: shouldDownload
+        });
+
+        if (shouldDownload && result.blankoPdfs && result.blankoPdfs.length > 0) {
+            const item = result.blankoPdfs[0];
+            const buffers = item.buffers || {};
+            let pdfBuffer = null;
+            let filename = `Blanko_Auftragsformular_${item.productId}.pdf`;
+
+            if (mode === 'angebot') {
+                pdfBuffer = buffers.angebotBuffer || buffers.pureBlankoBuffer || buffers.tariffFilledBuffer;
+                filename = `Angebot_${item.productId}.pdf`;
+            } else if (mode === 'tariff' || mode === 'prefilled') {
+                pdfBuffer = buffers.tariffFilledBuffer || buffers.pureBlankoBuffer;
+                filename = `Tarif_Auftragsformular_${item.productId}.pdf`;
+            } else {
+                pdfBuffer = buffers.pureBlankoBuffer || buffers.tariffFilledBuffer;
+                filename = `Blanko_Auftragsformular_${item.productId}.pdf`;
+            }
+
+            if (!pdfBuffer) {
+                return res.status(404).json({ success: false, error: 'Blanko-PDF konnte nicht geladen werden.' });
+            }
+
+            res.setHeader('Content-Type', 'application/pdf');
+            res.setHeader('Content-Disposition', `inline; filename="${filename}"`);
+            res.setHeader('Content-Length', pdfBuffer.length);
+            return res.send(pdfBuffer);
+        }
+
+        res.json(result);
+    } catch (error) {
+        console.error('[RLM-API] Blanko-PDF error:', error);
+        res.status(500).json({ success: false, error: error.message });
+    }
+}
+app.get('/api/b2b/rlm-tarife/blanko-pdfs', handleRlmBlankoPdfsRequest);
+app.post('/api/b2b/rlm-tarife/blanko-pdfs', handleRlmBlankoPdfsRequest);
+app.get('/api/b2b/rlm-tarife/blanko', handleRlmBlankoPdfsRequest);
+app.post('/api/b2b/rlm-tarife/blanko', handleRlmBlankoPdfsRequest);
 
 // Retrieve created B2B/RLM offers & leads
 app.get('/api/b2b/rlm-tarife/offers', async (req, res) => {

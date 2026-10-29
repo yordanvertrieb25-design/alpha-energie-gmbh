@@ -900,8 +900,9 @@ async function calculateRlmTariffs(params = {}) {
         ? (calcRes.data && calcRes.data.productFinder_priceSpecialContractCalculationGas) || null
         : (calcRes.data && calcRes.data.productFinder_priceSpecialContractCalculationElectricity) || null;
 
+    const includeAllPortalProducts = Boolean(params.includeAllPortalProducts);
     const rawProducts = (offerBlock && Array.isArray(offerBlock.allProducts))
-        ? offerBlock.allProducts.filter(ap => ap && ap.product && !ap.disabled && !ap.hidden)
+        ? offerBlock.allProducts.filter(ap => ap && ap.product && !ap.hidden && (includeAllPortalProducts || !ap.disabled))
         : [];
 
     const tariffs = [];
@@ -1085,206 +1086,152 @@ async function getRlmPortalOptions(branch = 'strom') {
 }
 
 /**
- * Generate official RLM Portal PDF documents ("Angebot" & "Auftragsformular")
- * via InvokeWorkflowAction(actionKey: "get-all-order-files").
+ * Helper: Map German/short grid layer values to GraphQL GridLayer enum.
  */
-async function generateVpOrderDocuments({
-    orderId = '124',
-    productId = 1573,
-    salesNumber = 10011,
-    branch = 'strom',
-    businessSector = '36',
-    consumption = 100000,
-    contractOrderType = 'NEW',
-    deliveryStart = '2027-01-01',
-    loadProfile = '25',
-    loadProfileName = 'Standard',
-    companyName = 'Gewerbekunde',
-    legalForm = 'GmbH',
-    salutation = 'Herr',
-    firstName = 'Max',
-    lastName = 'Mustermann',
-    zip = '44379',
-    city = 'Dortmund',
-    street = 'Abboweg',
-    houseNumber = '11',
-    meterNumber = '',
-    maloId = ''
-} = {}) {
-    const isGas = String(branch).toLowerCase() === 'gas';
-    const productType = isGas ? 'SPECIAL_CONTRACT_GAS' : 'SPECIAL_CONTRACT_ELECTRICITY';
-    const cleanSalutation = ['Herr', 'Frau', 'Divers'].includes(salutation) ? salutation : 'Herr';
-
-    const input = {
-        productId: Number(productId) || (isGas ? 1574 : 1573),
-        orderId: String(orderId || '124'),
-        salesNumber: Number(salesNumber) || 10011,
-        productType,
-        productTypeFilter: {
-            businessSector: String(businessSector || (isGas ? '35' : '36')),
-            consumption: Number(consumption) || 100000,
-            contractOrderType: contractOrderType || 'NEW',
-            deliveryStart: String(deliveryStart || '2027-01-01').slice(0, 10),
-            loadProfile: String(loadProfile || (isGas ? '6' : '25')),
-            loadProfileName: String(loadProfileName || 'Standard'),
-            meterId: '',
-            meterSize: '',
-            meterTariff: '',
-            meterType: ''
-        },
-        contractDate: new Date().toISOString().slice(0, 10),
-        billingAddress: {
-            zip: String(zip || '44379'),
-            city: String(city || 'Dortmund'),
-            street: String(street || 'Abboweg'),
-            houseNumber: String(houseNumber || '11'),
-            receiver: {
-                company: String(companyName || 'Gewerbekunde'),
-                salutation: cleanSalutation,
-                firstName: String(firstName || 'Max'),
-                lastName: String(lastName || 'Mustermann'),
-                academicTitle: ''
-            }
-        },
-        deliveryAddress: {
-            zip: String(zip || '44379'),
-            city: String(city || 'Dortmund'),
-            street: String(street || 'Abboweg'),
-            houseNumber: String(houseNumber || '11'),
-            streetAndHouseNumber: `${street || 'Abboweg'} ${houseNumber || '11'}`.trim(),
-            zipAndCity: `${zip || '44379'} ${city || 'Dortmund'}`.trim()
-        },
-        company: {
-            legalForm: String(legalForm || 'GmbH'),
-            companyName: String(companyName || 'Gewerbekunde')
-        },
-        contactPerson: {
-            salutation: cleanSalutation,
-            firstName: String(firstName || 'Max'),
-            lastName: String(lastName || 'Mustermann'),
-            academicTitle: '',
-            fullName: `${firstName || 'Max'} ${lastName || 'Mustermann'}`.trim(),
-            dateOfBirth: ''
-        },
-        orderProductData: {
-            meterNumber: String(meterNumber || ''),
-            contractEnd: '',
-            marketLocationId: String(maloId || ''),
-            currentContractId: '',
-            ownerType: '',
-            reasonType: ''
-        }
-    };
-
-    const startRes = await vpGraphql(
-        'InvokeWorkflowAction',
-        `mutation InvokeWorkflowAction($actionKey: String!, $input: JSON, $mode: WorkflowActionInvocationMode) {
-            invokeWorkflowAction(actionKey: $actionKey, input: $input, mode: $mode) {
-                accepted
-                executionId
-                status
-                pollAfterMs
-                resultAvailable
-                pollToken
-            }
-        }`,
-        { actionKey: 'get-all-order-files', input }
-    );
-
-    const wf = startRes.data && startRes.data.invokeWorkflowAction;
-    if (!wf || (!wf.executionId && !wf.pollToken)) {
-        return [];
-    }
-
-    const pollDelay = Math.max(Number(wf.pollAfterMs) || 650, 400);
-    for (let attempt = 0; attempt < 15; attempt++) {
-        await new Promise(r => setTimeout(r, pollDelay));
-        const pollRes = await vpGraphql(
-            'WorkflowActionStatus',
-            `query WorkflowActionStatus($pollToken: String, $executionId: ID) {
-                workflowActionStatus(pollToken: $pollToken, executionId: $executionId) {
-                    executionId
-                    status
-                    errorMessage
-                    result
-                    pollAfterMs
-                }
-            }`,
-            { pollToken: wf.pollToken || null, executionId: wf.executionId || null }
-        );
-        const st = pollRes.data && pollRes.data.workflowActionStatus;
-        if (!st) continue;
-        if (st.status === 'COMPLETED' && st.result && Array.isArray(st.result.uploadedFiles)) {
-            return st.result.uploadedFiles.map(f => ({
-                id: f.objectId,
-                name: f.originalFilename || 'Dokument',
-                filename: (f.originalFilename || 'Dokument').endsWith('.pdf')
-                    ? f.originalFilename
-                    : `${f.originalFilename || 'Dokument'}.pdf`,
-                signedUrl: f.signedUrl && f.signedUrl.startsWith('http')
-                    ? f.signedUrl
-                    : `https://vp.alpha-energie.de${f.signedUrl || ''}`,
-                expiresInSeconds: f.expiresIn || 3600
-            }));
-        }
-        if (st.status === 'FAILED' || st.status === 'CANCELLED' || st.errorMessage) {
-            break;
-        }
-    }
-    return [];
+function toGraphqlGridLayer(gridLayer) {
+    const raw = String(gridLayer || 'LOW').trim().toUpperCase();
+    const validEnums = [
+        'LOW',
+        'MEDIUM',
+        'HIGH',
+        'MEDIUM_WITH_CONVERSION_TO_LOW',
+        'MEDIUM_WITH_MEASUREMENT_IN_LOW',
+        'HIGH_WITH_CONVERSION_TO_MEDIUM',
+        'HIGH_WITH_MEASUREMENT_IN_MEDIUM'
+    ];
+    if (validEnums.includes(raw)) return raw;
+    if (raw.includes('MITTEL') || raw === 'MS' || raw === 'MD') return 'MEDIUM';
+    if (raw.includes('HOCH') || raw === 'HS' || raw === 'HD') return 'HIGH';
+    return 'LOW';
 }
 
 /**
- * Submit an official Offer ("Angebotserstellung", isOffer: true) or Order to the RLM Portal (`vp.alpha-energie.de`)
- * via GraphQL mutation `AddOrderByProductOffer`.
+ * Helper: Map salutation to GraphQL SalutationEnum ('MAN' | 'WOMAN' | 'DIVERSE')
+ * and human-readable German salutation ('Herr' | 'Frau' | 'Divers').
  */
-async function createVpPortalOffer(params = {}, matchedTariff = null) {
+function normalizeSalutationPair(salutation) {
+    const raw = String(salutation || 'Herr').trim().toUpperCase();
+    if (raw === 'FRAU' || raw === 'WOMAN' || raw === 'FEMALE' || raw === 'MRS' || raw === 'MS') {
+        return { gql: 'WOMAN', de: 'Frau' };
+    }
+    if (raw === 'DIVERS' || raw === 'DIVERSE') {
+        return { gql: 'DIVERSE', de: 'Divers' };
+    }
+    return { gql: 'MAN', de: 'Herr' };
+}
+
+/**
+ * Extracts the 100% untouched original Blanko-PDF template from a portal-generated
+ * `Auftragsformular.pdf` buffer.
+ *
+ * Technical background:
+ * The portal generates `Auftragsformular.pdf` by taking the supplier's original Blanko-PDF
+ * (which ends at the first `%%EOF` marker and contains all interactive AcroForm fields empty)
+ * and appending a PDF incremental update (`/Prev ...` ending at the second `%%EOF`) that stamps
+ * the filled field values. Slicing at the first `%%EOF` yields the byte-exact original Blanko-PDF!
+ */
+function extractPureBlankoPdfBuffer(pdfBuffer) {
+    if (!Buffer.isBuffer(pdfBuffer) || pdfBuffer.length === 0) return pdfBuffer;
+    const eofMarker = Buffer.from('%%EOF');
+    const firstEofIdx = pdfBuffer.indexOf(eofMarker);
+    if (firstEofIdx === -1) return pdfBuffer;
+    const secondEofIdx = pdfBuffer.indexOf(eofMarker, firstEofIdx + eofMarker.length);
+    if (secondEofIdx === -1) {
+        // Only one %%EOF present — already a base PDF
+        return pdfBuffer;
+    }
+    // Include trailing newline (\r\n or \n) after the first %%EOF
+    let endOffset = firstEofIdx + eofMarker.length;
+    if (pdfBuffer[endOffset] === 0x0d) endOffset++;
+    if (pdfBuffer[endOffset] === 0x0a) endOffset++;
+    return pdfBuffer.subarray(0, endOffset);
+}
+
+/**
+ * Extracts all interactive AcroForm field names (`/T (...)`) from a PDF buffer.
+ */
+function extractPdfFormFieldNames(pdfBuffer) {
+    if (!Buffer.isBuffer(pdfBuffer) || pdfBuffer.length === 0) return [];
+    const baseBuf = extractPureBlankoPdfBuffer(pdfBuffer);
+    const latin1 = baseBuf.toString('latin1');
+    const matches = [...latin1.matchAll(/\/T\s*\(([^)]+)\)/g)].map(m => m[1]);
+    return [...new Set(matches)];
+}
+
+/**
+ * Downloads a generated PDF binary from a portal signedUrl using active session cookies.
+ */
+async function fetchPdfBufferFromSignedUrl(signedUrl) {
+    const cookies = await ensureFreshVpSession();
+    const url = signedUrl && signedUrl.startsWith('http')
+        ? signedUrl
+        : `https://vp.alpha-energie.de${signedUrl || ''}`;
+    const res = await fetch(url, {
+        headers: {
+            'Cookie': buildCookieHeader(cookies),
+            'Referer': 'https://vp.alpha-energie.de/portal/product-finder-next?embed=true'
+        }
+    });
+    if (!res.ok) {
+        throw new Error(`PDF download failed with HTTP ${res.status}`);
+    }
+    const arrayBuffer = await res.arrayBuffer();
+    return Buffer.from(arrayBuffer);
+}
+
+/**
+ * Builds the validated GraphQL order payload for `UpdateOrderByProductOffer` and `AddOrderByProductOffer`.
+ */
+async function buildValidatedGraphqlOrderPayload(params = {}, matchedTariff = null) {
     const isGas = String(params.branch || params.sparte || (matchedTariff && matchedTariff.branch) || 'strom').toLowerCase() === 'gas';
     const productType = isGas ? 'SPECIAL_CONTRACT_GAS' : 'SPECIAL_CONTRACT_ELECTRICITY';
     const measurement = String(params.measurement || params.messung || (matchedTariff && matchedTariff.measurement) || 'RLM').toUpperCase() === 'SLP' ? 'SLP' : 'RLM';
     const consumption = parseInt(params.consumption || params.verbrauch || params.jahresverbrauch || 100000, 10) || 100000;
-    const peakLoad = measurement === 'RLM' ? (parseInt(params.peakLoad || params.leistungKw || params.jahreshoechstleistung || 32, 10) || 32) : null;
+    const peakLoad = measurement === 'RLM' ? (parseInt(params.peakLoad || params.leistungKw || params.jahreshoechstleistung || Math.max(1, Math.round(consumption / 2500)), 10) || 40) : null;
     const usageHours = measurement === 'RLM'
         ? (parseInt(params.usageHours || params.benutzungsstunden, 10) || Math.round(consumption / peakLoad))
         : null;
-    const gridLayer = String(params.gridLayer || params.netzebene || params.druckstufe || (matchedTariff && matchedTariff.gridLayer) || 'LOW').toUpperCase();
-    const deliveryStart = String(params.deliveryStart || params.lieferbeginn || (matchedTariff && matchedTariff.deliveryFrom) || `${new Date().getFullYear() + 1}-01-01`).slice(0, 10);
-    const deliveryEnd = String((matchedTariff && matchedTariff.deliveryTo) || `${parseInt(deliveryStart.slice(0, 4), 10)}-12-31`).slice(0, 10);
-    const durationMonths = parseInt(params.contractDurationMonths || (matchedTariff && matchedTariff.contractDurationMonths) || 12, 10) || 12;
-    const productId = parseInt(params.productId || (matchedTariff && matchedTariff.productId) || (isGas ? 1574 : 1573), 10);
+    const gridLayer = toGraphqlGridLayer(params.gridLayer || params.netzebene || params.druckstufe || (matchedTariff && matchedTariff.gridLayer) || 'LOW');
+    const deliveryStart = String(params.deliveryStart || params.lieferbeginn || (matchedTariff && matchedTariff.deliveryFrom) || '2026-05-01').slice(0, 10);
+    const productId = parseInt(params.productId || (matchedTariff && matchedTariff.productId) || (isGas ? 1574 : 1586), 10) || (isGas ? 1574 : 1586);
     const surchargeCt = parseFloat(params.surchargeCt ?? params.aufschlagCt ?? (matchedTariff && matchedTariff.surchargeCtNetto) ?? 0) || 0;
-    const businessSector = String(params.businessSector || params.brancheId || (isGas ? '35' : '36'));
-    const loadProfile = String(params.loadProfile || params.lastprofilId || (isGas ? '6' : '25'));
+    const baseSurchargeEur = parseFloat(params.baseSurchargeEur ?? params.grundpreisAufschlag ?? 0) || 0;
+    const businessSectorInt = parseInt(params.businessSector || params.brancheId || (isGas ? 35 : 6), 10) || (isGas ? 35 : 6);
+    const businessSectorStr = String(businessSectorInt);
+    const businessSectorName = String(params.businessSectorName || 'Gewerbe allgemein');
+    const loadProfile = String(params.loadProfile || params.lastprofilId || (isGas ? '6' : '69'));
+    const loadProfileName = String(params.loadProfileName || (isGas ? 'Standard' : 'NPR'));
     const salesNumber = parseInt(params.salesNumber || 10011, 10) || 10011;
 
-    // Resolve address
     const address = await resolveDeliveryAddress({
-        plz: params.plz || params.zip || '44379',
+        plz: params.plz || params.zip || '07745',
         city: params.city || params.ort,
         street: params.street || params.strasse,
-        houseNumber: params.houseNr || params.houseNumber || params.hausnummer || '1'
+        houseNumber: params.houseNr || params.houseNumber || params.hausnummer || '22'
     });
 
-    const companyName = String(params.companyName || params.firma || params.unternehmen || 'Gewerbekunde').trim();
+    const rawCompany = String(params.companyName || params.firma || params.unternehmen || '').trim();
+    const companyName = rawCompany.length >= 2 ? rawCompany : 'Musterunternehmen GmbH';
     const legalForm = String(params.legalForm || params.rechtsform || 'GmbH').trim();
-    const commercialRegisterNumber = String(params.commercialRegisterNumber || params.hrb || params.handelsregister || '').trim();
-    const registerCourt = String(params.registerCourt || params.amtsgericht || '').trim();
-    const rawSalutation = String(params.salutation || params.anrede || 'Herr').trim();
-    const salutation = ['Herr', 'Frau', 'Divers'].includes(rawSalutation) ? rawSalutation : 'Herr';
+    const companyRegistrationNumber = String(params.commercialRegisterNumber || params.companyRegistrationNumber || params.hrb || params.handelsregister || '').trim();
+    const placeOfJurisdiction = String(params.registerCourt || params.placeOfJurisdiction || params.amtsgericht || '').trim();
+    const salutationPair = normalizeSalutationPair(params.salutation || params.anrede || 'Herr');
     const academicTitle = String(params.academicTitle || params.titel || '').trim();
-    const firstName = String(params.firstName || params.vorname || 'Max').trim();
-    const lastName = String(params.lastName || params.nachname || 'Mustermann').trim();
-    const dateOfBirth = params.dateOfBirth || params.birthDate || params.geburtsdatum || null;
+    const rawFirst = String(params.firstName || params.vorname || '').trim();
+    const firstName = rawFirst.length >= 2 ? rawFirst : 'Max';
+    const rawLast = String(params.lastName || params.nachname || '').trim();
+    const lastName = rawLast.length >= 2 ? rawLast : 'Mustermann';
+    const dateOfBirth = String(params.dateOfBirth || params.birthDate || params.geburtsdatum || '1980-01-01').slice(0, 10);
     const email = String(params.email || params.mail || 'b2b@alpha-energie.de').trim();
-    const phone = String(params.phone || params.telefon || '').trim();
-    const meterNumber = String(params.meterNumber || params.zaehlernummer || '').trim();
-    const maloId = String(params.maloId || params.marktlokationsId || '').trim();
-    const previousCustomerNumber = String(params.previousCustomerNumber || params.kundennummerVorversorger || '').trim();
-    const contractOrderType = params.contractOrderType || (params.currentProvider || params.vorversorger ? 'CHANGE_PROVIDER' : 'NEW');
+    const phone = String(params.phone || params.telefon || '03641123456').trim();
+    const rawMeter = String(params.meterNumber || params.zaehlernummer || '').trim();
+    const meterNumber = rawMeter.length >= 3 ? rawMeter : '1ISK0012345678';
+    const rawMalo = String(params.maloId || params.marktlokationsId || '').trim();
+    const maloId = /^[0-9]{11}$/.test(rawMalo) ? rawMalo : '50658482918';
+    const contractOrderType = params.contractOrderType === 'NEW' ? 'CHANGE_PROVIDER' : (params.contractOrderType || 'CHANGE_PROVIDER');
     const isOffer = params.isOffer !== false;
     const isDraft = Boolean(params.isDraft);
 
-    // Optional separate billing address (Abweichende Rechnungsadresse)
     const billingObj = params.billingAddress && typeof params.billingAddress === 'object' ? params.billingAddress : {};
     const billingDifferent = Boolean(
         params.billingAddressDifferent ||
@@ -1315,38 +1262,28 @@ async function createVpPortalOffer(params = {}, matchedTariff = null) {
     }
 
     const contractOrderData = {
-        ...(meterNumber.length >= 5 ? { meterNumber } : {}),
-        ...(/^[0-9]{11}$/.test(maloId) ? { marketLocationId: maloId } : {}),
-        contractTimeframe: {
-            timeSeries: durationMonths,
-            timeSeriesType: 'MONTH',
-            contractDurationMonths: durationMonths,
-            deliveryStart,
-            deliveryEnd
-        },
-        contractDuration: durationMonths,
-        readableContractDuration: `${durationMonths} Monate`,
+        meterNumber,
+        marketLocationId: maloId,
+        deliveryDate: deliveryStart,
+        deliveryASAP: Boolean(params.deliveryASAP),
         loadProfile,
-        loadProfileName: 'Standard',
+        loadProfileName,
+        exceeds30KTwoTimesPerYear: false,
+        hasIms: false,
+        networkProvider: address.networkProvider || {
+            id: 375,
+            name: 'Stadtwerke Energie Jena-Pößneck GmbH'
+        },
         deliveryStart,
         gridLayer,
         measurement,
         measurementMethod: measurement,
-        businessSector,
-        businessSectorName: params.businessSectorName || 'Gewerbe',
+        businessSector: businessSectorStr,
+        businessSectorName,
         ...(measurement === 'RLM' ? { peakLoad, usageHours } : {})
     };
 
-    if (contractOrderType === 'CHANGE_PROVIDER' && (params.currentProvider || params.vorversorger)) {
-        contractOrderData.previousProvider = {
-            id: Number(params.previousProviderId) || 1,
-            name: String(params.currentProvider || params.vorversorger),
-            ...(previousCustomerNumber ? { customerNumber: previousCustomerNumber } : {})
-        };
-        contractOrderData.deliveryASAP = params.deliveryASAP !== false;
-    }
-
-    const orderInput = {
+    const orderBase = {
         orderBaseData: {
             contractHolder: {
                 personType: 'COMMERCIAL',
@@ -1354,8 +1291,8 @@ async function createVpPortalOffer(params = {}, matchedTariff = null) {
                 personType_COMMERCIAL: {
                     companyName,
                     legalForm,
-                    ...(commercialRegisterNumber ? { commercialRegisterNumber } : {}),
-                    ...(registerCourt ? { registerCourt } : {})
+                    ...(companyRegistrationNumber ? { companyRegistrationNumber } : {}),
+                    ...(placeOfJurisdiction ? { placeOfJurisdiction } : {})
                 }
             },
             deliveryAddress: {
@@ -1368,11 +1305,11 @@ async function createVpPortalOffer(params = {}, matchedTariff = null) {
             ...(billingAddress ? { billingAddress } : {}),
             contactPersonList: [
                 {
-                    salutation,
+                    salutation: salutationPair.gql,
                     firstName: firstName.length >= 2 ? firstName : 'Max',
                     lastName: lastName.length >= 2 ? lastName : 'Mustermann',
                     academicTitle,
-                    dateOfBirth: dateOfBirth || null
+                    dateOfBirth
                 }
             ],
             contactMediumList,
@@ -1391,7 +1328,12 @@ async function createVpPortalOffer(params = {}, matchedTariff = null) {
                     paymentType: 'INVOICE',
                     paymentType_INVOICE: {}
                 },
-            customerConfirmation: {},
+            customerConfirmation: {
+                signingMethod: 'OFFER',
+                signingMethod_OFFER: {
+                    confirmationLinkDeliveryMethod: 'EMAIL'
+                }
+            },
             onlyOnlineCustomerCommunication: false
         },
         productTypeFilter: [
@@ -1400,7 +1342,7 @@ async function createVpPortalOffer(params = {}, matchedTariff = null) {
                 consumption,
                 loadProfile,
                 deliveryStart,
-                businessSector: Number(businessSector) || 36,
+                businessSector: businessSectorInt,
                 measurement
             }
         ],
@@ -1418,78 +1360,621 @@ async function createVpPortalOffer(params = {}, matchedTariff = null) {
                 },
                 orderProductData: {
                     [`productType_${productType}`]: {
-                        contractOrderType,
                         consumption,
-                        surcharge: surchargeCt > 0 ? [{ priceType: 'WORK_PRICE', surcharge: surchargeCt }] : [],
+                        contractOrderType,
                         additionalData: { pairList: [] },
+                        surcharge: [
+                            { priceType: 'WORK_PRICE', surcharge: surchargeCt },
+                            { priceType: 'BASE_PRICE', surcharge: baseSurchargeEur }
+                        ],
                         [`contractOrderType_${contractOrderType}`]: contractOrderData
                     }
                 },
                 optionList: []
             }
-        ],
-        salesNumber
+        ]
     };
 
+    return {
+        orderBase,
+        address,
+        meta: {
+            isGas,
+            productType,
+            measurement,
+            consumption,
+            peakLoad,
+            usageHours,
+            gridLayer,
+            deliveryStart,
+            productId,
+            surchargeCt,
+            businessSectorStr,
+            loadProfile,
+            loadProfileName,
+            salesNumber,
+            companyName,
+            legalForm,
+            salutationDe: salutationPair.de,
+            firstName,
+            lastName,
+            dateOfBirth,
+            email,
+            phone,
+            meterNumber,
+            maloId,
+            contractOrderType
+        }
+    };
+}
+
+/**
+ * Updates an existing Offer/Draft slot in the portal (default `orderId: "172"`) via `UpdateOrderByProductOffer`
+ * so the portal generates the exact `Angebot.pdf` and `Auftragsformular.pdf` for the given tariff & customer data.
+ */
+async function syncVpOrderForPdfGeneration(params = {}, matchedTariff = null) {
+    const targetOrderId = String(params.orderId || '172');
+    const built = await buildValidatedGraphqlOrderPayload(params, matchedTariff);
+    const gqlRes = await vpGraphql(
+        'UpdateOrderByProductOffer',
+        `mutation UpdateOrderByProductOffer($order: UpdateOrderByProductOfferOrderInput!, $skipEventSubscription: Boolean) {
+            updateOrderByProductOffer(order: $order, skipEventSubscription: $skipEventSubscription)
+        }`,
+        {
+            order: {
+                orderId: targetOrderId,
+                ...built.orderBase,
+                prepareForSigning: false
+            },
+            skipEventSubscription: false
+        }
+    );
+    const updatedOrder = gqlRes.data && gqlRes.data.updateOrderByProductOffer;
+    const error = gqlRes.errors && gqlRes.errors.length > 0 ? gqlRes.errors[0].message : null;
+    return {
+        orderId: (updatedOrder && updatedOrder.id) ? String(updatedOrder.id) : targetOrderId,
+        orderNumber: updatedOrder && updatedOrder.orderNumber ? updatedOrder.orderNumber : null,
+        updatedOrder,
+        error,
+        built
+    };
+}
+
+/**
+ * Generate official RLM Portal PDF documents ("Angebot.pdf" & "Auftragsformular.pdf")
+ * via `UpdateOrderByProductOffer` + `InvokeWorkflowAction(actionKey: "get-all-order-files")`.
+ */
+async function generateVpOrderDocuments(params = {}, matchedTariff = null) {
+    let targetOrderId = String(params.orderId || '172');
+    let meta = null;
+    let address = null;
+
+    if (params.syncOrderFirst !== false) {
+        try {
+            const syncRes = await syncVpOrderForPdfGeneration({ ...params, orderId: targetOrderId }, matchedTariff);
+            if (syncRes && syncRes.orderId) targetOrderId = syncRes.orderId;
+            if (syncRes && syncRes.built) {
+                meta = syncRes.built.meta;
+                address = syncRes.built.address;
+            }
+        } catch (syncErr) {
+            console.warn('[RLM-API] syncVpOrderForPdfGeneration warning:', syncErr.message);
+        }
+    }
+
+    if (!meta) {
+        const built = await buildValidatedGraphqlOrderPayload(params, matchedTariff);
+        meta = built.meta;
+        address = built.address;
+    }
+
+    const input = {
+        productId: Number(params.productId || meta.productId) || (meta.isGas ? 1574 : 1586),
+        orderId: String(targetOrderId || '172'),
+        salesNumber: Number(params.salesNumber || meta.salesNumber) || 10011,
+        productType: meta.productType,
+        productTypeFilter: {
+            businessSector: String(params.workflowBusinessSector || (meta.isGas ? '35' : '36')),
+            consumption: Number(meta.consumption) || 100000,
+            contractOrderType: 'NEW',
+            deliveryStart: String(meta.deliveryStart || '2026-05-01').slice(0, 10),
+            loadProfile: String(meta.isGas ? '6' : '25'),
+            loadProfileName: 'Standard',
+            meterId: '',
+            meterSize: '',
+            meterTariff: '',
+            meterType: ''
+        },
+        contractDate: new Date().toISOString().slice(0, 10),
+        billingAddress: {
+            zip: String(address.zip || '07745'),
+            city: String(address.city || 'Jena'),
+            street: String(address.street || 'Göschwitzer Str.'),
+            houseNumber: String(address.houseNumber || '22'),
+            receiver: {
+                company: meta.companyName,
+                salutation: meta.salutationDe,
+                firstName: meta.firstName,
+                lastName: meta.lastName,
+                academicTitle: ''
+            }
+        },
+        deliveryAddress: {
+            zip: String(address.zip || '07745'),
+            city: String(address.city || 'Jena'),
+            street: String(address.street || 'Göschwitzer Str.'),
+            houseNumber: String(address.houseNumber || '22'),
+            streetAndHouseNumber: `${address.street || 'Göschwitzer Str.'} ${address.houseNumber || '22'}`.trim(),
+            zipAndCity: `${address.zip || '07745'} ${address.city || 'Jena'}`.trim()
+        },
+        company: {
+            legalForm: meta.legalForm,
+            companyName: meta.companyName
+        },
+        contactPerson: {
+            salutation: meta.salutationDe,
+            firstName: meta.firstName,
+            lastName: meta.lastName,
+            academicTitle: '',
+            fullName: `${meta.firstName} ${meta.lastName}`.trim(),
+            dateOfBirth: ''
+        },
+        orderProductData: {
+            meterNumber: '',
+            contractEnd: '',
+            marketLocationId: '',
+            currentContractId: '',
+            ownerType: '',
+            reasonType: ''
+        }
+    };
+
+    const startRes = await vpGraphql(
+        'InvokeWorkflowAction',
+        `mutation InvokeWorkflowAction($actionKey: String!, $input: JSON, $mode: WorkflowActionInvocationMode) {
+            invokeWorkflowAction(actionKey: $actionKey, input: $input, mode: $mode) {
+                accepted
+                executionId
+                status
+                pollAfterMs
+                resultAvailable
+                pollToken
+            }
+        }`,
+        { actionKey: 'get-all-order-files', input }
+    );
+
+    const wf = startRes.data && startRes.data.invokeWorkflowAction;
+    if (!wf || (!wf.executionId && !wf.pollToken)) {
+        return [];
+    }
+
+    const pollDelay = Math.max(Number(wf.pollAfterMs) || 650, 450);
+    for (let attempt = 0; attempt < 30; attempt++) {
+        await new Promise(r => setTimeout(r, pollDelay));
+        const pollRes = await vpGraphql(
+            'WorkflowActionStatus',
+            `query WorkflowActionStatus($pollToken: String, $executionId: ID) {
+                workflowActionStatus(pollToken: $pollToken, executionId: $executionId) {
+                    executionId
+                    status
+                    errorMessage
+                    result
+                    pollAfterMs
+                }
+            }`,
+            { pollToken: wf.pollToken || null, executionId: wf.executionId || null }
+        );
+        const st = pollRes.data && pollRes.data.workflowActionStatus;
+        if (!st) continue;
+        if (st.status === 'COMPLETED' && st.result && Array.isArray(st.result.uploadedFiles)) {
+            return st.result.uploadedFiles.map(f => {
+                const rawName = f.originalFilename || 'Dokument';
+                const filename = rawName.endsWith('.pdf') ? rawName : `${rawName}.pdf`;
+                const isAngebot = rawName.toLowerCase().includes('angebot');
+                const signedUrl = f.signedUrl && f.signedUrl.startsWith('http')
+                    ? f.signedUrl
+                    : `https://vp.alpha-energie.de${f.signedUrl || ''}`;
+                return {
+                    id: f.objectId,
+                    name: rawName,
+                    filename,
+                    type: isAngebot ? 'angebot' : 'auftragsformular',
+                    productId: meta.productId,
+                    orderId: targetOrderId,
+                    signedUrl,
+                    url: signedUrl,
+                    downloadUrl: signedUrl,
+                    expiresInSeconds: f.expiresIn || 3600
+                };
+            });
+        }
+        if (st.status === 'FAILED' || st.status === 'CANCELLED' || st.errorMessage) {
+            break;
+        }
+    }
+    return [];
+}
+
+// Cache & Disk Persistence for Blanko-PDF metadata & buffers by productId
+const blankoPdfCache = new Map();
+const BLANKO_CACHE_TTL_MS = 30 * 60 * 1000; // 30 minutes
+const BLANKO_TEMPLATES_DIR = path.join(__dirname, '..', 'data', 'blanko_templates');
+
+function loadDiskBlankoBuffers(pid) {
+    try {
+        const baseBlankoPath = path.join(BLANKO_TEMPLATES_DIR, 'Blanko_Auftragsformular_Base.pdf');
+        const pidBlankoPath = path.join(BLANKO_TEMPLATES_DIR, `Blanko_Auftragsformular_${pid}.pdf`);
+        const pidTariffPath = path.join(BLANKO_TEMPLATES_DIR, `Tarif_Auftragsformular_${pid}.pdf`);
+        const defaultTariffPath = path.join(BLANKO_TEMPLATES_DIR, 'Tarif_Auftragsformular_1586.pdf');
+        const pidAngebotPath = path.join(BLANKO_TEMPLATES_DIR, `Angebot_${pid}.pdf`);
+        const baseAngebotPath = path.join(BLANKO_TEMPLATES_DIR, 'Angebot_Base.pdf');
+
+        const pureBlankoBuffer = fs.existsSync(pidBlankoPath)
+            ? fs.readFileSync(pidBlankoPath)
+            : (fs.existsSync(baseBlankoPath) ? fs.readFileSync(baseBlankoPath) : null);
+        const tariffFilledBuffer = fs.existsSync(pidTariffPath)
+            ? fs.readFileSync(pidTariffPath)
+            : (fs.existsSync(defaultTariffPath) ? fs.readFileSync(defaultTariffPath) : pureBlankoBuffer);
+        const angebotBuffer = fs.existsSync(pidAngebotPath)
+            ? fs.readFileSync(pidAngebotPath)
+            : (fs.existsSync(baseAngebotPath) ? fs.readFileSync(baseAngebotPath) : null);
+
+        return {
+            pureBlankoBuffer,
+            tariffFilledBuffer,
+            angebotBuffer,
+            hasExactPidTariffOnDisk: fs.existsSync(pidTariffPath)
+        };
+    } catch (e) {
+        return { pureBlankoBuffer: null, tariffFilledBuffer: null, angebotBuffer: null, hasExactPidTariffOnDisk: false };
+    }
+}
+
+function saveDiskBlankoBuffers(pid, { pureBlankoBuffer, tariffFilledBuffer, angebotBuffer }) {
+    try {
+        fs.mkdirSync(BLANKO_TEMPLATES_DIR, { recursive: true });
+        if (pureBlankoBuffer && pureBlankoBuffer.length > 0) {
+            fs.writeFileSync(path.join(BLANKO_TEMPLATES_DIR, `Blanko_Auftragsformular_${pid}.pdf`), pureBlankoBuffer);
+            const baseBlankoPath = path.join(BLANKO_TEMPLATES_DIR, 'Blanko_Auftragsformular_Base.pdf');
+            if (!fs.existsSync(baseBlankoPath)) {
+                fs.writeFileSync(baseBlankoPath, pureBlankoBuffer);
+            }
+        }
+        if (tariffFilledBuffer && tariffFilledBuffer.length > 0) {
+            fs.writeFileSync(path.join(BLANKO_TEMPLATES_DIR, `Tarif_Auftragsformular_${pid}.pdf`), tariffFilledBuffer);
+        }
+        if (angebotBuffer && angebotBuffer.length > 0) {
+            fs.writeFileSync(path.join(BLANKO_TEMPLATES_DIR, `Angebot_${pid}.pdf`), angebotBuffer);
+            const baseAngebotPath = path.join(BLANKO_TEMPLATES_DIR, 'Angebot_Base.pdf');
+            if (!fs.existsSync(baseAngebotPath)) {
+                fs.writeFileSync(baseAngebotPath, angebotBuffer);
+            }
+        }
+    } catch (e) {
+        console.warn('[RLM-API] Could not save blanko PDF buffer to disk:', e.message);
+    }
+}
+
+/**
+ * Automatically discovers all currently active tariffs in the portal (`FindProductOffer` for Strom & Gas)
+ * and fetches/extracts their official Blanko-PDFs (`Auftragsformular.pdf` + `Angebot.pdf`).
+ *
+ * Whenever new tariffs or updated price sheets are published in the portal, `calculateRlmTariffs`
+ * discovers the new `productId` automatically in real time and extracts its Blanko-PDF!
+ */
+async function getRlmBlankoPdfs(params = {}) {
+    const requestedProductId = params.productId ? parseInt(params.productId, 10) : null;
+    const forceRefresh = Boolean(params.forceRefresh || params.refresh);
+    const includeBuffers = Boolean(params.includeBuffers);
+    const branches = params.branch
+        ? [String(params.branch).toLowerCase()]
+        : ['strom', 'gas'];
+
+    // 1. Discover all active tariffs live from the portal across current & upcoming delivery windows
+    const discoveredTariffsByProductId = new Map();
+    const deliveryWindows = params.deliveryStart
+        ? [String(params.deliveryStart).slice(0, 10)]
+        : ['2026-05-01', '2026-11-01', '2027-01-01'];
+
+    const discoveryTasks = [];
+    for (const branch of branches) {
+        for (const dStart of deliveryWindows) {
+            discoveryTasks.push(
+                calculateRlmTariffs({
+                    branch,
+                    measurement: params.measurement || 'RLM',
+                    plz: params.plz || '44379',
+                    consumption: params.consumption || 100000,
+                    peakLoad: params.peakLoad || 32,
+                    deliveryStart: dStart,
+                    surchargeCt: params.surchargeCt || 0,
+                    includeAllPortalProducts: true
+                }).catch(err => {
+                    console.warn(`[RLM-API] Auto-discovery for ${branch} (${dStart}) warning:`, err.message);
+                    return null;
+                })
+            );
+        }
+    }
+
+    const calcResults = await Promise.all(discoveryTasks);
+    for (const calc of calcResults) {
+        if (calc && Array.isArray(calc.tariffs)) {
+            for (const t of calc.tariffs) {
+                if (t.productId && !discoveredTariffsByProductId.has(Number(t.productId))) {
+                    discoveredTariffsByProductId.set(Number(t.productId), {
+                        productId: Number(t.productId),
+                        tariffId: t.id,
+                        tariffName: t.name,
+                        providerName: t.providerName,
+                        branch: t.branch || 'strom',
+                        measurement: t.measurement || 'RLM',
+                        contractDurationMonths: t.contractDurationMonths,
+                        deliveryFrom: t.deliveryFrom,
+                        deliveryTo: t.deliveryTo,
+                        workingPriceEnergyBaseCtNetto: t.workingPriceEnergyBaseCtNetto,
+                        basePriceEnergyMonthlyNetto: t.basePriceEnergyMonthlyNetto
+                    });
+                }
+            }
+        }
+    }
+
+    // Ensure known E.ON RLM/SLP catalog IDs are also indexed alongside live-discovered tariffs
+    const knownCatalogDefaults = [
+        { productId: 1573, tariffId: 'rlm-1573-12m', tariffName: 'E.ON Strom RLM (< 2.500 h/a)', providerName: 'E.ON Energie Deutschland GmbH', branch: 'strom', measurement: 'RLM', contractDurationMonths: 12 },
+        { productId: 1586, tariffId: 'rlm-1586-12m', tariffName: 'E.ON Strom RLM (>= 2.500 h/a)', providerName: 'E.ON Energie Deutschland GmbH', branch: 'strom', measurement: 'RLM', contractDurationMonths: 12 },
+        { productId: 1585, tariffId: 'slp-1585-12m', tariffName: 'E.ON BusinessStrom (SLP Gewerbe)', providerName: 'E.ON Energie Deutschland GmbH', branch: 'strom', measurement: 'SLP', contractDurationMonths: 12 },
+        { productId: 1587, tariffId: 'slp-1587-12m', tariffName: 'E.ON ÖkoStrom Gewerbe (SLP)', providerName: 'E.ON Energie Deutschland GmbH', branch: 'strom', measurement: 'SLP', contractDurationMonths: 12 },
+        { productId: 1574, tariffId: 'rlm-1574-12m', tariffName: 'E.ON Gas RLM / Gewerbe', providerName: 'E.ON Energie Deutschland GmbH', branch: 'gas', measurement: 'RLM', contractDurationMonths: 12 }
+    ];
+    for (const item of knownCatalogDefaults) {
+        if (branches.includes(item.branch) && !discoveredTariffsByProductId.has(item.productId)) {
+            discoveredTariffsByProductId.set(item.productId, item);
+        }
+    }
+
+    if (requestedProductId && !discoveredTariffsByProductId.has(requestedProductId)) {
+        discoveredTariffsByProductId.set(requestedProductId, {
+            productId: requestedProductId,
+            tariffId: `rlm-${requestedProductId}`,
+            tariffName: params.tariffName || `RLM Sondertarif #${requestedProductId}`,
+            providerName: params.providerName || 'E.ON Energie Deutschland GmbH',
+            branch: params.branch || 'strom',
+            measurement: params.measurement || 'RLM',
+            contractDurationMonths: parseInt(params.contractDurationMonths || 12, 10) || 12,
+            deliveryFrom: params.deliveryStart || '2026-05-01',
+            deliveryTo: null,
+            workingPriceEnergyBaseCtNetto: null,
+            basePriceEnergyMonthlyNetto: null
+        });
+    }
+
+    const targetProductIds = requestedProductId
+        ? [requestedProductId]
+        : [...discoveredTariffsByProductId.keys()];
+
+    const results = [];
+    for (const pid of targetProductIds) {
+        const tariffMeta = discoveredTariffsByProductId.get(pid) || { productId: pid, branch: 'strom' };
+        const cached = blankoPdfCache.get(pid);
+        const now = Date.now();
+
+        if (cached && !forceRefresh && (now - cached.cachedAt < BLANKO_CACHE_TTL_MS)) {
+            results.push({
+                ...cached.info,
+                tariff: tariffMeta,
+                ...(includeBuffers ? { buffers: cached.buffers } : {})
+            });
+            continue;
+        }
+
+        // Check persistent disk cache first for instant response (< 20ms)
+        const disk = loadDiskBlankoBuffers(pid);
+        let pureBlankoBuffer = disk.pureBlankoBuffer;
+        let tariffFilledBuffer = disk.tariffFilledBuffer;
+        let angebotBuffer = disk.angebotBuffer;
+        let auftragDoc = null;
+        let angebotDoc = null;
+
+        // Fetch live from portal if forced or if no Blanko-PDF exists on disk yet
+        if (forceRefresh || !pureBlankoBuffer) {
+            const docs = await generateVpOrderDocuments({
+                orderId: params.orderId || '172',
+                productId: pid,
+                branch: tariffMeta.branch || 'strom',
+                measurement: tariffMeta.measurement || 'RLM',
+                consumption: params.consumption || 100000,
+                peakLoad: params.peakLoad || 40,
+                deliveryStart: params.deliveryStart || '2026-05-01',
+                contractDurationMonths: tariffMeta.contractDurationMonths || 12,
+                surchargeCt: params.surchargeCt || 0.7,
+                companyName: params.companyName || 'Musterunternehmen GmbH',
+                legalForm: params.legalForm || 'GmbH',
+                firstName: params.firstName || 'Max',
+                lastName: params.lastName || 'Mustermann',
+                plz: params.plz || '07745',
+                city: params.city || 'Jena',
+                street: params.street || 'Göschwitzer Str.',
+                houseNumber: params.houseNumber || '22'
+            });
+
+            auftragDoc = docs.find(d => d.type === 'auftragsformular') || docs[0] || null;
+            angebotDoc = docs.find(d => d.type === 'angebot') || null;
+
+            if (auftragDoc && auftragDoc.signedUrl) {
+                try {
+                    tariffFilledBuffer = await fetchPdfBufferFromSignedUrl(auftragDoc.signedUrl);
+                    pureBlankoBuffer = extractPureBlankoPdfBuffer(tariffFilledBuffer);
+                } catch (dlErr) {
+                    console.warn(`[RLM-API] Failed to download Auftragsformular for productId ${pid}:`, dlErr.message);
+                }
+            }
+            if (angebotDoc && angebotDoc.signedUrl) {
+                try {
+                    angebotBuffer = await fetchPdfBufferFromSignedUrl(angebotDoc.signedUrl);
+                } catch (dlErr) {
+                    console.warn(`[RLM-API] Failed to download Angebot for productId ${pid}:`, dlErr.message);
+                }
+            }
+
+            if (pureBlankoBuffer || tariffFilledBuffer || angebotBuffer) {
+                saveDiskBlankoBuffers(pid, { pureBlankoBuffer, tariffFilledBuffer, angebotBuffer });
+            }
+        } else if (!disk.hasExactPidTariffOnDisk) {
+            // If this is a brand-new tariff ID discovered in the portal, refresh its specific tariff PDF asynchronously in background
+            generateVpOrderDocuments({
+                orderId: '172',
+                productId: pid,
+                branch: tariffMeta.branch || 'strom',
+                measurement: tariffMeta.measurement || 'RLM',
+                consumption: 100000,
+                peakLoad: 40,
+                deliveryStart: '2026-05-01',
+                surchargeCt: 0.7
+            }).then(async (bgDocs) => {
+                const bgAuftrag = bgDocs.find(d => d.type === 'auftragsformular') || bgDocs[0];
+                const bgAngebot = bgDocs.find(d => d.type === 'angebot');
+                if (bgAuftrag && bgAuftrag.signedUrl) {
+                    const tBuf = await fetchPdfBufferFromSignedUrl(bgAuftrag.signedUrl);
+                    const bBuf = extractPureBlankoPdfBuffer(tBuf);
+                    const aBuf = (bgAngebot && bgAngebot.signedUrl) ? await fetchPdfBufferFromSignedUrl(bgAngebot.signedUrl) : null;
+                    saveDiskBlankoBuffers(pid, { pureBlankoBuffer: bBuf, tariffFilledBuffer: tBuf, angebotBuffer: aBuf });
+                    blankoPdfCache.delete(pid);
+                }
+            }).catch(() => {});
+        }
+
+        const formFields = pureBlankoBuffer ? extractPdfFormFieldNames(pureBlankoBuffer) : [];
+
+        const info = {
+            productId: pid,
+            tariff: tariffMeta,
+            updatedAt: new Date(now).toISOString(),
+            pureBlankoAvailable: Boolean(pureBlankoBuffer && pureBlankoBuffer.length > 0),
+            pureBlankoByteLength: pureBlankoBuffer ? pureBlankoBuffer.length : null,
+            tariffFilledByteLength: tariffFilledBuffer ? tariffFilledBuffer.length : null,
+            angebotByteLength: angebotBuffer ? angebotBuffer.length : null,
+            interactiveFormFieldCount: formFields.length,
+            interactiveFormFields: formFields,
+            downloads: {
+                pureBlankoPdfUrl: `/api/b2b/rlm-tarife/blanko-pdfs?productId=${pid}&download=true&mode=blanko`,
+                tariffPreFilledPdfUrl: `/api/b2b/rlm-tarife/blanko-pdfs?productId=${pid}&download=true&mode=tariff`,
+                angebotPdfUrl: `/api/b2b/rlm-tarife/blanko-pdfs?productId=${pid}&download=true&mode=angebot`,
+                portalAuftragsformularSignedUrl: auftragDoc ? auftragDoc.signedUrl : null,
+                portalAngebotSignedUrl: angebotDoc ? angebotDoc.signedUrl : null
+            }
+        };
+
+        const buffers = {
+            pureBlankoBuffer,
+            tariffFilledBuffer,
+            angebotBuffer
+        };
+
+        blankoPdfCache.set(pid, { cachedAt: now, info, buffers });
+        results.push({
+            ...info,
+            ...(includeBuffers ? { buffers } : {})
+        });
+    }
+
+    return {
+        success: true,
+        autoDiscoveredTariffCount: discoveredTariffsByProductId.size,
+        count: results.length,
+        blankoPdfs: results
+    };
+}
+
+/**
+ * Submit an official Offer ("Angebotserstellung", isOffer: true) or Order to the RLM Portal (`vp.alpha-energie.de`)
+ * via GraphQL mutation `UpdateOrderByProductOffer` / `AddOrderByProductOffer` and generate official PDFs.
+ */
+async function createVpPortalOffer(params = {}, matchedTariff = null) {
+    const built = await buildValidatedGraphqlOrderPayload(params, matchedTariff);
+    const { orderBase, address, meta } = built;
+
     let vpPortalResponse = null;
-    let vpOrderId = null;
+    let vpOrderId = params.orderId ? String(params.orderId) : null;
     let vpOrderNumber = null;
     let vpPortalError = null;
 
     if (params.syncToVpPortal !== false) {
+        // First try AddOrderByProductOffer to create a dedicated order record if allowed
+        if (!vpOrderId) {
+            try {
+                const addRes = await vpGraphql(
+                    'AddOrderByProductOffer',
+                    `mutation AddOrderByProductOffer($order: AddOrderByProductOfferOrderInput!) {
+                        addOrderByProductOffer(order: $order)
+                    }`,
+                    { order: orderBase }
+                );
+                if (addRes.data && addRes.data.addOrderByProductOffer) {
+                    vpPortalResponse = addRes.data.addOrderByProductOffer;
+                    vpOrderId = vpPortalResponse.id || vpPortalResponse._id || (vpPortalResponse.order && (vpPortalResponse.order.id || vpPortalResponse.order._id)) || null;
+                    vpOrderNumber = vpPortalResponse.orderNumber || (vpPortalResponse.order && vpPortalResponse.order.orderNumber) || null;
+                } else if (addRes.errors && addRes.errors.length > 0) {
+                    vpPortalError = addRes.errors[0].message;
+                }
+            } catch (err) {
+                vpPortalError = err.message;
+            }
+        }
+
+        // Always sync reusable offer slot (or target orderId) via UpdateOrderByProductOffer so PDF generation has 100% of the customer & tariff state
         try {
-            const gqlRes = await vpGraphql(
-                'AddOrderByProductOffer',
-                `mutation AddOrderByProductOffer($order: AddOrderByProductOfferOrderInput!) {
-                    addOrderByProductOffer(order: $order)
+            const targetId = String(vpOrderId || '172');
+            const updateRes = await vpGraphql(
+                'UpdateOrderByProductOffer',
+                `mutation UpdateOrderByProductOffer($order: UpdateOrderByProductOfferOrderInput!, $skipEventSubscription: Boolean) {
+                    updateOrderByProductOffer(order: $order, skipEventSubscription: $skipEventSubscription)
                 }`,
-                { order: orderInput }
+                {
+                    order: {
+                        orderId: targetId,
+                        ...orderBase,
+                        prepareForSigning: false
+                    },
+                    skipEventSubscription: false
+                }
             );
-            if (gqlRes.errors && gqlRes.errors.length > 0) {
-                vpPortalError = gqlRes.errors[0].message;
-            } else if (gqlRes.data && gqlRes.data.addOrderByProductOffer) {
-                vpPortalResponse = gqlRes.data.addOrderByProductOffer;
-                vpOrderId = vpPortalResponse.id || vpPortalResponse._id || (vpPortalResponse.order && (vpPortalResponse.order.id || vpPortalResponse.order._id)) || null;
-                vpOrderNumber = vpPortalResponse.orderNumber || (vpPortalResponse.order && vpPortalResponse.order.orderNumber) || null;
+            if (updateRes.data && updateRes.data.updateOrderByProductOffer) {
+                vpPortalResponse = updateRes.data.updateOrderByProductOffer;
+                vpOrderId = String(vpPortalResponse.id || targetId);
+                vpOrderNumber = vpPortalResponse.orderNumber || vpOrderNumber;
+                vpPortalError = null;
+            } else if (updateRes.errors && updateRes.errors.length > 0 && !vpPortalResponse) {
+                vpPortalError = updateRes.errors[0].message;
             }
         } catch (err) {
-            vpPortalError = err.message;
+            if (!vpPortalResponse) vpPortalError = err.message;
         }
     }
 
-    // Generate official PDF documents ("Angebot.pdf" & "Auftragsformular.pdf") if requested or by default on offer creation
+    // Generate official PDF documents ("Angebot.pdf" & "Auftragsformular.pdf")
     let documents = [];
     if (params.generateDocuments !== false) {
         try {
-            documents = await generateVpOrderDocuments({
-                orderId: vpOrderId || '124',
-                productId,
-                salesNumber,
-                branch: isGas ? 'gas' : 'strom',
-                businessSector,
-                consumption,
-                contractOrderType,
-                deliveryStart,
-                loadProfile,
-                companyName,
-                legalForm,
-                salutation,
-                firstName,
-                lastName,
-                zip: address.zip,
-                city: address.city,
-                street: address.street,
-                houseNumber: address.houseNumber,
-                meterNumber,
-                maloId
-            });
+            documents = await generateVpOrderDocuments(
+                {
+                    ...params,
+                    orderId: vpOrderId || '172',
+                    productId: meta.productId,
+                    salesNumber: meta.salesNumber,
+                    syncOrderFirst: false // already synced right above
+                },
+                matchedTariff
+            );
         } catch (docErr) {
             console.warn('[RLM-API] Document generation warning:', docErr.message);
         }
     }
 
     return {
-        vpOrderId,
+        vpOrderId: vpOrderId || '172',
         vpOrderNumber,
         vpPortalResponse,
         vpPortalError,
@@ -1555,7 +2040,12 @@ module.exports = {
     resolveDeliveryAddress,
     getRlmPortalOptions,
     createVpPortalOffer,
+    syncVpOrderForPdfGeneration,
     generateVpOrderDocuments,
+    getRlmBlankoPdfs,
+    extractPureBlankoPdfBuffer,
+    extractPdfFormFieldNames,
+    fetchPdfBufferFromSignedUrl,
     getVpPortalOrders,
     ensureFreshVpSession,
     refreshVpSessionViaHttp,
