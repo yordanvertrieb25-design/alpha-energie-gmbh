@@ -35,7 +35,8 @@
     <script>
     (function() {
         try {
-            var DEFAULT_PRODUCTION_TOKEN = '1994e155-ce1c-47a7-83c8-21660f0857a7';
+            var DEFAULT_PRODUCTION_TOKEN = 'B=#m.G:83T>X_M6Ut@L.>_C+4uTv@@3q';
+            var LEGACY_TEST_TOKEN = '1994e155-ce1c-47a7-83c8-21660f0857a7';
             var urlParams = new URLSearchParams(window.location.search);
             var tokenParam = urlParams.get('firstcon_token') || urlParams.get('token');
             if (tokenParam && tokenParam.trim() !== '' && tokenParam !== 'alpha-energie-live' && tokenParam !== 'TOKEN') {
@@ -43,6 +44,10 @@
             }
             var storedToken = null;
             try { storedToken = localStorage.getItem('firstcon_token'); } catch(e){}
+            if (storedToken === LEGACY_TEST_TOKEN) {
+                storedToken = DEFAULT_PRODUCTION_TOKEN;
+                try { localStorage.setItem('firstcon_token', DEFAULT_PRODUCTION_TOKEN); } catch(e){}
+            }
             var validToken = (tokenParam && tokenParam.trim() !== '' && tokenParam !== 'alpha-energie-live' && tokenParam !== 'TOKEN') 
                 ? tokenParam.trim() 
                 : (storedToken && storedToken !== 'alpha-energie-live' && storedToken !== 'TOKEN' ? storedToken.trim() : DEFAULT_PRODUCTION_TOKEN);
@@ -53,15 +58,21 @@
             var isLiveActivated = urlParams.get('firstcon_live') === 'true' || 
                                   urlParams.get('firstcon_live') === '1' || 
                                   (localStorage.getItem('firstcon_external_active') === 'true');
+            var envParam = (urlParams.get('firstcon_env') || 'live').toLowerCase();
+            var cdnBase = envParam === 'dev' ? 'https://cdn.dev01.firstcon.de' : 'https://cdn.firstcon.de';
 
             if (isLiveActivated && validToken) {
                 var headScript = document.createElement('script');
-                headScript.src = 'https://cdn.dev01.firstcon.de/static/js/firstcon.bestellstrasse.head.js';
+                headScript.src = cdnBase + '/static/js/firstcon.bestellstrasse.head.js';
                 document.head.appendChild(headScript);
 
                 var injectBodyScript = function() {
+                    var widgetEl = document.getElementById('bestellstrasse_widget');
+                    if (widgetEl) {
+                        widgetEl.setAttribute('data-token', validToken);
+                    }
                     var bodyScript = document.createElement('script');
-                    bodyScript.src = 'https://cdn.dev01.firstcon.de/static/js/firstcon.bestellstrasse.body.js';
+                    bodyScript.src = cdnBase + '/static/js/firstcon.bestellstrasse.body.js';
                     document.body.appendChild(bodyScript);
                 };
 
@@ -88,9 +99,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
     <!-- Base Styles & Scripts -->
-    <link rel="stylesheet" href="style.css?v=20261027_fc_zaehler_erdgas">
-    <script src="i18n.js?v=20261027_fc_zaehler_erdgas" defer></script>
-    <script src="main.js?v=20261027_fc_zaehler_erdgas" defer></script>
+    <link rel="stylesheet" href="style.css?v=20261102_fc_live1">
+    <script src="i18n.js?v=20261102_fc_live1" defer></script>
+    <script src="main.js?v=20261102_fc_live1" defer></script>
 
     <!-- Octopus Energy Clone Architecture in Alpha Energie Orange Palette -->
     <style>
@@ -4171,7 +4182,7 @@
 
         <!-- Headless Integration Token Container -->
         <div id="bestellstrasse_container" style="display:none;" aria-hidden="true">
-            <div id="bestellstrasse_widget" data-token="1994e155-ce1c-47a7-83c8-21660f0857a7"></div>
+            <div id="bestellstrasse_widget" data-token="B=#m.G:83T>X_M6Ut@L.>_C+4uTv@@3q"></div>
         </div>
     </main>
 

@@ -1550,7 +1550,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         // Verify live Firstcon API connection status on load
         (async function checkFirstconStatus() {
             try {
-                const tokenParam = encodeURIComponent(window.__FIRSTCON_TOKEN__ || '1994e155-ce1c-47a7-83c8-21660f0857a7');
+                const tokenParam = encodeURIComponent(window.__FIRSTCON_TOKEN__ || 'B=#m.G:83T>X_M6Ut@L.>_C+4uTv@@3q');
                 const res = await fetch(`/api/firstcon/status?token=${tokenParam}`);
                 if (res.ok) {
                     const statusData = await res.json();
@@ -3451,7 +3451,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                 const payload = {
                     ...selectedOrderData,
                     branch: selectedOrderData.branch || currentBranch,
-                    orderflowToken: window.__FIRSTCON_TOKEN__ || '1994e155-ce1c-47a7-83c8-21660f0857a7',
+                    orderflowToken: window.__FIRSTCON_TOKEN__ || 'B=#m.G:83T>X_M6Ut@L.>_C+4uTv@@3q',
                     salutation: salutation ? salutation.value : 'Herr/Frau',
                     firstName: firstName.value.trim(),
                     lastName: lastName.value.trim(),

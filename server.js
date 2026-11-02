@@ -801,9 +801,12 @@ app.get('/api/firstcon/status', async (req, res) => {
             connected: true,
             pcBridgeOnline: isPcBridgeOnline(),
             pcHostname: pcBridgeState.pcHostname || (IS_RUNNING_ON_LOCAL_PC ? os.hostname() : null),
-            user: auth.payload?.unique_name || 'alpha-energie-dev',
-            brandId: auth.payload?.BrandId || 54,
-            brandName: 'Alpha Energie',
+            user: auth.payload?.unique_name || firstconService.DEFAULT_FIRSTCON_USERNAME,
+            loginUser: firstconService.DEFAULT_FIRSTCON_USERNAME,
+            salesPartnerId: Number(auth.payload?.SalesPartnerId) || 13344,
+            brandId: Number(auth.payload?.BrandId) || 54,
+            brandName: auth.payload?.BrandName || 'Alpha Energie',
+            orderflowTokenConfigured: true,
             tokenPrefix: String(auth.integrationKey || '').slice(0, 8) + '...',
             apiBase: firstconService.FIRSTCON_API_BASE
         });
@@ -2334,10 +2337,10 @@ app.post('/api/order/submit', async (req, res) => {
     }
 });
 
-// 1.3 Submit Meter Reading (Zählerstand melden)
+// 1.3 Submit Meter Reading (Zählerstand melden -> Live-Portal & Produktivsystem Firstcon + DB)
 app.post('/api/zaehlerstand/submit', async (req, res) => {
     try {
-        const { energyType, contractNumber, meterNumber, reading, readingDate, customerName, email, notes } = req.body;
+        const { energyType, contractNumber, meterNumber, reading, readingNt, readingValueNt, readingDate, customerName, email, notes } = req.body;
         if (!meterNumber || reading === undefined || !customerName || !email) {
             return res.status(400).json({
                 success: false,
@@ -2348,12 +2351,35 @@ app.post('/api/zaehlerstand/submit', async (req, res) => {
         const trimmedEnergy = energyType ? String(energyType).trim() : '';
         const trimmedContract = contractNumber ? String(contractNumber).trim() : '';
         const trimmedNotes = notes ? String(notes).trim() : '';
+        const resolvedNt = readingValueNt !== undefined ? readingValueNt : readingNt;
+
+        // Forward meter reading to Firstcon Live-Portal (https://portal.firstcon.de/api/v2/MeterReading - used by https://zst.firstcon.de/)
+        // as well as Firstcon Dev-Portal (https://dev01.firstcon.de/api/v2/MeterReading)
+        let fcMeterResult = null;
+        try {
+            fcMeterResult = await firstconService.submitMeterReadingToFirstcon({
+                energyType: trimmedEnergy || 'Strom',
+                contractNo: trimmedContract,
+                customerName: String(customerName).trim(),
+                meterNo: String(meterNumber).trim(),
+                readingDate: readingDate || new Date().toISOString().split('T')[0],
+                readingValue: reading,
+                readingValueNt: resolvedNt
+            });
+        } catch (fcErr) {
+            console.warn('[Firstcon MeterReading] Forwarding warning:', fcErr.message);
+            fcMeterResult = { transmitted: false, error: fcErr.message };
+        }
+
         const metaParts = [];
         if (trimmedEnergy && !trimmedNotes.includes(trimmedEnergy)) {
             metaParts.push(`Energieart: ${trimmedEnergy}`);
         }
         if (trimmedContract && !trimmedNotes.includes(trimmedContract)) {
             metaParts.push(`Vertragsnr.: ${trimmedContract}`);
+        }
+        if (fcMeterResult && fcMeterResult.transmitted) {
+            metaParts.push('Firstcon Live-Portal: Übertragen');
         }
         if (trimmedNotes) {
             metaParts.push(trimmedNotes);
@@ -2362,11 +2388,11 @@ app.post('/api/zaehlerstand/submit', async (req, res) => {
 
         const newReading = await prisma.meterReading.create({
             data: {
-                meterNumber,
-                reading: parseFloat(reading),
+                meterNumber: String(meterNumber).trim(),
+                reading: parseFloat(String(reading).replace(',', '.')),
                 readingDate: readingDate || new Date().toISOString().split('T')[0],
-                customerName,
-                email,
+                customerName: String(customerName).trim(),
+                email: String(email).trim(),
                 notes: combinedNotes
             }
         });
@@ -2374,7 +2400,8 @@ app.post('/api/zaehlerstand/submit', async (req, res) => {
         res.status(201).json({
             success: true,
             message: 'Zählerstand erfolgreich übermittelt. Vielen Dank!',
-            id: newReading.id
+            id: newReading.id,
+            firstcon: fcMeterResult
         });
     } catch (error) {
         console.error("Meter reading error:", error);

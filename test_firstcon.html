@@ -72,8 +72,17 @@
         }
     </style>
 
-    <!-- Firstcon Dev01 Head Script -->
-    <script src="https://cdn.dev01.firstcon.de/static/js/firstcon.bestellstrasse.head.js"></script>
+    <!-- Firstcon Head Script (Live / Dev01 switchable via ?env=live) -->
+    <script>
+    (function() {
+        var params = new URLSearchParams(window.location.search);
+        var isLive = params.get('env') === 'live';
+        var cdn = isLive ? 'https://cdn.firstcon.de' : 'https://cdn.dev01.firstcon.de';
+        var s = document.createElement('script');
+        s.src = cdn + '/static/js/firstcon.bestellstrasse.head.js';
+        document.head.appendChild(s);
+    })();
+    </script>
 </head>
 <body>
     <header class="header-bar">
@@ -85,17 +94,38 @@
 
     <main class="test-container">
         <div class="test-card">
+            <!-- Firstcon Info Box -->
             <div class="test-info-box">
-                <strong>Alpha Energie GmbH • Offizielle Firstcon-Integration</strong><br>
-                Testumgebung für die technische Validierung (Token: <code>1994e155-ce1c-47a7-83c8-21660f0857a7</code>). In dieser Teststrecke können Tarifabfragen und Bestellschritte ohne Auslösung echter Verträge geprüft werden.
+                <strong>Alpha Energie GmbH • Offizielle Firstcon-Integration (Live &amp; Dev01)</strong><br>
+                Validierung für Bestellstrecke (Account: <code>Online-Bestellstrecke_ALPHA</code> • Token: <code>B=#m.G:83T&gt;X_M6Ut@L.&gt;_C+4uTv@@3q</code>) sowie das Live-Zählerstandsformular (<code>https://zst.firstcon.de/</code>).
             </div>
 
             <!-- Firstcon Widget Container -->
-            <div id="bestellstrasse_widget" data-token="1994e155-ce1c-47a7-83c8-21660f0857a7"></div>
+            <div id="bestellstrasse_widget" data-token="B=#m.G:83T>X_M6Ut@L.>_C+4uTv@@3q"></div>
+
+            <!-- Live Zählerstandsformular (Firstcon Produktivsystem) -->
+            <div style="margin-top: 2.5rem; padding-top: 2rem; border-top: 1px solid var(--border);">
+                <h3 style="margin: 0 0 0.5rem 0; color: var(--primary);">Live Zählerstandsformular (Firstcon Portal)</h3>
+                <p style="margin: 0 0 1.25rem 0; font-size: 0.9rem; color: var(--text-muted);">
+                    Alle Eingaben werden in das Live-Portal sowie das Produktivsystem übertragen. Zählerstände werden verarbeitet und dienen u. a. der Rechnungsstellung.
+                </p>
+                <div style="overflow-x: auto;">
+                    <iframe src="https://zst.firstcon.de/" style="border:0px #ffffff none; max-width: 100%;" name="firstcon-zst" scrolling="no" frameborder="1" marginheight="0px" marginwidth="0px" height="555px" width="1020px" allowfullscreen></iframe>
+                </div>
+            </div>
         </div>
     </main>
 
-    <!-- Firstcon Dev01 Body Script -->
-    <script src="https://cdn.dev01.firstcon.de/static/js/firstcon.bestellstrasse.body.js"></script>
+    <!-- Firstcon Body Script (Live / Dev01 switchable via ?env=live) -->
+    <script>
+    (function() {
+        var params = new URLSearchParams(window.location.search);
+        var isLive = params.get('env') === 'live';
+        var cdn = isLive ? 'https://cdn.firstcon.de' : 'https://cdn.dev01.firstcon.de';
+        var s = document.createElement('script');
+        s.src = cdn + '/static/js/firstcon.bestellstrasse.body.js';
+        document.body.appendChild(s);
+    })();
+    </script>
 </body>
 </html>
