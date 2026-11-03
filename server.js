@@ -39,6 +39,7 @@ const {
     fetchPdfBufferFromSignedUrl,
     getVpPortalOrders,
     ensureFreshVpSession,
+    setRemoteSessionRefresher,
     saveCookiesToDisk
 } = require('./services/rlmTariffService');
 const firstconService = require('./services/firstconService');
@@ -441,6 +442,9 @@ async function executeFirstconOnPc(action, payload = {}, timeoutMs = 11000) {
         pcBridgeState.pendingJobs.push(job);
     });
 }
+
+// Allow Railway RLM service to self-heal expired VP-Portal sessions via the connected Windows Server PC-Bridge
+setRemoteSessionRefresher(() => executeFirstconOnPc('refreshVpPortalSession', {}, 80000));
 
 // Long-Poll Endpoint for the local Windows PC Relay Daemon (scripts/firstcon-pc-relay.js)
 app.get('/api/firstcon/pc-bridge/poll', (req, res) => {
@@ -1357,6 +1361,10 @@ async function handleRlmCalculateRequest(req, res) {
         console.error('[RLM-API] Calculation error:', error);
         res.status(500).json({
             success: false,
+            count: 0,
+            tariffsCount: 0,
+            tariffs: [],
+            products: [],
             error: 'Fehler bei der B2B/RLM-Tarifberechnung: ' + error.message
         });
     }

@@ -1,8 +1,10 @@
 require('dotenv').config({ path: require('path').join(__dirname, '..', '.env') });
+process.env.DISABLE_RLM_KEEPALIVE = '1';
 const express = require('express');
 const cors = require('cors');
 const axios = require('axios');
 const firstconService = require('../services/firstconService');
+const rlmTariffService = require('../services/rlmTariffService');
 
 const LOCAL_PORT = parseInt(process.env.FIRSTCON_PC_RELAY_PORT, 10) || 4055;
 const REMOTE_BRIDGE_BASE = (process.env.ALPHA_REMOTE_BRIDGE_URL || 'https://alpha-energie.de').replace(/\/+$/, '');
@@ -80,8 +82,8 @@ app.get('/api/firstcon/grid', async (req, res) => {
     }
 });
 
-// 2. Execute strictly whitelisted read-only tariff jobs from the remote bridge
-const ALLOWED_ACTIONS = new Set(['calculateExternalTariffs', 'calculateLiveTariffs', 'findEnergyGrid']);
+// 2. Execute strictly whitelisted read-only tariff & VP session refresh jobs from the remote bridge
+const ALLOWED_ACTIONS = new Set(['calculateExternalTariffs', 'calculateLiveTariffs', 'findEnergyGrid', 'refreshVpPortalSession']);
 
 async function processBridgeJob(job) {
     if (!job || !job.jobId) return;
@@ -113,6 +115,9 @@ async function processBridgeJob(job) {
                 }
                 data = { ...gridInfo, streets };
             }
+        } else if (action === 'refreshVpPortalSession') {
+            const cookies = await rlmTariffService.refreshVpSessionViaPlaywright();
+            data = { cookies, updatedAt: new Date().toISOString() };
         }
 
         stats.jobsExecuted += 1;

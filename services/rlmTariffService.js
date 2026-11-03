@@ -214,6 +214,12 @@ async function refreshVpSessionViaPlaywright() {
     return cachedCookies;
 }
 
+let remoteSessionRefresher = null;
+
+function setRemoteSessionRefresher(fn) {
+    remoteSessionRefresher = typeof fn === 'function' ? fn : null;
+}
+
 /**
  * Coordinated session refresh (deduplicates concurrent refresh calls).
  */
@@ -234,7 +240,21 @@ async function ensureFreshVpSession(force = false) {
         try {
             return await refreshVpSessionViaHttp();
         } catch (httpErr) {
-            console.warn('[RLM-API] HTTP token refresh failed, trying Playwright fallback:', httpErr.message);
+            console.warn('[RLM-API] HTTP token refresh failed, trying fallback:', httpErr.message);
+            if (fs.existsSync(PLAYWRIGHT_REFRESH_SCRIPT)) {
+                return await refreshVpSessionViaPlaywright();
+            }
+            if (remoteSessionRefresher) {
+                console.log('[RLM-API] Requesting fresh VP session via Windows PC-Bridge...');
+                const bridgeRes = await remoteSessionRefresher();
+                if (bridgeRes && bridgeRes.cookies && bridgeRes.cookies.session) {
+                    saveCookiesToDisk(bridgeRes.cookies);
+                    lastRefreshAt = Date.now();
+                    console.log('[RLM-API] Successfully synced fresh VP session via PC-Bridge');
+                    return cachedCookies;
+                }
+                throw new Error('PC-Bridge did not return valid VP session cookies');
+            }
             return await refreshVpSessionViaPlaywright();
         } finally {
             refreshPromise = null;
@@ -244,14 +264,16 @@ async function ensureFreshVpSession(force = false) {
     return refreshPromise;
 }
 
-// Keep the VP portal session warm in the background every 40 minutes
-const keepAliveTimer = setInterval(() => {
-    refreshVpSessionViaHttp().catch(err => {
-        console.warn('[RLM-API] Background session keep-alive warning:', err.message);
-    });
-}, 40 * 60 * 1000);
-if (typeof keepAliveTimer.unref === 'function') {
-    keepAliveTimer.unref();
+// Keep the VP portal session warm in the background every 35 minutes (unless disabled on relay worker)
+if (process.env.DISABLE_RLM_KEEPALIVE !== '1') {
+    const keepAliveTimer = setInterval(() => {
+        refreshVpSessionViaHttp().catch(err => {
+            console.warn('[RLM-API] Background session keep-alive warning:', err.message);
+        });
+    }, 35 * 60 * 1000);
+    if (typeof keepAliveTimer.unref === 'function') {
+        keepAliveTimer.unref();
+    }
 }
 
 /**
@@ -1082,6 +1104,39 @@ async function calculateRlmTariffs(params = {}) {
     };
 }
 
+const FALLBACK_BUSINESS_SECTORS = [
+    { id: '23', name: 'Handel, Büro & Dienstleistung' },
+    { id: '14', name: 'Produktion & Verarbeitendes Gewerbe' },
+    { id: '9', name: 'Gastronomie & Hotellerie' },
+    { id: '11', name: 'Immobilien & Wohnungswirtschaft' },
+    { id: '7', name: 'Bauwirtschaft & Handwerk' },
+    { id: '18', name: 'Logistik & Transport' },
+    { id: '10', name: 'Gesundheits- & Sozialwesen' }
+];
+
+const FALLBACK_LOAD_PROFILES_STROM = [
+    { id: '25', name: 'G0 – Gewerbe allgemein', code: 'G0', description: 'Gewerbe allgemein' },
+    { id: '26', name: 'G1 – Gewerbe werktags 8–18 Uhr', code: 'G1', description: 'Gewerbe werktags 8–18 Uhr' },
+    { id: '27', name: 'G2 – Gewerbe mit starkem Abendverbrauch', code: 'G2', description: 'Stark bis spät abends' },
+    { id: '28', name: 'G3 – Gewerbe durchlaufend', code: 'G3', description: 'Durchlaufender Betrieb' },
+    { id: '29', name: 'G4 – Laden / Friseur', code: 'G4', description: 'Einzelhandel / Ladenlokal' },
+    { id: '30', name: 'G5 – Bäckerei mit Backstube', code: 'G5', description: 'Bäckerei' },
+    { id: '31', name: 'G6 – Wochenendbetrieb', code: 'G6', description: 'Schwerpunkt Wochenende' }
+];
+
+const FALLBACK_LOAD_PROFILES_GAS = [
+    { id: '119', name: 'GHD – Gewerbe, Handel, Dienstleistung', code: 'GHD', description: 'Standard-Gewerbeprofil Gas' },
+    { id: '120', name: 'KO – Gebietskörperschaften & Kreditinstitute', code: 'KO', description: 'Büro & Verwaltung' },
+    { id: '121', name: 'MFH – Mehrfamilienhaus / Wohnungswirtschaft', code: 'MFH', description: 'Heizgas Immobilien' }
+];
+
+const FALLBACK_GAS_METERS = [
+    { meterId: 65, meterType: 'RLM', meterSize: 'G65', meterAttribute: 'Standard', pressureLevel: 'LOW' },
+    { meterId: 100, meterType: 'RLM', meterSize: 'G100', meterAttribute: 'Standard', pressureLevel: 'LOW' },
+    { meterId: 160, meterType: 'RLM', meterSize: 'G160', meterAttribute: 'Standard', pressureLevel: 'MEDIUM' },
+    { meterId: 5, meterType: 'SLP', meterSize: 'G16', meterAttribute: 'Standard', pressureLevel: 'LOW' }
+];
+
 /**
  * Fetch available business sectors, load profiles, and gas meters for external B2B calculator dropdowns.
  */
@@ -1094,31 +1149,45 @@ async function getRlmPortalOptions(branch = 'strom') {
         return optionsCache.get(cacheKey);
     }
 
-    const [sectorsRes, profilesRes, metersRes] = await Promise.all([
-        vpGraphql(
-            'GetBusinessSectorsList',
-            `query GetBusinessSectorsList($productType: [ProductFinder_ProductTypeEnum!]) {
-                productFinder_getBusinessSectorsList(productType: $productType) { id name }
-            }`,
-            { productType: [productType] }
-        ),
-        vpGraphql(
-            'GetLoadProfiles',
-            `query GetLoadProfiles($productType: ProductFinder_ProductTypeEnum) {
-                productFinder_getLoadProfiles(productType: $productType) { id name code description }
-            }`,
-            { productType }
-        ),
-        isGas
-            ? vpGraphql(
-                'ProductFinder_metersGas',
-                `query ProductFinder_metersGas($input: ProductFinder_metersGasInput!) {
-                    productFinder_metersGas(input: $input) { meterId meterType meterSize meterAttribute pressureLevel }
+    let businessSectors = null;
+    let loadProfiles = null;
+    let gasMeters = null;
+    let usedFallback = false;
+
+    try {
+        const [sectorsRes, profilesRes, metersRes] = await Promise.all([
+            vpGraphql(
+                'GetBusinessSectorsList',
+                `query GetBusinessSectorsList($productType: [ProductFinder_ProductTypeEnum!]) {
+                    productFinder_getBusinessSectorsList(productType: $productType) { id name }
                 }`,
-                { input: { measurement: 'RLM' } }
-            )
-            : Promise.resolve({ data: {} })
-    ]);
+                { productType: [productType] }
+            ),
+            vpGraphql(
+                'GetLoadProfiles',
+                `query GetLoadProfiles($productType: ProductFinder_ProductTypeEnum) {
+                    productFinder_getLoadProfiles(productType: $productType) { id name code description }
+                }`,
+                { productType }
+            ),
+            isGas
+                ? vpGraphql(
+                    'ProductFinder_metersGas',
+                    `query ProductFinder_metersGas($input: ProductFinder_metersGasInput!) {
+                        productFinder_metersGas(input: $input) { meterId meterType meterSize meterAttribute pressureLevel }
+                    }`,
+                    { input: { measurement: 'RLM' } }
+                )
+                : Promise.resolve({ data: {} })
+        ]);
+
+        businessSectors = (sectorsRes.data && sectorsRes.data.productFinder_getBusinessSectorsList) || null;
+        loadProfiles = (profilesRes.data && profilesRes.data.productFinder_getLoadProfiles) || null;
+        gasMeters = (metersRes.data && metersRes.data.productFinder_metersGas) || [];
+    } catch (err) {
+        usedFallback = true;
+        console.warn('[RLM-API] getRlmPortalOptions live fetch failed, returning static fallback options:', err.message);
+    }
 
     const result = {
         success: true,
@@ -1139,12 +1208,14 @@ async function getRlmPortalOptions(branch = 'strom') {
             { value: 'RLM', label: 'RLM (Registrierende Leistungsmessung ab 100.000 kWh)' },
             { value: 'SLP', label: 'SLP (Standardlastprofil Gewerbe bis 100.000 kWh)' }
         ],
-        businessSectors: (sectorsRes.data && sectorsRes.data.productFinder_getBusinessSectorsList) || [],
-        loadProfiles: (profilesRes.data && profilesRes.data.productFinder_getLoadProfiles) || [],
-        gasMeters: (metersRes.data && metersRes.data.productFinder_metersGas) || []
+        businessSectors: Array.isArray(businessSectors) && businessSectors.length > 0 ? businessSectors : FALLBACK_BUSINESS_SECTORS,
+        loadProfiles: Array.isArray(loadProfiles) && loadProfiles.length > 0 ? loadProfiles : (isGas ? FALLBACK_LOAD_PROFILES_GAS : FALLBACK_LOAD_PROFILES_STROM),
+        gasMeters: Array.isArray(gasMeters) && gasMeters.length > 0 ? gasMeters : (isGas ? FALLBACK_GAS_METERS : [])
     };
 
-    optionsCache.set(cacheKey, result);
+    if (!usedFallback) {
+        optionsCache.set(cacheKey, result);
+    }
     return result;
 }
 
@@ -2133,6 +2204,7 @@ module.exports = {
     ensureFreshVpSession,
     refreshVpSessionViaHttp,
     refreshVpSessionViaPlaywright,
+    setRemoteSessionRefresher,
     saveCookiesToDisk
 };
 
