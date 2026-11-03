@@ -808,7 +808,8 @@ app.get('/api/firstcon/status', async (req, res) => {
             brandName: auth.payload?.BrandName || 'Alpha Energie',
             orderflowTokenConfigured: true,
             tokenPrefix: String(auth.integrationKey || '').slice(0, 8) + '...',
-            apiBase: firstconService.FIRSTCON_API_BASE
+            apiBase: auth.apiBase || firstconService.FIRSTCON_API_BASE,
+            environment: String(auth.apiBase || firstconService.FIRSTCON_API_BASE).includes('portal.firstcon.de') ? 'LIVE' : 'DEV01'
         });
     } catch (error) {
         res.status(200).json({

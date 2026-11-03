@@ -45,9 +45,12 @@ async function authenticateOrderflowUser(username = DEFAULT_FIRSTCON_USERNAME, p
         }
     }
 
+    const baseCandidates = process.env.FIRSTCON_API_URL
+        ? [FIRSTCON_API_BASE]
+        : [FIRSTCON_LIVE_API_BASE, FIRSTCON_API_BASE];
     let res = null;
     let resolvedBase = FIRSTCON_API_BASE;
-    for (const base of [FIRSTCON_API_BASE, FIRSTCON_LIVE_API_BASE]) {
+    for (const base of baseCandidates) {
         try {
             const candidate = await axios.post(
                 `${base}/Security/Authenticate`,
@@ -106,11 +109,15 @@ async function authenticateOrderflow(customToken, forceRefresh = false) {
         }
     }
 
+    const baseCandidates = process.env.FIRSTCON_API_URL
+        ? [FIRSTCON_API_BASE]
+        : [FIRSTCON_LIVE_API_BASE, FIRSTCON_API_BASE];
     let res = null;
+    let resolvedBase = FIRSTCON_API_BASE;
     let activeKey = integrationKey;
     let authMethod = 'integrationKey';
 
-    for (const base of [FIRSTCON_API_BASE, FIRSTCON_LIVE_API_BASE]) {
+    for (const base of baseCandidates) {
         try {
             const candidate = await axios.post(
                 `${base}/Security/AuthenticateOrderflow`,
@@ -123,6 +130,7 @@ async function authenticateOrderflow(customToken, forceRefresh = false) {
             );
             if (candidate && candidate.status === 200 && candidate.data) {
                 res = candidate;
+                resolvedBase = base;
                 break;
             }
         } catch (e) {
@@ -185,6 +193,7 @@ async function authenticateOrderflow(customToken, forceRefresh = false) {
     const entry = {
         jwt,
         authMethod,
+        apiBase: resolvedBase,
         integrationKey: activeKey,
         requestedToken: integrationKey,
         payload,
@@ -200,14 +209,15 @@ async function authenticateOrderflow(customToken, forceRefresh = false) {
  */
 async function firstconRequest(method, endpoint, { data, params, token, timeout = 12000 } = {}) {
     let auth = await authenticateOrderflow(token, false);
-    const makeCall = async (jwt) => {
+    const makeCall = async (authObj) => {
+        const base = authObj?.apiBase || FIRSTCON_API_BASE;
         return axios({
             method,
-            url: `${FIRSTCON_API_BASE}${endpoint}`,
+            url: `${base}${endpoint}`,
             data,
             params,
             headers: {
-                'Authorization': `Bearer ${jwt}`,
+                'Authorization': `Bearer ${authObj.jwt}`,
                 'Content-Type': 'application/json',
                 'Accept': 'application/json'
             },
@@ -216,10 +226,10 @@ async function firstconRequest(method, endpoint, { data, params, token, timeout 
         });
     };
 
-    let response = await makeCall(auth.jwt);
+    let response = await makeCall(auth);
     if (response.status === 401) {
         auth = await authenticateOrderflow(token, true);
-        response = await makeCall(auth.jwt);
+        response = await makeCall(auth);
     }
     return response;
 }
@@ -1097,7 +1107,8 @@ async function getTariffTermsFile({ branch = 'strom', tariffId, customerTypeId =
             return { status: tokRes.status, data: null };
         }
         const fileToken = String(tokRes.data).replace(/^"+|"+$/g, '').trim();
-        return axios.get(`${FIRSTCON_API_BASE}/Tariff/GetTariffTermsFile`, {
+        const activeBase = auth?.apiBase || FIRSTCON_API_BASE;
+        return axios.get(`${activeBase}/Tariff/GetTariffTermsFile`, {
             params: {
                 energyCategoryId,
                 customerTypeId: Number(customerTypeId) || 1,
@@ -1157,7 +1168,8 @@ async function getDataProtectionFile({ branch = 'strom', tariffId, customerTypeI
             return { status: tokRes.status, data: null };
         }
         const fileToken = String(tokRes.data).replace(/^"+|"+$/g, '').trim();
-        return axios.get(`${FIRSTCON_API_BASE}/Tariff/GetDataProtectionFile`, {
+        const activeBase = auth?.apiBase || FIRSTCON_API_BASE;
+        return axios.get(`${activeBase}/Tariff/GetDataProtectionFile`, {
             params: {
                 energyCategoryId,
                 customerTypeId: Number(customerTypeId) || 1,
