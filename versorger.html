@@ -58,10 +58,9 @@
             var isLiveActivated = urlParams.get('firstcon_live') === 'true' || 
                                   urlParams.get('firstcon_live') === '1' || 
                                   (localStorage.getItem('firstcon_external_active') === 'true');
-            var envParam = (urlParams.get('firstcon_env') || 'live').toLowerCase();
-            var cdnBase = envParam === 'dev' ? 'https://cdn.dev01.firstcon.de' : 'https://cdn.firstcon.de';
+            var explicitEnv = (urlParams.get('firstcon_env') || '').toLowerCase();
 
-            if (isLiveActivated && validToken) {
+            var loadFirstconWidgetScripts = function(cdnBase) {
                 var headScript = document.createElement('script');
                 headScript.src = cdnBase + '/static/js/firstcon.bestellstrasse.head.js';
                 headScript.onload = function() {
@@ -82,6 +81,24 @@
                     }
                 };
                 document.head.appendChild(headScript);
+            };
+
+            if (isLiveActivated && validToken) {
+                if (explicitEnv === 'live') {
+                    loadFirstconWidgetScripts('https://cdn.firstcon.de');
+                } else if (explicitEnv === 'dev') {
+                    loadFirstconWidgetScripts('https://cdn.dev01.firstcon.de');
+                } else {
+                    fetch('/api/firstcon/status?token=' + encodeURIComponent(validToken))
+                        .then(function(r) { return r.json(); })
+                        .then(function(st) {
+                            var cdn = (st && st.environment === 'LIVE') ? 'https://cdn.firstcon.de' : 'https://cdn.dev01.firstcon.de';
+                            loadFirstconWidgetScripts(cdn);
+                        })
+                        .catch(function() {
+                            loadFirstconWidgetScripts('https://cdn.dev01.firstcon.de');
+                        });
+                }
             }
         } catch (e) {}
     })();
