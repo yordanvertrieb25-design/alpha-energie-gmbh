@@ -64,23 +64,24 @@
             if (isLiveActivated && validToken) {
                 var headScript = document.createElement('script');
                 headScript.src = cdnBase + '/static/js/firstcon.bestellstrasse.head.js';
-                document.head.appendChild(headScript);
+                headScript.onload = function() {
+                    var injectBodyScript = function() {
+                        var widgetEl = document.getElementById('bestellstrasse_widget');
+                        if (widgetEl) {
+                            widgetEl.setAttribute('data-token', validToken);
+                        }
+                        var bodyScript = document.createElement('script');
+                        bodyScript.src = cdnBase + '/static/js/firstcon.bestellstrasse.body.js';
+                        document.body.appendChild(bodyScript);
+                    };
 
-                var injectBodyScript = function() {
-                    var widgetEl = document.getElementById('bestellstrasse_widget');
-                    if (widgetEl) {
-                        widgetEl.setAttribute('data-token', validToken);
+                    if (document.readyState === 'loading') {
+                        document.addEventListener('DOMContentLoaded', injectBodyScript);
+                    } else {
+                        injectBodyScript();
                     }
-                    var bodyScript = document.createElement('script');
-                    bodyScript.src = cdnBase + '/static/js/firstcon.bestellstrasse.body.js';
-                    document.body.appendChild(bodyScript);
                 };
-
-                if (document.readyState === 'loading') {
-                    document.addEventListener('DOMContentLoaded', injectBodyScript);
-                } else {
-                    injectBodyScript();
-                }
+                document.head.appendChild(headScript);
             }
         } catch (e) {}
     })();

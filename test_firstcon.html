@@ -72,15 +72,34 @@
         }
     </style>
 
-    <!-- Firstcon Head Script (Live / Dev01 switchable via ?env=live) -->
+    <!-- Firstcon Head & Body Loader (Live / Dev01 switchable via ?env=live) -->
     <script>
     (function() {
         var params = new URLSearchParams(window.location.search);
         var isLive = params.get('env') === 'live';
         var cdn = isLive ? 'https://cdn.firstcon.de' : 'https://cdn.dev01.firstcon.de';
-        var s = document.createElement('script');
-        s.src = cdn + '/static/js/firstcon.bestellstrasse.head.js';
-        document.head.appendChild(s);
+        var hs = document.createElement('script');
+        hs.src = cdn + '/static/js/firstcon.bestellstrasse.head.js';
+        hs.onload = function() {
+            var injectBody = function() {
+                var badge = document.querySelector('.env-badge');
+                if (badge && isLive) {
+                    badge.textContent = 'Firstcon Live Produktivsystem';
+                    badge.style.background = '#ecfdf5';
+                    badge.style.color = '#047857';
+                    badge.style.borderColor = '#a7f3d0';
+                }
+                var bs = document.createElement('script');
+                bs.src = cdn + '/static/js/firstcon.bestellstrasse.body.js';
+                document.body.appendChild(bs);
+            };
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', injectBody);
+            } else {
+                injectBody();
+            }
+        };
+        document.head.appendChild(hs);
     })();
     </script>
 </head>
@@ -115,17 +134,5 @@
             </div>
         </div>
     </main>
-
-    <!-- Firstcon Body Script (Live / Dev01 switchable via ?env=live) -->
-    <script>
-    (function() {
-        var params = new URLSearchParams(window.location.search);
-        var isLive = params.get('env') === 'live';
-        var cdn = isLive ? 'https://cdn.firstcon.de' : 'https://cdn.dev01.firstcon.de';
-        var s = document.createElement('script');
-        s.src = cdn + '/static/js/firstcon.bestellstrasse.body.js';
-        document.body.appendChild(s);
-    })();
-    </script>
 </body>
 </html>
