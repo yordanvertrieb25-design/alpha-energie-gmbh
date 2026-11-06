@@ -1,11 +1,13 @@
 const axios = require('axios');
 
-const DEFAULT_FIRSTCON_ORDERFLOW_TOKEN = process.env.FIRSTCON_ORDERFLOW_TOKEN || 'B=#m.G:83T>X_M6Ut@L.>_C+4uTv@@3q';
-const DEFAULT_FIRSTCON_TARIFF_TOKEN = process.env.FIRSTCON_TARIFF_TOKEN || '1994e155-ce1c-47a7-83c8-21660f0857a7';
+// LIVE-Zugangsdaten (portal.firstcon.de) - Test auf dev01 war erfolgreich, Go-Live freigegeben.
+const LIVE_ORDERFLOW_TOKEN = ')VJZAwkFfEUUZbCDaRQsJ:TsN,BV';
+const DEFAULT_FIRSTCON_ORDERFLOW_TOKEN = process.env.FIRSTCON_ORDERFLOW_TOKEN || LIVE_ORDERFLOW_TOKEN;
+const DEFAULT_FIRSTCON_TARIFF_TOKEN = process.env.FIRSTCON_TARIFF_TOKEN || LIVE_ORDERFLOW_TOKEN;
 const DEFAULT_FIRSTCON_TOKEN = DEFAULT_FIRSTCON_ORDERFLOW_TOKEN;
-const DEFAULT_FIRSTCON_USERNAME = process.env.FIRSTCON_USERNAME || 'Online-Bestellstrecke_ALPHA';
-const DEFAULT_FIRSTCON_PASSWORD = process.env.FIRSTCON_PASSWORD || 'q7TCmJvfV46e9pb8';
-const FIRSTCON_API_BASE = process.env.FIRSTCON_API_URL || 'https://dev01.firstcon.de/api/v2';
+const DEFAULT_FIRSTCON_USERNAME = process.env.FIRSTCON_USERNAME || 'bestellstrecke_alpha';
+const DEFAULT_FIRSTCON_PASSWORD = process.env.FIRSTCON_PASSWORD || 'RZVArE4Y9apyccFM';
+const FIRSTCON_API_BASE = process.env.FIRSTCON_API_URL || 'https://portal.firstcon.de/api/v2';
 const FIRSTCON_LIVE_API_BASE = process.env.FIRSTCON_LIVE_API_URL || 'https://portal.firstcon.de/api/v2';
 
 // In-memory caches to keep live calculation responses fast (< 200ms after warm-up)
