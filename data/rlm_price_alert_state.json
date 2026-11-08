@@ -1,0 +1,375 @@
+{
+  "enabled": true,
+  "recipientEmail": "info@energiedoc.de",
+  "intervalMinutes": 30,
+  "activeHoursStart": 6,
+  "activeHoursEnd": 22,
+  "sendDailySummaryReport": true,
+  "minDropThresholdCt": 0.01,
+  "plz": "44379",
+  "city": "Dortmund",
+  "lastCheckedAt": "2026-11-08T18:51:34.096Z",
+  "lastCheckDurationMs": 2332,
+  "lastEmailSentAt": "2026-11-08T16:51:36.657Z",
+  "lastEmailSubject": "⚡ Aktuelle Bestpreise RLM & SLP: RLM Strom ab 9,55 ct/kWh | SLP Strom ab 11,77 ct/kWh | Gas ab 3,73 ct/kWh",
+  "lastEmailReason": "Manueller Sofort-Abruf / Aktuelle RLM & SLP Bestpreis-Übersicht",
+  "lastDailyReportDate": "2026-11-08",
+  "totalChecksCount": 6,
+  "totalEmailsSentCount": 2,
+  "currentSnapshots": {
+    "RLM_STROM": {
+      "profileKey": "RLM_STROM",
+      "label": "Gewerbestrom RLM (Lastgang)",
+      "branch": "strom",
+      "measurement": "RLM",
+      "consumptionKwh": 500000,
+      "peakLoadKw": 160,
+      "plz": "44379",
+      "city": "Dortmund",
+      "checkedAt": "2026-11-08T18:51:34.096Z",
+      "bestOverall": {
+        "productName": "E.ON BusinessStrom fix (RLM ≤999.999)",
+        "providerName": "E.ON Digital Technology GmbH",
+        "durationMonths": 60,
+        "workingPriceEnergyCtNetto": 9.55,
+        "workingPriceTotalCtNetto": 20.416,
+        "basePriceMonthlyNetto": 15,
+        "abschlagMonthlyNetto": 10088.64,
+        "totalYearlyNetto": 121063.66,
+        "deliveryStart": "2031-01-01"
+      },
+      "bestByDuration": {
+        "12": {
+          "durationMonths": 12,
+          "productName": "E.ON BusinessStrom fix (RLM ≤999.999)",
+          "providerName": "E.ON Digital Technology GmbH",
+          "workingPriceEnergyCtNetto": 16.09,
+          "workingPriceTotalCtNetto": 26.956,
+          "basePriceMonthlyNetto": 15,
+          "abschlagMonthlyNetto": 12813.64
+        },
+        "24": {
+          "durationMonths": 24,
+          "productName": "E.ON BusinessStrom fix (RLM ≤999.999)",
+          "providerName": "E.ON Digital Technology GmbH",
+          "workingPriceEnergyCtNetto": 12.09,
+          "workingPriceTotalCtNetto": 22.956,
+          "basePriceMonthlyNetto": 15,
+          "abschlagMonthlyNetto": 11146.97
+        },
+        "36": {
+          "durationMonths": 36,
+          "productName": "E.ON BusinessStrom fix (RLM ≤999.999)",
+          "providerName": "E.ON Digital Technology GmbH",
+          "workingPriceEnergyCtNetto": 10.66,
+          "workingPriceTotalCtNetto": 21.526,
+          "basePriceMonthlyNetto": 15,
+          "abschlagMonthlyNetto": 10551.14
+        },
+        "48": {
+          "durationMonths": 48,
+          "productName": "E.ON BusinessStrom fix (RLM ≤999.999)",
+          "providerName": "E.ON Digital Technology GmbH",
+          "workingPriceEnergyCtNetto": 9.89,
+          "workingPriceTotalCtNetto": 20.756,
+          "basePriceMonthlyNetto": 15,
+          "abschlagMonthlyNetto": 10230.31
+        },
+        "60": {
+          "durationMonths": 60,
+          "productName": "E.ON BusinessStrom fix (RLM ≤999.999)",
+          "providerName": "E.ON Digital Technology GmbH",
+          "workingPriceEnergyCtNetto": 9.55,
+          "workingPriceTotalCtNetto": 20.416,
+          "basePriceMonthlyNetto": 15,
+          "abschlagMonthlyNetto": 10088.64
+        }
+      }
+    },
+    "SLP_STROM": {
+      "profileKey": "SLP_STROM",
+      "label": "Gewerbestrom SLP (Standardlastprofil)",
+      "branch": "strom",
+      "measurement": "SLP",
+      "consumptionKwh": 50000,
+      "plz": "44379",
+      "city": "Dortmund",
+      "checkedAt": "2026-11-08T18:51:34.096Z",
+      "bestOverall": {
+        "productName": "E.ON BusinessStrom fix (SLP)",
+        "providerName": "E.ON Digital Technology GmbH",
+        "durationMonths": 60,
+        "workingPriceEnergyCtNetto": 11.77,
+        "workingPriceTotalCtNetto": 24.456,
+        "basePriceMonthlyNetto": 5,
+        "abschlagMonthlyNetto": 1032.29,
+        "totalYearlyNetto": 12387.5,
+        "deliveryStart": "2031-01-01"
+      },
+      "bestByDuration": {
+        "12": {
+          "durationMonths": 12,
+          "productName": "E.ON BusinessStrom fix (SLP)",
+          "providerName": "E.ON Digital Technology GmbH",
+          "workingPriceEnergyCtNetto": 18.31,
+          "workingPriceTotalCtNetto": 30.996,
+          "basePriceMonthlyNetto": 5,
+          "abschlagMonthlyNetto": 1304.79
+        },
+        "24": {
+          "durationMonths": 24,
+          "productName": "E.ON BusinessStrom fix (SLP)",
+          "providerName": "E.ON Digital Technology GmbH",
+          "workingPriceEnergyCtNetto": 14.31,
+          "workingPriceTotalCtNetto": 26.996,
+          "basePriceMonthlyNetto": 5,
+          "abschlagMonthlyNetto": 1138.13
+        },
+        "36": {
+          "durationMonths": 36,
+          "productName": "E.ON BusinessStrom fix (SLP)",
+          "providerName": "E.ON Digital Technology GmbH",
+          "workingPriceEnergyCtNetto": 12.88,
+          "workingPriceTotalCtNetto": 25.566,
+          "basePriceMonthlyNetto": 5,
+          "abschlagMonthlyNetto": 1078.54
+        },
+        "48": {
+          "durationMonths": 48,
+          "productName": "E.ON BusinessStrom fix (SLP)",
+          "providerName": "E.ON Digital Technology GmbH",
+          "workingPriceEnergyCtNetto": 12.11,
+          "workingPriceTotalCtNetto": 24.796,
+          "basePriceMonthlyNetto": 5,
+          "abschlagMonthlyNetto": 1046.46
+        },
+        "60": {
+          "durationMonths": 60,
+          "productName": "E.ON BusinessStrom fix (SLP)",
+          "providerName": "E.ON Digital Technology GmbH",
+          "workingPriceEnergyCtNetto": 11.77,
+          "workingPriceTotalCtNetto": 24.456,
+          "basePriceMonthlyNetto": 5,
+          "abschlagMonthlyNetto": 1032.29
+        }
+      }
+    },
+    "RLM_GAS": {
+      "profileKey": "RLM_GAS",
+      "label": "Gewerbegas RLM (Lastgang)",
+      "branch": "gas",
+      "measurement": "RLM",
+      "consumptionKwh": 500000,
+      "peakLoadKw": 250,
+      "plz": "44379",
+      "city": "Dortmund",
+      "checkedAt": "2026-11-08T18:51:34.096Z",
+      "bestOverall": {
+        "productName": "E.ON BusinessGas fix (SLP)",
+        "providerName": "E.ON Digital Technology GmbH",
+        "durationMonths": 60,
+        "workingPriceEnergyCtNetto": 3.73,
+        "workingPriceTotalCtNetto": 5.9741,
+        "basePriceMonthlyNetto": 5,
+        "abschlagMonthlyNetto": 3005.37,
+        "totalYearlyNetto": 36064.44,
+        "deliveryStart": "2031-01-01"
+      },
+      "bestByDuration": {
+        "12": {
+          "durationMonths": 12,
+          "productName": "E.ON BusinessGas fix (SLP)",
+          "providerName": "E.ON Digital Technology GmbH",
+          "workingPriceEnergyCtNetto": 8.44,
+          "workingPriceTotalCtNetto": 10.6841,
+          "basePriceMonthlyNetto": 5,
+          "abschlagMonthlyNetto": 4967.87
+        },
+        "24": {
+          "durationMonths": 24,
+          "productName": "E.ON BusinessGas fix (SLP)",
+          "providerName": "E.ON Digital Technology GmbH",
+          "workingPriceEnergyCtNetto": 5.79,
+          "workingPriceTotalCtNetto": 8.0341,
+          "basePriceMonthlyNetto": 5,
+          "abschlagMonthlyNetto": 3863.7
+        },
+        "36": {
+          "durationMonths": 36,
+          "productName": "E.ON BusinessGas fix (SLP)",
+          "providerName": "E.ON Digital Technology GmbH",
+          "workingPriceEnergyCtNetto": 4.31,
+          "workingPriceTotalCtNetto": 6.5541,
+          "basePriceMonthlyNetto": 5,
+          "abschlagMonthlyNetto": 3247.04
+        },
+        "48": {
+          "durationMonths": 48,
+          "productName": "E.ON BusinessGas fix (SLP)",
+          "providerName": "E.ON Digital Technology GmbH",
+          "workingPriceEnergyCtNetto": 3.8,
+          "workingPriceTotalCtNetto": 6.0441,
+          "basePriceMonthlyNetto": 5,
+          "abschlagMonthlyNetto": 3034.54
+        },
+        "60": {
+          "durationMonths": 60,
+          "productName": "E.ON BusinessGas fix (SLP)",
+          "providerName": "E.ON Digital Technology GmbH",
+          "workingPriceEnergyCtNetto": 3.73,
+          "workingPriceTotalCtNetto": 5.9741,
+          "basePriceMonthlyNetto": 5,
+          "abschlagMonthlyNetto": 3005.37
+        }
+      }
+    },
+    "SLP_GAS": {
+      "profileKey": "SLP_GAS",
+      "label": "Gewerbegas SLP (Standardlastprofil)",
+      "branch": "gas",
+      "measurement": "SLP",
+      "consumptionKwh": 100000,
+      "plz": "44379",
+      "city": "Dortmund",
+      "checkedAt": "2026-11-08T18:51:34.096Z",
+      "bestOverall": {
+        "productName": "E.ON BusinessGas fix (SLP)",
+        "providerName": "E.ON Digital Technology GmbH",
+        "durationMonths": 60,
+        "workingPriceEnergyCtNetto": 4.55,
+        "workingPriceTotalCtNetto": 8.1671,
+        "basePriceMonthlyNetto": 5,
+        "abschlagMonthlyNetto": 704.18,
+        "totalYearlyNetto": 8450.14,
+        "deliveryStart": "2031-01-01"
+      },
+      "bestByDuration": {
+        "12": {
+          "durationMonths": 12,
+          "productName": "E.ON BusinessGas fix (SLP)",
+          "providerName": "E.ON Digital Technology GmbH",
+          "workingPriceEnergyCtNetto": 9.26,
+          "workingPriceTotalCtNetto": 12.8771,
+          "basePriceMonthlyNetto": 5,
+          "abschlagMonthlyNetto": 1096.68
+        },
+        "24": {
+          "durationMonths": 24,
+          "productName": "E.ON BusinessGas fix (SLP)",
+          "providerName": "E.ON Digital Technology GmbH",
+          "workingPriceEnergyCtNetto": 6.61,
+          "workingPriceTotalCtNetto": 10.2271,
+          "basePriceMonthlyNetto": 5,
+          "abschlagMonthlyNetto": 875.84
+        },
+        "36": {
+          "durationMonths": 36,
+          "productName": "E.ON BusinessGas fix (SLP)",
+          "providerName": "E.ON Digital Technology GmbH",
+          "workingPriceEnergyCtNetto": 5.13,
+          "workingPriceTotalCtNetto": 8.7471,
+          "basePriceMonthlyNetto": 5,
+          "abschlagMonthlyNetto": 752.51
+        },
+        "48": {
+          "durationMonths": 48,
+          "productName": "E.ON BusinessGas fix (SLP)",
+          "providerName": "E.ON Digital Technology GmbH",
+          "workingPriceEnergyCtNetto": 4.62,
+          "workingPriceTotalCtNetto": 8.2371,
+          "basePriceMonthlyNetto": 5,
+          "abschlagMonthlyNetto": 710.01
+        },
+        "60": {
+          "durationMonths": 60,
+          "productName": "E.ON BusinessGas fix (SLP)",
+          "providerName": "E.ON Digital Technology GmbH",
+          "workingPriceEnergyCtNetto": 4.55,
+          "workingPriceTotalCtNetto": 8.1671,
+          "basePriceMonthlyNetto": 5,
+          "abschlagMonthlyNetto": 704.18
+        }
+      }
+    }
+  },
+  "records": {
+    "RLM_STROM": {
+      "dailyDate": "2026-11-08",
+      "dailyMinEnergyCt": 9.55,
+      "dailyMinAt": "2026-11-08T16:50:08.814Z",
+      "dailyMinProductName": "E.ON BusinessStrom fix (RLM ≤999.999)",
+      "dailyMinProviderName": "E.ON Digital Technology GmbH",
+      "dailyMinDurationMonths": 12,
+      "allTimeMinEnergyCt": 9.55,
+      "allTimeMinAt": "2026-11-08T16:50:08.814Z",
+      "allTimeMinProductName": "E.ON BusinessStrom fix (RLM ≤999.999)",
+      "allTimeMinProviderName": "E.ON Digital Technology GmbH",
+      "allTimeMinDurationMonths": 12,
+      "lastEnergyCt": 9.55
+    },
+    "SLP_STROM": {
+      "dailyDate": "2026-11-08",
+      "dailyMinEnergyCt": 11.77,
+      "dailyMinAt": "2026-11-08T16:50:08.814Z",
+      "dailyMinProductName": "E.ON BusinessStrom fix (SLP)",
+      "dailyMinProviderName": "E.ON Digital Technology GmbH",
+      "dailyMinDurationMonths": 12,
+      "allTimeMinEnergyCt": 11.77,
+      "allTimeMinAt": "2026-11-08T16:50:08.814Z",
+      "allTimeMinProductName": "E.ON BusinessStrom fix (SLP)",
+      "allTimeMinProviderName": "E.ON Digital Technology GmbH",
+      "allTimeMinDurationMonths": 12,
+      "lastEnergyCt": 11.77
+    },
+    "SLP_GAS": {
+      "dailyDate": "2026-11-08",
+      "dailyMinEnergyCt": 4.55,
+      "dailyMinAt": "2026-11-08T16:50:08.814Z",
+      "dailyMinProductName": "E.ON BusinessGas fix (SLP)",
+      "dailyMinProviderName": "E.ON Digital Technology GmbH",
+      "dailyMinDurationMonths": 12,
+      "allTimeMinEnergyCt": 4.55,
+      "allTimeMinAt": "2026-11-08T16:50:08.814Z",
+      "allTimeMinProductName": "E.ON BusinessGas fix (SLP)",
+      "allTimeMinProviderName": "E.ON Digital Technology GmbH",
+      "allTimeMinDurationMonths": 12,
+      "lastEnergyCt": 4.55
+    },
+    "RLM_GAS": {
+      "dailyDate": "2026-11-08",
+      "dailyMinEnergyCt": 3.73,
+      "dailyMinAt": "2026-11-08T16:51:36.657Z",
+      "dailyMinProductName": "E.ON BusinessGas fix (SLP)",
+      "dailyMinProviderName": "E.ON Digital Technology GmbH",
+      "dailyMinDurationMonths": 60,
+      "allTimeMinEnergyCt": 3.73,
+      "allTimeMinAt": "2026-11-08T16:51:36.657Z",
+      "allTimeMinProductName": "E.ON BusinessGas fix (SLP)",
+      "allTimeMinProviderName": "E.ON Digital Technology GmbH",
+      "allTimeMinDurationMonths": 60,
+      "lastEnergyCt": 3.73
+    }
+  },
+  "recentAlerts": [
+    {
+      "sentAt": "2026-11-08T16:51:36.657Z",
+      "recipientEmail": "info@energiedoc.de",
+      "reason": "Manueller Sofort-Abruf / Aktuelle RLM & SLP Bestpreis-Übersicht",
+      "subject": "⚡ Aktuelle Bestpreise RLM & SLP: RLM Strom ab 9,55 ct/kWh | SLP Strom ab 11,77 ct/kWh | Gas ab 3,73 ct/kWh",
+      "highlights": [
+        "Gewerbegas RLM (Lastgang): Erst-Erfassung Bestpreis 3,73 ct/kWh (E.ON BusinessGas fix (SLP), 60M)"
+      ]
+    },
+    {
+      "sentAt": "2026-11-08T16:50:08.814Z",
+      "recipientEmail": "info@energiedoc.de",
+      "reason": "Manueller Sofort-Abruf / Aktuelle RLM & SLP Bestpreis-Übersicht",
+      "subject": "⚡ Aktuelle Bestpreise RLM & SLP: RLM Strom ab 9,55 ct/kWh | SLP Strom ab 11,77 ct/kWh | Gas ab 4,55 ct/kWh",
+      "highlights": [
+        "Gewerbestrom RLM (Lastgang): Erst-Erfassung Bestpreis 9,55 ct/kWh (E.ON BusinessStrom fix (RLM ≤999.999), 12M)",
+        "Gewerbestrom SLP (Standardlastprofil): Erst-Erfassung Bestpreis 11,77 ct/kWh (E.ON BusinessStrom fix (SLP), 12M)",
+        "Gewerbegas SLP (Standardlastprofil): Erst-Erfassung Bestpreis 4,55 ct/kWh (E.ON BusinessGas fix (SLP), 12M)"
+      ]
+    }
+  ]
+}

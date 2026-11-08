@@ -796,6 +796,12 @@ app.get('/api/external/alpha-tarife/embed.js', (req, res) => {
 });
 
 // 1.0 Firstcon Live Connection Status & Grid/Street Lookup
+// Liefert den Integrationstoken (aus Umgebungsvariable) fuer das clientseitige Firstcon-Bestellstrecken-Widget.
+app.get('/api/firstcon/widget-token', (req, res) => {
+    res.set('Cache-Control', 'no-store');
+    res.json({ token: process.env.FIRSTCON_ORDERFLOW_TOKEN || '' });
+});
+
 app.get('/api/firstcon/status', async (req, res) => {
     try {
         const token = req.query.token || process.env.FIRSTCON_ORDERFLOW_TOKEN || firstconService.DEFAULT_FIRSTCON_TOKEN;
@@ -1549,7 +1555,8 @@ async function handleRlmLeadSubmit(req, res) {
         const currentProvider = String(body.currentProvider || body.vorversorger || '').trim();
         const iban = String(body.iban || 'AUF-ANFRAGE').trim();
         const portalSource = String(body.portalSource || body.source || req.headers.origin || 'External B2B Portal').trim();
-        const partnerCode = String(body.partnerCode || body.affiliateCode || body.vermittler || '10011').trim();
+        const partnerCode = String(body.salesNumber || body.vp || body.partnerNumber || body.partnerCode || body.affiliateCode || body.vermittler || '10011').trim();
+        const salesNumber = parseInt(partnerCode, 10) || 10011;
         const notes = String(body.notes || body.bemerkung || body.message || '').trim();
 
         // 2. Create Offer / Order & Documents in RLM Portal (`vp.alpha-energie.de`) if enabled
@@ -1560,6 +1567,8 @@ async function handleRlmLeadSubmit(req, res) {
                 vpPortalResult = await createVpPortalOffer(
                     {
                         ...body,
+                        salesNumber,
+                        partnerCode,
                         companyName: companyName || `${firstName} ${lastName}`,
                         legalForm,
                         salutation,
@@ -1742,7 +1751,7 @@ async function handleRlmLeadSubmit(req, res) {
                 data: {
                     orderNumber: isOffer ? offerNumber : orderNumber,
                     tariffId,
-                    tariffName: companyName ? `[ANGEBOT] ${tariffName} (${companyName})` : `[ANGEBOT] ${tariffName}`,
+                    tariffName: companyName ? `[${isOffer ? 'ANGEBOT' : 'RLM-AUFTRAG'}] ${tariffName} (${companyName})` : `[${isOffer ? 'ANGEBOT' : 'RLM-AUFTRAG'}] ${tariffName}`,
                     branch,
                     consumption,
                     monthlyPayment: abschlagMonthlyNetto || 0,
@@ -1761,6 +1770,8 @@ async function handleRlmLeadSubmit(req, res) {
                     email: email || 'b2b@alpha-energie.de',
                     phone: phone || '-',
                     iban,
+                    partnerCode: partnerCode || '10011',
+                    orderSource: 'RLM_PARTNER_IFRAME',
                     status: isOffer ? 'OFFER_CREATED' : 'RECEIVED'
                 }
             });

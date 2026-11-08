@@ -1550,7 +1550,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         // Verify live Firstcon API connection status on load
         (async function checkFirstconStatus() {
             try {
-                const tokenParam = encodeURIComponent(window.__FIRSTCON_TOKEN__ || ')VJZAwkFfEUUZbCDaRQsJ:TsN,BV');
+                const tokenParam = encodeURIComponent(window.__FIRSTCON_TOKEN__ || '');
                 const res = await fetch(`/api/firstcon/status?token=${tokenParam}`);
                 if (res.ok) {
                     const statusData = await res.json();
@@ -1569,7 +1569,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             let streets = liveStreetsCache[cacheKey];
             if (!streets) {
                 try {
-                    const tokenParam = encodeURIComponent(window.__FIRSTCON_TOKEN__ || ')VJZAwkFfEUUZbCDaRQsJ:TsN,BV');
+                    const tokenParam = encodeURIComponent(window.__FIRSTCON_TOKEN__ || '');
                     const res = await fetch(`/api/firstcon/grid?plz=${plz}&branch=${branch}&streets=1&token=${tokenParam}`);
                     if (res.ok) {
                         const gridData = await res.json();
@@ -1638,7 +1638,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                         currentAbschlag: currentMonthlyEuro,
                         currentMonthlyEuro,
                         branch: activeBranch,
-                        orderflowToken: window.__FIRSTCON_TOKEN__ || ')VJZAwkFfEUUZbCDaRQsJ:TsN,BV'
+                        orderflowToken: window.__FIRSTCON_TOKEN__ || ''
                     })
                 });
                 if (!res.ok) return null;
@@ -3451,7 +3451,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                 const payload = {
                     ...selectedOrderData,
                     branch: selectedOrderData.branch || currentBranch,
-                    orderflowToken: window.__FIRSTCON_TOKEN__ || ')VJZAwkFfEUUZbCDaRQsJ:TsN,BV',
+                    orderflowToken: window.__FIRSTCON_TOKEN__ || '',
                     salutation: salutation ? salutation.value : 'Herr/Frau',
                     firstName: firstName.value.trim(),
                     lastName: lastName.value.trim(),
@@ -4346,7 +4346,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     };
 
     // 1. Resolve active token dynamically
-    const DEFAULT_TOKEN = ')VJZAwkFfEUUZbCDaRQsJ:TsN,BV';
+    const DEFAULT_TOKEN = '';
     let activeToken = DEFAULT_TOKEN;
     try {
         const urlParams = new URLSearchParams(window.location.search);
@@ -4380,6 +4380,19 @@ document.addEventListener("DOMContentLoaded", async () => {
         applyTokenToWidget();
     }
 
+    // Kein Token im Code: Standard-Integrationstoken kommt vom Server (Umgebungsvariable)
+    if (!activeToken) {
+        fetch('/api/firstcon/widget-token', { cache: 'no-store' })
+            .then((r) => r.json())
+            .then((d) => {
+                if (d && d.token) {
+                    activeToken = d.token;
+                    window.__FIRSTCON_TOKEN__ = window.__FIRSTCON_TOKEN__ || d.token;
+                    applyTokenToWidget();
+                }
+            })
+            .catch((e) => console.warn('Firstcon widget token fetch failed:', e));
+    }
     // 3. Catch and suppress unhandled promise rejections / Axios 401 from Firstcon
     window.addEventListener('unhandledrejection', (event) => {
         const reason = event && event.reason ? String(event.reason) : '';

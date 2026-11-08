@@ -413,6 +413,41 @@
                 </div>
             </div>
 
+            <!-- RLM Partner-iFrame & REST-API Code Generator -->
+            <div style="background: white; padding: 20px; border-radius: 12px; border: 2px solid #10b981; margin-bottom: 24px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 12px;">
+                    <div>
+                        <h3 style="margin: 0; font-size: 1.05rem; color: #065f46;">⚡ RLM-Portal &amp; Gewerbetarif-Rechner – Partner-iFrame &amp; API Code (VP-Nummer &amp; freie Aufschlagswahl)</h3>
+                        <p style="margin: 4px 0 0 0; font-size: 0.82rem; color: #475569;">VP-Nummer eingeben ➔ fertigen HTML-iFrame-Code für die eigene Partner-Webseite kopieren. Aufträge laufen direkt über die VP-Nummer, Aufschlag (0,00 – 3,00 ct/kWh) ist im Rechner frei wählbar.</p>
+                    </div>
+                    <a id="rlm-admin-preview-link" href="https://newsticker.space/embed/rlm-rechner?vp=10011&aufschlag=0.50" target="_blank" style="background: #059669; color: #fff; text-decoration: none; padding: 8px 14px; border-radius: 8px; font-weight: 700; font-size: 0.82rem;">🔗 Live-Rechner öffnen</a>
+                </div>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin-bottom: 12px;">
+                    <div>
+                        <label style="font-size: 0.78rem; font-weight: 700; color: #334155;">VP-Nummer des Partners:</label>
+                        <input id="rlm-admin-vp-input" type="text" value="10011" oninput="updateAdminRlmIframeSnippet()" style="width: 100%; padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-family: monospace; font-weight: 700; margin-top: 4px;">
+                    </div>
+                    <div>
+                        <label style="font-size: 0.78rem; font-weight: 700; color: #334155;">Start-Aufschlag in ct/kWh (frei wählbar im iFrame):</label>
+                        <input id="rlm-admin-surcharge-input" type="text" value="0.50" oninput="updateAdminRlmIframeSnippet()" style="width: 100%; padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-family: monospace; margin-top: 4px;">
+                    </div>
+                </div>
+                <div style="position: relative;">
+                    <pre id="rlm-admin-code-box" style="background: #0f172a; color: #34d399; padding: 14px; border-radius: 8px; font-size: 0.76rem; overflow-x: auto; margin: 0;">&lt;iframe id="alpha-rlm-rechner-10011" src="https://newsticker.space/embed/rlm-rechner?vp=10011&amp;aufschlag=0.50" width="100%" height="1180" frameborder="0" style="border:none;border-radius:16px;display:block;width:100%;" allow="clipboard-write; fullscreen" loading="lazy"&gt;&lt;/iframe&gt;</pre>
+                    <button type="button" onclick="navigator.clipboard.writeText(document.getElementById('rlm-admin-code-box').textContent); this.textContent='Kopiert ✓'; var b=this; setTimeout(function(){b.textContent='HTML-Code kopieren';},2000);" style="position: absolute; top: 8px; right: 8px; background: #10b981; color: white; border: none; border-radius: 6px; padding: 5px 10px; font-size: 0.75rem; font-weight: 700; cursor: pointer;">HTML-Code kopieren</button>
+                </div>
+                <script>
+                    function updateAdminRlmIframeSnippet() {
+                        var vp = (document.getElementById('rlm-admin-vp-input').value || '10011').trim() || '10011';
+                        var sc = (document.getElementById('rlm-admin-surcharge-input').value || '0.50').replace(',', '.').trim() || '0.50';
+                        var url = 'https://newsticker.space/embed/rlm-rechner?vp=' + encodeURIComponent(vp) + '&aufschlag=' + encodeURIComponent(sc);
+                        document.getElementById('rlm-admin-preview-link').href = url;
+                        document.getElementById('rlm-admin-code-box').textContent =
+                            '<iframe id="alpha-rlm-rechner-' + vp + '" src="' + url + '" width="100%" height="1180" frameborder="0" style="border:none;border-radius:16px;display:block;width:100%;" allow="clipboard-write; fullscreen" loading="lazy"></iframe>';
+                    }
+                </script>
+            </div>
+
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 24px;">
                 <div style="background: white; padding: 18px; border-radius: 10px; border: 1px solid #e2e8f0;">
                     <div style="font-size: 0.8rem; color: #64748b; font-weight: 600;">Energieaufträge (Gesamt)</div>

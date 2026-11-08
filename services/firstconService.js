@@ -1,12 +1,15 @@
 const axios = require('axios');
 
-// LIVE-Zugangsdaten (portal.firstcon.de) - Test auf dev01 war erfolgreich, Go-Live freigegeben.
-const LIVE_ORDERFLOW_TOKEN = ')VJZAwkFfEUUZbCDaRQsJ:TsN,BV';
-const DEFAULT_FIRSTCON_ORDERFLOW_TOKEN = process.env.FIRSTCON_ORDERFLOW_TOKEN || LIVE_ORDERFLOW_TOKEN;
-const DEFAULT_FIRSTCON_TARIFF_TOKEN = process.env.FIRSTCON_TARIFF_TOKEN || LIVE_ORDERFLOW_TOKEN;
+// LIVE-Zugangsdaten (portal.firstcon.de) werden ausschliesslich ueber Umgebungsvariablen
+// (Railway Variables bzw. lokale .env) bereitgestellt - niemals im Code hinterlegen.
+const DEFAULT_FIRSTCON_ORDERFLOW_TOKEN = process.env.FIRSTCON_ORDERFLOW_TOKEN || '';
+const DEFAULT_FIRSTCON_TARIFF_TOKEN = process.env.FIRSTCON_TARIFF_TOKEN || DEFAULT_FIRSTCON_ORDERFLOW_TOKEN;
 const DEFAULT_FIRSTCON_TOKEN = DEFAULT_FIRSTCON_ORDERFLOW_TOKEN;
-const DEFAULT_FIRSTCON_USERNAME = process.env.FIRSTCON_USERNAME || 'bestellstrecke_alpha';
-const DEFAULT_FIRSTCON_PASSWORD = process.env.FIRSTCON_PASSWORD || 'RZVArE4Y9apyccFM';
+const DEFAULT_FIRSTCON_USERNAME = process.env.FIRSTCON_USERNAME || '';
+const DEFAULT_FIRSTCON_PASSWORD = process.env.FIRSTCON_PASSWORD || '';
+if (!DEFAULT_FIRSTCON_ORDERFLOW_TOKEN || !DEFAULT_FIRSTCON_USERNAME || !DEFAULT_FIRSTCON_PASSWORD) {
+    console.warn('[Firstcon] FIRSTCON_ORDERFLOW_TOKEN / FIRSTCON_USERNAME / FIRSTCON_PASSWORD fehlen in den Umgebungsvariablen.');
+}
 const FIRSTCON_API_BASE = process.env.FIRSTCON_API_URL || 'https://portal.firstcon.de/api/v2';
 const FIRSTCON_LIVE_API_BASE = process.env.FIRSTCON_LIVE_API_URL || 'https://portal.firstcon.de/api/v2';
 

@@ -436,6 +436,167 @@ function normalizeGridLayer(input) {
     return 'LOW';
 }
 
+// Known RLM SalesBinding fallback map from vp.alpha-energie.de (RecordService_getSalesBindings)
+const STATIC_RLM_SALES_BINDINGS = {
+    10011: { salesChannel: 'Alpha Energie GmbH', salesLevel: 'Alpha Energie GmbH', levelId: 67, sort: 1, ratePct: 90 },
+    10141: { salesChannel: 'Alpha 2027', salesLevel: 'Alpha 2027', levelId: 303, sort: 1, ratePct: 90 },
+    10185: { salesChannel: 'Alpha Energie GmbH', salesLevel: 'Landesdirektor', levelId: 69, sort: 3, ratePct: 80 },
+    10186: { salesChannel: 'Alpha Energie GmbH', salesLevel: 'Bezirksdirektor', levelId: 72, sort: 6, ratePct: 65 },
+    10197: { salesChannel: 'Alpha Energie GmbH', salesLevel: 'Landesdirektor', levelId: 69, sort: 3, ratePct: 80 },
+    10307: { salesChannel: 'Alpha Energie GmbH', salesLevel: 'Landesdirektor', levelId: 69, sort: 3, ratePct: 80 },
+    11088: { salesChannel: 'Alpha Energie GmbH', salesLevel: 'Landesdirektor', levelId: 69, sort: 3, ratePct: 80 },
+    11302: { salesChannel: 'Alpha 2027', salesLevel: 'Landesdirektor', levelId: 305, sort: 3, ratePct: 80 },
+    11366: { salesChannel: 'Alpha 2026', salesLevel: 'Landesdirektor', levelId: 292, sort: 2, ratePct: 85 },
+    11810: { salesChannel: 'Alpha do to do', salesLevel: 'S0', levelId: 27, sort: 2, ratePct: 85 },
+    12058: { salesChannel: 'Alpha Energie GmbH', salesLevel: 'Landesdirektor', levelId: 69, sort: 3, ratePct: 80 },
+    12488: { salesChannel: 'Alpha do to do', salesLevel: 'F1', levelId: 31, sort: 6, ratePct: 65 },
+    13080: { salesChannel: 'Alpha 2027', salesLevel: 'Landesdirektor', levelId: 305, sort: 3, ratePct: 80 },
+    13276: { salesChannel: 'Alpha 2027', salesLevel: 'Generaldirektor', levelId: 304, sort: 2, ratePct: 85 },
+    14281: { salesChannel: 'Alpha Energie GmbH', salesLevel: 'Distriktdirektor', levelId: 71, sort: 5, ratePct: 70 },
+    14283: { salesChannel: 'Alpha Energie GmbH', salesLevel: 'Verkaufsleiter', levelId: 74, sort: 8, ratePct: 55 },
+    14669: { salesChannel: 'Alpha 2026', salesLevel: 'Alpha 2026', levelId: 291, sort: 1, ratePct: 90 },
+    14701: { salesChannel: 'Alpha Energie GmbH', salesLevel: 'Verkaufsleiter', levelId: 74, sort: 8, ratePct: 55 },
+    14719: { salesChannel: 'Alpha 2028', salesLevel: 'Alpha 2028', levelId: 350, sort: 1, ratePct: 90 },
+    14764: { salesChannel: 'Alpha 2027', salesLevel: 'Landesdirektor', levelId: 305, sort: 3, ratePct: 80 },
+    14809: { salesChannel: 'Alpha 2027', salesLevel: 'Landesdirektor', levelId: 305, sort: 3, ratePct: 80 },
+    14822: { salesChannel: 'Alpha Stufe 11', salesLevel: 'General', levelId: 280, sort: 2, ratePct: 85 },
+    14950: { salesChannel: 'Alpha 2026', salesLevel: 'Landesdirektor', levelId: 292, sort: 2, ratePct: 85 },
+    15143: { salesChannel: 'Alpha 2026', salesLevel: 'Regionaldirektor', levelId: 293, sort: 3, ratePct: 80 },
+    15154: { salesChannel: 'Alpha 2027', salesLevel: 'Landesdirektor', levelId: 305, sort: 3, ratePct: 80 },
+    15629: { salesChannel: 'Alpha 2027', salesLevel: 'Landesdirektor', levelId: 305, sort: 3, ratePct: 80 },
+    15800: { salesChannel: 'Alpha 2027', salesLevel: 'Alpha 2027', levelId: 303, sort: 1, ratePct: 90 },
+    16016: { salesChannel: 'Call', salesLevel: 'Call', levelId: 329, sort: 1, ratePct: 90 },
+    16113: { salesChannel: 'Prime', salesLevel: 'Prime', levelId: 335, sort: 1, ratePct: 90 },
+    16114: { salesChannel: 'Prime 2', salesLevel: 'Prime 2', levelId: 345, sort: 1, ratePct: 90 },
+    16135: { salesChannel: 'Prime', salesLevel: 'Platinum', levelId: 336, sort: 2, ratePct: 80 },
+    16136: { salesChannel: 'Prime', salesLevel: 'Platinum', levelId: 336, sort: 2, ratePct: 80 },
+    16305: { salesChannel: 'Alpha 2027', salesLevel: 'Landesdirektor', levelId: 305, sort: 3, ratePct: 80 },
+    16330: { salesChannel: 'Alpha 2027', salesLevel: 'Generaldirektor', levelId: 304, sort: 2, ratePct: 85 },
+    16331: { salesChannel: 'Alpha 2027', salesLevel: 'Landesdirektor', levelId: 305, sort: 3, ratePct: 80 },
+    16463: { salesChannel: 'Vertriebweg Berlin 2', salesLevel: 'General', levelId: 382, sort: 2, ratePct: 85 },
+    16464: { salesChannel: 'Vertriebweg Berlin 2', salesLevel: 'Senior General', levelId: 383, sort: 3, ratePct: 80 },
+    16465: { salesChannel: 'Vertriebweg Berlin 2', salesLevel: 'Junior General', levelId: 384, sort: 4, ratePct: 75 },
+    16481: { salesChannel: 'Alpha 2027', salesLevel: 'Vertriebsassistent', levelId: 315, sort: 13, ratePct: 30 },
+    16482: { salesChannel: 'Alpha 2027', salesLevel: 'Vertriebsassistent', levelId: 315, sort: 13, ratePct: 30 },
+    16483: { salesChannel: 'Alpha 2027', salesLevel: 'Vertriebsassistent', levelId: 315, sort: 13, ratePct: 30 },
+    16486: { salesChannel: 'Vertriebweg Berlin 2', salesLevel: 'Geschäftsleiter', levelId: 385, sort: 5, ratePct: 70 },
+    16488: { salesChannel: 'Vertriebweg Berlin 2', salesLevel: 'Regionalleiter', levelId: 386, sort: 6, ratePct: 65 },
+    16505: { salesChannel: 'Vertriebweg Berlin 2', salesLevel: 'Vertriebler', levelId: 389, sort: 9, ratePct: 50 },
+    16520: { salesChannel: '4 Stufe', salesLevel: 'Geschäftsleiter', levelId: 391, sort: 2, ratePct: 85 },
+    16521: { salesChannel: '4 Stufe', salesLevel: 'Geschäftsleiter', levelId: 391, sort: 2, ratePct: 85 },
+    16523: { salesChannel: '4 Stufe', salesLevel: 'Vertriebler', levelId: 393, sort: 4, ratePct: 75 },
+    16524: { salesChannel: '4 Stufe', salesLevel: 'Vertriebler', levelId: 393, sort: 4, ratePct: 75 },
+    16528: { salesChannel: '4 Stufe', salesLevel: 'Vertriebsleiter', levelId: 392, sort: 3, ratePct: 80 },
+    16566: { salesChannel: '4 Stufe', salesLevel: 'Vertriebler', levelId: 393, sort: 4, ratePct: 75 }
+};
+
+let cachedSalesBindingsMap = null;
+let cachedSalesBindingsAt = 0;
+
+function computeRatePctFromBinding(channelDesc, levelSort) {
+    const chName = String(channelDesc || '').trim();
+    const isPrime = chName.toLowerCase() === 'prime' || chName.toLowerCase() === 'prime 2';
+    const sort = Math.max(1, Number(levelSort) || 1);
+    const idx = sort - 1;
+    if (isPrime) {
+        if (idx === 0) return 90;
+        if (idx === 1) return 80;
+        return Math.max(0, 80 - (idx - 1) * 5);
+    }
+    return Math.max(0, 90 - idx * 5);
+}
+
+/**
+ * Resolve the individual RLM commission profile (Provisionssatz %, salesChannel, salesLevel)
+ * for a given VP number (`salesNumber`) directly from `vp.alpha-energie.de/api/graphql` (`RecordService_getSalesBindings`).
+ */
+async function resolveVpCommissionProfile(salesNumberInput) {
+    const cleanVp = parseInt(String(salesNumberInput || '10011').replace(/\D/g, ''), 10) || 10011;
+    const now = Date.now();
+
+    if (!cachedSalesBindingsMap || (now - cachedSalesBindingsAt > 10 * 60 * 1000)) {
+        try {
+            const res = await vpGraphql(
+                'RecordService_getSalesBindings',
+                `query RecordService_getSalesBindings($salesNumberList: [Int!]) {
+                    recordService_getSalesBindings(salesNumberList: $salesNumberList) {
+                        active
+                        id
+                        salesNumber
+                        resellerId
+                        parentId
+                        levelId
+                        salesChannel { id description }
+                        salesLevel { id description sort isMain }
+                    }
+                }`,
+                {}
+            );
+            const list = (res && res.data && Array.isArray(res.data.recordService_getSalesBindings))
+                ? res.data.recordService_getSalesBindings
+                : [];
+            if (list.length > 0) {
+                const freshMap = new Map();
+                for (const b of list) {
+                    const sn = Number(b.salesNumber);
+                    if (!sn) continue;
+                    const chDesc = (b.salesChannel && b.salesChannel.description) ? b.salesChannel.description : 'Alpha Energie GmbH';
+                    const lvlDesc = (b.salesLevel && b.salesLevel.description) ? b.salesLevel.description : 'Partner';
+                    const sort = (b.salesLevel && Number(b.salesLevel.sort)) ? Number(b.salesLevel.sort) : 1;
+                    const ratePct = computeRatePctFromBinding(chDesc, sort);
+                    freshMap.set(sn, {
+                        salesNumber: sn,
+                        resellerId: b.resellerId || null,
+                        parentId: b.parentId || null,
+                        levelId: b.levelId || null,
+                        salesChannel: chDesc,
+                        salesLevel: lvlDesc,
+                        levelSort: sort,
+                        commissionRatePct: ratePct,
+                        source: 'live_rlm_graphql'
+                    });
+                }
+                cachedSalesBindingsMap = freshMap;
+                cachedSalesBindingsAt = now;
+            }
+        } catch (err) {
+            console.warn('[RLM-API] Live RecordService_getSalesBindings lookup warning, using cached/static bindings:', err.message);
+        }
+    }
+
+    if (cachedSalesBindingsMap && cachedSalesBindingsMap.has(cleanVp)) {
+        return cachedSalesBindingsMap.get(cleanVp);
+    }
+
+    const staticHit = STATIC_RLM_SALES_BINDINGS[cleanVp];
+    if (staticHit) {
+        return {
+            salesNumber: cleanVp,
+            resellerId: null,
+            parentId: null,
+            levelId: staticHit.levelId,
+            salesChannel: staticHit.salesChannel,
+            salesLevel: staticHit.salesLevel,
+            levelSort: staticHit.sort,
+            commissionRatePct: staticHit.ratePct,
+            source: 'static_rlm_binding'
+        };
+    }
+
+    // Fallback for VP numbers not yet bound in RecordService_getSalesBindings
+    return {
+        salesNumber: cleanVp,
+        resellerId: null,
+        parentId: 10011,
+        levelId: null,
+        salesChannel: 'Alpha Energie GmbH',
+        salesLevel: 'Vertriebspartner',
+        levelSort: 3,
+        commissionRatePct: 80,
+        source: 'default_partner_tier'
+    };
+}
+
 /**
  * Extract structured tariff variants from a raw RLM Portal product and combine with official network/levy calculation.
  */
@@ -449,10 +610,21 @@ function buildTariffVariantsForProduct({
     gridLayer,
     deliveryStart,
     surchargeCt,
+    baseSurchargeEur,
     drittkostenCalc,
     currentYearlyNetto,
-    currentYearlyBrutto
+    currentYearlyBrutto,
+    vpCommissionProfile
 }) {
+    const vpProfile = vpCommissionProfile || {
+        salesNumber: 10011,
+        salesChannel: 'Alpha Energie GmbH',
+        salesLevel: 'Alpha Energie GmbH',
+        levelSort: 1,
+        commissionRatePct: 90,
+        source: 'default'
+    };
+    const vpCommissionRatePct = Number(vpProfile.commissionRatePct) || 80;
     const prices = Array.isArray(product.pricesWithoutSurcharge) && product.pricesWithoutSurcharge.length > 0
         ? product.pricesWithoutSurcharge
         : (Array.isArray(product.prices) ? product.prices : []);
@@ -464,6 +636,7 @@ function buildTariffVariantsForProduct({
     const maxAllowedSurcharge = Number.isFinite(Number(workPriceSurchargeRule.max)) ? Number(workPriceSurchargeRule.max) : 3;
     const minAllowedSurcharge = Number.isFinite(Number(workPriceSurchargeRule.min)) ? Number(workPriceSurchargeRule.min) : 0;
     const appliedSurchargeCt = round4(Math.min(maxAllowedSurcharge, Math.max(minAllowedSurcharge, Number(surchargeCt) || 0)));
+    const appliedBaseSurchargeEur = round2(Math.max(0, Number(baseSurchargeEur) || 0));
 
     // Filter price entries matching RLM vs SLP
     const matchingPrices = prices.filter(p => {
@@ -567,6 +740,11 @@ function buildTariffVariantsForProduct({
                 }
             }
 
+            const basePriceEnergyBaseMonthlyNetto = matchedBaseMonthlyNetto;
+            matchedBaseMonthlyNetto = round2(basePriceEnergyBaseMonthlyNetto + appliedBaseSurchargeEur);
+            const drittkostenFixedMonthlyNetto = round2(drittkostenFixedYearlyNetto / 12);
+            const totalFixedMonthlyNetto = round2(matchedBaseMonthlyNetto + drittkostenFixedMonthlyNetto);
+
             const workingPriceEnergyCtNetto = round4(baseWorkPriceCtNetto + appliedSurchargeCt);
             const workingPriceEnergyCtBrutto = round4(workingPriceEnergyCtNetto * (1 + taxRate / 100));
 
@@ -593,9 +771,17 @@ function buildTariffVariantsForProduct({
             const energyOnlyAbschlagMonthlyBrutto = round2(energyCostYearlyBrutto / 12);
 
             const savingsYearlyNetto = currentYearlyNetto > 0 ? round2(Math.max(0, currentYearlyNetto - totalYearlyNetto)) : 0;
-            const savingsYearlyBrutto = currentYearlyBrutto > 0 ? round2(Math.max(0, currentYearlyBrutto - totalYearlyBrutto)) : 0;
+            const savingsYearlyBrutto = currentYearlyBrutto > 0 ? round2(Math.max(0, currentYearlyBrutto - totalYearlyNetto)) : 0;
             const savingsMonthlyNetto = round2(savingsYearlyNetto / 12);
             const savingsMonthlyBrutto = round2(savingsYearlyBrutto / 12);
+
+            // --- Partner Commission / Provision (per tariff & VP Provisionssatz %) ---
+            const marginWorkYearlyNetto = round2(consumption * (appliedSurchargeCt / 100));
+            const marginBaseYearlyNetto = round2(appliedBaseSurchargeEur * 12);
+            const marginYearlyNetto = round2(marginWorkYearlyNetto + marginBaseYearlyNetto);
+            const provisionYearlyNetto = round2(marginYearlyNetto * (vpCommissionRatePct / 100));
+            const provisionMonthlyNetto = round2(provisionYearlyNetto / 12);
+            const provisionTotalContractNetto = round2(provisionYearlyNetto * (durationMonths / 12));
 
             const deliveryFrom = period.from || deliveryStart;
             let deliveryTo = period.to || null;
@@ -657,9 +843,13 @@ function buildTariffVariantsForProduct({
                 workingPriceTotalCtBrutto,
 
                 // --- Base & Peak Prices (€) ---
+                basePriceEnergyBaseMonthlyNetto,
+                baseSurchargeEurNetto: appliedBaseSurchargeEur,
                 basePriceEnergyMonthlyNetto: matchedBaseMonthlyNetto,
                 basePriceEnergyMonthlyBrutto,
                 basePriceEnergyYearlyNetto,
+                drittkostenFixedMonthlyNetto,
+                totalFixedMonthlyNetto,
                 drittkostenFixedYearlyNetto,
                 drittkostenWorkYearlyNetto,
                 drittkostenYearlyNetto: totalDrittkostenYearlyNetto,
@@ -685,6 +875,18 @@ function buildTariffVariantsForProduct({
                 savingsYearlyBrutto,
                 savingsMonthlyNetto,
                 savingsMonthlyBrutto,
+
+                // --- Partner Commission / Provision (per tariff & VP Provisionssatz %) ---
+                vpSalesNumber: vpProfile.salesNumber,
+                vpSalesChannel: vpProfile.salesChannel,
+                vpSalesLevel: vpProfile.salesLevel,
+                vpCommissionRatePct,
+                marginWorkYearlyNetto,
+                marginBaseYearlyNetto,
+                marginYearlyNetto,
+                provisionYearlyNetto,
+                provisionMonthlyNetto,
+                provisionTotalContractNetto,
 
                 // --- Backwards-compatible aliases for standard calculator widgets ---
                 workingPriceCt: workingPriceEnergyCtNetto,
@@ -769,12 +971,26 @@ async function calculateRlmTariffs(params = {}) {
         autoCalculatedUsageHours = true;
         autoCalculatedPeakLoad = true;
     }
+
+    // Physical plausibility guard: a year only has 8,760 hours.
+    // If consumption / peakLoad > 8760 (e.g. consumption changed to 1,000,000 kWh while peakLoad stayed at 32 kW),
+    // vp.alpha-energie.de rejects the network fee calculation (drittkostenCalc = null).
+    // Automatically scale peakLoad so usageHours stays physically valid.
+    if (peakLoad > 0 && (consumption / peakLoad > 8760 || consumption / peakLoad < 100)) {
+        const targetUh = (usageHours >= 100 && usageHours < 8760) ? usageHours : defaultUsageHours;
+        peakLoad = Math.max(1, Math.round(consumption / targetUh));
+        usageHours = Math.max(100, Math.min(8760, Math.round(consumption / peakLoad)));
+        autoCalculatedPeakLoad = true;
+        autoCalculatedUsageHours = true;
+    }
+
     const usageHoursExact = peakLoad > 0 ? round2(consumption / peakLoad) : usageHours;
     const usageHoursZone = usageHours >= 2500 ? '>= 2.500 h/a' : '< 2.500 h/a';
 
     const gridLayer = normalizeGridLayer(params.gridLayer || params.netzebene || params.druckstufe);
     const deliveryStart = normalizeDeliveryStart(params.deliveryStart || params.lieferbeginn);
     const surchargeCt = parseFloat(params.surchargeCt ?? params.aufschlagCt ?? params.provisionCt ?? 0) || 0;
+    const baseSurchargeEur = parseFloat(params.baseSurchargeEur ?? params.grundpreisAufschlag ?? 0) || 0;
     const businessSector = String(params.businessSector || params.branche || '23');
     const loadProfile = String(params.loadProfile || params.lastprofil || (isGas ? '119' : '25'));
     const meterType = String(params.meterType || 'MME');
@@ -876,7 +1092,9 @@ async function calculateRlmTariffs(params = {}) {
     const offerQueries = [];
     const rlmOfferCons = (!isGas && measurement === 'RLM' && consumption === 100000)
         ? 100001
-        : ((isGas && measurement === 'RLM' && consumption <= 1000000) ? 1000001 : consumption);
+        : ((!isGas && measurement === 'RLM' && consumption === 1000000)
+            ? 1000001
+            : ((isGas && measurement === 'RLM' && consumption <= 1000000) ? 1000001 : consumption));
 
     offerQueries.push(buildOfferPromise(measurement, measurement === 'RLM' ? rlmOfferCons : consumption, deliveryStart));
 
@@ -963,7 +1181,16 @@ async function calculateRlmTariffs(params = {}) {
             }
         );
 
-    const [offerResults, calcRes] = await Promise.all([Promise.all(offerQueries), calcPromise]);
+    const requestedVpNumber = parseInt(
+        params.salesNumber || params.vp || params.vpNumber || params.partnerNumber || params.partnerCode || 10011,
+        10
+    ) || 10011;
+
+    const [offerResults, calcRes, vpCommissionProfile] = await Promise.all([
+        Promise.all(offerQueries),
+        calcPromise,
+        resolveVpCommissionProfile(requestedVpNumber)
+    ]);
 
     const drittkostenCalc = isGas
         ? (calcRes.data && calcRes.data.productFinder_priceSpecialContractCalculationGas) || null
@@ -1003,9 +1230,11 @@ async function calculateRlmTariffs(params = {}) {
             gridLayer,
             deliveryStart: queryDStart,
             surchargeCt,
+            baseSurchargeEur,
             drittkostenCalc,
             currentYearlyNetto,
-            currentYearlyBrutto
+            currentYearlyBrutto,
+            vpCommissionProfile
         });
 
         tariffs.push(...variants);
@@ -1098,6 +1327,7 @@ async function calculateRlmTariffs(params = {}) {
         maxSavings: maxSavingsNetto,
         maxSavingsNetto,
         maxSavingsBrutto,
+        vpCommissionProfile,
         tariffsCount: tariffs.length,
         tariffs,
         products: productsSummary
@@ -1335,7 +1565,7 @@ async function buildValidatedGraphqlOrderPayload(params = {}, matchedTariff = nu
     const businessSectorName = String(params.businessSectorName || 'Gewerbe allgemein');
     const loadProfile = String(params.loadProfile || params.lastprofilId || (isGas ? '6' : '69'));
     const loadProfileName = String(params.loadProfileName || (isGas ? 'Standard' : 'NPR'));
-    const salesNumber = parseInt(params.salesNumber || 10011, 10) || 10011;
+    const salesNumber = parseInt(params.salesNumber || params.vp || params.partnerNumber || params.partnerCode || 10011, 10) || 10011;
 
     const address = await resolveDeliveryAddress({
         plz: params.plz || params.zip || '07745',
@@ -1605,7 +1835,7 @@ async function generateVpOrderDocuments(params = {}, matchedTariff = null) {
     const input = {
         productId: Number(params.productId || meta.productId) || (meta.isGas ? 1574 : 1586),
         orderId: String(targetOrderId || '172'),
-        salesNumber: Number(params.salesNumber || meta.salesNumber) || 10011,
+        salesNumber: Number(params.salesNumber || params.vp || params.partnerNumber || params.partnerCode || meta.salesNumber) || 10011,
         productType: meta.productType,
         productTypeFilter: {
             businessSector: String(params.workflowBusinessSector || (meta.isGas ? '35' : '36')),
@@ -2191,11 +2421,16 @@ async function getVpPortalOrders(limit = 20) {
 
 module.exports = {
     calculateRlmTariffs,
+    calculateTariffs: calculateRlmTariffs,
+    resolveVpCommissionProfile,
     resolveDeliveryAddress,
+    lookupAddressOptions: (plz, branch, cityId) => resolveDeliveryAddress({ plz, branch, cityId }),
     getRlmPortalOptions,
+    getPortalFilterOptions: getRlmPortalOptions,
     createVpPortalOffer,
     syncVpOrderForPdfGeneration,
     generateVpOrderDocuments,
+    generateVpPortalOrderDocuments: generateVpOrderDocuments,
     getRlmBlankoPdfs,
     extractPureBlankoPdfBuffer,
     extractPdfFormFieldNames,
