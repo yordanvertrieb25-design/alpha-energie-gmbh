@@ -4228,131 +4228,622 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 });
 
-// Cookie Banner Logic
+// Cookie & Privacy Consent Logic (TDDDG § 25 / DSGVO compliant + persistent settings trigger)
 (function initCookieBanner() {
+    const CONSENT_KEY = "alpha_consent_v2";
+
     const getCookieBannerTexts = (lang) => {
         if (lang === 'en') {
             return {
-                title: 'Privacy Settings',
-                body: 'We use data storage technologies to offer you the best experience on our website. Some of them are essential (e.g., for core website functions), while others help us improve our website and your experience. Further information can be found in our <a href="datenschutz.html" style="color:#ef8a00; text-decoration:underline;">Privacy Policy</a>.',
+                badge: 'Privacy & Cookies',
+                title: 'Your Privacy Settings',
+                body: 'We use cookies and local storage technologies on our website. Essential technologies are required for core functionality (e.g. tariff calculation & security). Optional analytics and marketing technologies help us improve our service.',
+                essentialTitle: 'Essential Technologies',
+                essentialBadge: 'Always active',
+                essentialDesc: 'Required for basic website functions, tariff calculator, security, and storing your privacy choice.',
+                analyticsTitle: 'Analytics & Statistics',
+                analyticsDesc: 'Helps us understand anonymously how visitors interact with our pages so we can improve usability.',
+                marketingTitle: 'Marketing & Comfort',
+                marketingDesc: 'Enables personalized tariff offers and relevant partner campaign attribution.',
                 accept: 'Accept All',
                 decline: 'Essential Only',
-                custom: 'Customize Individual Settings'
+                customToggle: 'Customize Settings',
+                saveSelection: 'Save Selection',
+                privacyLink: 'Privacy Policy',
+                cookiePolicyLink: 'Cookie Policy',
+                imprintLink: 'Imprint',
+                triggerLabel: 'Cookie Settings',
+                savedMsg: 'Your privacy settings have been saved.'
             };
         }
         if (lang === 'tr') {
             return {
-                title: 'Gizlilik Ayarları',
-                body: 'Web sitemizde size en iyi deneyimi sunmak için veri depolama teknolojileri kullanıyoruz. Bunlardan bazıları zorunludur (örn. temel web sitesi işlevleri için), diğerleri ise web sitemizi ve deneyiminizi geliştirmemize yardımcı olur. Daha fazla bilgiyi <a href="datenschutz.html" style="color:#ef8a00; text-decoration:underline;">Gizlilik Politikamızda</a> bulabilirsiniz.',
+                badge: 'Gizlilik ve Çerezler',
+                title: 'Gizlilik Ayarlarınız',
+                body: 'Web sitemizde çerezler ve yerel depolama teknolojileri kullanıyoruz. Zorunlu teknolojiler temel işlevler (tarife hesaplayıcı ve güvenlik) için gereklidir. İsteğe bağlı analiz ve pazarlama teknolojileri hizmetimizi geliştirmemize yardımcı olur.',
+                essentialTitle: 'Zorunlu Teknolojiler',
+                essentialBadge: 'Her zaman aktif',
+                essentialDesc: 'Temel site işlevleri, tarife hesaplama, güvenlik ve gizlilik tercihinizin kaydedilmesi için gereklidir.',
+                analyticsTitle: 'Analiz ve İstatistik',
+                analyticsDesc: 'Ziyaretçilerin sayfalarımızla nasıl etkileşim kurduğunu anonim olarak anlamamıza yardımcı olur.',
+                marketingTitle: 'Pazarlama ve Konfor',
+                marketingDesc: 'Kişiselleştirilmiş tarife teklifleri ve ilgili kampanya eşleştirmelerini sağlar.',
                 accept: 'Tümünü Kabul Et',
-                decline: 'Yalnızca Zorunlu Olanlar',
-                custom: 'Bireysel Ayarları Özelleştir'
+                decline: 'Yalnızca Zorunlu',
+                customToggle: 'Ayarları Özelleştir',
+                saveSelection: 'Seçimi Kaydet',
+                privacyLink: 'Gizlilik Politikası',
+                cookiePolicyLink: 'Çerez Politikası',
+                imprintLink: 'Künye',
+                triggerLabel: 'Çerez Ayarları',
+                savedMsg: 'Gizlilik ayarlarınız kaydedildi.'
             };
         }
         if (lang === 'ar') {
             return {
-                title: 'إعدادات الخصوصية',
-                body: 'نحن نستخدم تقنيات تخزين البيانات لنقدم لك أفضل تجربة على موقعنا الإلكتروني. بعضها ضروري (على سبيل المثال للوظائف الأساسية للموقع)، بينما يساعدنا البعض الآخر على تحسين موقعنا وتجربتك. يمكنك العثور على مزيد من المعلومات في <a href="datenschutz.html" style="color:#ef8a00; text-decoration:underline;">سياسة الخصوصية</a> الخاصة بنا.',
+                badge: 'الخصوصية وملفات تعريف الارتباط',
+                title: 'إعدادات الخصوصية الخاصة بك',
+                body: 'نستخدم ملفات تعريف الارتباط وتقنيات التخزين المحلي على موقعنا. التقنيات الضرورية مطلوبة للوظائف الأساسية (مثل حاسبة التعريفة والأمان)، بينما تساعدنا تقنيات التحليل والتسويق الاختيارية على تحسين خدماتنا.',
+                essentialTitle: 'التقنيات الضرورية',
+                essentialBadge: 'نشط دائماً',
+                essentialDesc: 'ضرورية لوظائف الموقع الأساسية وحاسبة التعريفة والأمان وحفظ خيار الخصوصية.',
+                analyticsTitle: 'التحليلات والإحصاءات',
+                analyticsDesc: 'تساعدنا على فهم كيفية تفاعل الزوار مع صفحاتنا بشكل مجهول الهوية.',
+                marketingTitle: 'التسويق والراحة',
+                marketingDesc: 'تتيح عروض تعريفات مخصصة وربط حملات الشركاء ذات الصلة.',
                 accept: 'قبول الكل',
                 decline: 'الضرورية فقط',
-                custom: 'تخصيص الإعدادات الفردية'
+                customToggle: 'تخصيص الإعدادات',
+                saveSelection: 'حفظ الاختيار',
+                privacyLink: 'سياسة الخصوصية',
+                cookiePolicyLink: 'سياسة ملفات الارتباط',
+                imprintLink: 'بيانات النشر',
+                triggerLabel: 'إعدادات ملفات الارتباط',
+                savedMsg: 'تم حفظ إعدادات الخصوصية الخاصة بك.'
             };
         }
         return {
-            title: 'Datenschutzeinstellungen',
-            body: 'Wir verwenden Technologien zur Datenspeicherung, um Ihnen das beste Erlebnis auf unserer Website zu bieten. Einige davon sind essenziell (z.B. für die Grundfunktionen der Website), während andere uns helfen, unsere Website und Ihr Erlebnis zu verbessern. Weitere Informationen finden Sie in unserer <a href="datenschutz.html" style="color:#ef8a00; text-decoration:underline;">Datenschutzerklärung</a>.',
+            badge: 'Datenschutz & Cookies',
+            title: 'Ihre Datenschutzeinstellungen',
+            body: 'Wir verwenden Cookies und lokale Speichertechnologien, um unsere Website zuverlässig bereitzustellen. Essenzielle Technologien sind für Grundfunktionen (z.&nbsp;B. Tarifrechner &amp; Sicherheit) erforderlich. Optionale Analyse- und Marketing-Technologien helfen uns, unser Angebot optimal weiterzuentwickeln.',
+            essentialTitle: 'Notwendige Technologien',
+            essentialBadge: 'Immer aktiv',
+            essentialDesc: 'Erforderlich für Grundfunktionen der Website, Live-Tarifrechner, IT-Sicherheit und Speicherung Ihrer Auswahl.',
+            analyticsTitle: 'Analyse & Statistik',
+            analyticsDesc: 'Hilft uns anonymisiert zu verstehen, wie Besucher unsere Seiten nutzen, um Inhalte stetig zu verbessern.',
+            marketingTitle: 'Marketing & Komfort',
+            marketingDesc: 'Ermöglicht relevante Tarifempfehlungen und die Zuordnung von Partner-Aktionen.',
             accept: 'Alle akzeptieren',
             decline: 'Nur Essenzielle',
-            custom: 'Individuelle Einstellungen anpassen'
+            customToggle: 'Einstellungen anpassen',
+            saveSelection: 'Auswahl speichern',
+            privacyLink: 'Datenschutzerklärung',
+            cookiePolicyLink: 'Cookie-Richtlinie',
+            imprintLink: 'Impressum',
+            triggerLabel: 'Cookie-Einstellungen',
+            savedMsg: 'Ihre Datenschutzeinstellungen wurden gespeichert.'
         };
+    };
+
+    const getCurrentLang = () => {
+        return (window.i18n && typeof window.i18n.getLanguage === 'function')
+            ? window.i18n.getLanguage()
+            : (localStorage.getItem('alpha_lang') || 'de');
+    };
+
+    const persistConsent = (status, analytics, marketing) => {
+        try {
+            localStorage.setItem(CONSENT_KEY, status);
+            localStorage.setItem("alpha_consent_status", status);
+            localStorage.setItem("cookieConsent", status);
+            localStorage.setItem("cookie_analytics", analytics ? "true" : "false");
+            localStorage.setItem("cookie_marketing", marketing ? "true" : "false");
+        } catch (e) {}
+    };
+
+    const injectConsentStyles = () => {
+        if (document.getElementById('aePrefsStyles')) return;
+        const style = document.createElement('style');
+        style.id = 'aePrefsStyles';
+        style.textContent = `
+            #aePrefsBackdrop {
+                position: fixed;
+                inset: 0;
+                width: 100vw;
+                height: 100vh;
+                background: rgba(15, 23, 42, 0.58);
+                backdrop-filter: blur(6px);
+                -webkit-backdrop-filter: blur(6px);
+                z-index: 2147483645;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                padding: 16px;
+                box-sizing: border-box;
+                animation: aePrefsFadeIn 0.22s ease-out;
+            }
+            @keyframes aePrefsFadeIn {
+                from { opacity: 0; }
+                to { opacity: 1; }
+            }
+            #aePrefsDialog {
+                background: #ffffff;
+                color: #1c1917;
+                border-radius: 20px;
+                border: 1.5px solid rgba(249, 178, 51, 0.45);
+                box-shadow: 0 24px 60px rgba(15, 23, 42, 0.28);
+                padding: 28px;
+                max-width: 580px;
+                width: 100%;
+                max-height: calc(100vh - 32px);
+                overflow-y: auto;
+                box-sizing: border-box;
+                font-family: 'Manrope', 'Sora', -apple-system, BlinkMacSystemFont, sans-serif;
+                position: relative;
+            }
+            .ae-prefs-header {
+                display: flex;
+                align-items: flex-start;
+                justify-content: space-between;
+                gap: 12px;
+                margin-bottom: 12px;
+            }
+            .ae-prefs-badge {
+                display: inline-flex;
+                align-items: center;
+                gap: 6px;
+                background: rgba(249, 178, 51, 0.18);
+                color: #e95e24;
+                font-size: 0.76rem;
+                font-weight: 800;
+                padding: 4px 10px;
+                border-radius: 999px;
+                letter-spacing: 0.02em;
+                margin-bottom: 8px;
+            }
+            .ae-prefs-title {
+                margin: 0;
+                font-size: 1.38rem;
+                font-weight: 800;
+                color: #1c1917;
+                font-family: 'Sora', sans-serif;
+                line-height: 1.25;
+            }
+            .ae-prefs-close {
+                background: #f5f5f4;
+                border: 1px solid #e7e5e4;
+                color: #57534e;
+                width: 34px;
+                height: 34px;
+                border-radius: 50%;
+                font-size: 1.2rem;
+                line-height: 1;
+                cursor: pointer;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                flex-shrink: 0;
+            }
+            .ae-prefs-close:hover {
+                background: #e7e5e4;
+                color: #1c1917;
+            }
+            .ae-prefs-body {
+                margin: 0 0 18px 0;
+                font-size: 0.92rem;
+                color: #44403c;
+                line-height: 1.6;
+            }
+            .ae-prefs-details {
+                display: none;
+                flex-direction: column;
+                gap: 10px;
+                margin-bottom: 18px;
+                padding-top: 4px;
+            }
+            .ae-prefs-details.is-open {
+                display: flex;
+            }
+            .ae-prefs-cat {
+                border: 1px solid #e7e5e4;
+                background: #fafaf9;
+                border-radius: 12px;
+                padding: 12px 14px;
+                display: flex;
+                align-items: flex-start;
+                justify-content: space-between;
+                gap: 14px;
+            }
+            .ae-prefs-cat-title {
+                font-size: 0.92rem;
+                font-weight: 700;
+                color: #1c1917;
+                margin: 0 0 3px 0;
+            }
+            .ae-prefs-cat-desc {
+                font-size: 0.8rem;
+                color: #57534e;
+                margin: 0;
+                line-height: 1.45;
+            }
+            .ae-prefs-always {
+                font-size: 0.74rem;
+                font-weight: 700;
+                color: #15803d;
+                background: #dcfce7;
+                padding: 4px 9px;
+                border-radius: 999px;
+                white-space: nowrap;
+                flex-shrink: 0;
+            }
+            .ae-prefs-switch {
+                position: relative;
+                display: inline-block;
+                width: 44px;
+                height: 24px;
+                flex-shrink: 0;
+                margin-top: 2px;
+            }
+            .ae-prefs-switch input {
+                opacity: 0;
+                width: 0;
+                height: 0;
+            }
+            .ae-prefs-slider {
+                position: absolute;
+                cursor: pointer;
+                inset: 0;
+                background-color: #d6d3d1;
+                transition: 0.2s;
+                border-radius: 999px;
+            }
+            .ae-prefs-slider::before {
+                position: absolute;
+                content: "";
+                height: 18px;
+                width: 18px;
+                left: 3px;
+                bottom: 3px;
+                background-color: #ffffff;
+                transition: 0.2s;
+                border-radius: 50%;
+                box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+            }
+            .ae-prefs-switch input:checked + .ae-prefs-slider {
+                background: linear-gradient(135deg, #f9b233 0%, #e95e24 100%);
+            }
+            .ae-prefs-switch input:checked + .ae-prefs-slider::before {
+                transform: translateX(20px);
+            }
+            .ae-prefs-actions {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 10px;
+            }
+            .ae-prefs-btn-primary {
+                padding: 12px 16px;
+                background: linear-gradient(135deg, #f9b233 0%, #f99239 55%, #e95e24 100%);
+                color: #ffffff;
+                border: none;
+                border-radius: 11px;
+                cursor: pointer;
+                font-weight: 800;
+                font-size: 0.95rem;
+                transition: transform 0.15s ease, box-shadow 0.15s ease;
+                box-shadow: 0 6px 18px rgba(233, 94, 36, 0.24);
+            }
+            .ae-prefs-btn-primary:hover {
+                transform: translateY(-1px);
+                box-shadow: 0 8px 22px rgba(233, 94, 36, 0.32);
+            }
+            .ae-prefs-btn-secondary {
+                padding: 12px 16px;
+                background: #f5f5f4;
+                color: #1c1917;
+                border: 1.5px solid #d6d3d1;
+                border-radius: 11px;
+                cursor: pointer;
+                font-weight: 700;
+                font-size: 0.95rem;
+                transition: background 0.15s ease;
+            }
+            .ae-prefs-btn-secondary:hover {
+                background: #e7e5e4;
+            }
+            .ae-prefs-subactions {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                flex-wrap: wrap;
+                gap: 10px;
+                margin-top: 14px;
+                padding-top: 12px;
+                border-top: 1px solid #f5f5f4;
+                font-size: 0.82rem;
+            }
+            .ae-prefs-link-btn {
+                background: none;
+                border: none;
+                padding: 0;
+                color: #e95e24;
+                font-weight: 700;
+                font-size: 0.85rem;
+                text-decoration: underline;
+                cursor: pointer;
+            }
+            .ae-prefs-legal-links {
+                display: flex;
+                gap: 12px;
+                flex-wrap: wrap;
+            }
+            .ae-prefs-legal-links a {
+                color: #78716c;
+                text-decoration: underline;
+            }
+            .ae-prefs-legal-links a:hover {
+                color: #1c1917;
+            }
+            #aePrefsQuickTrigger {
+                position: fixed;
+                left: 18px;
+                bottom: 18px;
+                width: 44px;
+                height: 44px;
+                border-radius: 50%;
+                background: #ffffff;
+                color: #e95e24;
+                border: 1.5px solid rgba(249, 178, 51, 0.65);
+                box-shadow: 0 8px 22px rgba(15, 23, 42, 0.14);
+                cursor: pointer;
+                z-index: 9990;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                transition: transform 0.2s ease, box-shadow 0.2s ease;
+            }
+            #aePrefsQuickTrigger:hover {
+                transform: translateY(-2px) scale(1.04);
+                box-shadow: 0 12px 26px rgba(233, 94, 36, 0.25);
+            }
+            @media (max-width: 640px) {
+                #aePrefsDialog {
+                    padding: 20px 18px;
+                    border-radius: 16px;
+                }
+                .ae-prefs-actions {
+                    grid-template-columns: 1fr;
+                }
+                #aePrefsQuickTrigger {
+                    left: 12px;
+                    bottom: 14px;
+                    width: 40px;
+                    height: 40px;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    };
+
+    const openBannerModal = (expandDetails = false) => {
+        injectConsentStyles();
+        const existing = document.getElementById('aePrefsBackdrop');
+        if (existing) existing.remove();
+
+        const t = getCookieBannerTexts(getCurrentLang());
+        const hasExistingChoice = Boolean(localStorage.getItem(CONSENT_KEY));
+        const savedAnalytics = localStorage.getItem("cookie_analytics") === "true";
+        const savedMarketing = localStorage.getItem("cookie_marketing") === "true";
+
+        const overlay = document.createElement("div");
+        overlay.id = "aePrefsBackdrop";
+        overlay.setAttribute("role", "dialog");
+        overlay.setAttribute("aria-modal", "true");
+        overlay.setAttribute("aria-labelledby", "aePrefsTitle");
+
+        const modalBox = document.createElement("div");
+        modalBox.id = "aePrefsDialog";
+
+        modalBox.innerHTML = `
+            <div class="ae-prefs-header">
+                <div>
+                    <div class="ae-prefs-badge" id="aePrefsBadge">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+                        <span>${t.badge}</span>
+                    </div>
+                    <h3 class="ae-prefs-title" id="aePrefsTitle">${t.title}</h3>
+                </div>
+                ${hasExistingChoice ? `<button type="button" class="ae-prefs-close" id="aePrefsCloseBtn" aria-label="Schließen">&times;</button>` : ''}
+            </div>
+            <p class="ae-prefs-body" id="aePrefsBody">${t.body}</p>
+            <div class="ae-prefs-details${expandDetails ? ' is-open' : ''}" id="aePrefsDetails">
+                <div class="ae-prefs-cat">
+                    <div>
+                        <p class="ae-prefs-cat-title" id="aeCatEssTitle">${t.essentialTitle}</p>
+                        <p class="ae-prefs-cat-desc" id="aeCatEssDesc">${t.essentialDesc}</p>
+                    </div>
+                    <span class="ae-prefs-always" id="aeCatEssBadge">${t.essentialBadge}</span>
+                </div>
+                <div class="ae-prefs-cat">
+                    <div>
+                        <p class="ae-prefs-cat-title" id="aeCatAnaTitle">${t.analyticsTitle}</p>
+                        <p class="ae-prefs-cat-desc" id="aeCatAnaDesc">${t.analyticsDesc}</p>
+                    </div>
+                    <label class="ae-prefs-switch" aria-label="${t.analyticsTitle}">
+                        <input type="checkbox" id="aeToggleAnalytics" ${savedAnalytics ? 'checked' : ''}>
+                        <span class="ae-prefs-slider"></span>
+                    </label>
+                </div>
+                <div class="ae-prefs-cat">
+                    <div>
+                        <p class="ae-prefs-cat-title" id="aeCatMktTitle">${t.marketingTitle}</p>
+                        <p class="ae-prefs-cat-desc" id="aeCatMktDesc">${t.marketingDesc}</p>
+                    </div>
+                    <label class="ae-prefs-switch" aria-label="${t.marketingTitle}">
+                        <input type="checkbox" id="aeToggleMarketing" ${savedMarketing ? 'checked' : ''}>
+                        <span class="ae-prefs-slider"></span>
+                    </label>
+                </div>
+            </div>
+            <div class="ae-prefs-actions">
+                <button type="button" id="btnAcceptAll" class="ae-prefs-btn-primary">${t.accept}</button>
+                <button type="button" id="btnDeclineAll" class="ae-prefs-btn-secondary">${t.decline}</button>
+            </div>
+            <button type="button" id="btnSaveCustomPrefs" class="ae-prefs-btn-secondary" style="width:100%;margin-top:10px;display:${expandDetails ? 'block' : 'none'};border-color:rgba(233,94,36,0.45);color:#e95e24;font-weight:800;">${t.saveSelection}</button>
+            <div class="ae-prefs-subactions">
+                <button type="button" id="aeToggleDetailsBtn" class="ae-prefs-link-btn">${t.customToggle}</button>
+                <div class="ae-prefs-legal-links">
+                    <a href="datenschutz.html" id="aeLinkPrivacy">${t.privacyLink}</a>
+                    <a href="cookie-richtlinie.html" id="aeLinkCookiePolicy">${t.cookiePolicyLink}</a>
+                    <a href="impressum.html" id="aeLinkImprint">${t.imprintLink}</a>
+                </div>
+            </div>
+        `;
+
+        overlay.appendChild(modalBox);
+        document.body.appendChild(overlay);
+        document.body.style.overflow = 'hidden';
+
+        const removeModal = () => {
+            overlay.remove();
+            document.body.style.overflow = '';
+        };
+
+        const closeBtn = document.getElementById("aePrefsCloseBtn");
+        if (closeBtn) {
+            closeBtn.addEventListener("click", removeModal);
+        }
+
+        document.getElementById("btnAcceptAll").addEventListener("click", () => {
+            persistConsent("all", true, true);
+            syncStandaloneSettingsInputs();
+            removeModal();
+        });
+
+        document.getElementById("btnDeclineAll").addEventListener("click", () => {
+            persistConsent("essential", false, false);
+            syncStandaloneSettingsInputs();
+            removeModal();
+        });
+
+        const detailsBox = document.getElementById("aePrefsDetails");
+        const saveCustomBtn = document.getElementById("btnSaveCustomPrefs");
+        document.getElementById("aeToggleDetailsBtn").addEventListener("click", () => {
+            const nowOpen = detailsBox.classList.toggle("is-open");
+            saveCustomBtn.style.display = nowOpen ? "block" : "none";
+        });
+
+        saveCustomBtn.addEventListener("click", () => {
+            const ana = Boolean(document.getElementById("aeToggleAnalytics")?.checked);
+            const mkt = Boolean(document.getElementById("aeToggleMarketing")?.checked);
+            const status = (ana && mkt) ? "all" : ((ana || mkt) ? "custom" : "essential");
+            persistConsent(status, ana, mkt);
+            syncStandaloneSettingsInputs();
+            removeModal();
+        });
+    };
+
+    window.openAlphaCookieBanner = openBannerModal;
+
+    const syncStandaloneSettingsInputs = () => {
+        const anaInput = document.getElementById('toggleAnalytics');
+        const mktInput = document.getElementById('toggleMarketing');
+        if (anaInput) anaInput.checked = localStorage.getItem("cookie_analytics") === "true";
+        if (mktInput) mktInput.checked = localStorage.getItem("cookie_marketing") === "true";
+    };
+
+    const initStandaloneSettingsPage = () => {
+        const saveBtn = document.getElementById('savePrivacySettings');
+        if (!saveBtn) return;
+        syncStandaloneSettingsInputs();
+        saveBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            const ana = Boolean(document.getElementById('toggleAnalytics')?.checked);
+            const mkt = Boolean(document.getElementById('toggleMarketing')?.checked);
+            const status = (ana && mkt) ? "all" : ((ana || mkt) ? "custom" : "essential");
+            persistConsent(status, ana, mkt);
+            const t = getCookieBannerTexts(getCurrentLang());
+            let msgEl = document.getElementById('aeSettingsSavedNotice');
+            if (!msgEl) {
+                msgEl = document.createElement('p');
+                msgEl.id = 'aeSettingsSavedNotice';
+                msgEl.style.cssText = 'margin-top:12px;color:#15803d;font-weight:700;font-size:0.92rem;';
+                saveBtn.parentElement.appendChild(msgEl);
+            }
+            msgEl.textContent = '✓ ' + t.savedMsg;
+        });
+    };
+
+    const initPersistentTrigger = () => {
+        const path = (window.location.pathname || '').toLowerCase();
+        const isInternalPortal = path.includes('vertriebspartner-portal') || path === '/vp' || path.startsWith('/vp/') || path.startsWith('/admin') || path.includes('stammdaten') || path.includes('portal-dashboard');
+        if (isInternalPortal) return;
+
+        injectConsentStyles();
+        if (!document.getElementById('aePrefsQuickTrigger')) {
+            const t = getCookieBannerTexts(getCurrentLang());
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.id = 'aePrefsQuickTrigger';
+            btn.title = t.triggerLabel;
+            btn.setAttribute('aria-label', t.triggerLabel);
+            btn.innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a10 10 0 1 0 10 10 4 4 0 0 1-5-5 4 4 0 0 1-5-5"></path><path d="M8.5 8.5v.01"></path><path d="M16 15.5v.01"></path><path d="M12 12v.01"></path><path d="M11 17v.01"></path><path d="M7 14v.01"></path></svg>`;
+            btn.addEventListener('click', () => openBannerModal(true));
+            document.body.appendChild(btn);
+        }
+
+        // Allow footer "Cookie-Einstellungen" links on normal pages to open modal directly without leaving page
+        if (!path.includes('cookie-einstellungen')) {
+            document.querySelectorAll('a[href="cookie-einstellungen.html"]').forEach(link => {
+                if (link.id === 'aeLinkCookiePolicy') return;
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    openBannerModal(true);
+                });
+            });
+        }
     };
 
     const checkAndShowBanner = () => {
         try {
-            // Check if user has already made a choice
-            const consentGiven = localStorage.getItem("alpha_consent_status");
-            
-            // Check if we are on the settings page
-            const isSettingsPage = window.location.pathname.includes('cookie-einstellungen');
-            
-            if (!consentGiven && !isSettingsPage) {
-                const curLang = (window.i18n && typeof window.i18n.getLanguage === 'function') ? window.i18n.getLanguage() : (localStorage.getItem('alpha_lang') || 'de');
-                const t = getCookieBannerTexts(curLang);
+            initStandaloneSettingsPage();
+            initPersistentTrigger();
 
-                // Create overlay element (avoiding words like 'cookie', 'banner', 'consent' in IDs to prevent Adblockers from hiding it)
-                const overlay = document.createElement("div");
-                overlay.id = "alphaDsgvoOverlay";
-                overlay.style.cssText = "position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.6); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); z-index: 2147483646; display: flex; align-items: center; justify-content: center;";
-                
-                // Create banner element
-                const modalBox = document.createElement("div");
-                modalBox.id = "alphaDsgvoModal";
-                modalBox.style.cssText = "background: #fff; border-radius: 16px; box-shadow: 0 20px 50px rgba(0,0,0,0.3); padding: 32px; max-width: 600px; width: 90%; z-index: 2147483647; display: flex; flex-direction: column; gap: 20px;";
-                
-                modalBox.innerHTML = `
-                    <h3 id="alphaDsgvoTitle" style="margin:0; font-size:1.5rem; font-weight:bold; color:#1a1a1a;">${t.title}</h3>
-                    <p id="alphaDsgvoBody" style="margin:0; font-size:0.95rem; color:#4a4a4a; line-height:1.6;">
-                        ${t.body}
-                    </p>
-                    <div style="display:flex; flex-direction:column; gap:12px; margin-top:10px;">
-                        <div style="display:flex; gap:12px; flex-wrap:wrap;">
-                            <button id="btnAcceptAll" style="flex:1; padding:12px; background:#ef8a00; color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:bold; font-size:1rem; transition: background 0.2s;">${t.accept}</button>
-                            <button id="btnDeclineAll" style="flex:1; padding:12px; background:#f0f0f0; color:#333; border:1px solid #ddd; border-radius:8px; cursor:pointer; font-weight:bold; font-size:1rem; transition: background 0.2s;">${t.decline}</button>
-                        </div>
-                        <a id="alphaDsgvoCustomLink" href="cookie-einstellungen.html" style="text-align:center; padding:8px; color:#666; text-decoration:underline; font-size:0.9rem; cursor:pointer;">${t.custom}</a>
-                    </div>
-                `;
-                
-                overlay.appendChild(modalBox);
-                document.body.appendChild(overlay);
-                
-                // Prevent scrolling
-                document.body.style.overflow = 'hidden';
-                
-                const removeModal = () => {
-                    overlay.remove();
-                    document.body.style.overflow = '';
-                };
-                
-                // Accept all cookies
-                document.getElementById("btnAcceptAll").addEventListener("click", function() {
-                    localStorage.setItem("alpha_consent_status", "all");
-                    localStorage.setItem("cookieConsent", "all"); // Keep for settings page
-                    localStorage.setItem("cookie_analytics", "true");
-                    localStorage.setItem("cookie_marketing", "true");
-                    removeModal();
-                });
-                
-                // Decline non-essential cookies
-                document.getElementById("btnDeclineAll").addEventListener("click", function() {
-                    localStorage.setItem("alpha_consent_status", "essential");
-                    localStorage.setItem("cookieConsent", "essential"); // Keep for settings page
-                    localStorage.setItem("cookie_analytics", "false");
-                    localStorage.setItem("cookie_marketing", "false");
-                    removeModal();
-                });
+            const path = (window.location.pathname || '').toLowerCase();
+            const isLegalOrInternal =
+                path.includes('cookie-einstellungen') ||
+                path.includes('cookie-richtlinie') ||
+                path.includes('datenschutz') ||
+                path.includes('impressum') ||
+                path.includes('vertriebspartner-portal') ||
+                path === '/vp' ||
+                path.startsWith('/vp/') ||
+                path.startsWith('/admin') ||
+                path.includes('stammdaten') ||
+                path.includes('portal-dashboard');
 
-                window.addEventListener('languageChanged', (ev) => {
-                    const nextLang = (ev && ev.detail && ev.detail.lang) || 'de';
-                    const nt = getCookieBannerTexts(nextLang);
-                    const titleEl = document.getElementById('alphaDsgvoTitle');
-                    const bodyEl = document.getElementById('alphaDsgvoBody');
-                    const accEl = document.getElementById('btnAcceptAll');
-                    const decEl = document.getElementById('btnDeclineAll');
-                    const custEl = document.getElementById('alphaDsgvoCustomLink');
-                    if (titleEl) titleEl.textContent = nt.title;
-                    if (bodyEl) bodyEl.innerHTML = nt.body;
-                    if (accEl) accEl.textContent = nt.accept;
-                    if (decEl) decEl.textContent = nt.decline;
-                    if (custEl) custEl.textContent = nt.custom;
-                });
+            const consentGiven = localStorage.getItem(CONSENT_KEY);
+            if (!consentGiven && !isLegalOrInternal) {
+                openBannerModal(false);
             }
-        } catch(e) {
-            console.error("DSGVO Modal Error: ", e);
+
+            window.addEventListener('languageChanged', (ev) => {
+                const nextLang = (ev && ev.detail && ev.detail.lang) || getCurrentLang();
+                const nt = getCookieBannerTexts(nextLang);
+                const triggerBtn = document.getElementById('aePrefsQuickTrigger');
+                if (triggerBtn) {
+                    triggerBtn.title = nt.triggerLabel;
+                    triggerBtn.setAttribute('aria-label', nt.triggerLabel);
+                }
+                if (document.getElementById('aePrefsBackdrop')) {
+                    const wasExpanded = Boolean(document.getElementById('aePrefsDetails')?.classList.contains('is-open'));
+                    openBannerModal(wasExpanded);
+                }
+            });
+        } catch (e) {
+            console.error("Privacy Modal Error: ", e);
         }
     };
 
-    // Run when DOM is ready
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', checkAndShowBanner);
     } else {

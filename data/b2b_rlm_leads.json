@@ -1,5 +1,88 @@
 [
   {
+    "offerNumber": "ANG-400659753",
+    "orderNumber": "400659753",
+    "vpOrderId": "194",
+    "vpOrderNumber": 400659753,
+    "salesNumber": 16305,
+    "partnerCode": "16305",
+    "createdAt": "2026-11-11T16:53:02.669Z",
+    "recordType": "ORDER",
+    "status": "RECEIVED",
+    "portalSource": "Partner-Webseite iFrame (VP 16305)",
+    "company": {
+      "companyName": "test",
+      "legalForm": "GmbH",
+      "salutation": "Herr",
+      "firstName": "test",
+      "lastName": "test",
+      "email": "yordan.vertrieb25@gmail.com",
+      "phone": "015129842698",
+      "iban": ""
+    },
+    "deliveryAddress": {
+      "street": "Altenrathstr.",
+      "houseNr": "11",
+      "plz": "44379",
+      "city": "Dortmund"
+    },
+    "technicalData": {
+      "branch": "strom",
+      "measurement": "SLP",
+      "consumption": 100000,
+      "peakLoad": 0,
+      "usageHours": 0,
+      "gridLayer": "LOW",
+      "deliveryStart": "2027-01-01",
+      "meterNumber": "",
+      "maloId": "",
+      "currentProvider": ""
+    },
+    "tariffSelection": {
+      "tariffId": "slp-1572-12m",
+      "productId": 1572,
+      "tariffName": "E.ON BusinessStrom fix (SLP) – 12 Monate (bis 31.12.2027)",
+      "providerName": "EVITA",
+      "contractDurationMonths": 12,
+      "surchargeCt": 0.5,
+      "baseSurchargeEur": 0,
+      "workingPriceEnergyCtNetto": 17.36,
+      "workingPriceTotalCtNetto": 30.046,
+      "basePriceMonthlyNetto": 0,
+      "abschlagMonthlyNetto": 2512.13,
+      "abschlagMonthlyBrutto": 2989.43,
+      "totalYearlyNetto": 30145.5,
+      "totalYearlyBrutto": 35873.14
+    },
+    "documents": [
+      {
+        "id": "b7367dcf-8b49-40cb-a0d5-fec515a68843",
+        "name": "Auftragsformular",
+        "filename": "Auftragsformular.pdf",
+        "type": "auftragsformular",
+        "productId": 1586,
+        "orderId": "194",
+        "signedUrl": "https://vp.alpha-energie.de/storage/v1/object/sign/b7367dcf-8b49-40cb-a0d5-fec515a68843?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiIyOTZkYzZhZS02NGIxLTRkNzctYTE0MS1iMjI5YzI5ZTMxMDMiLCJpYXQiOjE3OTQ0MTU5ODIsImV4cCI6MTc5NDQxOTU4Miwib2JqZWN0X2lkIjoiYjczNjdkY2YtOGI0OS00MGNiLWEwZDUtZmVjNTE1YTY4ODQzIiwib3BlcmF0aW9uIjoiRE9XTkxPQUQiLCJ0ZW5hbnRfaWQiOiJhbHBoYV9lbmVyZ2llIn0.ODJQQATBSbeJoaQJYh2RCpuWjBMd3j2jzx-M8yp-zhc",
+        "url": "https://vp.alpha-energie.de/storage/v1/object/sign/b7367dcf-8b49-40cb-a0d5-fec515a68843?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiIyOTZkYzZhZS02NGIxLTRkNzctYTE0MS1iMjI5YzI5ZTMxMDMiLCJpYXQiOjE3OTQ0MTU5ODIsImV4cCI6MTc5NDQxOTU4Miwib2JqZWN0X2lkIjoiYjczNjdkY2YtOGI0OS00MGNiLWEwZDUtZmVjNTE1YTY4ODQzIiwib3BlcmF0aW9uIjoiRE9XTkxPQUQiLCJ0ZW5hbnRfaWQiOiJhbHBoYV9lbmVyZ2llIn0.ODJQQATBSbeJoaQJYh2RCpuWjBMd3j2jzx-M8yp-zhc",
+        "downloadUrl": "https://vp.alpha-energie.de/storage/v1/object/sign/b7367dcf-8b49-40cb-a0d5-fec515a68843?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiIyOTZkYzZhZS02NGIxLTRkNzctYTE0MS1iMjI5YzI5ZTMxMDMiLCJpYXQiOjE3OTQ0MTU5ODIsImV4cCI6MTc5NDQxOTU4Miwib2JqZWN0X2lkIjoiYjczNjdkY2YtOGI0OS00MGNiLWEwZDUtZmVjNTE1YTY4ODQzIiwib3BlcmF0aW9uIjoiRE9XTkxPQUQiLCJ0ZW5hbnRfaWQiOiJhbHBoYV9lbmVyZ2llIn0.ODJQQATBSbeJoaQJYh2RCpuWjBMd3j2jzx-M8yp-zhc",
+        "expiresInSeconds": 3600
+      },
+      {
+        "id": "08bb0f34-c94b-4639-a044-e23152417003",
+        "name": "Angebot",
+        "filename": "Angebot.pdf",
+        "type": "angebot",
+        "productId": 1586,
+        "orderId": "194",
+        "signedUrl": "https://vp.alpha-energie.de/storage/v1/object/sign/08bb0f34-c94b-4639-a044-e23152417003?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI1MDYwMTc2MS0yNjkyLTQxNDgtYTgzYi03ODE1MGQ3NmY3NmMiLCJpYXQiOjE3OTQ0MTU5ODIsImV4cCI6MTc5NDQxOTU4Miwib2JqZWN0X2lkIjoiMDhiYjBmMzQtYzk0Yi00NjM5LWEwNDQtZTIzMTUyNDE3MDAzIiwib3BlcmF0aW9uIjoiRE9XTkxPQUQiLCJ0ZW5hbnRfaWQiOiJhbHBoYV9lbmVyZ2llIn0.HwRtgn0fubNEO3SxOzJwwyBXbn6-yTwofdYvt7rQjCs",
+        "url": "https://vp.alpha-energie.de/storage/v1/object/sign/08bb0f34-c94b-4639-a044-e23152417003?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI1MDYwMTc2MS0yNjkyLTQxNDgtYTgzYi03ODE1MGQ3NmY3NmMiLCJpYXQiOjE3OTQ0MTU5ODIsImV4cCI6MTc5NDQxOTU4Miwib2JqZWN0X2lkIjoiMDhiYjBmMzQtYzk0Yi00NjM5LWEwNDQtZTIzMTUyNDE3MDAzIiwib3BlcmF0aW9uIjoiRE9XTkxPQUQiLCJ0ZW5hbnRfaWQiOiJhbHBoYV9lbmVyZ2llIn0.HwRtgn0fubNEO3SxOzJwwyBXbn6-yTwofdYvt7rQjCs",
+        "downloadUrl": "https://vp.alpha-energie.de/storage/v1/object/sign/08bb0f34-c94b-4639-a044-e23152417003?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI1MDYwMTc2MS0yNjkyLTQxNDgtYTgzYi03ODE1MGQ3NmY3NmMiLCJpYXQiOjE3OTQ0MTU5ODIsImV4cCI6MTc5NDQxOTU4Miwib2JqZWN0X2lkIjoiMDhiYjBmMzQtYzk0Yi00NjM5LWEwNDQtZTIzMTUyNDE3MDAzIiwib3BlcmF0aW9uIjoiRE9XTkxPQUQiLCJ0ZW5hbnRfaWQiOiJhbHBoYV9lbmVyZ2llIn0.HwRtgn0fubNEO3SxOzJwwyBXbn6-yTwofdYvt7rQjCs",
+        "expiresInSeconds": 3600
+      }
+    ],
+    "notes": ""
+  },
+  {
     "offerNumber": "ANG-B2B-2026-895408",
     "orderNumber": "AE-B2B-2026-895408",
     "vpOrderId": "172",
