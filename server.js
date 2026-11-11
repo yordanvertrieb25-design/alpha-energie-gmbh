@@ -120,6 +120,16 @@ app.get(['/oekogas', '/oekogas.html'], (req, res) => {
     return res.redirect(301, `/erdgas.html${query}`);
 });
 
+// Redirect removed news overview and article pages to homepage
+app.get([
+    '/news', '/news.html',
+    '/news-energy-summer-2026', '/news-energy-summer-2026.html',
+    '/news-watt-zaehlt-podcast', '/news-watt-zaehlt-podcast.html',
+    '/news-great-place-to-work', '/news-great-place-to-work.html'
+], (req, res) => {
+    return res.redirect(301, '/');
+});
+
 app.get(['/erdgas', '/erdgas.html'], (req, res) => {
     res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
     res.setHeader('Pragma', 'no-cache');

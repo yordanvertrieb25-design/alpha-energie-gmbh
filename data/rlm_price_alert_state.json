@@ -1,22 +1,25 @@
 {
   "enabled": true,
   "recipientEmail": "info@energiedoc.de",
-  "intervalMinutes": 30,
+  "intervalMinutes": 15,
+  "targetEmailsPerDay": 3,
   "activeHoursStart": 6,
   "activeHoursEnd": 22,
   "sendDailySummaryReport": true,
   "minDropThresholdCt": 0.01,
   "plz": "44379",
   "city": "Dortmund",
-  "lastCheckedAt": "2026-11-08T18:51:34.096Z",
-  "lastCheckDurationMs": 2332,
-  "lastEmailSentAt": "2026-11-08T16:51:36.657Z",
-  "lastEmailSubject": "⚡ Aktuelle Bestpreise RLM & SLP: RLM Strom ab 9,55 ct/kWh | SLP Strom ab 11,77 ct/kWh | Gas ab 3,73 ct/kWh",
-  "lastEmailReason": "Manueller Sofort-Abruf / Aktuelle RLM & SLP Bestpreis-Übersicht",
-  "lastDailyReportDate": "2026-11-08",
-  "totalChecksCount": 6,
-  "totalEmailsSentCount": 2,
-  "currentSnapshots": {
+  "lastCheckedAt": "2026-11-11T09:54:22.888Z",
+  "lastCheckDurationMs": 2494,
+  "lastEmailSentAt": "2026-11-11T09:39:22.886Z",
+  "lastEmailSubject": "⚡ [1/3 Bestpreis-Update] RLM Strom ab 9,54 ct/kWh | SLP Strom ab 11,76 ct/kWh | Gas ab 3,74 ct/kWh",
+  "lastEmailReason": "⚡ Bestmoment-Versand 1/3 Täglicher Bestmoment (06:00 – 11:00 Uhr (Bestmoment / Peak 10:30 Uhr))",
+  "lastDailyReportDate": "2026-11-11",
+  "dailySlotDate": "2026-11-11",
+  "sentSlotsToday": [
+    "SLOT_1_MORNING"
+  ],
+  "slotBestSnapshots": {
     "RLM_STROM": {
       "profileKey": "RLM_STROM",
       "label": "Gewerbestrom RLM (Lastgang)",
@@ -26,16 +29,17 @@
       "peakLoadKw": 160,
       "plz": "44379",
       "city": "Dortmund",
-      "checkedAt": "2026-11-08T18:51:34.096Z",
+      "checkedAt": "2026-11-11T09:54:22.888Z",
+      "bestMomentFormatted": "10:54 Uhr",
       "bestOverall": {
         "productName": "E.ON BusinessStrom fix (RLM ≤999.999)",
         "providerName": "E.ON Digital Technology GmbH",
         "durationMonths": 60,
-        "workingPriceEnergyCtNetto": 9.55,
-        "workingPriceTotalCtNetto": 20.416,
+        "workingPriceEnergyCtNetto": 9.54,
+        "workingPriceTotalCtNetto": 20.406,
         "basePriceMonthlyNetto": 15,
-        "abschlagMonthlyNetto": 10088.64,
-        "totalYearlyNetto": 121063.66,
+        "abschlagMonthlyNetto": 10084.47,
+        "totalYearlyNetto": 121013.66,
         "deliveryStart": "2031-01-01"
       },
       "bestByDuration": {
@@ -43,46 +47,82 @@
           "durationMonths": 12,
           "productName": "E.ON BusinessStrom fix (RLM ≤999.999)",
           "providerName": "E.ON Digital Technology GmbH",
-          "workingPriceEnergyCtNetto": 16.09,
-          "workingPriceTotalCtNetto": 26.956,
+          "workingPriceEnergyCtNetto": 15.94,
+          "workingPriceTotalCtNetto": 26.806,
           "basePriceMonthlyNetto": 15,
-          "abschlagMonthlyNetto": 12813.64
+          "abschlagMonthlyNetto": 12751.14
+        },
+        "13": {
+          "durationMonths": 13,
+          "productName": "meistro Strom (Lieferbeginn ab dem 01.01.2026)",
+          "providerName": "meistro Energie GmbH",
+          "workingPriceEnergyCtNetto": 18.14,
+          "workingPriceTotalCtNetto": 29.006,
+          "basePriceMonthlyNetto": 25,
+          "abschlagMonthlyNetto": 13677.81
         },
         "24": {
           "durationMonths": 24,
           "productName": "E.ON BusinessStrom fix (RLM ≤999.999)",
           "providerName": "E.ON Digital Technology GmbH",
-          "workingPriceEnergyCtNetto": 12.09,
-          "workingPriceTotalCtNetto": 22.956,
+          "workingPriceEnergyCtNetto": 11.97,
+          "workingPriceTotalCtNetto": 22.836,
           "basePriceMonthlyNetto": 15,
-          "abschlagMonthlyNetto": 11146.97
+          "abschlagMonthlyNetto": 11096.97
+        },
+        "25": {
+          "durationMonths": 25,
+          "productName": "meistro Strom (Lieferbeginn ab dem 01.01.2026)",
+          "providerName": "meistro Energie GmbH",
+          "workingPriceEnergyCtNetto": 15.8,
+          "workingPriceTotalCtNetto": 26.666,
+          "basePriceMonthlyNetto": 25,
+          "abschlagMonthlyNetto": 12702.81
         },
         "36": {
           "durationMonths": 36,
           "productName": "E.ON BusinessStrom fix (RLM ≤999.999)",
           "providerName": "E.ON Digital Technology GmbH",
-          "workingPriceEnergyCtNetto": 10.66,
-          "workingPriceTotalCtNetto": 21.526,
+          "workingPriceEnergyCtNetto": 10.58,
+          "workingPriceTotalCtNetto": 21.446,
           "basePriceMonthlyNetto": 15,
-          "abschlagMonthlyNetto": 10551.14
+          "abschlagMonthlyNetto": 10517.81
+        },
+        "37": {
+          "durationMonths": 37,
+          "productName": "meistro Strom (Lieferbeginn ab dem 01.01.2026)",
+          "providerName": "meistro Energie GmbH",
+          "workingPriceEnergyCtNetto": 14.41,
+          "workingPriceTotalCtNetto": 25.276,
+          "basePriceMonthlyNetto": 25,
+          "abschlagMonthlyNetto": 12123.64
         },
         "48": {
           "durationMonths": 48,
           "productName": "E.ON BusinessStrom fix (RLM ≤999.999)",
           "providerName": "E.ON Digital Technology GmbH",
-          "workingPriceEnergyCtNetto": 9.89,
-          "workingPriceTotalCtNetto": 20.756,
+          "workingPriceEnergyCtNetto": 9.78,
+          "workingPriceTotalCtNetto": 20.646,
           "basePriceMonthlyNetto": 15,
-          "abschlagMonthlyNetto": 10230.31
+          "abschlagMonthlyNetto": 10184.47
+        },
+        "49": {
+          "durationMonths": 49,
+          "productName": "meistro Strom (Lieferbeginn ab dem 01.01.2026)",
+          "providerName": "meistro Energie GmbH",
+          "workingPriceEnergyCtNetto": 13.4,
+          "workingPriceTotalCtNetto": 24.266,
+          "basePriceMonthlyNetto": 25,
+          "abschlagMonthlyNetto": 11702.81
         },
         "60": {
           "durationMonths": 60,
           "productName": "E.ON BusinessStrom fix (RLM ≤999.999)",
           "providerName": "E.ON Digital Technology GmbH",
-          "workingPriceEnergyCtNetto": 9.55,
-          "workingPriceTotalCtNetto": 20.416,
+          "workingPriceEnergyCtNetto": 9.54,
+          "workingPriceTotalCtNetto": 20.406,
           "basePriceMonthlyNetto": 15,
-          "abschlagMonthlyNetto": 10088.64
+          "abschlagMonthlyNetto": 10084.47
         }
       }
     },
@@ -94,63 +134,100 @@
       "consumptionKwh": 50000,
       "plz": "44379",
       "city": "Dortmund",
-      "checkedAt": "2026-11-08T18:51:34.096Z",
+      "checkedAt": "2026-11-11T09:54:22.888Z",
+      "bestMomentFormatted": "10:54 Uhr",
       "bestOverall": {
         "productName": "E.ON BusinessStrom fix (SLP)",
         "providerName": "E.ON Digital Technology GmbH",
         "durationMonths": 60,
-        "workingPriceEnergyCtNetto": 11.77,
-        "workingPriceTotalCtNetto": 24.456,
+        "workingPriceEnergyCtNetto": 11.76,
+        "workingPriceTotalCtNetto": 24.446,
         "basePriceMonthlyNetto": 5,
-        "abschlagMonthlyNetto": 1032.29,
-        "totalYearlyNetto": 12387.5,
+        "abschlagMonthlyNetto": 1031.88,
+        "totalYearlyNetto": 12382.5,
         "deliveryStart": "2031-01-01"
       },
       "bestByDuration": {
         "12": {
           "durationMonths": 12,
-          "productName": "E.ON BusinessStrom fix (SLP)",
-          "providerName": "E.ON Digital Technology GmbH",
-          "workingPriceEnergyCtNetto": 18.31,
-          "workingPriceTotalCtNetto": 30.996,
-          "basePriceMonthlyNetto": 5,
-          "abschlagMonthlyNetto": 1304.79
+          "productName": "E.VITA Wochenpreis Strom (Lieferende 2027)",
+          "providerName": "EVITA",
+          "workingPriceEnergyCtNetto": 16.86,
+          "workingPriceTotalCtNetto": 29.546,
+          "basePriceMonthlyNetto": 0,
+          "abschlagMonthlyNetto": 1239.38
+        },
+        "13": {
+          "durationMonths": 13,
+          "productName": "meistro Strom (Lieferbeginn ab dem 01.01.2026)",
+          "providerName": "meistro Energie GmbH",
+          "workingPriceEnergyCtNetto": 18.14,
+          "workingPriceTotalCtNetto": 30.826,
+          "basePriceMonthlyNetto": 7.5,
+          "abschlagMonthlyNetto": 1300.21
         },
         "24": {
           "durationMonths": 24,
           "productName": "E.ON BusinessStrom fix (SLP)",
           "providerName": "E.ON Digital Technology GmbH",
-          "workingPriceEnergyCtNetto": 14.31,
-          "workingPriceTotalCtNetto": 26.996,
+          "workingPriceEnergyCtNetto": 14.19,
+          "workingPriceTotalCtNetto": 26.876,
           "basePriceMonthlyNetto": 5,
-          "abschlagMonthlyNetto": 1138.13
+          "abschlagMonthlyNetto": 1133.13
+        },
+        "25": {
+          "durationMonths": 25,
+          "productName": "meistro Strom (Lieferbeginn ab dem 01.01.2026)",
+          "providerName": "meistro Energie GmbH",
+          "workingPriceEnergyCtNetto": 15.8,
+          "workingPriceTotalCtNetto": 28.486,
+          "basePriceMonthlyNetto": 7.5,
+          "abschlagMonthlyNetto": 1202.71
         },
         "36": {
           "durationMonths": 36,
           "productName": "E.ON BusinessStrom fix (SLP)",
           "providerName": "E.ON Digital Technology GmbH",
-          "workingPriceEnergyCtNetto": 12.88,
-          "workingPriceTotalCtNetto": 25.566,
+          "workingPriceEnergyCtNetto": 12.8,
+          "workingPriceTotalCtNetto": 25.486,
           "basePriceMonthlyNetto": 5,
-          "abschlagMonthlyNetto": 1078.54
+          "abschlagMonthlyNetto": 1075.21
+        },
+        "37": {
+          "durationMonths": 37,
+          "productName": "meistro Strom (Lieferbeginn ab dem 01.01.2026)",
+          "providerName": "meistro Energie GmbH",
+          "workingPriceEnergyCtNetto": 14.41,
+          "workingPriceTotalCtNetto": 27.096,
+          "basePriceMonthlyNetto": 7.5,
+          "abschlagMonthlyNetto": 1144.79
         },
         "48": {
           "durationMonths": 48,
           "productName": "E.ON BusinessStrom fix (SLP)",
           "providerName": "E.ON Digital Technology GmbH",
-          "workingPriceEnergyCtNetto": 12.11,
-          "workingPriceTotalCtNetto": 24.796,
+          "workingPriceEnergyCtNetto": 12,
+          "workingPriceTotalCtNetto": 24.686,
           "basePriceMonthlyNetto": 5,
-          "abschlagMonthlyNetto": 1046.46
+          "abschlagMonthlyNetto": 1041.88
+        },
+        "49": {
+          "durationMonths": 49,
+          "productName": "meistro Strom (Lieferbeginn ab dem 01.01.2026)",
+          "providerName": "meistro Energie GmbH",
+          "workingPriceEnergyCtNetto": 13.4,
+          "workingPriceTotalCtNetto": 26.086,
+          "basePriceMonthlyNetto": 7.5,
+          "abschlagMonthlyNetto": 1102.71
         },
         "60": {
           "durationMonths": 60,
           "productName": "E.ON BusinessStrom fix (SLP)",
           "providerName": "E.ON Digital Technology GmbH",
-          "workingPriceEnergyCtNetto": 11.77,
-          "workingPriceTotalCtNetto": 24.456,
+          "workingPriceEnergyCtNetto": 11.76,
+          "workingPriceTotalCtNetto": 24.446,
           "basePriceMonthlyNetto": 5,
-          "abschlagMonthlyNetto": 1032.29
+          "abschlagMonthlyNetto": 1031.88
         }
       }
     },
@@ -163,16 +240,17 @@
       "peakLoadKw": 250,
       "plz": "44379",
       "city": "Dortmund",
-      "checkedAt": "2026-11-08T18:51:34.096Z",
+      "checkedAt": "2026-11-11T09:54:22.888Z",
+      "bestMomentFormatted": "10:54 Uhr",
       "bestOverall": {
         "productName": "E.ON BusinessGas fix (SLP)",
         "providerName": "E.ON Digital Technology GmbH",
         "durationMonths": 60,
-        "workingPriceEnergyCtNetto": 3.73,
-        "workingPriceTotalCtNetto": 5.9741,
+        "workingPriceEnergyCtNetto": 3.74,
+        "workingPriceTotalCtNetto": 5.9841,
         "basePriceMonthlyNetto": 5,
-        "abschlagMonthlyNetto": 3005.37,
-        "totalYearlyNetto": 36064.44,
+        "abschlagMonthlyNetto": 3009.54,
+        "totalYearlyNetto": 36114.44,
         "deliveryStart": "2031-01-01"
       },
       "bestByDuration": {
@@ -180,46 +258,82 @@
           "durationMonths": 12,
           "productName": "E.ON BusinessGas fix (SLP)",
           "providerName": "E.ON Digital Technology GmbH",
-          "workingPriceEnergyCtNetto": 8.44,
-          "workingPriceTotalCtNetto": 10.6841,
+          "workingPriceEnergyCtNetto": 8.26,
+          "workingPriceTotalCtNetto": 10.5041,
           "basePriceMonthlyNetto": 5,
-          "abschlagMonthlyNetto": 4967.87
+          "abschlagMonthlyNetto": 4892.87
+        },
+        "13": {
+          "durationMonths": 13,
+          "productName": "meistro Gas (Lieferbeginn ab dem 01.01.2026)",
+          "providerName": "meistro Energie GmbH",
+          "workingPriceEnergyCtNetto": 9.59,
+          "workingPriceTotalCtNetto": 11.8341,
+          "basePriceMonthlyNetto": 7.5,
+          "abschlagMonthlyNetto": 5449.54
         },
         "24": {
           "durationMonths": 24,
           "productName": "E.ON BusinessGas fix (SLP)",
           "providerName": "E.ON Digital Technology GmbH",
-          "workingPriceEnergyCtNetto": 5.79,
-          "workingPriceTotalCtNetto": 8.0341,
+          "workingPriceEnergyCtNetto": 5.62,
+          "workingPriceTotalCtNetto": 7.8641,
           "basePriceMonthlyNetto": 5,
-          "abschlagMonthlyNetto": 3863.7
+          "abschlagMonthlyNetto": 3792.87
+        },
+        "25": {
+          "durationMonths": 25,
+          "productName": "meistro Gas (Lieferbeginn ab dem 01.01.2026)",
+          "providerName": "meistro Energie GmbH",
+          "workingPriceEnergyCtNetto": 8.28,
+          "workingPriceTotalCtNetto": 10.5241,
+          "basePriceMonthlyNetto": 7.5,
+          "abschlagMonthlyNetto": 4903.7
         },
         "36": {
           "durationMonths": 36,
           "productName": "E.ON BusinessGas fix (SLP)",
           "providerName": "E.ON Digital Technology GmbH",
-          "workingPriceEnergyCtNetto": 4.31,
-          "workingPriceTotalCtNetto": 6.5541,
+          "workingPriceEnergyCtNetto": 4.19,
+          "workingPriceTotalCtNetto": 6.4341,
           "basePriceMonthlyNetto": 5,
-          "abschlagMonthlyNetto": 3247.04
+          "abschlagMonthlyNetto": 3197.04
+        },
+        "37": {
+          "durationMonths": 37,
+          "productName": "meistro Gas (Lieferbeginn ab dem 01.01.2026)",
+          "providerName": "meistro Energie GmbH",
+          "workingPriceEnergyCtNetto": 7.28,
+          "workingPriceTotalCtNetto": 9.5241,
+          "basePriceMonthlyNetto": 7.5,
+          "abschlagMonthlyNetto": 4487.04
         },
         "48": {
           "durationMonths": 48,
           "productName": "E.ON BusinessGas fix (SLP)",
           "providerName": "E.ON Digital Technology GmbH",
-          "workingPriceEnergyCtNetto": 3.8,
-          "workingPriceTotalCtNetto": 6.0441,
+          "workingPriceEnergyCtNetto": 3.78,
+          "workingPriceTotalCtNetto": 6.0241,
           "basePriceMonthlyNetto": 5,
-          "abschlagMonthlyNetto": 3034.54
+          "abschlagMonthlyNetto": 3026.2
+        },
+        "49": {
+          "durationMonths": 49,
+          "productName": "meistro Gas (Lieferbeginn ab dem 01.01.2026)",
+          "providerName": "meistro Energie GmbH",
+          "workingPriceEnergyCtNetto": 6.59,
+          "workingPriceTotalCtNetto": 8.8341,
+          "basePriceMonthlyNetto": 7.5,
+          "abschlagMonthlyNetto": 4199.54
         },
         "60": {
           "durationMonths": 60,
           "productName": "E.ON BusinessGas fix (SLP)",
           "providerName": "E.ON Digital Technology GmbH",
-          "workingPriceEnergyCtNetto": 3.73,
-          "workingPriceTotalCtNetto": 5.9741,
+          "workingPriceEnergyCtNetto": 3.74,
+          "workingPriceTotalCtNetto": 5.9841,
           "basePriceMonthlyNetto": 5,
-          "abschlagMonthlyNetto": 3005.37
+          "abschlagMonthlyNetto": 3009.54
         }
       }
     },
@@ -231,16 +345,340 @@
       "consumptionKwh": 100000,
       "plz": "44379",
       "city": "Dortmund",
-      "checkedAt": "2026-11-08T18:51:34.096Z",
+      "checkedAt": "2026-11-11T09:54:22.888Z",
+      "bestMomentFormatted": "10:54 Uhr",
       "bestOverall": {
         "productName": "E.ON BusinessGas fix (SLP)",
         "providerName": "E.ON Digital Technology GmbH",
         "durationMonths": 60,
-        "workingPriceEnergyCtNetto": 4.55,
-        "workingPriceTotalCtNetto": 8.1671,
+        "workingPriceEnergyCtNetto": 4.56,
+        "workingPriceTotalCtNetto": 8.1771,
         "basePriceMonthlyNetto": 5,
-        "abschlagMonthlyNetto": 704.18,
-        "totalYearlyNetto": 8450.14,
+        "abschlagMonthlyNetto": 705.01,
+        "totalYearlyNetto": 8460.14,
+        "deliveryStart": "2031-01-01"
+      },
+      "bestByDuration": {
+        "12": {
+          "durationMonths": 12,
+          "productName": "E.VITA Wochenpreis Gas  (Lieferende 2027)",
+          "providerName": "EVITA",
+          "workingPriceEnergyCtNetto": 8.73,
+          "workingPriceTotalCtNetto": 12.3471,
+          "basePriceMonthlyNetto": 0,
+          "abschlagMonthlyNetto": 1047.51
+        },
+        "13": {
+          "durationMonths": 13,
+          "productName": "meistro Gas (Lieferbeginn ab dem 01.01.2026)",
+          "providerName": "meistro Energie GmbH",
+          "workingPriceEnergyCtNetto": 9.59,
+          "workingPriceTotalCtNetto": 13.2071,
+          "basePriceMonthlyNetto": 7.5,
+          "abschlagMonthlyNetto": 1126.68
+        },
+        "24": {
+          "durationMonths": 24,
+          "productName": "E.ON BusinessGas fix (SLP)",
+          "providerName": "E.ON Digital Technology GmbH",
+          "workingPriceEnergyCtNetto": 6.44,
+          "workingPriceTotalCtNetto": 10.0571,
+          "basePriceMonthlyNetto": 5,
+          "abschlagMonthlyNetto": 861.68
+        },
+        "25": {
+          "durationMonths": 25,
+          "productName": "meistro Gas (Lieferbeginn ab dem 01.01.2026)",
+          "providerName": "meistro Energie GmbH",
+          "workingPriceEnergyCtNetto": 8.28,
+          "workingPriceTotalCtNetto": 11.8971,
+          "basePriceMonthlyNetto": 7.5,
+          "abschlagMonthlyNetto": 1017.51
+        },
+        "36": {
+          "durationMonths": 36,
+          "productName": "E.ON BusinessGas fix (SLP)",
+          "providerName": "E.ON Digital Technology GmbH",
+          "workingPriceEnergyCtNetto": 5.01,
+          "workingPriceTotalCtNetto": 8.6271,
+          "basePriceMonthlyNetto": 5,
+          "abschlagMonthlyNetto": 742.51
+        },
+        "37": {
+          "durationMonths": 37,
+          "productName": "meistro Gas (Lieferbeginn ab dem 01.01.2026)",
+          "providerName": "meistro Energie GmbH",
+          "workingPriceEnergyCtNetto": 7.28,
+          "workingPriceTotalCtNetto": 10.8971,
+          "basePriceMonthlyNetto": 7.5,
+          "abschlagMonthlyNetto": 934.18
+        },
+        "48": {
+          "durationMonths": 48,
+          "productName": "E.ON BusinessGas fix (SLP)",
+          "providerName": "E.ON Digital Technology GmbH",
+          "workingPriceEnergyCtNetto": 4.6,
+          "workingPriceTotalCtNetto": 8.2171,
+          "basePriceMonthlyNetto": 5,
+          "abschlagMonthlyNetto": 708.34
+        },
+        "49": {
+          "durationMonths": 49,
+          "productName": "meistro Gas (Lieferbeginn ab dem 01.01.2026)",
+          "providerName": "meistro Energie GmbH",
+          "workingPriceEnergyCtNetto": 6.59,
+          "workingPriceTotalCtNetto": 10.2071,
+          "basePriceMonthlyNetto": 7.5,
+          "abschlagMonthlyNetto": 876.68
+        },
+        "60": {
+          "durationMonths": 60,
+          "productName": "E.ON BusinessGas fix (SLP)",
+          "providerName": "E.ON Digital Technology GmbH",
+          "workingPriceEnergyCtNetto": 4.56,
+          "workingPriceTotalCtNetto": 8.1771,
+          "basePriceMonthlyNetto": 5,
+          "abschlagMonthlyNetto": 705.01
+        }
+      }
+    }
+  },
+  "slotBestCapturedAt": "11.11.2026 um 10:54 Uhr",
+  "currentSlotId": "SLOT_1_MORNING",
+  "totalChecksCount": 134,
+  "totalEmailsSentCount": 11,
+  "currentSnapshots": {
+    "RLM_STROM": {
+      "profileKey": "RLM_STROM",
+      "label": "Gewerbestrom RLM (Lastgang)",
+      "branch": "strom",
+      "measurement": "RLM",
+      "consumptionKwh": 500000,
+      "peakLoadKw": 160,
+      "plz": "44379",
+      "city": "Dortmund",
+      "checkedAt": "2026-11-11T09:54:22.888Z",
+      "bestMomentFormatted": "10:54 Uhr",
+      "bestOverall": {
+        "productName": "E.ON BusinessStrom fix (RLM ≤999.999)",
+        "providerName": "E.ON Digital Technology GmbH",
+        "durationMonths": 60,
+        "workingPriceEnergyCtNetto": 9.54,
+        "workingPriceTotalCtNetto": 20.406,
+        "basePriceMonthlyNetto": 15,
+        "abschlagMonthlyNetto": 10084.47,
+        "totalYearlyNetto": 121013.66,
+        "deliveryStart": "2031-01-01"
+      },
+      "bestByDuration": {
+        "12": {
+          "durationMonths": 12,
+          "productName": "E.ON BusinessStrom fix (RLM ≤999.999)",
+          "providerName": "E.ON Digital Technology GmbH",
+          "workingPriceEnergyCtNetto": 15.94,
+          "workingPriceTotalCtNetto": 26.806,
+          "basePriceMonthlyNetto": 15,
+          "abschlagMonthlyNetto": 12751.14
+        },
+        "13": {
+          "durationMonths": 13,
+          "productName": "meistro Strom (Lieferbeginn ab dem 01.01.2026)",
+          "providerName": "meistro Energie GmbH",
+          "workingPriceEnergyCtNetto": 18.14,
+          "workingPriceTotalCtNetto": 29.006,
+          "basePriceMonthlyNetto": 25,
+          "abschlagMonthlyNetto": 13677.81
+        },
+        "24": {
+          "durationMonths": 24,
+          "productName": "E.ON BusinessStrom fix (RLM ≤999.999)",
+          "providerName": "E.ON Digital Technology GmbH",
+          "workingPriceEnergyCtNetto": 11.97,
+          "workingPriceTotalCtNetto": 22.836,
+          "basePriceMonthlyNetto": 15,
+          "abschlagMonthlyNetto": 11096.97
+        },
+        "25": {
+          "durationMonths": 25,
+          "productName": "meistro Strom (Lieferbeginn ab dem 01.01.2026)",
+          "providerName": "meistro Energie GmbH",
+          "workingPriceEnergyCtNetto": 15.8,
+          "workingPriceTotalCtNetto": 26.666,
+          "basePriceMonthlyNetto": 25,
+          "abschlagMonthlyNetto": 12702.81
+        },
+        "36": {
+          "durationMonths": 36,
+          "productName": "E.ON BusinessStrom fix (RLM ≤999.999)",
+          "providerName": "E.ON Digital Technology GmbH",
+          "workingPriceEnergyCtNetto": 10.58,
+          "workingPriceTotalCtNetto": 21.446,
+          "basePriceMonthlyNetto": 15,
+          "abschlagMonthlyNetto": 10517.81
+        },
+        "37": {
+          "durationMonths": 37,
+          "productName": "meistro Strom (Lieferbeginn ab dem 01.01.2026)",
+          "providerName": "meistro Energie GmbH",
+          "workingPriceEnergyCtNetto": 14.41,
+          "workingPriceTotalCtNetto": 25.276,
+          "basePriceMonthlyNetto": 25,
+          "abschlagMonthlyNetto": 12123.64
+        },
+        "48": {
+          "durationMonths": 48,
+          "productName": "E.ON BusinessStrom fix (RLM ≤999.999)",
+          "providerName": "E.ON Digital Technology GmbH",
+          "workingPriceEnergyCtNetto": 9.78,
+          "workingPriceTotalCtNetto": 20.646,
+          "basePriceMonthlyNetto": 15,
+          "abschlagMonthlyNetto": 10184.47
+        },
+        "49": {
+          "durationMonths": 49,
+          "productName": "meistro Strom (Lieferbeginn ab dem 01.01.2026)",
+          "providerName": "meistro Energie GmbH",
+          "workingPriceEnergyCtNetto": 13.4,
+          "workingPriceTotalCtNetto": 24.266,
+          "basePriceMonthlyNetto": 25,
+          "abschlagMonthlyNetto": 11702.81
+        },
+        "60": {
+          "durationMonths": 60,
+          "productName": "E.ON BusinessStrom fix (RLM ≤999.999)",
+          "providerName": "E.ON Digital Technology GmbH",
+          "workingPriceEnergyCtNetto": 9.54,
+          "workingPriceTotalCtNetto": 20.406,
+          "basePriceMonthlyNetto": 15,
+          "abschlagMonthlyNetto": 10084.47
+        }
+      }
+    },
+    "SLP_STROM": {
+      "profileKey": "SLP_STROM",
+      "label": "Gewerbestrom SLP (Standardlastprofil)",
+      "branch": "strom",
+      "measurement": "SLP",
+      "consumptionKwh": 50000,
+      "plz": "44379",
+      "city": "Dortmund",
+      "checkedAt": "2026-11-11T09:54:22.888Z",
+      "bestMomentFormatted": "10:54 Uhr",
+      "bestOverall": {
+        "productName": "E.ON BusinessStrom fix (SLP)",
+        "providerName": "E.ON Digital Technology GmbH",
+        "durationMonths": 60,
+        "workingPriceEnergyCtNetto": 11.76,
+        "workingPriceTotalCtNetto": 24.446,
+        "basePriceMonthlyNetto": 5,
+        "abschlagMonthlyNetto": 1031.88,
+        "totalYearlyNetto": 12382.5,
+        "deliveryStart": "2031-01-01"
+      },
+      "bestByDuration": {
+        "12": {
+          "durationMonths": 12,
+          "productName": "E.VITA Wochenpreis Strom (Lieferende 2027)",
+          "providerName": "EVITA",
+          "workingPriceEnergyCtNetto": 16.86,
+          "workingPriceTotalCtNetto": 29.546,
+          "basePriceMonthlyNetto": 0,
+          "abschlagMonthlyNetto": 1239.38
+        },
+        "13": {
+          "durationMonths": 13,
+          "productName": "meistro Strom (Lieferbeginn ab dem 01.01.2026)",
+          "providerName": "meistro Energie GmbH",
+          "workingPriceEnergyCtNetto": 18.14,
+          "workingPriceTotalCtNetto": 30.826,
+          "basePriceMonthlyNetto": 7.5,
+          "abschlagMonthlyNetto": 1300.21
+        },
+        "24": {
+          "durationMonths": 24,
+          "productName": "E.ON BusinessStrom fix (SLP)",
+          "providerName": "E.ON Digital Technology GmbH",
+          "workingPriceEnergyCtNetto": 14.19,
+          "workingPriceTotalCtNetto": 26.876,
+          "basePriceMonthlyNetto": 5,
+          "abschlagMonthlyNetto": 1133.13
+        },
+        "25": {
+          "durationMonths": 25,
+          "productName": "meistro Strom (Lieferbeginn ab dem 01.01.2026)",
+          "providerName": "meistro Energie GmbH",
+          "workingPriceEnergyCtNetto": 15.8,
+          "workingPriceTotalCtNetto": 28.486,
+          "basePriceMonthlyNetto": 7.5,
+          "abschlagMonthlyNetto": 1202.71
+        },
+        "36": {
+          "durationMonths": 36,
+          "productName": "E.ON BusinessStrom fix (SLP)",
+          "providerName": "E.ON Digital Technology GmbH",
+          "workingPriceEnergyCtNetto": 12.8,
+          "workingPriceTotalCtNetto": 25.486,
+          "basePriceMonthlyNetto": 5,
+          "abschlagMonthlyNetto": 1075.21
+        },
+        "37": {
+          "durationMonths": 37,
+          "productName": "meistro Strom (Lieferbeginn ab dem 01.01.2026)",
+          "providerName": "meistro Energie GmbH",
+          "workingPriceEnergyCtNetto": 14.41,
+          "workingPriceTotalCtNetto": 27.096,
+          "basePriceMonthlyNetto": 7.5,
+          "abschlagMonthlyNetto": 1144.79
+        },
+        "48": {
+          "durationMonths": 48,
+          "productName": "E.ON BusinessStrom fix (SLP)",
+          "providerName": "E.ON Digital Technology GmbH",
+          "workingPriceEnergyCtNetto": 12,
+          "workingPriceTotalCtNetto": 24.686,
+          "basePriceMonthlyNetto": 5,
+          "abschlagMonthlyNetto": 1041.88
+        },
+        "49": {
+          "durationMonths": 49,
+          "productName": "meistro Strom (Lieferbeginn ab dem 01.01.2026)",
+          "providerName": "meistro Energie GmbH",
+          "workingPriceEnergyCtNetto": 13.4,
+          "workingPriceTotalCtNetto": 26.086,
+          "basePriceMonthlyNetto": 7.5,
+          "abschlagMonthlyNetto": 1102.71
+        },
+        "60": {
+          "durationMonths": 60,
+          "productName": "E.ON BusinessStrom fix (SLP)",
+          "providerName": "E.ON Digital Technology GmbH",
+          "workingPriceEnergyCtNetto": 11.76,
+          "workingPriceTotalCtNetto": 24.446,
+          "basePriceMonthlyNetto": 5,
+          "abschlagMonthlyNetto": 1031.88
+        }
+      }
+    },
+    "RLM_GAS": {
+      "profileKey": "RLM_GAS",
+      "label": "Gewerbegas RLM (Lastgang)",
+      "branch": "gas",
+      "measurement": "RLM",
+      "consumptionKwh": 500000,
+      "peakLoadKw": 250,
+      "plz": "44379",
+      "city": "Dortmund",
+      "checkedAt": "2026-11-11T09:54:22.888Z",
+      "bestMomentFormatted": "10:54 Uhr",
+      "bestOverall": {
+        "productName": "E.ON BusinessGas fix (SLP)",
+        "providerName": "E.ON Digital Technology GmbH",
+        "durationMonths": 60,
+        "workingPriceEnergyCtNetto": 3.74,
+        "workingPriceTotalCtNetto": 5.9841,
+        "basePriceMonthlyNetto": 5,
+        "abschlagMonthlyNetto": 3009.54,
+        "totalYearlyNetto": 36114.44,
         "deliveryStart": "2031-01-01"
       },
       "bestByDuration": {
@@ -248,97 +686,238 @@
           "durationMonths": 12,
           "productName": "E.ON BusinessGas fix (SLP)",
           "providerName": "E.ON Digital Technology GmbH",
-          "workingPriceEnergyCtNetto": 9.26,
-          "workingPriceTotalCtNetto": 12.8771,
+          "workingPriceEnergyCtNetto": 8.26,
+          "workingPriceTotalCtNetto": 10.5041,
           "basePriceMonthlyNetto": 5,
-          "abschlagMonthlyNetto": 1096.68
+          "abschlagMonthlyNetto": 4892.87
+        },
+        "13": {
+          "durationMonths": 13,
+          "productName": "meistro Gas (Lieferbeginn ab dem 01.01.2026)",
+          "providerName": "meistro Energie GmbH",
+          "workingPriceEnergyCtNetto": 9.59,
+          "workingPriceTotalCtNetto": 11.8341,
+          "basePriceMonthlyNetto": 7.5,
+          "abschlagMonthlyNetto": 5449.54
         },
         "24": {
           "durationMonths": 24,
           "productName": "E.ON BusinessGas fix (SLP)",
           "providerName": "E.ON Digital Technology GmbH",
-          "workingPriceEnergyCtNetto": 6.61,
-          "workingPriceTotalCtNetto": 10.2271,
+          "workingPriceEnergyCtNetto": 5.62,
+          "workingPriceTotalCtNetto": 7.8641,
           "basePriceMonthlyNetto": 5,
-          "abschlagMonthlyNetto": 875.84
+          "abschlagMonthlyNetto": 3792.87
+        },
+        "25": {
+          "durationMonths": 25,
+          "productName": "meistro Gas (Lieferbeginn ab dem 01.01.2026)",
+          "providerName": "meistro Energie GmbH",
+          "workingPriceEnergyCtNetto": 8.28,
+          "workingPriceTotalCtNetto": 10.5241,
+          "basePriceMonthlyNetto": 7.5,
+          "abschlagMonthlyNetto": 4903.7
         },
         "36": {
           "durationMonths": 36,
           "productName": "E.ON BusinessGas fix (SLP)",
           "providerName": "E.ON Digital Technology GmbH",
-          "workingPriceEnergyCtNetto": 5.13,
-          "workingPriceTotalCtNetto": 8.7471,
+          "workingPriceEnergyCtNetto": 4.19,
+          "workingPriceTotalCtNetto": 6.4341,
           "basePriceMonthlyNetto": 5,
-          "abschlagMonthlyNetto": 752.51
+          "abschlagMonthlyNetto": 3197.04
+        },
+        "37": {
+          "durationMonths": 37,
+          "productName": "meistro Gas (Lieferbeginn ab dem 01.01.2026)",
+          "providerName": "meistro Energie GmbH",
+          "workingPriceEnergyCtNetto": 7.28,
+          "workingPriceTotalCtNetto": 9.5241,
+          "basePriceMonthlyNetto": 7.5,
+          "abschlagMonthlyNetto": 4487.04
         },
         "48": {
           "durationMonths": 48,
           "productName": "E.ON BusinessGas fix (SLP)",
           "providerName": "E.ON Digital Technology GmbH",
-          "workingPriceEnergyCtNetto": 4.62,
-          "workingPriceTotalCtNetto": 8.2371,
+          "workingPriceEnergyCtNetto": 3.78,
+          "workingPriceTotalCtNetto": 6.0241,
           "basePriceMonthlyNetto": 5,
-          "abschlagMonthlyNetto": 710.01
+          "abschlagMonthlyNetto": 3026.2
+        },
+        "49": {
+          "durationMonths": 49,
+          "productName": "meistro Gas (Lieferbeginn ab dem 01.01.2026)",
+          "providerName": "meistro Energie GmbH",
+          "workingPriceEnergyCtNetto": 6.59,
+          "workingPriceTotalCtNetto": 8.8341,
+          "basePriceMonthlyNetto": 7.5,
+          "abschlagMonthlyNetto": 4199.54
         },
         "60": {
           "durationMonths": 60,
           "productName": "E.ON BusinessGas fix (SLP)",
           "providerName": "E.ON Digital Technology GmbH",
-          "workingPriceEnergyCtNetto": 4.55,
-          "workingPriceTotalCtNetto": 8.1671,
+          "workingPriceEnergyCtNetto": 3.74,
+          "workingPriceTotalCtNetto": 5.9841,
           "basePriceMonthlyNetto": 5,
-          "abschlagMonthlyNetto": 704.18
+          "abschlagMonthlyNetto": 3009.54
+        }
+      }
+    },
+    "SLP_GAS": {
+      "profileKey": "SLP_GAS",
+      "label": "Gewerbegas SLP (Standardlastprofil)",
+      "branch": "gas",
+      "measurement": "SLP",
+      "consumptionKwh": 100000,
+      "plz": "44379",
+      "city": "Dortmund",
+      "checkedAt": "2026-11-11T09:54:22.888Z",
+      "bestMomentFormatted": "10:54 Uhr",
+      "bestOverall": {
+        "productName": "E.ON BusinessGas fix (SLP)",
+        "providerName": "E.ON Digital Technology GmbH",
+        "durationMonths": 60,
+        "workingPriceEnergyCtNetto": 4.56,
+        "workingPriceTotalCtNetto": 8.1771,
+        "basePriceMonthlyNetto": 5,
+        "abschlagMonthlyNetto": 705.01,
+        "totalYearlyNetto": 8460.14,
+        "deliveryStart": "2031-01-01"
+      },
+      "bestByDuration": {
+        "12": {
+          "durationMonths": 12,
+          "productName": "E.VITA Wochenpreis Gas  (Lieferende 2027)",
+          "providerName": "EVITA",
+          "workingPriceEnergyCtNetto": 8.73,
+          "workingPriceTotalCtNetto": 12.3471,
+          "basePriceMonthlyNetto": 0,
+          "abschlagMonthlyNetto": 1047.51
+        },
+        "13": {
+          "durationMonths": 13,
+          "productName": "meistro Gas (Lieferbeginn ab dem 01.01.2026)",
+          "providerName": "meistro Energie GmbH",
+          "workingPriceEnergyCtNetto": 9.59,
+          "workingPriceTotalCtNetto": 13.2071,
+          "basePriceMonthlyNetto": 7.5,
+          "abschlagMonthlyNetto": 1126.68
+        },
+        "24": {
+          "durationMonths": 24,
+          "productName": "E.ON BusinessGas fix (SLP)",
+          "providerName": "E.ON Digital Technology GmbH",
+          "workingPriceEnergyCtNetto": 6.44,
+          "workingPriceTotalCtNetto": 10.0571,
+          "basePriceMonthlyNetto": 5,
+          "abschlagMonthlyNetto": 861.68
+        },
+        "25": {
+          "durationMonths": 25,
+          "productName": "meistro Gas (Lieferbeginn ab dem 01.01.2026)",
+          "providerName": "meistro Energie GmbH",
+          "workingPriceEnergyCtNetto": 8.28,
+          "workingPriceTotalCtNetto": 11.8971,
+          "basePriceMonthlyNetto": 7.5,
+          "abschlagMonthlyNetto": 1017.51
+        },
+        "36": {
+          "durationMonths": 36,
+          "productName": "E.ON BusinessGas fix (SLP)",
+          "providerName": "E.ON Digital Technology GmbH",
+          "workingPriceEnergyCtNetto": 5.01,
+          "workingPriceTotalCtNetto": 8.6271,
+          "basePriceMonthlyNetto": 5,
+          "abschlagMonthlyNetto": 742.51
+        },
+        "37": {
+          "durationMonths": 37,
+          "productName": "meistro Gas (Lieferbeginn ab dem 01.01.2026)",
+          "providerName": "meistro Energie GmbH",
+          "workingPriceEnergyCtNetto": 7.28,
+          "workingPriceTotalCtNetto": 10.8971,
+          "basePriceMonthlyNetto": 7.5,
+          "abschlagMonthlyNetto": 934.18
+        },
+        "48": {
+          "durationMonths": 48,
+          "productName": "E.ON BusinessGas fix (SLP)",
+          "providerName": "E.ON Digital Technology GmbH",
+          "workingPriceEnergyCtNetto": 4.6,
+          "workingPriceTotalCtNetto": 8.2171,
+          "basePriceMonthlyNetto": 5,
+          "abschlagMonthlyNetto": 708.34
+        },
+        "49": {
+          "durationMonths": 49,
+          "productName": "meistro Gas (Lieferbeginn ab dem 01.01.2026)",
+          "providerName": "meistro Energie GmbH",
+          "workingPriceEnergyCtNetto": 6.59,
+          "workingPriceTotalCtNetto": 10.2071,
+          "basePriceMonthlyNetto": 7.5,
+          "abschlagMonthlyNetto": 876.68
+        },
+        "60": {
+          "durationMonths": 60,
+          "productName": "E.ON BusinessGas fix (SLP)",
+          "providerName": "E.ON Digital Technology GmbH",
+          "workingPriceEnergyCtNetto": 4.56,
+          "workingPriceTotalCtNetto": 8.1771,
+          "basePriceMonthlyNetto": 5,
+          "abschlagMonthlyNetto": 705.01
         }
       }
     }
   },
   "records": {
     "RLM_STROM": {
-      "dailyDate": "2026-11-08",
-      "dailyMinEnergyCt": 9.55,
-      "dailyMinAt": "2026-11-08T16:50:08.814Z",
+      "dailyDate": "2026-11-11",
+      "dailyMinEnergyCt": 9.54,
+      "dailyMinAt": "2026-11-11T08:55:07.873Z",
       "dailyMinProductName": "E.ON BusinessStrom fix (RLM ≤999.999)",
       "dailyMinProviderName": "E.ON Digital Technology GmbH",
-      "dailyMinDurationMonths": 12,
-      "allTimeMinEnergyCt": 9.55,
-      "allTimeMinAt": "2026-11-08T16:50:08.814Z",
+      "dailyMinDurationMonths": 60,
+      "allTimeMinEnergyCt": 9.54,
+      "allTimeMinAt": "2026-11-11T08:55:07.873Z",
       "allTimeMinProductName": "E.ON BusinessStrom fix (RLM ≤999.999)",
       "allTimeMinProviderName": "E.ON Digital Technology GmbH",
-      "allTimeMinDurationMonths": 12,
-      "lastEnergyCt": 9.55
+      "allTimeMinDurationMonths": 60,
+      "lastEnergyCt": 9.54
     },
     "SLP_STROM": {
-      "dailyDate": "2026-11-08",
-      "dailyMinEnergyCt": 11.77,
-      "dailyMinAt": "2026-11-08T16:50:08.814Z",
+      "dailyDate": "2026-11-11",
+      "dailyMinEnergyCt": 11.76,
+      "dailyMinAt": "2026-11-11T08:55:07.873Z",
       "dailyMinProductName": "E.ON BusinessStrom fix (SLP)",
       "dailyMinProviderName": "E.ON Digital Technology GmbH",
-      "dailyMinDurationMonths": 12,
-      "allTimeMinEnergyCt": 11.77,
-      "allTimeMinAt": "2026-11-08T16:50:08.814Z",
+      "dailyMinDurationMonths": 60,
+      "allTimeMinEnergyCt": 11.76,
+      "allTimeMinAt": "2026-11-11T08:55:07.873Z",
       "allTimeMinProductName": "E.ON BusinessStrom fix (SLP)",
       "allTimeMinProviderName": "E.ON Digital Technology GmbH",
-      "allTimeMinDurationMonths": 12,
-      "lastEnergyCt": 11.77
+      "allTimeMinDurationMonths": 60,
+      "lastEnergyCt": 11.76
     },
     "SLP_GAS": {
-      "dailyDate": "2026-11-08",
-      "dailyMinEnergyCt": 4.55,
-      "dailyMinAt": "2026-11-08T16:50:08.814Z",
+      "dailyDate": "2026-11-11",
+      "dailyMinEnergyCt": 4.56,
+      "dailyMinAt": "2026-11-11T08:55:07.873Z",
       "dailyMinProductName": "E.ON BusinessGas fix (SLP)",
       "dailyMinProviderName": "E.ON Digital Technology GmbH",
-      "dailyMinDurationMonths": 12,
+      "dailyMinDurationMonths": 60,
       "allTimeMinEnergyCt": 4.55,
       "allTimeMinAt": "2026-11-08T16:50:08.814Z",
       "allTimeMinProductName": "E.ON BusinessGas fix (SLP)",
       "allTimeMinProviderName": "E.ON Digital Technology GmbH",
       "allTimeMinDurationMonths": 12,
-      "lastEnergyCt": 4.55
+      "lastEnergyCt": 4.56
     },
     "RLM_GAS": {
-      "dailyDate": "2026-11-08",
-      "dailyMinEnergyCt": 3.73,
-      "dailyMinAt": "2026-11-08T16:51:36.657Z",
+      "dailyDate": "2026-11-11",
+      "dailyMinEnergyCt": 3.74,
+      "dailyMinAt": "2026-11-11T08:55:07.873Z",
       "dailyMinProductName": "E.ON BusinessGas fix (SLP)",
       "dailyMinProviderName": "E.ON Digital Technology GmbH",
       "dailyMinDurationMonths": 60,
@@ -347,10 +926,93 @@
       "allTimeMinProductName": "E.ON BusinessGas fix (SLP)",
       "allTimeMinProviderName": "E.ON Digital Technology GmbH",
       "allTimeMinDurationMonths": 60,
-      "lastEnergyCt": 3.73
+      "lastEnergyCt": 3.74
     }
   },
   "recentAlerts": [
+    {
+      "sentAt": "2026-11-11T09:39:22.886Z",
+      "recipientEmail": "info@energiedoc.de",
+      "slotId": "SLOT_1_MORNING",
+      "reason": "⚡ Bestmoment-Versand 1/3 Täglicher Bestmoment (06:00 – 11:00 Uhr (Bestmoment / Peak 10:30 Uhr))",
+      "subject": "⚡ [1/3 Bestpreis-Update] RLM Strom ab 9,54 ct/kWh | SLP Strom ab 11,76 ct/kWh | Gas ab 3,74 ct/kWh",
+      "highlights": []
+    },
+    {
+      "sentAt": "2026-11-10T17:02:37.943Z",
+      "recipientEmail": "info@energiedoc.de",
+      "slotId": "SLOT_3_AFTERNOON",
+      "reason": "⚡ Bestmoment-Versand 3/3 Täglicher Bestmoment (15:30 – 21:00 Uhr (Bestmoment / Peak 18:00 Uhr))",
+      "subject": "⚡ [3/3 Bestpreis-Update] RLM Strom ab 9,56 ct/kWh | SLP Strom ab 11,78 ct/kWh | Gas ab 3,74 ct/kWh",
+      "highlights": []
+    },
+    {
+      "sentAt": "2026-11-10T13:30:35.842Z",
+      "recipientEmail": "info@energiedoc.de",
+      "slotId": "SLOT_2_MIDDAY",
+      "reason": "🔥 Bestmoment-Preissenkung erkannt (2/3 Täglicher Bestmoment (11:00 – 15:30 Uhr (Bestmoment / Peak 14:30 Uhr)))",
+      "subject": "🔥 [2/3 Bestmoment-Tiefstpreis] RLM Strom ab 9,56 ct/kWh | SLP Strom ab 11,78 ct/kWh | Gas ab 3,74 ct/kWh",
+      "highlights": [
+        "🔥 NEUER TAGES-TIEFSTPREIS bei Gewerbestrom RLM (Lastgang): 9,56 ct/kWh statt bisher 9,58 ct/kWh (-0,02 ct/kWh) – E.ON BusinessStrom fix (RLM ≤999.999) (60 Monate)",
+        "🔥 NEUER TAGES-TIEFSTPREIS bei Gewerbestrom SLP (Standardlastprofil): 11,78 ct/kWh statt bisher 11,80 ct/kWh (-0,02 ct/kWh) – E.ON BusinessStrom fix (SLP) (60 Monate)"
+      ]
+    },
+    {
+      "sentAt": "2026-11-10T12:45:35.585Z",
+      "recipientEmail": "info@energiedoc.de",
+      "slotId": "SLOT_2_MIDDAY",
+      "reason": "🔥 Bestmoment-Preissenkung erkannt (2/3 Täglicher Bestmoment (11:00 – 15:30 Uhr (Bestmoment / Peak 14:30 Uhr)))",
+      "subject": "🔥 [2/3 Bestmoment-Tiefstpreis] RLM Strom ab 9,58 ct/kWh | SLP Strom ab 11,80 ct/kWh | Gas ab 3,74 ct/kWh",
+      "highlights": [
+        "📉 Preissenkung bei Gewerbegas RLM (Lastgang): 3,74 ct/kWh statt zuletzt 3,76 ct/kWh (-0,02 ct/kWh) – E.ON BusinessGas fix (SLP) (48 Monate)",
+        "📉 Preissenkung bei Gewerbegas SLP (Standardlastprofil): 4,56 ct/kWh statt zuletzt 4,58 ct/kWh (-0,02 ct/kWh) – E.ON BusinessGas fix (SLP) (48 Monate)"
+      ]
+    },
+    {
+      "sentAt": "2026-11-10T10:30:35.515Z",
+      "recipientEmail": "info@energiedoc.de",
+      "slotId": "SLOT_2_MIDDAY",
+      "reason": "🔥 Bestmoment-Preissenkung erkannt (2/3 Täglicher Bestmoment (11:00 – 15:30 Uhr (Bestmoment / Peak 14:30 Uhr)))",
+      "subject": "🔥 [2/3 Bestmoment-Tiefstpreis] RLM Strom ab 9,58 ct/kWh | SLP Strom ab 11,80 ct/kWh | Gas ab 3,75 ct/kWh",
+      "highlights": [
+        "🔥 NEUER TAGES-TIEFSTPREIS bei Gewerbestrom RLM (Lastgang): 9,58 ct/kWh statt bisher 9,72 ct/kWh (-0,14 ct/kWh) – E.ON BusinessStrom fix (RLM ≤999.999) (60 Monate)",
+        "🔥 NEUER TAGES-TIEFSTPREIS bei Gewerbestrom SLP (Standardlastprofil): 11,80 ct/kWh statt bisher 11,94 ct/kWh (-0,14 ct/kWh) – E.ON BusinessStrom fix (SLP) (60 Monate)"
+      ]
+    },
+    {
+      "sentAt": "2026-11-10T09:45:35.500Z",
+      "recipientEmail": "info@energiedoc.de",
+      "slotId": "SLOT_1_MORNING",
+      "reason": "🔥 Bestmoment-Preissenkung erkannt (1/3 Täglicher Bestmoment (06:00 – 11:00 Uhr (Bestmoment / Peak 10:30 Uhr)))",
+      "subject": "🔥 [1/3 Bestmoment-Tiefstpreis] RLM Strom ab 9,72 ct/kWh | SLP Strom ab 11,94 ct/kWh | Gas ab 3,74 ct/kWh",
+      "highlights": [
+        "📉 Preissenkung bei Gewerbegas RLM (Lastgang): 3,75 ct/kWh statt zuletzt 3,76 ct/kWh (-0,01 ct/kWh) – E.ON BusinessGas fix (SLP) (60 Monate)",
+        "📉 Preissenkung bei Gewerbegas SLP (Standardlastprofil): 4,57 ct/kWh statt zuletzt 4,58 ct/kWh (-0,01 ct/kWh) – E.ON BusinessGas fix (SLP) (60 Monate)"
+      ]
+    },
+    {
+      "sentAt": "2026-11-10T09:30:35.495Z",
+      "recipientEmail": "info@energiedoc.de",
+      "slotId": "SLOT_1_MORNING",
+      "reason": "⚡ Bestmoment-Versand 1/3 Täglicher Bestmoment (06:00 – 11:00 Uhr (Bestmoment / Peak 10:30 Uhr))",
+      "subject": "⚡ [1/3 Bestpreis-Update] RLM Strom ab 9,72 ct/kWh | SLP Strom ab 11,94 ct/kWh | Gas ab 3,74 ct/kWh",
+      "highlights": []
+    },
+    {
+      "sentAt": "2026-11-09T17:12:17.259Z",
+      "recipientEmail": "info@energiedoc.de",
+      "slotId": "SLOT_3_AFTERNOON",
+      "reason": "⚡ Bestmoment-Versand 3/3 Täglicher Bestmoment (15:30 – 21:00 Uhr (Bestmoment / Peak 18:00 Uhr))",
+      "subject": "⚡ [3/3 Bestpreis-Update] RLM Strom ab 9,68 ct/kWh | SLP Strom ab 11,90 ct/kWh | Gas ab 3,74 ct/kWh",
+      "highlights": []
+    },
+    {
+      "sentAt": "2026-11-09T05:02:49.959Z",
+      "recipientEmail": "info@energiedoc.de",
+      "reason": "Täglicher RLM & SLP Bestpreis-Report (2026-11-09)",
+      "subject": "⚡ Aktuelle Bestpreise RLM & SLP: RLM Strom ab 9,55 ct/kWh | SLP Strom ab 11,77 ct/kWh | Gas ab 3,73 ct/kWh",
+      "highlights": []
+    },
     {
       "sentAt": "2026-11-08T16:51:36.657Z",
       "recipientEmail": "info@energiedoc.de",

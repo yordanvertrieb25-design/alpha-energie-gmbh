@@ -1,0 +1,60 @@
+[
+  {
+    "offerNumber": "ANG-B2B-2026-895408",
+    "orderNumber": "AE-B2B-2026-895408",
+    "vpOrderId": "172",
+    "vpOrderNumber": null,
+    "salesNumber": 16305,
+    "partnerCode": "16305",
+    "createdAt": "2026-11-09T16:14:22.939Z",
+    "recordType": "ORDER",
+    "status": "RECEIVED",
+    "portalSource": "Partner-Webseite iFrame (VP 16305)",
+    "company": {
+      "companyName": "test",
+      "legalForm": "GmbH",
+      "salutation": "Herr",
+      "firstName": "test",
+      "lastName": "test",
+      "email": "yordan.vertrieb25@gmail.com",
+      "phone": "02314545454",
+      "iban": ""
+    },
+    "deliveryAddress": {
+      "street": "Altenrathstr.",
+      "houseNr": "11",
+      "plz": "44379",
+      "city": "Dortmund"
+    },
+    "technicalData": {
+      "branch": "strom",
+      "measurement": "SLP",
+      "consumption": 100000,
+      "peakLoad": 0,
+      "usageHours": 0,
+      "gridLayer": "LOW",
+      "deliveryStart": "2027-01-01",
+      "meterNumber": "12314564",
+      "maloId": "511111111111",
+      "currentProvider": ""
+    },
+    "tariffSelection": {
+      "tariffId": "slp-1572-12m",
+      "productId": 1572,
+      "tariffName": "E.ON BusinessStrom fix (SLP) – 12 Monate (bis 31.12.2027)",
+      "providerName": "EVITA",
+      "contractDurationMonths": 12,
+      "surchargeCt": 0.5,
+      "baseSurchargeEur": 0,
+      "workingPriceEnergyCtNetto": 17.36,
+      "workingPriceTotalCtNetto": 30.046,
+      "basePriceMonthlyNetto": 0,
+      "abschlagMonthlyNetto": 2512.13,
+      "abschlagMonthlyBrutto": 2989.43,
+      "totalYearlyNetto": 30145.5,
+      "totalYearlyBrutto": 35873.14
+    },
+    "documents": [],
+    "notes": ""
+  }
+]

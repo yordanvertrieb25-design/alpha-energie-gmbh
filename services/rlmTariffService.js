@@ -17,6 +17,94 @@ let refreshPromise = null;
 // In-memory caches for ultra-fast responses (< 350ms)
 const addressCache = new Map();
 const optionsCache = new Map();
+const supplierListCache = new Map();
+
+/**
+ * Validates an 11-digit German Market Location ID (MaLo-ID) using the official BDEW Mod-10 check digit.
+ */
+function isValidMaloId(rawMalo) {
+    const clean = String(rawMalo || '').replace(/\s+/g, '').trim();
+    if (!/^[1-9][0-9]{10}$/.test(clean)) return false;
+    let sum = 0;
+    for (let i = 0; i < 10; i++) {
+        const digit = Number(clean[i]);
+        sum += (i % 2 === 0) ? digit : digit * 2;
+    }
+    const checkDigit = (10 - (sum % 10)) % 10;
+    return checkDigit === Number(clean[10]);
+}
+
+/**
+ * Loads & caches the official Vorversorger list (`productFinder_getSupplierList`) for a productId.
+ */
+async function getPreviousSupplierList(productId = 1586) {
+    const pid = parseInt(productId, 10) || 1586;
+    const cached = supplierListCache.get(pid);
+    if (cached && (Date.now() - cached.ts) < 60 * 60 * 1000) {
+        return cached.items;
+    }
+    try {
+        const res = await vpGraphql(
+            'productFinder_getSupplierList',
+            `query productFinder_getSupplierList($productId: Int!) {
+                productFinder_getSupplierList(productId: $productId) {
+                    supplierValue
+                    supplierKey
+                }
+            }`,
+            { productId: pid }
+        );
+        const rawList = (res.data && res.data.productFinder_getSupplierList) || [];
+        const items = rawList
+            .filter(s => s && s.supplierValue && s.supplierKey && !Number.isNaN(Number(s.supplierKey)))
+            .map(s => ({
+                id: Number(s.supplierKey),
+                name: String(s.supplierValue).trim()
+            }));
+        if (items.length > 0) {
+            supplierListCache.set(pid, { ts: Date.now(), items });
+        }
+        return items;
+    } catch (err) {
+        console.warn('[RLM-API] Failed to load supplier list:', err.message);
+        return [];
+    }
+}
+
+async function searchPreviousSuppliers(productId = 1586, search = '', limit = 30) {
+    const list = await getPreviousSupplierList(productId);
+    const q = String(search || '').trim().toLowerCase();
+    const filtered = q
+        ? list.filter(item => item.name.toLowerCase().includes(q))
+        : list;
+    return filtered.slice(0, Math.min(Number(limit) || 30, 100));
+}
+
+async function resolvePreviousProviderObject(productId, rawProviderInput, fallbackCity = '') {
+    const list = await getPreviousSupplierList(productId);
+    const raw = String(rawProviderInput || '').trim();
+
+    if (raw) {
+        const lower = raw.toLowerCase();
+        const exact = list.find(s => s.name.toLowerCase() === lower);
+        if (exact) return exact;
+        const starts = list.find(s => s.name.toLowerCase().startsWith(lower));
+        if (starts) return starts;
+        const contains = list.find(s => s.name.toLowerCase().includes(lower) || lower.includes(s.name.toLowerCase()));
+        if (contains) return contains;
+    }
+
+    if (fallbackCity) {
+        const cityLower = String(fallbackCity).trim().toLowerCase();
+        const stadtwerkeMatch = list.find(
+            s => s.name.toLowerCase().includes('stadtwerke') && s.name.toLowerCase().includes(cityLower)
+        ) || list.find(s => s.name.toLowerCase().includes(cityLower));
+        if (stadtwerkeMatch) return stadtwerkeMatch;
+    }
+
+    const eonMatch = list.find(s => /e\.on energie deutschland/i.test(s.name)) || list[0];
+    return eonMatch || { id: 9900105000003, name: raw || 'E.ON Energie Deutschland GmbH' };
+}
 
 function round2(val) {
     return Math.round((Number(val) || 0) * 100) / 100;
@@ -320,21 +408,23 @@ async function vpGraphql(operationName, query, variables = {}, retried = false) 
 /**
  * Resolve city and street for a German PLZ via the RLM Portal GraphQL API (cached in memory).
  */
-async function resolveDeliveryAddress({ plz, city, street, houseNumber }) {
+async function resolveDeliveryAddress({ plz, city, street, houseNumber, lookupOnly }) {
     const cleanZip = String(plz || '44379').replace(/\D/g, '').padStart(5, '0').slice(0, 5);
     const cleanHouseNr = String(houseNumber || '1').trim() || '1';
 
     let resolvedCity = city ? String(city).trim() : '';
     let resolvedStreet = street ? String(street).trim() : '';
 
-    if (resolvedCity && resolvedStreet) {
+    if (resolvedCity && resolvedStreet && !lookupOnly) {
         return {
+            success: true,
             country: 'DE',
             zip: cleanZip,
             city: resolvedCity,
             street: resolvedStreet,
             houseNumber: cleanHouseNr,
             citiesInZip: [resolvedCity],
+            streets: [resolvedStreet],
             sampleStreets: [resolvedStreet]
         };
     }
@@ -358,11 +448,11 @@ async function resolveDeliveryAddress({ plz, city, street, houseNumber }) {
     }
 
     if (!resolvedCity) {
-        resolvedCity = citiesInZip[0] || 'Dortmund';
+        resolvedCity = citiesInZip[0] || (lookupOnly ? '' : 'Dortmund');
     }
 
     let streetsInCity = (cached && cached.city === resolvedCity && cached.streets) ? cached.streets : null;
-    if (!streetsInCity) {
+    if (!streetsInCity && resolvedCity) {
         const streetRes = await vpGraphql(
             'AddressSearchStreet',
             `query AddressSearchStreet($address: ProductFinder_addressSearchInput!, $usecase: ProductFinder_addressSearchUsecaseEnum) {
@@ -383,19 +473,24 @@ async function resolveDeliveryAddress({ plz, city, street, houseNumber }) {
             });
         }
     }
+    if (!streetsInCity) {
+        streetsInCity = [];
+    }
 
     if (!resolvedStreet) {
-        resolvedStreet = streetsInCity[0] || 'Hauptstraße';
+        resolvedStreet = streetsInCity[0] || (lookupOnly ? '' : 'Hauptstraße');
     }
 
     return {
+        success: true,
         country: 'DE',
         zip: cleanZip,
         city: resolvedCity,
         street: resolvedStreet,
         houseNumber: cleanHouseNr,
         citiesInZip,
-        sampleStreets: streetsInCity.slice(0, 50)
+        streets: streetsInCity,
+        sampleStreets: streetsInCity
     };
 }
 
@@ -598,6 +693,69 @@ async function resolveVpCommissionProfile(salesNumberInput) {
 }
 
 /**
+ * Extracts allowed payment types (`['INVOICE', 'DEBIT']` vs `['DEBIT']` / `['INVOICE']`)
+ * from a product's JSON Schema (`product.forms.schemaDefinition.properties.productPayment.properties.paymentType`).
+ */
+function extractProductPaymentConfig(product) {
+    const normalizeRawType = (raw) => {
+        const val = String(raw || '').toUpperCase().trim();
+        if (val === 'DEBIT_CHARGE' || val === 'DEBIT' || val === 'SEPA') return 'DEBIT';
+        if (val === 'INVOICE') return 'INVOICE';
+        return null;
+    };
+
+    const formList = Array.isArray(product && product.forms)
+        ? product.forms
+        : (product && product.forms && typeof product.forms === 'object' ? [product.forms] : []);
+
+    const collected = new Set();
+    for (const formEntry of formList) {
+        const schemaDef = formEntry && formEntry.schemaDefinition;
+        const ptSchema = schemaDef &&
+            schemaDef.properties &&
+            schemaDef.properties.productPayment &&
+            schemaDef.properties.productPayment.properties &&
+            schemaDef.properties.productPayment.properties.paymentType;
+        if (!ptSchema || typeof ptSchema !== 'object') continue;
+
+        if (Array.isArray(ptSchema.oneOf)) {
+            for (const opt of ptSchema.oneOf) {
+                const mapped = normalizeRawType(opt && (opt.const || opt.id || opt.value));
+                if (mapped) collected.add(mapped);
+            }
+        }
+        if (Array.isArray(ptSchema.enum)) {
+            for (const opt of ptSchema.enum) {
+                const mapped = normalizeRawType(opt);
+                if (mapped) collected.add(mapped);
+            }
+        }
+        if (ptSchema.const && collected.size === 0) {
+            const mapped = normalizeRawType(ptSchema.const);
+            if (mapped) collected.add(mapped);
+        }
+    }
+
+    // Known IBAN-only product fallback if schemaDefinition was omitted
+    if (collected.size === 0 && product && (Number(product.id) === 1135 || Number(product.id) === 1136)) {
+        collected.add('DEBIT');
+    }
+
+    const allowedPaymentTypes = [];
+    if (collected.size === 0) {
+        allowedPaymentTypes.push('INVOICE', 'DEBIT');
+    } else {
+        if (collected.has('INVOICE')) allowedPaymentTypes.push('INVOICE');
+        if (collected.has('DEBIT')) allowedPaymentTypes.push('DEBIT');
+    }
+
+    return {
+        allowedPaymentTypes,
+        ibanOnly: allowedPaymentTypes.length === 1 && allowedPaymentTypes[0] === 'DEBIT'
+    };
+}
+
+/**
  * Extract structured tariff variants from a raw RLM Portal product and combine with official network/levy calculation.
  */
 function buildTariffVariantsForProduct({
@@ -625,6 +783,7 @@ function buildTariffVariantsForProduct({
         source: 'default'
     };
     const vpCommissionRatePct = Number(vpProfile.commissionRatePct) || 80;
+    const paymentConfig = extractProductPaymentConfig(product);
     const prices = Array.isArray(product.pricesWithoutSurcharge) && product.pricesWithoutSurcharge.length > 0
         ? product.pricesWithoutSurcharge
         : (Array.isArray(product.prices) ? product.prices : []);
@@ -824,6 +983,8 @@ function buildTariffVariantsForProduct({
                 priceGuaranteeMonths: durationMonths,
                 paymentInterval,
                 abschlaegeProJahr: paymentInterval,
+                allowedPaymentTypes: paymentConfig.allowedPaymentTypes,
+                ibanOnly: paymentConfig.ibanOnly,
                 deliveryFrom,
                 deliveryTo,
                 taxRate,
@@ -1066,6 +1227,7 @@ async function calculateRlmTariffs(params = {}) {
                             surcharges { min max inputMin inputMax priceType surchargeSetting step }
                             periods { termType period periodType activeFrom activeTo endDate }
                             attributes { key value }
+                            forms { schemaDefinition }
                         }
                         priceOverview { notice totalNetto totalBrutto prices }
                     }
@@ -1590,11 +1752,37 @@ async function buildValidatedGraphqlOrderPayload(params = {}, matchedTariff = nu
     const phone = String(params.phone || params.telefon || '03641123456').trim();
     const rawMeter = String(params.meterNumber || params.zaehlernummer || '').trim();
     const meterNumber = rawMeter.length >= 3 ? rawMeter : '1ISK0012345678';
-    const rawMalo = String(params.maloId || params.marktlokationsId || '').trim();
-    const maloId = /^[0-9]{11}$/.test(rawMalo) ? rawMalo : '50658482918';
+    const rawMalo = String(params.maloId || params.marktlokationsId || '').replace(/\s+/g, '').trim();
+    const contractDurationMonths = parseInt(
+        params.contractDurationMonths || params.laufzeit || (matchedTariff && matchedTariff.contractDurationMonths) || 12,
+        10
+    ) || 12;
     const contractOrderType = params.contractOrderType === 'NEW' ? 'CHANGE_PROVIDER' : (params.contractOrderType || 'CHANGE_PROVIDER');
-    const isOffer = params.isOffer !== false;
-    const isDraft = Boolean(params.isDraft);
+
+    const rawSigningMethod = String(params.signingMethod || '').toUpperCase().trim();
+    const explicitOrderMode =
+        params.isOffer === false ||
+        String(params.mode || '').toLowerCase() === 'order' ||
+        ['DIGITAL_REMOTE', 'DIGITAL_LOCAL', 'PAPER'].includes(rawSigningMethod);
+    const isOffer = !explicitOrderMode && (params.isOffer !== false || rawSigningMethod === 'OFFER');
+
+    if (!isOffer && rawMalo.length > 0 && !isValidMaloId(rawMalo)) {
+        throw new Error('Die eingegebene Marktlokations-ID (MaLo-ID) ist ungültig (11 Ziffern inkl. gültiger Prüfziffer erforderlich). Bitte prüfen oder leer lassen.');
+    }
+    const maloId = isValidMaloId(rawMalo) ? rawMalo : null;
+
+    const hasInlineSignature = Boolean(params.signatureDataUrl && String(params.signatureDataUrl).trim().startsWith('data:image/'));
+    const signingMethod = isOffer
+        ? 'OFFER'
+        : (rawSigningMethod === 'DIGITAL_LOCAL' || hasInlineSignature
+            ? 'DIGITAL_LOCAL'
+            : (rawSigningMethod === 'PAPER' ? 'PAPER' : 'DIGITAL_REMOTE'));
+    const confirmationLinkDeliveryMethod =
+        String(params.confirmationLinkDeliveryMethod || params.deliveryMethod || 'EMAIL').toUpperCase().trim() === 'SMS'
+            ? 'SMS'
+            : 'EMAIL';
+    const isDraft = params.isDraft !== undefined ? Boolean(params.isDraft) : (signingMethod !== 'OFFER');
+    const customerMessage = String(params.notes || params.bemerkung || params.customerMessage || '').trim();
 
     const billingObj = params.billingAddress && typeof params.billingAddress === 'object' ? params.billingAddress : {};
     const billingDifferent = Boolean(
@@ -1615,21 +1803,47 @@ async function buildValidatedGraphqlOrderPayload(params = {}, matchedTariff = nu
         }
         : null;
 
-    const cleanIban = String(params.iban || '').replace(/\s+/g, '').trim();
+    const cleanIban = String(params.iban || '').replace(/\s+/g, '').toUpperCase().trim();
     const hasValidIban = cleanIban.length >= 15 && cleanIban !== 'AUF-ANFRAGE';
     const accountHolder = String(params.accountHolder || params.kontoinhaber || '').trim();
     const bankAccountHolderIsDifferent = Boolean(accountHolder && accountHolder.toLowerCase() !== companyName.toLowerCase());
+
+    const tariffAllowedPayments = Array.isArray(matchedTariff && matchedTariff.allowedPaymentTypes)
+        ? matchedTariff.allowedPaymentTypes
+        : ((productId === 1135 || productId === 1136) ? ['DEBIT'] : ['INVOICE', 'DEBIT']);
+    const tariffIbanOnly = Boolean((matchedTariff && matchedTariff.ibanOnly) || (tariffAllowedPayments.length === 1 && tariffAllowedPayments[0] === 'DEBIT'));
+    const rawRequestedPayment = String(params.paymentType || '').toUpperCase().trim();
+    const requestedPaymentType = tariffIbanOnly
+        ? 'DEBIT'
+        : (rawRequestedPayment === 'DEBIT' || rawRequestedPayment === 'DEBIT_CHARGE'
+            ? 'DEBIT'
+            : (rawRequestedPayment === 'INVOICE' ? 'INVOICE' : (hasValidIban ? 'DEBIT' : 'INVOICE')));
+
+    if (!isOffer && requestedPaymentType === 'DEBIT' && !hasValidIban) {
+        throw new Error('Für diesen Tarif ist ein gültiges SEPA-Lastschriftmandat (IBAN) erforderlich. Bitte geben Sie eine gültige IBAN ein.');
+    }
 
     const contactMediumList = [{ contactType: 'EMAIL', contactValue: email }];
     if (phone) {
         contactMediumList.push({ contactType: 'PHONE', contactValue: phone });
     }
 
+    const previousProvider = contractOrderType === 'CHANGE_PROVIDER'
+        ? await resolvePreviousProviderObject(
+            productId,
+            params.currentProvider || params.vorversorger || params.previousProviderName || '',
+            address.city
+        )
+        : null;
+
     const contractOrderData = {
         meterNumber,
-        marketLocationId: maloId,
+        ...(maloId ? { marketLocationId: maloId } : {}),
         deliveryDate: deliveryStart,
         deliveryASAP: Boolean(params.deliveryASAP),
+        contractDuration: contractDurationMonths,
+        readableContractDuration: `${contractDurationMonths} Monate`,
+        ...(previousProvider ? { previousProvider } : {}),
         loadProfile,
         loadProfileName,
         exceeds30KTwoTimesPerYear: false,
@@ -1647,7 +1861,31 @@ async function buildValidatedGraphqlOrderPayload(params = {}, matchedTariff = nu
         ...(measurement === 'RLM' ? { peakLoad, usageHours } : {})
     };
 
+    const customerConfirmation = signingMethod === 'DIGITAL_REMOTE'
+        ? {
+            signingMethod: 'DIGITAL_REMOTE',
+            signingMethod_DIGITAL_REMOTE: {
+                confirmationLinkDeliveryMethod
+            }
+        }
+        : signingMethod === 'DIGITAL_LOCAL'
+            ? {
+                signingMethod: 'DIGITAL_LOCAL',
+                signingMethod_DIGITAL_LOCAL: {}
+            }
+            : signingMethod === 'PAPER'
+                ? { signingMethod: 'PAPER' }
+                : {
+                    signingMethod: 'OFFER',
+                    signingMethod_OFFER: {
+                        confirmationLinkDeliveryMethod: 'EMAIL'
+                    }
+                };
+
+    const validatedSalutation = salutationPair.de === 'Frau' ? 'Frau' : 'Herr';
+
     const orderBase = {
+        salesNumber,
         orderBaseData: {
             contractHolder: {
                 personType: 'COMMERCIAL',
@@ -1669,7 +1907,7 @@ async function buildValidatedGraphqlOrderPayload(params = {}, matchedTariff = nu
             ...(billingAddress ? { billingAddress } : {}),
             contactPersonList: [
                 {
-                    salutation: salutationPair.gql,
+                    salutation: validatedSalutation,
                     firstName: firstName.length >= 2 ? firstName : 'Max',
                     lastName: lastName.length >= 2 ? lastName : 'Mustermann',
                     academicTitle,
@@ -1677,7 +1915,7 @@ async function buildValidatedGraphqlOrderPayload(params = {}, matchedTariff = nu
                 }
             ],
             contactMediumList,
-            productPayment: hasValidIban
+            productPayment: (requestedPaymentType === 'DEBIT' && hasValidIban)
                 ? {
                     paymentType: 'DEBIT_CHARGE',
                     paymentType_DEBIT_CHARGE: {
@@ -1692,12 +1930,7 @@ async function buildValidatedGraphqlOrderPayload(params = {}, matchedTariff = nu
                     paymentType: 'INVOICE',
                     paymentType_INVOICE: {}
                 },
-            customerConfirmation: {
-                signingMethod: 'OFFER',
-                signingMethod_OFFER: {
-                    confirmationLinkDeliveryMethod: 'EMAIL'
-                }
-            },
+            customerConfirmation,
             onlyOnlineCustomerCommunication: false
         },
         productTypeFilter: [
@@ -1726,6 +1959,7 @@ async function buildValidatedGraphqlOrderPayload(params = {}, matchedTariff = nu
                     [`productType_${productType}`]: {
                         consumption,
                         contractOrderType,
+                        ...(customerMessage ? { customerMessage } : {}),
                         additionalData: { pairList: [] },
                         surcharge: [
                             { priceType: 'WORK_PRICE', surcharge: surchargeCt },
@@ -1751,6 +1985,7 @@ async function buildValidatedGraphqlOrderPayload(params = {}, matchedTariff = nu
             usageHours,
             gridLayer,
             deliveryStart,
+            contractDurationMonths,
             productId,
             surchargeCt,
             businessSectorStr,
@@ -1759,15 +1994,21 @@ async function buildValidatedGraphqlOrderPayload(params = {}, matchedTariff = nu
             salesNumber,
             companyName,
             legalForm,
-            salutationDe: salutationPair.de,
+            salutationDe: validatedSalutation,
             firstName,
             lastName,
             dateOfBirth,
             email,
             phone,
             meterNumber,
-            maloId,
-            contractOrderType
+            maloId: maloId || '',
+            contractOrderType,
+            isOffer,
+            isDraft,
+            signingMethod,
+            confirmationLinkDeliveryMethod,
+            requestedPaymentType,
+            previousProvider
         }
     };
 }
@@ -2273,20 +2514,208 @@ async function getRlmBlankoPdfs(params = {}) {
 }
 
 /**
- * Submit an official Offer ("Angebotserstellung", isOffer: true) or Order to the RLM Portal (`vp.alpha-energie.de`)
- * via GraphQL mutation `UpdateOrderByProductOffer` / `AddOrderByProductOffer` and generate official PDFs.
+ * Fetches live customer confirmation & signature status for a specific order via `RecordService_GetOrder`.
+ */
+async function getVpOrderSigningDetails(orderId) {
+    const cleanId = String(orderId || '').trim();
+    if (!cleanId) return null;
+
+    const res = await vpGraphql(
+        'RecordService_GetOrder',
+        `query RecordService_GetOrder($orderId: ID!) {
+            getOrder(orderId: $orderId) {
+                id
+                orderNumber
+                salesNumber
+                createdAt
+                productList {
+                    id
+                    orderProductNumber
+                    status { id statusCode statusText }
+                    signatureList { fieldId signatureFieldId signature }
+                    customerConfirmation {
+                        signingMethod
+                        confirmationStatus
+                        confirmationStatusDate
+                        confirmationToken
+                        presignedDownloadUrls { url fileId }
+                        filesForReferenceObjects { id name fieldCoordinates }
+                    }
+                }
+            }
+        }`,
+        { orderId: cleanId }
+    );
+
+    const ord = res && res.data && res.data.getOrder;
+    if (!ord) return null;
+
+    const firstProd = Array.isArray(ord.productList) && ord.productList[0] ? ord.productList[0] : {};
+    const cc = firstProd.customerConfirmation || {};
+    const refFiles = Array.isArray(cc.filesForReferenceObjects) ? cc.filesForReferenceObjects : [];
+    const presigned = Array.isArray(cc.presignedDownloadUrls) ? cc.presignedDownloadUrls : [];
+    const sigList = Array.isArray(firstProd.signatureList) ? firstProd.signatureList : [];
+
+    const presignedDocuments = presigned
+        .filter(p => p && p.url)
+        .map((p, idx) => {
+            const matchedRef = refFiles.find(rf => String(rf.id) === String(p.fileId));
+            const rawLabel = matchedRef && matchedRef.name
+                ? String(matchedRef.name).split('/').pop()
+                : (idx === 0 ? 'Auftragsformular' : `Vertragsdokument_${idx + 1}`);
+            const filename = rawLabel.toLowerCase().endsWith('.pdf') ? rawLabel : `${rawLabel}.pdf`;
+            const fullUrl = String(p.url).startsWith('http')
+                ? String(p.url)
+                : `https://vp.alpha-energie.de${p.url}`;
+            return {
+                id: p.fileId || `presigned-${idx}`,
+                name: rawLabel,
+                filename,
+                type: rawLabel.toLowerCase().includes('angebot') ? 'angebot' : 'auftragsformular',
+                orderId: String(ord.id),
+                signedUrl: fullUrl,
+                url: fullUrl,
+                downloadUrl: fullUrl,
+                expiresInSeconds: 3600
+            };
+        });
+
+    return {
+        orderId: String(ord.id),
+        orderNumber: ord.orderNumber,
+        salesNumber: ord.salesNumber,
+        createdAt: ord.createdAt,
+        orderProductId: firstProd.id ? String(firstProd.id) : String(ord.id),
+        orderProductNumber: firstProd.orderProductNumber || null,
+        status: firstProd.status || null,
+        signingMethod: cc.signingMethod || null,
+        confirmationStatus: cc.confirmationStatus || 'PENDING',
+        confirmationStatusDate: cc.confirmationStatusDate || null,
+        confirmationToken: cc.confirmationToken || null,
+        pdfsReady: refFiles.length > 0,
+        filesForReferenceObjects: refFiles,
+        presignedDocuments,
+        signatureCount: sigList.length
+    };
+}
+
+/**
+ * Triggers or re-sends the official contactless signature e-mail (`resend-contactless-signature-email`)
+ * to the customer for an order in `DIGITAL_REMOTE` mode.
+ */
+async function resendVpSignatureEmail(orderId, email) {
+    const cleanOrderId = String(orderId || '').trim();
+    const cleanEmail = String(email || '').trim();
+    if (!cleanOrderId) {
+        throw new Error('Keine Auftrags-ID für den E-Mail-Versand vorhanden.');
+    }
+    if (!cleanEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cleanEmail)) {
+        throw new Error('Bitte geben Sie eine gültige Kunden-E-Mail-Adresse an.');
+    }
+
+    const startRes = await vpGraphql(
+        'InvokeWorkflowAction',
+        `mutation InvokeWorkflowAction($actionKey: String!, $input: JSON, $mode: WorkflowActionInvocationMode) {
+            invokeWorkflowAction(actionKey: $actionKey, input: $input, mode: $mode) {
+                accepted
+                executionId
+                status
+                pollAfterMs
+                resultAvailable
+                pollToken
+            }
+        }`,
+        {
+            actionKey: 'resend-contactless-signature-email',
+            input: { orderId: cleanOrderId, email: cleanEmail }
+        }
+    );
+
+    if (startRes.errors && startRes.errors.length > 0) {
+        throw new Error(startRes.errors[0].message || 'Unterschrifts-E-Mail konnte nicht ausgelöst werden.');
+    }
+
+    const wf = startRes.data && startRes.data.invokeWorkflowAction;
+    if (!wf) {
+        throw new Error('Unterschrifts-E-Mail konnte nicht gestartet werden.');
+    }
+    if (wf.status === 'FAILED' || wf.status === 'CANCELLED') {
+        throw new Error('Der Versand der Unterschrifts-E-Mail ist fehlgeschlagen.');
+    }
+    if (wf.status === 'COMPLETED' && !wf.pollToken && !wf.executionId) {
+        return { success: true, orderId: cleanOrderId, email: cleanEmail, status: 'COMPLETED' };
+    }
+
+    const pollDelay = Math.max(Number(wf.pollAfterMs) || 500, 400);
+    for (let attempt = 0; attempt < 25; attempt++) {
+        await new Promise(r => setTimeout(r, pollDelay));
+        const pollRes = await vpGraphql(
+            'WorkflowActionStatus',
+            `query WorkflowActionStatus($pollToken: String, $executionId: ID) {
+                workflowActionStatus(pollToken: $pollToken, executionId: $executionId) {
+                    executionId
+                    status
+                    errorMessage
+                    pollAfterMs
+                }
+            }`,
+            { pollToken: wf.pollToken || null, executionId: wf.executionId || null }
+        );
+        const st = pollRes.data && pollRes.data.workflowActionStatus;
+        if (!st) continue;
+        if (st.errorMessage) {
+            throw new Error(st.errorMessage);
+        }
+        if (st.status === 'COMPLETED') {
+            return { success: true, orderId: cleanOrderId, email: cleanEmail, status: 'COMPLETED' };
+        }
+        if (st.status === 'FAILED' || st.status === 'CANCELLED') {
+            throw new Error('Der Versand der Unterschrifts-E-Mail ist fehlgeschlagen.');
+        }
+    }
+
+    return { success: true, orderId: cleanOrderId, email: cleanEmail, status: 'DISPATCHED' };
+}
+
+function extractGraphqlErrorText(gqlRes) {
+    if (!gqlRes || !Array.isArray(gqlRes.errors) || gqlRes.errors.length === 0) return null;
+    const messages = [];
+    for (const err of gqlRes.errors) {
+        const extErrors = err && err.extensions && Array.isArray(err.extensions.errors) ? err.extensions.errors : [];
+        for (const sub of extErrors) {
+            if (sub && sub.message) messages.push(sub.message);
+        }
+        if (messages.length === 0 && err && err.message) {
+            messages.push(err.message);
+        }
+    }
+    return messages.filter(Boolean).join(' • ') || 'Unbekannter Validierungsfehler';
+}
+
+/**
+ * Submit an official Offer ("Angebotserstellung", isOffer: true) or Order to the RLM system (`vp.alpha-energie.de`)
+ * via `AddOrderByProductOffer`, coupled with native customer signing (`DIGITAL_REMOTE`, `DIGITAL_LOCAL`, `PAPER`, `OFFER`).
  */
 async function createVpPortalOffer(params = {}, matchedTariff = null) {
     const built = await buildValidatedGraphqlOrderPayload(params, matchedTariff);
     const { orderBase, address, meta } = built;
 
+    const signatureDataUrl = String(params.signatureDataUrl || '').trim();
+    if (!meta.isOffer && meta.signingMethod === 'DIGITAL_LOCAL' && !signatureDataUrl.startsWith('data:image/')) {
+        throw new Error('Bitte unterschreiben Sie im digitalen Unterschriftenfeld, bevor Sie den Auftrag absenden.');
+    }
+
     let vpPortalResponse = null;
     let vpOrderId = params.orderId ? String(params.orderId) : null;
     let vpOrderNumber = null;
     let vpPortalError = null;
+    let signingDetails = null;
+    let signatureCompleted = false;
+    let signatureEmailSent = false;
+
+    const shouldPrepareForSigning = ['DIGITAL_REMOTE', 'DIGITAL_LOCAL'].includes(meta.signingMethod);
 
     if (params.syncToVpPortal !== false) {
-        // First try AddOrderByProductOffer to create a dedicated order record if allowed
         if (!vpOrderId) {
             try {
                 const addRes = await vpGraphql(
@@ -2296,70 +2725,242 @@ async function createVpPortalOffer(params = {}, matchedTariff = null) {
                     }`,
                     { order: orderBase }
                 );
-                if (addRes.data && addRes.data.addOrderByProductOffer) {
+                if (addRes.data && addRes.data.addOrderByProductOffer && !addRes.data.addOrderByProductOffer.error) {
                     vpPortalResponse = addRes.data.addOrderByProductOffer;
                     vpOrderId = vpPortalResponse.id || vpPortalResponse._id || (vpPortalResponse.order && (vpPortalResponse.order.id || vpPortalResponse.order._id)) || null;
                     vpOrderNumber = vpPortalResponse.orderNumber || (vpPortalResponse.order && vpPortalResponse.order.orderNumber) || null;
-                } else if (addRes.errors && addRes.errors.length > 0) {
-                    vpPortalError = addRes.errors[0].message;
+                    if (vpOrderId) vpOrderId = String(vpOrderId);
+                } else {
+                    vpPortalError = extractGraphqlErrorText(addRes) || 'Auftrag konnte nicht angelegt werden.';
+                }
+            } catch (err) {
+                vpPortalError = err.message;
+            }
+        } else {
+            // Explicit update of an existing orderId
+            try {
+                const updateRes = await vpGraphql(
+                    'UpdateOrderByProductOffer',
+                    `mutation UpdateOrderByProductOffer($order: UpdateOrderByProductOfferOrderInput!, $skipEventSubscription: Boolean) {
+                        updateOrderByProductOffer(order: $order, skipEventSubscription: $skipEventSubscription)
+                    }`,
+                    {
+                        order: {
+                            orderId: vpOrderId,
+                            ...orderBase,
+                            prepareForSigning: shouldPrepareForSigning
+                        },
+                        skipEventSubscription: false
+                    }
+                );
+                if (updateRes.data && updateRes.data.updateOrderByProductOffer) {
+                    vpPortalResponse = updateRes.data.updateOrderByProductOffer;
+                    vpOrderId = String(vpPortalResponse.id || vpOrderId);
+                    vpOrderNumber = vpPortalResponse.orderNumber || vpOrderNumber;
+                } else {
+                    vpPortalError = extractGraphqlErrorText(updateRes);
                 }
             } catch (err) {
                 vpPortalError = err.message;
             }
         }
 
-        // Always sync reusable offer slot (or target orderId) via UpdateOrderByProductOffer so PDF generation has 100% of the customer & tariff state
-        try {
-            const targetId = String(vpOrderId || '172');
-            const updateRes = await vpGraphql(
-                'UpdateOrderByProductOffer',
-                `mutation UpdateOrderByProductOffer($order: UpdateOrderByProductOfferOrderInput!, $skipEventSubscription: Boolean) {
-                    updateOrderByProductOffer(order: $order, skipEventSubscription: $skipEventSubscription)
-                }`,
-                {
-                    order: {
-                        orderId: targetId,
-                        ...orderBase,
-                        prepareForSigning: false
-                    },
-                    skipEventSubscription: false
+        // Never silently swallow errors on a real Order submission
+        if (!meta.isOffer && !vpOrderId && vpPortalError) {
+            throw new Error(vpPortalError);
+        }
+
+        // Native RLM Signing & Finalization Coupling for Orders
+        if (vpOrderId && !meta.isOffer) {
+            if (meta.signingMethod === 'PAPER' && vpOrderNumber) {
+                const compRes = await vpGraphql(
+                    'CompleteCustomerConfirmation',
+                    `mutation CompleteCustomerConfirmation($dealNumber: ID!) {
+                        completeCustomerConfirmation(dealNumber: $dealNumber) {
+                            id
+                            orderNumber
+                            salesNumber
+                        }
+                    }`,
+                    { dealNumber: String(vpOrderNumber) }
+                );
+                if (!compRes.errors || compRes.errors.length === 0) {
+                    signatureCompleted = true;
                 }
-            );
-            if (updateRes.data && updateRes.data.updateOrderByProductOffer) {
-                vpPortalResponse = updateRes.data.updateOrderByProductOffer;
-                vpOrderId = String(vpPortalResponse.id || targetId);
-                vpOrderNumber = vpPortalResponse.orderNumber || vpOrderNumber;
-                vpPortalError = null;
-            } else if (updateRes.errors && updateRes.errors.length > 0 && !vpPortalResponse) {
-                vpPortalError = updateRes.errors[0].message;
+                signingDetails = await getVpOrderSigningDetails(vpOrderId).catch(() => null);
+            } else if (meta.signingMethod === 'DIGITAL_LOCAL') {
+                // 1. Wait for PDF signature coordinate extraction (`filesForReferenceObjects`)
+                let kickedPrepare = false;
+                for (let attempt = 0; attempt < 22; attempt++) {
+                    if (attempt > 0) {
+                        await new Promise(r => setTimeout(r, 900));
+                    }
+                    signingDetails = await getVpOrderSigningDetails(vpOrderId).catch(() => null);
+                    if (signingDetails && signingDetails.pdfsReady) {
+                        break;
+                    }
+                    if (attempt === 4 && !kickedPrepare) {
+                        kickedPrepare = true;
+                        await vpGraphql(
+                            'UpdateOrderByProductOffer',
+                            `mutation UpdateOrderByProductOffer($order: UpdateOrderByProductOfferOrderInput!, $skipEventSubscription: Boolean) {
+                                updateOrderByProductOffer(order: $order, skipEventSubscription: $skipEventSubscription)
+                            }`,
+                            {
+                                order: {
+                                    orderId: vpOrderId,
+                                    ...orderBase,
+                                    prepareForSigning: true
+                                },
+                                skipEventSubscription: false
+                            }
+                        ).catch(() => null);
+                    }
+                }
+
+                if (!signingDetails || !signingDetails.pdfsReady) {
+                    throw new Error('Die Vertragsdokumente für die digitale Unterschrift konnten nicht rechtzeitig vorbereitet werden. Bitte wählen Sie den Versand des Unterschrifts-Links per E-Mail oder versuchen Sie es erneut.');
+                }
+
+                // 2. Stamp customer signature onto every required SIGNATURE coordinate
+                const isDebit = meta.requestedPaymentType === 'DEBIT';
+                const requiredFieldIds = new Set();
+                for (const refObj of (signingDetails.filesForReferenceObjects || [])) {
+                    const coords = Array.isArray(refObj.fieldCoordinates) ? refObj.fieldCoordinates : [];
+                    for (const fc of coords) {
+                        if (!fc || fc.fieldType !== 'SIGNATURE' || !fc.fieldId) continue;
+                        const fieldNameLower = String(fc.fieldName || '').toLowerCase();
+                        const isBankSig = ['###signature_bank###', 'signature_bank'].includes(fieldNameLower);
+                        if (!isDebit && isBankSig) continue;
+                        requiredFieldIds.add(String(fc.fieldId));
+                    }
+                }
+
+                const orderProductId = signingDetails.orderProductId || vpOrderId;
+                for (const fieldId of requiredFieldIds) {
+                    const sigRes = await vpGraphql(
+                        'AddOrderProductSignature',
+                        `mutation AddOrderProductSignature($signature: RecordService_OrderProductSignatureInput!, $orderId: ID!) {
+                            addOrderProductSignature(signature: $signature, orderId: $orderId) {
+                                signatureFieldId
+                            }
+                        }`,
+                        {
+                            orderId: String(orderProductId),
+                            signature: {
+                                fieldId: String(fieldId),
+                                signature: signatureDataUrl
+                            }
+                        }
+                    );
+                    if (sigRes.errors && sigRes.errors.length > 0) {
+                        throw new Error('Unterschrift konnte nicht gespeichert werden: ' + (extractGraphqlErrorText(sigRes) || 'Fehler'));
+                    }
+                }
+
+                // 3. Finalize customer confirmation (`CompleteCustomerConfirmation`)
+                const dealNum = String(vpOrderNumber || signingDetails.orderNumber);
+                const compRes = await vpGraphql(
+                    'CompleteCustomerConfirmation',
+                    `mutation CompleteCustomerConfirmation($dealNumber: ID!) {
+                        completeCustomerConfirmation(dealNumber: $dealNumber) {
+                            id
+                            orderNumber
+                            salesNumber
+                            productList {
+                                customerConfirmation {
+                                    signingMethod
+                                    confirmationStatus
+                                    confirmationStatusDate
+                                }
+                            }
+                        }
+                    }`,
+                    { dealNumber: dealNum }
+                );
+                if (compRes.errors && compRes.errors.length > 0) {
+                    throw new Error('Auftragsabschluss nach Unterschrift fehlgeschlagen: ' + (extractGraphqlErrorText(compRes) || 'Fehler'));
+                }
+                signatureCompleted = true;
+                signingDetails = await getVpOrderSigningDetails(vpOrderId).catch(() => signingDetails);
+            } else if (meta.signingMethod === 'DIGITAL_REMOTE') {
+                // Wait briefly so confirmationToken & PDFs are initialized and customer opt-in e-mail/SMS is dispatched
+                let kickedPrepare = false;
+                for (let attempt = 0; attempt < 10; attempt++) {
+                    if (attempt > 0) {
+                        await new Promise(r => setTimeout(r, 800));
+                    }
+                    signingDetails = await getVpOrderSigningDetails(vpOrderId).catch(() => null);
+                    if (signingDetails && (signingDetails.pdfsReady || signingDetails.confirmationToken)) {
+                        break;
+                    }
+                    if (attempt === 4 && !kickedPrepare) {
+                        kickedPrepare = true;
+                        await vpGraphql(
+                            'UpdateOrderByProductOffer',
+                            `mutation UpdateOrderByProductOffer($order: UpdateOrderByProductOfferOrderInput!, $skipEventSubscription: Boolean) {
+                                updateOrderByProductOffer(order: $order, skipEventSubscription: $skipEventSubscription)
+                            }`,
+                            {
+                                order: {
+                                    orderId: vpOrderId,
+                                    ...orderBase,
+                                    prepareForSigning: true
+                                },
+                                skipEventSubscription: false
+                            }
+                        ).catch(() => null);
+                    }
+                }
+                signatureEmailSent = true;
             }
-        } catch (err) {
-            if (!vpPortalResponse) vpPortalError = err.message;
+        } else if (vpOrderId && meta.isOffer) {
+            signingDetails = await getVpOrderSigningDetails(vpOrderId).catch(() => null);
         }
     }
 
-    // Generate official PDF documents ("Angebot.pdf" & "Auftragsformular.pdf")
+    // Generate / collect official PDF documents ("Angebot.pdf" & "Auftragsformular.pdf") without mutating the created order
     let documents = [];
+    if (signingDetails && Array.isArray(signingDetails.presignedDocuments) && signingDetails.presignedDocuments.length > 0) {
+        documents = [...signingDetails.presignedDocuments];
+    }
+
     if (params.generateDocuments !== false) {
         try {
-            documents = await generateVpOrderDocuments(
+            const workflowDocs = await generateVpOrderDocuments(
                 {
                     ...params,
                     orderId: vpOrderId || '172',
                     productId: meta.productId,
                     salesNumber: meta.salesNumber,
-                    syncOrderFirst: false // already synced right above
+                    syncOrderFirst: !vpOrderId // NEVER overwrite a real newly created order!
                 },
                 matchedTariff
             );
+            if (Array.isArray(workflowDocs) && workflowDocs.length > 0) {
+                if (signatureCompleted && documents.length > 0) {
+                    // Keep the signed Auftragsformular from presignedDocuments and add Angebot.pdf from workflowDocs
+                    const extraAngebotDocs = workflowDocs.filter(d => d.type === 'angebot');
+                    documents = [...documents, ...extraAngebotDocs];
+                } else {
+                    documents = workflowDocs;
+                }
+            }
         } catch (docErr) {
             console.warn('[RLM-API] Document generation warning:', docErr.message);
         }
     }
 
     return {
-        vpOrderId: vpOrderId || '172',
-        vpOrderNumber,
+        vpOrderId: vpOrderId || null,
+        vpOrderNumber: vpOrderNumber || (signingDetails && signingDetails.orderNumber) || null,
+        salesNumber: meta.salesNumber,
+        signingMethod: meta.signingMethod,
+        confirmationLinkDeliveryMethod: meta.confirmationLinkDeliveryMethod,
+        confirmationStatus: (signingDetails && signingDetails.confirmationStatus) || (signatureCompleted ? 'ACCEPTED' : 'PENDING'),
+        confirmationToken: (signingDetails && signingDetails.confirmationToken) || null,
+        signatureCompleted,
+        signatureEmailSent,
         vpPortalResponse,
         vpPortalError,
         documents,
@@ -2424,10 +3025,13 @@ module.exports = {
     calculateTariffs: calculateRlmTariffs,
     resolveVpCommissionProfile,
     resolveDeliveryAddress,
-    lookupAddressOptions: (plz, branch, cityId) => resolveDeliveryAddress({ plz, branch, cityId }),
+    lookupAddressOptions: (plz, branch, city) => resolveDeliveryAddress({ plz, branch, city, lookupOnly: true }),
     getRlmPortalOptions,
     getPortalFilterOptions: getRlmPortalOptions,
+    searchPreviousSuppliers,
     createVpPortalOffer,
+    getVpOrderSigningDetails,
+    resendVpSignatureEmail,
     syncVpOrderForPdfGeneration,
     generateVpOrderDocuments,
     generateVpPortalOrderDocuments: generateVpOrderDocuments,

@@ -1,10 +1,10 @@
 {
-  "updatedAt": "2026-11-08T18:31:34.371Z",
+  "updatedAt": "2026-11-11T09:30:08.237Z",
   "cookies": {
-    "fe_typo_user": "44fab58d5ccd21515975c86824b2105f",
-    "PHPSESSID": "i3d4ihck9cent0o9u95rq7g090",
-    "session": "dcZBc-1PrZHxCmZDDxkJvGEYa_fmIbXdo_UYjILgxj8",
-    "refresh_token": "u2JwirW2jNCWto3P6O2d5PcTp8A0YMiuao-rVEvF92OuMT1BteD047l93MxLuQwv",
+    "fe_typo_user": "cce2ab4e2780a145250e5debcce41e39",
+    "PHPSESSID": "lc7kdpi4ea0ghfh3td5k2lrjh5",
+    "session": "oy7sCvkX1AOTnEnkQ6s89OPxtunfMzwox0CVm16bx8U",
+    "refresh_token": "yiWCuKsME8xauUZHYnL7yoFwVIMHgdH8woh60W3xV0oBrXotHh0ZqZUcZrokwQGe",
     "feature_flag": "productfinder-energy-application"
   }
 }
