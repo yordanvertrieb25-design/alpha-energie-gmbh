@@ -82,15 +82,16 @@ document.addEventListener("DOMContentLoaded", async () => {
         const refFromUrl = urlParams.get('ref') || urlParams.get('partner') || urlParams.get('refCode') || urlParams.get('aff') || urlParams.get('vp');
         if (refFromUrl) {
             const isHomePage = window.location.pathname === '/' || window.location.pathname.endsWith('/index.html') || window.location.pathname === '';
+            const isPartnerPage = window.location.pathname === '/partner' || window.location.pathname === '/partner/' || window.location.pathname.endsWith('/partner.html');
             const wantsStammdaten = urlParams.get('redirect') === 'stammdaten' || urlParams.get('form') === 'stammdaten' || urlParams.get('mode') === 'recruiting';
             const wantsTarife = urlParams.get('target') === 'tarife' || urlParams.get('mode') === 'tarife';
-            if (isHomePage && wantsStammdaten) {
+            if ((isHomePage || isPartnerPage) && wantsStammdaten) {
                 window.location.href = `stammdaten.html?ref=${encodeURIComponent(refFromUrl)}`;
                 return;
             }
-            if (isHomePage && wantsTarife) {
+            if (isPartnerPage && wantsTarife) {
                 const subParam = urlParams.get('subid') || urlParams.get('sub_id') || '';
-                window.location.href = `/versorger?ref=${encodeURIComponent(refFromUrl)}${subParam ? '&subid=' + encodeURIComponent(subParam) : ''}`;
+                window.location.href = `/?ref=${encodeURIComponent(refFromUrl)}${subParam ? '&subid=' + encodeURIComponent(subParam) : ''}#rechner`;
                 return;
             }
         }
@@ -2362,7 +2363,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         // Two-way sync: Clicking 3D HUD mode buttons or [data-switch-branch] CTAs switches calculator tab
         document.addEventListener('click', (e) => {
-            const tarifeLink = e.target.closest('a[href="#tarife"], a[href="versorger.html#tarife"]');
+            const tarifeLink = e.target.closest('a[href="#tarife"], a[href="/#tarife"], a[href="versorger.html#tarife"]');
             if (tarifeLink) {
                 const tarifeSection = document.getElementById('tarife');
                 const rechnerTarget = document.getElementById('rechner') || document.getElementById('tarifrechner');
@@ -2559,10 +2560,10 @@ document.addEventListener("DOMContentLoaded", async () => {
             document.querySelectorAll('[data-subpage-calc-link]').forEach(link => {
                 const br = link.getAttribute('data-subpage-calc-link') || 'strom';
                 link.href = br === 'gas'
-                    ? 'versorger.html?branch=gas#rechner'
+                    ? '/?branch=gas#rechner'
                     : (br === 'waerme'
-                        ? 'versorger.html?branch=waerme#rechner'
-                        : (br === 'ladestrom' ? 'versorger.html?branch=ladestrom#rechner' : 'versorger.html#rechner'));
+                        ? '/?branch=waerme#rechner'
+                        : (br === 'ladestrom' ? '/?branch=ladestrom#rechner' : '/#rechner'));
             });
         }
 
@@ -2578,7 +2579,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                         el.style.fontSize = '1.75rem';
                     });
                     document.querySelectorAll(`[data-subpage-calc-link="${subBranch}"]`).forEach(link => {
-                        link.href = `versorger.html?plz=${clean}&branch=${subBranch}#rechner`;
+                        link.href = `/?plz=${clean}&branch=${subBranch}#rechner`;
                     });
                     syncLiveFirstconCalculation(clean, subDefaultKwh, subBranch);
                 } else {
@@ -2606,7 +2607,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                         el.style.fontSize = '1.75rem';
                     });
                     document.querySelectorAll(`[data-subpage-calc-link="${subBranch}"]`).forEach(link => {
-                        link.href = `versorger.html?plz=${clean}&branch=${subBranch}#rechner`;
+                        link.href = `/?plz=${clean}&branch=${subBranch}#rechner`;
                     });
                     syncLiveFirstconCalculation(clean, subDefaultKwh, subBranch);
                 } else {

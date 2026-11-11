@@ -47,6 +47,7 @@
             nav_contact: 'Contact',
             nav_btn_calc: 'Calculate Tariff',
             nav_btn_partner: 'Become a Partner',
+            nav_btn_partner_page: 'Partner Page',
 
             // Hero
             hero_tag: 'Nationwide Energy Provider',
@@ -694,6 +695,7 @@
             nav_contact: 'İletişim',
             nav_btn_calc: 'Tarife Hesapla',
             nav_btn_partner: 'İş Ortağı Olun',
+            nav_btn_partner_page: 'İş Ortağı Sayfası',
 
             // Hero
             hero_tag: 'Almanya Genelinde %100 Yeşil Elektrik ve Enerji Sağlayıcısı',
@@ -1341,6 +1343,7 @@
             nav_contact: 'اتصل بنا',
             nav_btn_calc: 'احسب التعريفة',
             nav_btn_partner: 'كن شريكاً',
+            nav_btn_partner_page: 'صفحة الشركاء',
 
             // Hero
             hero_tag: 'مزود الكهرباء الخضراء والطاقة في جميع أنحاء ألمانيا',
@@ -1985,7 +1988,8 @@
         { selector: '#main-nav .dropdown a[href="karriere.html"]', key: 'nav_careers' },
         { selector: '#main-nav .dropdown a[href="kontakt.html"]', key: 'nav_contact' },
         { selector: '.header-actions a[href="#rechner"], .header-actions a[href="/#rechner"]', key: 'nav_btn_calc' },
-        { selector: '.header-actions a[href="partner-werden.html"], .header-actions a[href="/"]', key: 'nav_btn_partner' },
+        { selector: '.header-actions a[href="partner-werden.html"]', key: 'nav_btn_partner' },
+        { selector: '.header-actions a[href="/partner"], #main-nav .dropdown a[href="/partner"], .octo-mobile-only-nav a[href="/partner"]', key: 'nav_btn_partner_page' },
 
         // Hero
         { selector: '.hero-versorger-content .versorger-tag', key: 'hero_tag', hasSvgPrefix: true },
@@ -2336,7 +2340,7 @@
         {"selector":"#main-nav .nav-list > li:nth-child(2) .dropdown li:nth-child(1) a","key":"nav_dd_gas_klima"},
         {"selector":"#main-nav .nav-list > li:nth-child(2) .dropdown li:nth-child(2) a","key":"nav_dd_gas_overview"},
         {"selector":"#main-nav .nav-list > li:nth-child(2) .dropdown li:nth-child(3) a","key":"nav_dd_live_calc"},
-        {"selector":".header-actions a[href*=\"versorger.html#rechner\"]","key":"nav_btn_calc"},
+        {"selector":".header-actions a[href*=\"#rechner\"]","key":"nav_btn_calc"},
         {"selector":".header-actions a[href=\"vertriebspartner-portal.html\"], .header-actions a[href=\"https://vp.alpha-energie.de\"]","key":"nav_btn_login","hasSvgPrefix":true},
         {"selector":"h1.octo-hero-h1.hero-versorger-title","key":"octo_hero_h1","isHtml":true},
         {"selector":".octo-stage-overlay-pill > div > div:nth-child(1), .octo-stage-overlay-pill > span:nth-child(1)","key":"octo_stage_pill_1"},

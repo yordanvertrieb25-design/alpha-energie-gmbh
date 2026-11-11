@@ -67,7 +67,7 @@ app.use((req, res, next) => {
         const lowerPath = req.path.toLowerCase();
         const cleanPath = lowerPath.replace(/\.html$/, '');
         const isHtml = lowerPath.endsWith('.html');
-        const isTargetPage = ['/index', '/vertriebspartner', '/agenturen', '/impressum', '/vp', '/versorger'].includes(cleanPath);
+        const isTargetPage = ['/index', '/partner', '/vertriebspartner', '/agenturen', '/impressum', '/vp', '/versorger'].includes(cleanPath);
         const isSitemapOrRobots = lowerPath === '/robots.txt' || lowerPath === '/sitemap.xml' || lowerPath.startsWith('/sitemap');
 
         if (isHtml || isTargetPage || isSitemapOrRobots) {
@@ -137,12 +137,26 @@ app.get(['/erdgas', '/erdgas.html'], (req, res) => {
     res.sendFile(path.join(__dirname, 'erdgas.html'));
 });
 
-// Dedicated route for /versorger (must be before express.static with extensions: ['html'])
-app.get(['/versorger', '/versorger.html'], (req, res) => {
+// Dedicated route for Startseite / (Versorger-Hauptseite)
+app.get(['/', '/index.html'], (req, res) => {
     res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
     res.setHeader('Pragma', 'no-cache');
     res.setHeader('Expires', '0');
-    res.sendFile(path.join(__dirname, 'versorger.html'));
+    res.sendFile(path.join(__dirname, 'index.html'));
+});
+
+// Dedicated route for /partner (B2B- & Vertriebspartner-Plattform)
+app.get(['/partner', '/partner/', '/partner.html'], (req, res) => {
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
+    res.sendFile(path.join(__dirname, 'partner.html'));
+});
+
+// Redirect legacy /versorger and /versorger.html to Startseite / (preserving query params e.g. ?ref=...)
+app.get(['/versorger', '/versorger/', '/versorger.html'], (req, res) => {
+    const query = req.url.includes('?') ? req.url.slice(req.url.indexOf('?')) : '';
+    return res.redirect(301, `/${query}`);
 });
 
 // Dedicated route for /vp (Vertriebspartner-Portal, Versorger-Affiliate-Cockpit & Abrechnungstool)

@@ -9656,3 +9656,9 @@ video::-internal-media-controls-overlay-cast-button {
     width: 0 !important;
     height: 0 !important;
 }
+
+/* Show Zur Partner-Seite inside mobile hamburger menu only (Desktop shows it in .octo-header-right) */
+html body #main-header.octo-header .octo-mobile-only-nav { display: none !important; }
+@media (max-width: 1024px) {
+    html body #main-header.octo-header .octo-mobile-only-nav { display: block !important; }
+}

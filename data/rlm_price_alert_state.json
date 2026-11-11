@@ -9,8 +9,8 @@
   "minDropThresholdCt": 0.01,
   "plz": "44379",
   "city": "Dortmund",
-  "lastCheckedAt": "2026-11-11T14:27:15.462Z",
-  "lastCheckDurationMs": 3368,
+  "lastCheckedAt": "2026-11-11T14:41:30.462Z",
+  "lastCheckDurationMs": 2672,
   "lastEmailSentAt": "2026-11-11T13:36:02.697Z",
   "lastEmailSubject": "⚡ [2/3 Bestpreis-Update] RLM Strom ab 9,54 ct/kWh | SLP Strom ab 11,76 ct/kWh | Gas ab 3,74 ct/kWh",
   "lastEmailReason": "⚡ Bestmoment-Versand 2/3 Täglicher Bestmoment (11:00 – 15:30 Uhr (Bestmoment / Peak 14:30 Uhr))",
@@ -30,8 +30,8 @@
       "peakLoadKw": 160,
       "plz": "44379",
       "city": "Dortmund",
-      "checkedAt": "2026-11-11T14:27:15.462Z",
-      "bestMomentFormatted": "15:27 Uhr",
+      "checkedAt": "2026-11-11T14:41:30.462Z",
+      "bestMomentFormatted": "15:41 Uhr",
       "bestOverall": {
         "productName": "E.ON BusinessStrom fix (RLM ≤999.999)",
         "providerName": "E.ON Digital Technology GmbH",
@@ -135,8 +135,8 @@
       "consumptionKwh": 50000,
       "plz": "44379",
       "city": "Dortmund",
-      "checkedAt": "2026-11-11T14:27:15.462Z",
-      "bestMomentFormatted": "15:27 Uhr",
+      "checkedAt": "2026-11-11T14:41:30.462Z",
+      "bestMomentFormatted": "15:41 Uhr",
       "bestOverall": {
         "productName": "E.ON BusinessStrom fix (SLP)",
         "providerName": "E.ON Digital Technology GmbH",
@@ -241,8 +241,8 @@
       "peakLoadKw": 250,
       "plz": "44379",
       "city": "Dortmund",
-      "checkedAt": "2026-11-11T14:27:15.462Z",
-      "bestMomentFormatted": "15:27 Uhr",
+      "checkedAt": "2026-11-11T14:41:30.462Z",
+      "bestMomentFormatted": "15:41 Uhr",
       "bestOverall": {
         "productName": "E.ON BusinessGas fix (SLP)",
         "providerName": "E.ON Digital Technology GmbH",
@@ -346,8 +346,8 @@
       "consumptionKwh": 100000,
       "plz": "44379",
       "city": "Dortmund",
-      "checkedAt": "2026-11-11T14:27:15.462Z",
-      "bestMomentFormatted": "15:27 Uhr",
+      "checkedAt": "2026-11-11T14:41:30.462Z",
+      "bestMomentFormatted": "15:41 Uhr",
       "bestOverall": {
         "productName": "E.ON BusinessGas fix (SLP)",
         "providerName": "E.ON Digital Technology GmbH",
@@ -444,9 +444,9 @@
       }
     }
   },
-  "slotBestCapturedAt": "11.11.2026 um 15:27 Uhr",
-  "currentSlotId": "SLOT_2_MIDDAY",
-  "totalChecksCount": 154,
+  "slotBestCapturedAt": "11.11.2026 um 15:41 Uhr",
+  "currentSlotId": "SLOT_3_AFTERNOON",
+  "totalChecksCount": 155,
   "totalEmailsSentCount": 12,
   "currentSnapshots": {
     "RLM_STROM": {
@@ -458,8 +458,8 @@
       "peakLoadKw": 160,
       "plz": "44379",
       "city": "Dortmund",
-      "checkedAt": "2026-11-11T14:27:15.462Z",
-      "bestMomentFormatted": "15:27 Uhr",
+      "checkedAt": "2026-11-11T14:41:30.462Z",
+      "bestMomentFormatted": "15:41 Uhr",
       "bestOverall": {
         "productName": "E.ON BusinessStrom fix (RLM ≤999.999)",
         "providerName": "E.ON Digital Technology GmbH",
@@ -563,8 +563,8 @@
       "consumptionKwh": 50000,
       "plz": "44379",
       "city": "Dortmund",
-      "checkedAt": "2026-11-11T14:27:15.462Z",
-      "bestMomentFormatted": "15:27 Uhr",
+      "checkedAt": "2026-11-11T14:41:30.462Z",
+      "bestMomentFormatted": "15:41 Uhr",
       "bestOverall": {
         "productName": "E.ON BusinessStrom fix (SLP)",
         "providerName": "E.ON Digital Technology GmbH",
@@ -669,8 +669,8 @@
       "peakLoadKw": 250,
       "plz": "44379",
       "city": "Dortmund",
-      "checkedAt": "2026-11-11T14:27:15.462Z",
-      "bestMomentFormatted": "15:27 Uhr",
+      "checkedAt": "2026-11-11T14:41:30.462Z",
+      "bestMomentFormatted": "15:41 Uhr",
       "bestOverall": {
         "productName": "E.ON BusinessGas fix (SLP)",
         "providerName": "E.ON Digital Technology GmbH",
@@ -774,8 +774,8 @@
       "consumptionKwh": 100000,
       "plz": "44379",
       "city": "Dortmund",
-      "checkedAt": "2026-11-11T14:27:15.462Z",
-      "bestMomentFormatted": "15:27 Uhr",
+      "checkedAt": "2026-11-11T14:41:30.462Z",
+      "bestMomentFormatted": "15:41 Uhr",
       "bestOverall": {
         "productName": "E.ON BusinessGas fix (SLP)",
         "providerName": "E.ON Digital Technology GmbH",
