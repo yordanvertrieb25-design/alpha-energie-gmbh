@@ -855,9 +855,10 @@ h3 { font-size: 1.5rem; }
 /* Timeline Scroll Zeitraffer Section */
 .timeline-scroll-wrapper {
     display: flex;
+    align-items: flex-start;
     gap: 2.5rem;
     max-width: 100%;
-    overflow: hidden;
+    overflow: visible;
     position: relative;
     margin-top: 2rem;
 }
@@ -865,8 +866,9 @@ h3 { font-size: 1.5rem; }
 .timeline-sticky-year {
     position: -webkit-sticky;
     position: sticky;
-    top: 150px;
-    height: 300px;
+    top: calc(var(--sticky-header-height, 85px) + 3.5rem);
+    min-height: 280px;
+    padding: 1rem 0;
     flex: 0 0 28%;
     max-width: 28%;
     display: flex;
@@ -884,10 +886,11 @@ h3 { font-size: 1.5rem; }
 }
 
 #timeline-current-year {
-    font-size: 6rem;
+    font-size: clamp(3.2rem, 5.2vw, 5.6rem);
     font-weight: 700;
     color: var(--accent-orange);
     line-height: 1;
+    white-space: nowrap;
     font-family: var(--font-display);
     transition: transform 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.15s ease;
     text-shadow: 0 10px 30px rgba(239, 138, 0, 0.15);
@@ -927,6 +930,10 @@ h3 { font-size: 1.5rem; }
     transform: translateY(20px);
 }
 
+.milestone-block:last-child {
+    margin-bottom: 2rem;
+}
+
 .milestone-block.active {
     border-left-color: var(--accent-orange);
     opacity: 1;
@@ -949,37 +956,61 @@ h3 { font-size: 1.5rem; }
 @media (max-width: 768px) {
     .timeline-scroll-wrapper {
         flex-direction: column;
-        gap: 2rem;
+        gap: 1.25rem;
+        overflow: visible;
     }
-    
+
     .timeline-sticky-year {
-        position: relative;
-        top: 0;
+        position: -webkit-sticky;
+        position: sticky;
+        top: var(--sticky-header-height, 67px);
+        min-height: 0;
         height: auto;
-        flex: 1 1 100%;
+        width: 100%;
+        flex: 0 0 auto;
         max-width: 100%;
-        margin-bottom: 1.5rem;
+        padding: 0.75rem 1rem;
+        margin-bottom: 0.5rem;
+        background: rgba(255, 255, 255, 0.94);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        border-bottom: 1px solid rgba(239, 138, 0, 0.14);
+        z-index: 25;
     }
-    
+
+    .sticky-year-inner {
+        flex-direction: row;
+        gap: 0.9rem;
+        justify-content: center;
+        align-items: center;
+    }
+
     #timeline-current-year {
-        font-size: 4rem;
+        font-size: 2.5rem;
     }
-    
+
     .timeline-progress-bar {
-        display: none;
+        display: block;
+        width: 4px;
+        height: 34px;
+        margin-top: 0;
     }
-    
+
     .timeline-milestones {
         flex: 1 1 100%;
         max-width: 100%;
     }
-    
+
     .milestone-block {
         padding: 1.5rem 0 1.5rem 2rem;
         margin-bottom: 2rem;
-        opacity: 1 !important;
-        transform: none !important;
-        border-left-color: var(--accent-orange) !important;
+        opacity: 0.55;
+        transform: none;
+    }
+
+    .milestone-block.active {
+        opacity: 1;
+        border-left-color: var(--accent-orange);
     }
 }
 

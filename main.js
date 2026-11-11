@@ -156,6 +156,19 @@ document.addEventListener("DOMContentLoaded", async () => {
         });
     };
 
+    // Sync sticky header height CSS variable for sticky sub-elements (e.g. Zeitraffer year)
+    const syncStickyHeaderHeight = () => {
+        const mainHeader = document.getElementById('main-header');
+        if (mainHeader) {
+            const headerHeight = Math.ceil(mainHeader.getBoundingClientRect().height);
+            if (headerHeight > 0) {
+                document.documentElement.style.setProperty('--sticky-header-height', `${headerHeight}px`);
+            }
+        }
+    };
+    syncStickyHeaderHeight();
+    window.addEventListener('resize', syncStickyHeaderHeight, { passive: true });
+
     // Load GSAP & ScrollTrigger dynamically without blocking synchronous UI setup
     loadScript("https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js")
         .then(() => loadScript("https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"))
@@ -165,7 +178,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                 if (window.innerWidth > 768) {
                     initGSAPAnimations();
                 } else {
-                    // Mobile fallback: ensure elements are visible
+                    // Mobile fallback: ensure elements are visible, while keeping sticky Zeitraffer active
                     const animateElements = document.querySelectorAll(
                         ".card, .feature-box, .news-card, .section-title, .section-text, .section-subtitle, .about-content, .hero-content"
                     );
@@ -173,6 +186,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                         el.style.opacity = '1';
                         el.style.transform = 'none';
                     });
+                    initGSAPTimelineZeitraffer();
                 }
             }
         })
@@ -284,6 +298,10 @@ document.addEventListener("DOMContentLoaded", async () => {
         });
 
         // Vision Section Scroll Zeitraffer Animation
+        initGSAPTimelineZeitraffer();
+    }
+
+    function initGSAPTimelineZeitraffer() {
         const aboutSection = document.getElementById("about");
         const timelineWrapper = document.querySelector('.timeline-scroll-wrapper');
         const milestones = document.querySelectorAll('.milestone-block');
@@ -291,6 +309,8 @@ document.addEventListener("DOMContentLoaded", async () => {
         const progressFill = document.getElementById('timeline-progress-fill');
 
         if (aboutSection && timelineWrapper && milestones.length) {
+            milestones[0].classList.add('active');
+
             // Fill vertical timeline line as you scroll
             gsap.to(progressFill, {
                 height: "100%",
@@ -301,40 +321,6 @@ document.addEventListener("DOMContentLoaded", async () => {
                     end: "bottom 55%",
                     scrub: true
                 }
-            });
-
-            // Milestone state triggers and fade-reveals
-            milestones.forEach((block, index) => {
-                const year = block.getAttribute('data-year');
-                const isLast = index === milestones.length - 1;
-                
-                ScrollTrigger.create({
-                    trigger: block,
-                    start: "top 55%",
-                    end: "bottom 45%",
-                    onEnter: () => updateActiveMilestone(block, year),
-                    onEnterBack: () => updateActiveMilestone(block, year),
-                    onLeave: () => {
-                        // Let it stay active when scrolling past
-                    },
-                    onLeaveBack: () => block.classList.remove('active')
-                });
-
-                gsap.fromTo(block.children,
-                    { opacity: 0.4, x: -10 },
-                    {
-                        opacity: 1,
-                        x: 0,
-                        duration: 0.5,
-                        ease: "power1.out",
-                        scrollTrigger: {
-                            trigger: block,
-                            start: "top 65%",
-                            end: "bottom 35%",
-                            toggleActions: "play none none reverse"
-                        }
-                    }
-                );
             });
 
             let yearTimeline;
@@ -350,6 +336,48 @@ document.addEventListener("DOMContentLoaded", async () => {
                         .to(currentYearEl, { scale: 1, opacity: 1, duration: 0.25, ease: "back.out(1.7)" });
                 }
             }
+
+            // Milestone state triggers and fade-reveals
+            milestones.forEach((block, index) => {
+                const year = block.getAttribute('data-year');
+                
+                ScrollTrigger.create({
+                    trigger: block,
+                    start: "top 55%",
+                    end: "bottom 45%",
+                    onEnter: () => updateActiveMilestone(block, year),
+                    onEnterBack: () => updateActiveMilestone(block, year),
+                    onLeave: () => {
+                        // Let it stay active when scrolling past
+                    },
+                    onLeaveBack: () => {
+                        if (index > 0) {
+                            const prevBlock = milestones[index - 1];
+                            updateActiveMilestone(prevBlock, prevBlock.getAttribute('data-year'));
+                        } else {
+                            updateActiveMilestone(milestones[0], year);
+                        }
+                    }
+                });
+
+                if (window.innerWidth > 768) {
+                    gsap.fromTo(block.children,
+                        { opacity: 0.4, x: -10 },
+                        {
+                            opacity: 1,
+                            x: 0,
+                            duration: 0.5,
+                            ease: "power1.out",
+                            scrollTrigger: {
+                                trigger: block,
+                                start: "top 65%",
+                                end: "bottom 35%",
+                                toggleActions: "play none none reverse"
+                            }
+                        }
+                    );
+                }
+            });
         }
     }
 
