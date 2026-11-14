@@ -108,7 +108,7 @@ test.describe('Alpha Energie 3D Versorger Three.js Quality & Functional Suite', 
         await expect(hudGasBtn).toHaveClass(/active/);
         await expect(hudGasBtn).toHaveAttribute('aria-pressed', 'true');
         await expect(hudWaermeBtn).not.toHaveClass(/active/);
-        await expect(modeBadge).toContainText('Ökogas');
+        await expect(modeBadge).toContainText('Erdgas');
 
         const modeAfterGas = await page.evaluate(() => {
             const scene = window.AlphaThree.getScene('#alpha-versorger-canvas');

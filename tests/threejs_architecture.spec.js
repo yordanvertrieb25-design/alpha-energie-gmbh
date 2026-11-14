@@ -161,7 +161,7 @@ test.describe('Alpha Energie Three.js Architecture & Engine', () => {
             return scene ? scene.currentMode : null;
         });
         expect(gasMode).toBe('gas');
-        await expect(modeLabel).toContainText('Ökogas');
+        await expect(modeLabel).toContainText('Erdgas');
 
         // 4. Test dynamic consumption scaling
         await page.evaluate(() => {

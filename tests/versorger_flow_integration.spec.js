@@ -112,7 +112,7 @@ test.describe('Alpha Energie 3D Versorger Flow Integration & Two-Way Sync Suite'
 
         const hudGasTab = page.locator('#alpha-versorger-canvas .hud-tab[data-mode="gas"]');
         await expect(hudGasTab).toHaveClass(/active/);
-        await expect(modeBadge).toContainText('Ökogas');
+        await expect(modeBadge).toContainText('Erdgas');
 
         // 4. Click calculator tab "Ökostrom"
         const calcStromTab = page.locator('.calc-tab-btn[data-branch="strom"]');

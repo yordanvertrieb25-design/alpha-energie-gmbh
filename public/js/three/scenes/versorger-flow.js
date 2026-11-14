@@ -120,7 +120,7 @@
                 },
                 gas: {
                     name: 'gas',
-                    label: 'Ökogas (100% CO2-Kompensiert)',
+                    label: 'Erdgas mit freiwilligem Klimaschutzbeitrag',
                     primary: 0x00B0FF,       // Azure Gas Flame Blue
                     secondary: 0xF59E0B,     // Biogas Warm Gold
                     accent: 0x00E676,        // Certified Eco Green
